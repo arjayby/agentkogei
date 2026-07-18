@@ -1,0 +1,22 @@
+{
+	"name": "@agentkogei/design-packs",
+	"type": "module",
+	"bin": {
+		"agentkogei-validate-pack": "./src/cli.ts"
+	},
+	"exports": {
+		".": "./src/index.ts"
+	},
+	"scripts": {
+		"check-types": "tsc --noEmit",
+		"test": "bun test",
+		"validate": "bun run src/cli.ts"
+	},
+	"dependencies": {
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@agentkogei/config": "workspace:*",
+		"typescript": "catalog:"
+	}
+}

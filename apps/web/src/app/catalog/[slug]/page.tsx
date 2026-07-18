@@ -48,11 +48,19 @@ export default async function PackPage({ params }: PackPageProps) {
 		notFound();
 	}
 
-	const actionHref = (pack.access === "Open" ? "/docs" : "/pricing") as Route;
+	const actionHref = (
+		pack.slug === "foundation"
+			? `/r/foundation/${pack.release.version}.json`
+			: pack.access === "Open"
+				? "/docs"
+				: "/pricing"
+	) as Route;
 	const actionLabel =
-		pack.access === "Open"
-			? "Read Installation guide"
-			: "Explore Premium Access";
+		pack.slug === "foundation"
+			? `Retrieve Foundation ${pack.release.version}`
+			: pack.access === "Open"
+				? "Read Installation guide"
+				: "Explore Premium Access";
 
 	return (
 		<main>
@@ -140,6 +148,18 @@ export default async function PackPage({ params }: PackPageProps) {
 										Evaluation
 									</dt>
 									<dd>{pack.evaluation}</dd>
+								</div>
+								<div className="grid gap-2 bg-background p-4 sm:grid-cols-[10rem_1fr]">
+									<dt className="font-mono text-muted-foreground text-xs uppercase">
+										Evidence coverage
+									</dt>
+									<dd>
+										<ul className="flex flex-col gap-1">
+											{pack.evaluationEvidence.map((evidence) => (
+												<li key={evidence}>{evidence}</li>
+											))}
+										</ul>
+									</dd>
 								</div>
 								<div className="grid gap-2 bg-background p-4 sm:grid-cols-[10rem_1fr]">
 									<dt className="font-mono text-muted-foreground text-xs uppercase">

@@ -1,0 +1,5 @@
+{
+	"extends": "@agentkogei/config/tsconfig.base.json",
+	"include": ["src"],
+	"exclude": ["tests"]
+}

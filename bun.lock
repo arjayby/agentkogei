@@ -27,6 +27,7 @@
       "dependencies": {
         "@agentkogei/api": "workspace:*",
         "@agentkogei/auth": "workspace:*",
+        "@agentkogei/design-packs": "workspace:*",
         "@agentkogei/env": "workspace:*",
         "@agentkogei/ui": "workspace:*",
         "@orpc/client": "catalog:",
@@ -116,6 +117,16 @@
         "typescript": "catalog:",
       },
     },
+    "packages/design-packs": {
+      "name": "@agentkogei/design-packs",
+      "dependencies": {
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@agentkogei/config": "workspace:*",
+        "typescript": "catalog:",
+      },
+    },
     "packages/env": {
       "name": "@agentkogei/env",
       "version": "0.0.0",
@@ -187,6 +198,8 @@
     "@agentkogei/config": ["@agentkogei/config@workspace:packages/config"],
 
     "@agentkogei/db": ["@agentkogei/db@workspace:packages/db"],
+
+    "@agentkogei/design-packs": ["@agentkogei/design-packs@workspace:packages/design-packs"],
 
     "@agentkogei/env": ["@agentkogei/env@workspace:packages/env"],
 
