@@ -20,9 +20,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
+      BETTER_AUTH_SECRET: "ci-only-secret-ci-only-secret-ci-only"
+      BETTER_AUTH_URL: "http://localhost:3001"
       CI: "true"
+      CORS_ORIGIN: "http://localhost:3001"
+      DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5432/agentkogei"
       HUSKY: "0"
-      SKIP_ENV_VALIDATION: "true"
+      POLAR_ACCESS_TOKEN: "ci-only-polar-token"
+      POLAR_SUCCESS_URL: "http://localhost:3001/success"
 
     steps:
       - name: Check out repository
