@@ -17,6 +17,7 @@ export type DesignPack = {
 	licenseSummary: string;
 	compatibility: string;
 	evaluation: string;
+	evaluationEvidence: readonly string[];
 	coverage: readonly string[];
 	resources: readonly string[];
 };
@@ -33,6 +34,11 @@ const coverage = [
 const compatibility = "React / Next.js · Tailwind CSS v4 · shadcn/ui";
 const evaluation =
 	"Pack Evaluation passed · WCAG 2.2 Level AA reference implementation";
+const evaluationEvidence = [
+	"Desktop 1440×900 and mobile 390×844",
+	"Light, dark, and reduced motion",
+	"Human visual, accessibility, and rights review passed",
+] as const;
 
 export const designPacks: readonly DesignPack[] = [
 	{
@@ -52,6 +58,7 @@ export const designPacks: readonly DesignPack[] = [
 			"Complete Open Design Pack content, reusable with attribution.",
 		compatibility,
 		evaluation,
+		evaluationEvidence,
 		coverage,
 		resources: [
 			"Design Contract (DESIGN.md)",
@@ -77,6 +84,7 @@ export const designPacks: readonly DesignPack[] = [
 			"Complete Open Design Pack content, reusable with attribution.",
 		compatibility,
 		evaluation,
+		evaluationEvidence,
 		coverage,
 		resources: [
 			"Design Contract (DESIGN.md)",
@@ -102,6 +110,7 @@ export const designPacks: readonly DesignPack[] = [
 			"A snapshot installed while access is active remains licensed in that Project after Premium Access expires; extraction and reuse elsewhere are not included.",
 		compatibility,
 		evaluation,
+		evaluationEvidence,
 		coverage,
 		resources: [
 			"Core interface direction",
@@ -127,6 +136,7 @@ export const designPacks: readonly DesignPack[] = [
 			"A snapshot installed while access is active remains licensed in that Project after Premium Access expires; extraction and reuse elsewhere are not included.",
 		compatibility,
 		evaluation,
+		evaluationEvidence,
 		coverage,
 		resources: [
 			"Core interface direction",

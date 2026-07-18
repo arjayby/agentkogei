@@ -1,30 +1,125 @@
 import type { DesignPack } from "@/lib/catalog";
 
-const surfaces = ["Marketing", "Authentication", "Product UI"] as const;
+const surfaces = [
+	"Marketing",
+	"Authentication",
+	"Onboarding",
+	"Dashboard",
+	"Table",
+	"Form",
+	"Settings",
+	"States",
+] as const;
 
-function FoundationSurface({
-	index,
-	surface,
-}: {
-	index: number;
-	surface: string;
-}) {
+function FoundationSurface({ surface }: { index: number; surface: string }) {
+	const referenceScreen = (() => {
+		switch (surface) {
+			case "Marketing":
+				return (
+					<div className="flex flex-col gap-3">
+						<p className="font-medium text-2xl leading-tight">
+							A clear product outcome.
+						</p>
+						<p className="text-muted-foreground text-xs">
+							Concise proof and one primary action.
+						</p>
+						<div className="h-8 w-28 bg-primary" />
+					</div>
+				);
+			case "Authentication":
+				return (
+					<div className="flex flex-col gap-2">
+						<div className="h-7 border bg-card" />
+						<div className="h-7 border bg-card" />
+						<div className="h-8 bg-primary" />
+					</div>
+				);
+			case "Onboarding":
+				return (
+					<div className="flex flex-col gap-3">
+						<p className="text-muted-foreground text-xs">Step 2 of 4</p>
+						<div className="grid grid-cols-4 gap-1">
+							<div className="h-1 bg-primary" />
+							<div className="h-1 bg-primary" />
+							<div className="h-1 bg-muted" />
+							<div className="h-1 bg-muted" />
+						</div>
+						<p className="font-medium">Connect the supplied Project</p>
+					</div>
+				);
+			case "Dashboard":
+				return (
+					<div className="grid grid-cols-2 gap-2">
+						{["24 active", "98% healthy", "3 reviews", "7 releases"].map(
+							(metric) => (
+								<div key={metric} className="border bg-card p-2 text-xs">
+									{metric}
+								</div>
+							),
+						)}
+					</div>
+				);
+			case "Table":
+				return (
+					<div className="flex flex-col gap-px bg-border text-xs">
+						{[
+							"Release · Status · Date",
+							"1.0.0 · Published · Jul 18",
+							"0.9.0 · Archived · Jun 10",
+						].map((row) => (
+							<div key={row} className="bg-card p-2">
+								{row}
+							</div>
+						))}
+					</div>
+				);
+			case "Form":
+				return (
+					<div className="flex flex-col gap-2">
+						<p className="text-xs">Visible field label</p>
+						<div className="h-8 border bg-card" />
+						<p className="text-muted-foreground text-xs">
+							Persistent help and error area
+						</p>
+					</div>
+				);
+			case "Settings":
+				return (
+					<div className="flex flex-col gap-2 text-xs">
+						<div className="flex justify-between border-b pb-2">
+							<span>Notifications</span>
+							<span>On</span>
+						</div>
+						<div className="flex justify-between border-b pb-2">
+							<span>Appearance</span>
+							<span>System</span>
+						</div>
+						<div className="flex justify-between">
+							<span>Delete Project</span>
+							<span>Review</span>
+						</div>
+					</div>
+				);
+			default:
+				return (
+					<div className="grid grid-cols-2 gap-2 text-xs">
+						{["Loading", "Empty", "Error", "Success"].map((state) => (
+							<div key={state} className="border bg-card p-2">
+								{state}
+							</div>
+						))}
+					</div>
+				);
+		}
+	})();
+
 	return (
 		<div className="flex min-h-64 flex-col justify-between bg-background p-5">
 			<div className="flex items-center justify-between font-mono text-[0.65rem] text-muted-foreground uppercase tracking-[0.16em]">
 				<span>{surface}</span>
-				<span>0{index + 1}</span>
+				<span>Foundation</span>
 			</div>
-			<div className="flex flex-col gap-3">
-				<div className="h-12 w-2/3 bg-foreground" />
-				<div className="h-2 w-full bg-muted" />
-				<div className="h-2 w-4/5 bg-muted" />
-				<div className="mt-4 grid grid-cols-3 gap-2">
-					<div className="h-16 bg-muted" />
-					<div className="h-16 bg-muted" />
-					<div className="h-16 bg-muted" />
-				</div>
-			</div>
+			{referenceScreen}
 		</div>
 	);
 }

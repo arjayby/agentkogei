@@ -1,3 +1,4 @@
+import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
 test("a prospective Builder can understand what a Design Pack changes", async ({
@@ -68,6 +69,116 @@ test("a premium Pack Preview shows complete evidence without exposing gated reso
 	await expect(
 		page.getByText("registry payload", { exact: false }),
 	).toHaveCount(0);
+});
+
+test("a Builder can anonymously retrieve the complete Foundation Pack Release", async ({
+	page,
+	request,
+}) => {
+	const response = await request.get("/r/foundation/1.0.0.json");
+
+	expect(response.status()).toBe(200);
+	expect(response.headers()["content-type"]).toContain("application/json");
+	const registryItem = (await response.json()) as {
+		name: string;
+		type: string;
+		files: Array<{ content: string; target: string }>;
+	};
+	expect(registryItem).toMatchObject({
+		name: "foundation",
+		type: "registry:item",
+	});
+	const manifestFile = registryItem.files.find((file) =>
+		file.target.endsWith("agentkogei.manifest.json"),
+	);
+	const manifest = JSON.parse(manifestFile?.content ?? "") as {
+		access: string;
+		release: { immutable: boolean; version: string };
+	};
+	expect(manifest).toMatchObject({
+		access: "open",
+		release: { immutable: true, version: "1.0.0" },
+	});
+	expect(
+		registryItem.files.some((file) => file.target.endsWith("DESIGN.md")),
+	).toBe(true);
+
+	await page.goto("/catalog/foundation");
+	await expect(
+		page.getByRole("link", { name: "Retrieve Foundation 1.0.0" }),
+	).toHaveAttribute("href", "/r/foundation/1.0.0.json");
+	await expect(
+		page.getByText("Desktop 1440×900 and mobile 390×844"),
+	).toBeVisible();
+	await expect(page.getByText("Light, dark, and reduced motion")).toBeVisible();
+	await expect(
+		page.getByText("Human visual, accessibility, and rights review passed"),
+	).toBeVisible();
+});
+
+test("Foundation evaluation renders every required screen across evaluated modes", async ({
+	page,
+}) => {
+	const screens = [
+		"Marketing",
+		"Authentication",
+		"Onboarding",
+		"Dashboard",
+		"Table",
+		"Form",
+		"Settings",
+		"States",
+	] as const;
+	const modes = [
+		{
+			viewport: { width: 1440, height: 900 },
+			colorScheme: "light" as const,
+			reducedMotion: "no-preference" as const,
+		},
+		{
+			viewport: { width: 1440, height: 900 },
+			colorScheme: "dark" as const,
+			reducedMotion: "no-preference" as const,
+		},
+		{
+			viewport: { width: 390, height: 844 },
+			colorScheme: "light" as const,
+			reducedMotion: "no-preference" as const,
+		},
+		{
+			viewport: { width: 390, height: 844 },
+			colorScheme: "dark" as const,
+			reducedMotion: "no-preference" as const,
+		},
+		{
+			viewport: { width: 1440, height: 900 },
+			colorScheme: "light" as const,
+			reducedMotion: "reduce" as const,
+		},
+	] as const;
+
+	for (const mode of modes) {
+		await page.setViewportSize(mode.viewport);
+		await page.emulateMedia({
+			colorScheme: mode.colorScheme,
+			reducedMotion: mode.reducedMotion,
+		});
+		await page.goto("/catalog/foundation");
+		const preview = page.getByLabel("Foundation rendered Pack Preview");
+		for (const screen of screens) {
+			await expect(preview.getByText(screen, { exact: true })).toBeVisible();
+		}
+		const accessibility = await new AxeBuilder({ page })
+			.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+			.analyze();
+		expect(accessibility.violations).toEqual([]);
+		const hasHorizontalOverflow = await page.evaluate(
+			() =>
+				document.documentElement.scrollWidth >
+				document.documentElement.clientWidth,
+		);
+		expect(hasHorizontalOverflow).toBe(false);
+	}
 });
 
 test("pricing discloses the complete Premium Access offer", async ({
