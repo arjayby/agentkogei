@@ -1,0 +1,3 @@
+# Design Pack content requires provenance
+
+Every Published Pack resource must be original or used under a compatible license, with third-party sources, license terms, and required attribution declared in the pack manifest. AI may assist pack production, but human review must verify originality, accessibility, and licensing before Pack Evaluation; packs may reference broad art movements but cannot be marketed as replicas of a living designer, company, or recognizable commercial product. Premium resources must grant AgentKogei the rights required to issue Project Licenses, protecting subscribers and keeping the catalog compliant with its billing provider.
