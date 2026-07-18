@@ -1,3 +1,8 @@
+import {
+	Alert,
+	AlertDescription,
+	AlertTitle,
+} from "@agentkogei/ui/components/alert";
 import { buttonVariants } from "@agentkogei/ui/components/button";
 import {
 	Card,
@@ -200,17 +205,17 @@ export default function DocsPage() {
 						>
 							Installation is declarative, not executable.
 						</h2>
-						<div className="max-w-3xl border-foreground border-l-4 pl-6">
-							<p className="text-xl leading-8">
+						<Alert role="note" className="max-w-3xl">
+							<AlertTitle>
 								The AgentKogei CLI never executes pack-supplied code, scripts,
 								dependency installation, or package-manager commands.
-							</p>
-							<p className="mt-5 text-muted-foreground leading-7">
+							</AlertTitle>
+							<AlertDescription>
 								It validates declared files and safe relative targets, previews
 								writes, rejects conflicts, and leaves dependency or setup
 								guidance for the Builder to apply.
-							</p>
-						</div>
+							</AlertDescription>
+						</Alert>
 						<div className="mt-10">
 							<Link
 								href={"/catalog" as Route}

@@ -1,5 +1,7 @@
+import { Badge } from "@agentkogei/ui/components/badge";
 import {
 	Card,
+	CardAction,
 	CardContent,
 	CardDescription,
 	CardFooter,
@@ -55,15 +57,11 @@ export default function CatalogPage() {
 									<PackArtwork pack={pack} />
 								</CardContent>
 								<CardHeader>
-									<CardTitle className="flex items-baseline justify-between gap-4">
-										<span className="text-2xl tracking-tight">{pack.name}</span>
-										<span className="font-mono text-muted-foreground text-xs uppercase tracking-[0.18em]">
-											{pack.access}
-										</span>
-									</CardTitle>
-									<CardDescription className="text-base">
-										{pack.direction}
-									</CardDescription>
+									<CardTitle>{pack.name}</CardTitle>
+									<CardAction>
+										<Badge variant="outline">{pack.access}</Badge>
+									</CardAction>
+									<CardDescription>{pack.direction}</CardDescription>
 								</CardHeader>
 								<CardFooter className="justify-between">
 									<span className="font-mono text-muted-foreground text-xs">

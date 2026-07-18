@@ -40,7 +40,10 @@ export default function Header() {
 					<ModeToggle />
 					<Link
 						href="/login"
-						className={`${buttonVariants({ variant: "outline" })} hidden sm:inline-flex`}
+						className={buttonVariants({
+							variant: "outline",
+							className: "hidden sm:inline-flex",
+						})}
 					>
 						Sign in
 					</Link>

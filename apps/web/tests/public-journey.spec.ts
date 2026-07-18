@@ -10,6 +10,7 @@ test("a prospective Builder can understand what a Design Pack changes", async ({
 			name: "One interface system. Every agent. Every screen.",
 		}),
 	).toBeVisible();
+	await expect(page.getByText("design drift", { exact: false })).toBeVisible();
 	await expect(
 		page.getByText("not a theme or application template", { exact: false }),
 	).toBeVisible();
@@ -48,6 +49,13 @@ test("a premium Pack Preview shows complete evidence without exposing gated reso
 		page.getByText("React / Next.js · Tailwind CSS v4 · shadcn/ui"),
 	).toBeVisible();
 	await expect(page.getByText("Commercial Pack License")).toBeVisible();
+	await expect(
+		page.getByText(
+			"remains licensed in that Project after Premium Access expires",
+			{ exact: false },
+		),
+	).toBeVisible();
+	await expect(page.getByLabel("Command rendered Pack Preview")).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Coverage" })).toBeVisible();
 	await expect(
 		page.getByRole("heading", { name: "Included resources" }),
@@ -113,3 +121,40 @@ test("public documentation explains Installation and remains usable on mobile", 
 	);
 	expect(hasHorizontalOverflow).toBe(false);
 });
+
+const responsiveRoutes = [
+	"/",
+	"/catalog",
+	"/catalog/command",
+	"/pricing",
+	"/docs",
+] as const;
+
+for (const route of responsiveRoutes) {
+	test(`${route} remains navigable without horizontal overflow on mobile`, async ({
+		page,
+	}) => {
+		await page.setViewportSize({ width: 390, height: 844 });
+		await page.goto(route);
+
+		const navigation = page.getByRole("navigation", {
+			name: "Primary navigation",
+		});
+		await expect(
+			navigation.getByRole("link", { name: "Catalog", exact: true }),
+		).toBeVisible();
+		await expect(
+			navigation.getByRole("link", { name: "Pricing", exact: true }),
+		).toBeVisible();
+		await expect(
+			navigation.getByRole("link", { name: "Docs", exact: true }),
+		).toBeVisible();
+
+		const hasHorizontalOverflow = await page.evaluate(
+			() =>
+				document.documentElement.scrollWidth >
+				document.documentElement.clientWidth,
+		);
+		expect(hasHorizontalOverflow).toBe(false);
+	});
+}

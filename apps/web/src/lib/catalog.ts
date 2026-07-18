@@ -1,20 +1,24 @@
 export type PackAccess = "Open" | "Premium";
 
+export type PackRelease = {
+	version: `${number}.${number}.${number}`;
+	publishedAt: string;
+	changelog: string;
+};
+
 export type DesignPack = {
 	slug: "foundation" | "editorial" | "command" | "signal";
 	name: string;
 	access: PackAccess;
 	direction: string;
 	bestFor: string;
-	release: string;
-	publishedAt: string;
+	release: PackRelease;
 	license: "CC BY 4.0" | "Commercial Pack License";
 	licenseSummary: string;
 	compatibility: string;
 	evaluation: string;
 	coverage: readonly string[];
 	resources: readonly string[];
-	changelog: string;
 };
 
 const coverage = [
@@ -37,8 +41,12 @@ export const designPacks: readonly DesignPack[] = [
 		access: "Open",
 		direction: "Neutral, crisp, and highly legible B2B SaaS.",
 		bestFor: "Versatile product foundations",
-		release: "1.0.0",
-		publishedAt: "July 18, 2026",
+		release: {
+			version: "1.0.0",
+			publishedAt: "July 18, 2026",
+			changelog:
+				"Initial Published Pack with complete cross-surface coverage and evaluation evidence.",
+		},
 		license: "CC BY 4.0",
 		licenseSummary:
 			"Complete Open Design Pack content, reusable with attribution.",
@@ -51,8 +59,6 @@ export const designPacks: readonly DesignPack[] = [
 			"Component and state guidance",
 			"React and Next.js Stack Adapter",
 		],
-		changelog:
-			"Initial Published Pack with complete cross-surface coverage and evaluation evidence.",
 	},
 	{
 		slug: "editorial",
@@ -60,8 +66,12 @@ export const designPacks: readonly DesignPack[] = [
 		access: "Open",
 		direction: "Warm, spacious, and content-forward SaaS.",
 		bestFor: "Knowledge and content products",
-		release: "1.0.0",
-		publishedAt: "July 18, 2026",
+		release: {
+			version: "1.0.0",
+			publishedAt: "July 18, 2026",
+			changelog:
+				"Initial Published Pack with complete cross-surface coverage and evaluation evidence.",
+		},
 		license: "CC BY 4.0",
 		licenseSummary:
 			"Complete Open Design Pack content, reusable with attribution.",
@@ -74,8 +84,6 @@ export const designPacks: readonly DesignPack[] = [
 			"Content and component guidance",
 			"React and Next.js Stack Adapter",
 		],
-		changelog:
-			"Initial Published Pack with complete cross-surface coverage and evaluation evidence.",
 	},
 	{
 		slug: "command",
@@ -83,11 +91,15 @@ export const designPacks: readonly DesignPack[] = [
 		access: "Premium",
 		direction: "Dark-first, dense, and technical.",
 		bestFor: "Developer and operations products",
-		release: "1.0.0",
-		publishedAt: "July 18, 2026",
+		release: {
+			version: "1.0.0",
+			publishedAt: "July 18, 2026",
+			changelog:
+				"Initial Published Pack with dense technical patterns and complete state coverage.",
+		},
 		license: "Commercial Pack License",
 		licenseSummary:
-			"Licensed for an installed Project snapshot while Premium Access is active; extraction and reuse elsewhere are not included.",
+			"A snapshot installed while access is active remains licensed in that Project after Premium Access expires; extraction and reuse elsewhere are not included.",
 		compatibility,
 		evaluation,
 		coverage,
@@ -97,8 +109,6 @@ export const designPacks: readonly DesignPack[] = [
 			"Technical component and state recipes",
 			"Operations-focused supporting resources",
 		],
-		changelog:
-			"Initial Published Pack with dense technical patterns and complete state coverage.",
 	},
 	{
 		slug: "signal",
@@ -106,11 +116,15 @@ export const designPacks: readonly DesignPack[] = [
 		access: "Premium",
 		direction: "Bold geometry, expressive color, and richer motion.",
 		bestFor: "AI and creative products",
-		release: "1.0.0",
-		publishedAt: "July 18, 2026",
+		release: {
+			version: "1.0.0",
+			publishedAt: "July 18, 2026",
+			changelog:
+				"Initial Published Pack with expressive motion, graphic resources, and full surface coverage.",
+		},
 		license: "Commercial Pack License",
 		licenseSummary:
-			"Licensed for an installed Project snapshot while Premium Access is active; extraction and reuse elsewhere are not included.",
+			"A snapshot installed while access is active remains licensed in that Project after Premium Access expires; extraction and reuse elsewhere are not included.",
 		compatibility,
 		evaluation,
 		coverage,
@@ -120,8 +134,6 @@ export const designPacks: readonly DesignPack[] = [
 			"Motion and component recipes",
 			"Original graphic resource kit",
 		],
-		changelog:
-			"Initial Published Pack with expressive motion, graphic resources, and full surface coverage.",
 	},
 ] as const;
 

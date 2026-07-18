@@ -52,9 +52,7 @@ export default function PricingPage() {
 				<div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-[1.1fr_0.9fr]">
 					<Card className="[--card-spacing:--spacing(7)]">
 						<CardHeader>
-							<CardTitle>
-								<h2 className="font-medium text-2xl">Premium Access</h2>
-							</CardTitle>
+							<CardTitle>Premium Access</CardTitle>
 							<CardDescription>
 								Annual access for one named Builder.
 							</CardDescription>
@@ -72,10 +70,7 @@ export default function PricingPage() {
 										key={benefit}
 										className="flex items-start gap-3 text-base leading-7"
 									>
-										<Check
-											aria-hidden="true"
-											className="mt-1 size-4 shrink-0"
-										/>
+										<Check aria-hidden="true" className="mt-1 shrink-0" />
 										{benefit}
 									</li>
 								))}

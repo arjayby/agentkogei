@@ -1,3 +1,4 @@
+import { cn } from "@agentkogei/ui/lib/utils";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
@@ -29,7 +30,7 @@ export default function RootLayout({
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+				className={cn(geistSans.variable, geistMono.variable, "antialiased")}
 			>
 				<Providers>
 					<div className="min-h-svh">

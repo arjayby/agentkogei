@@ -12,8 +12,10 @@ export default function Home() {
 						</h1>
 					</div>
 					<p className="max-w-xl text-pretty text-lg text-muted-foreground leading-8 lg:text-xl">
-						AgentKogei gives your Project durable design direction, so each
-						coding agent builds from the same visual and behavioral foundation.
+						Without durable direction, each coding agent makes its own calls on
+						type, color, layout, components, and states—creating design drift
+						across the Project. AgentKogei gives them one visual and behavioral
+						foundation.
 					</p>
 				</div>
 			</section>
