@@ -1,0 +1,26 @@
+{
+  "name": "@agentkogei/auth",
+  "type": "module",
+  "exports": {
+    ".": {
+      "default": "./src/index.ts"
+    },
+    "./*": {
+      "default": "./src/*.ts"
+    }
+  },
+  "scripts": {},
+  "dependencies": {
+    "@agentkogei/db": "workspace:*",
+    "@agentkogei/env": "workspace:*",
+    "@polar-sh/better-auth": "catalog:",
+    "@polar-sh/sdk": "^0.47.1",
+    "better-auth": "catalog:",
+    "dotenv": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@agentkogei/config": "workspace:*",
+    "typescript": "catalog:"
+  }
+}
