@@ -1,0 +1,3 @@
+# Open software with commercial Design Packs
+
+All product software—including the web application, Design Pack format, installer, and validation tooling—will be open source so Builders can inspect, extend, and self-host it. Open Design Packs will ship publicly, while Premium Design Pack contents and bundled assets will remain in private storage under a commercial license; self-hosting the software does not grant access to the premium catalog. An installed premium snapshot may be visible inside a genuine public end-product Project without becoming openly licensed or eligible for extraction and redistribution. This keeps the ecosystem genuinely open while preserving the product's primary path to revenue.

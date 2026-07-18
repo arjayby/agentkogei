@@ -1,0 +1,3 @@
+# Subscription gates the catalog, not installed use
+
+Premium Access will be a subscription covering the entire Premium Design Pack catalog. When it expires, the Builder loses the ability to retrieve gated resources, install, reinstall, or update Premium Design Packs, including versions used previously; public Pack Previews remain visible, and each premium snapshot already present in a Project remains usable there under a lasting Project License. This preserves the offline, local-snapshot model without using DRM or runtime license checks, while making continued catalog releases and updates the reason to renew.
