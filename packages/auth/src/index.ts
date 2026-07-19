@@ -2,18 +2,39 @@ import { createDb } from "@agentkogei/db";
 import * as schema from "@agentkogei/db/schema/auth";
 import { env } from "@agentkogei/env/server";
 import { checkout, polar, portal } from "@polar-sh/better-auth";
+import type { Polar } from "@polar-sh/sdk";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { memoryAdapter } from "better-auth/adapters/memory";
 import { nextCookies } from "better-auth/next-js";
 import { genericOAuth } from "better-auth/plugins/generic-oauth";
 
-import { polarClient } from "./lib/payments";
+import {
+	polarClient,
+	premiumAccessProductId,
+	productionPaymentsEnabled,
+} from "./lib/payments";
 
 const githubClientCredentials = {
 	clientId: env.GITHUB_CLIENT_ID,
 	clientSecret: env.GITHUB_CLIENT_SECRET,
 };
+
+type TestAuthDatabase = Parameters<typeof memoryAdapter>[0];
+const testAuthDatabaseKey = Symbol.for("agentkogei.test-auth-database");
+
+function getTestAuthDatabase(): TestAuthDatabase {
+	const globals = globalThis as typeof globalThis & {
+		[testAuthDatabaseKey]?: TestAuthDatabase;
+	};
+	globals[testAuthDatabaseKey] ??= {
+		user: [],
+		session: [],
+		account: [],
+		verification: [],
+	};
+	return globals[testAuthDatabaseKey];
+}
 
 function createProductionIdentityBoundary() {
 	return {
@@ -33,12 +54,15 @@ function createProductionIdentityBoundary() {
 				enableCustomerPortal: true,
 				use: [
 					checkout({
-						products: [
-							{
-								productId: "your-product-id",
-								slug: "pro",
-							},
-						],
+						products:
+							productionPaymentsEnabled && premiumAccessProductId
+								? [
+										{
+											productId: premiumAccessProductId,
+											slug: "premium-access",
+										},
+									]
+								: [],
 						successUrl: env.POLAR_SUCCESS_URL,
 						authenticatedUsersOnly: true,
 					}),
@@ -49,14 +73,36 @@ function createProductionIdentityBoundary() {
 	};
 }
 
-function createTestIdentityBoundary(githubTestBoundaryBaseURL: string) {
+function createTestPolarClient(baseURL: string) {
 	return {
-		database: memoryAdapter({
-			user: [],
-			session: [],
-			account: [],
-			verification: [],
-		}),
+		checkouts: {
+			create: async ({
+				externalCustomerId,
+				successUrl,
+			}: {
+				externalCustomerId?: string;
+				successUrl?: string;
+			}) => {
+				const url = new URL("/test/polar/checkout", baseURL);
+				if (externalCustomerId) {
+					url.searchParams.set("builder_id", externalCustomerId);
+				}
+				if (successUrl) url.searchParams.set("success_url", successUrl);
+				return { url: url.toString() };
+			},
+		},
+		customerSessions: {
+			create: async () => ({
+				customerPortalUrl: new URL("/test/polar/portal", baseURL).toString(),
+			}),
+		},
+	} as unknown as Polar;
+}
+
+function createTestIdentityBoundary(githubTestBoundaryBaseURL: string) {
+	const testPolarClient = createTestPolarClient(env.BETTER_AUTH_URL);
+	return {
+		database: memoryAdapter(getTestAuthDatabase()),
 		socialProviders: {},
 		plugins: [
 			genericOAuth({
@@ -70,6 +116,23 @@ function createTestIdentityBoundary(githubTestBoundaryBaseURL: string) {
 						scopes: ["read:user", "user:email"],
 						authentication: "post" as const,
 					},
+				],
+			}),
+			polar({
+				client: testPolarClient,
+				createCustomerOnSignUp: false,
+				use: [
+					checkout({
+						products: [
+							{
+								productId: "polar-premium-access",
+								slug: "premium-access",
+							},
+						],
+						successUrl: env.POLAR_SUCCESS_URL,
+						authenticatedUsersOnly: true,
+					}),
+					portal(),
 				],
 			}),
 		],
