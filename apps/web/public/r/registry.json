@@ -8,6 +8,12 @@
 			"type": "registry:item",
 			"title": "Foundation Open Design Pack",
 			"description": "Foundation 1.1.0: a complete, neutral, crisp, highly legible B2B Interface System."
+		},
+		{
+			"name": "editorial",
+			"type": "registry:item",
+			"title": "Editorial Open Design Pack",
+			"description": "Editorial 1.0.0: Warm, spacious, and content-forward SaaS."
 		}
 	]
 }

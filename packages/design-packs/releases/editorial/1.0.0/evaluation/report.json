@@ -1,0 +1,56 @@
+{
+	"pack": "editorial",
+	"version": "1.0.0",
+	"status": "passed",
+	"standard": "WCAG 2.2 Level AA",
+	"referenceImplementation": {
+		"route": "/catalog/editorial",
+		"stackAdapter": "react-tailwind-shadcn",
+		"usesReleasedTokens": true,
+		"agentRunEvidence": "evaluation/agent-runs.md"
+	},
+	"screens": [
+		"marketing",
+		"authentication",
+		"onboarding",
+		"dashboard",
+		"table",
+		"form",
+		"settings",
+		"states"
+	],
+	"coverage": {
+		"viewports": ["1440x900", "390x844", "320x844"],
+		"colorSchemes": ["light", "dark"],
+		"reducedMotion": true,
+		"forcedColors": true
+	},
+	"automatedChecks": [
+		"document structure and heading order",
+		"accessible names and link identification",
+		"keyboard focus and source order",
+		"color contrast",
+		"responsive overflow and text reflow"
+	],
+	"agentGenerationRuns": 3,
+	"automatedResult": {
+		"suite": "apps/web/tests/public-journey.spec.ts",
+		"modesChecked": 7,
+		"wcagViolations": 0,
+		"unexpectedHorizontalOverflow": false,
+		"checks": [
+			"WCAG 2 A and AA rules including WCAG 2.2 AA",
+			"desktop and mobile light/dark rendering",
+			"320 CSS pixel reflow",
+			"reduced motion",
+			"forced colors"
+		]
+	},
+	"humanReview": {
+		"visual": "passed",
+		"accessibility": "passed",
+		"rights": "passed",
+		"distinctFromFoundation": "passed",
+		"reviewedAt": "2026-07-19"
+	}
+}

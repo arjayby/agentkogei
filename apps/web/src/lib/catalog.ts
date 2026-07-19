@@ -75,7 +75,7 @@ export const designPacks: readonly DesignPack[] = [
 		bestFor: "Knowledge and content products",
 		release: {
 			version: "1.0.0",
-			publishedAt: "July 18, 2026",
+			publishedAt: "July 19, 2026",
 			changelog:
 				"Initial Published Pack with complete cross-surface coverage and evaluation evidence.",
 		},

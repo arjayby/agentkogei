@@ -11,6 +11,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 
 import {
+	editorialReleaseDirectory,
 	foundationReleaseDirectory,
 	type PackValidationResult,
 } from "@agentkogei/design-packs";
@@ -76,6 +77,17 @@ describe("Pack Release publication validation", () => {
 			pack: "foundation",
 			version: "1.1.0",
 			filesValidated: 9,
+		});
+	});
+
+	test("accepts Editorial through the same compatibility and safety gate", async () => {
+		const result = await runValidator(editorialReleaseDirectory);
+
+		expect(result).toEqual({
+			ok: true,
+			pack: "editorial",
+			version: "1.0.0",
+			filesValidated: 10,
 		});
 	});
 

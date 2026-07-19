@@ -30,6 +30,10 @@ const catalogRegistryItem = new URL(
 	"../../../apps/web/public/r/foundation/1.1.0.json",
 	import.meta.url,
 ).pathname;
+const editorialRegistryItem = new URL(
+	"../../../apps/web/public/r/editorial/1.0.0.json",
+	import.meta.url,
+).pathname;
 const catalogBaseUrl = new URL("../../../apps/web/public/r/", import.meta.url)
 	.href;
 const temporaryDirectories: string[] = [];
@@ -598,6 +602,43 @@ describe("Foundation Installation CLI", () => {
 		expect(
 			Bun.file(path.join(project, ".agentkogei/installed-pack.json")).size,
 		).toBe(0);
+	});
+});
+
+describe("Editorial Installation CLI", () => {
+	test("discovers and installs the anonymously retrievable Pack Release for agent use", async () => {
+		const project = await temporaryProject();
+		await writeFile(
+			path.join(project, "AGENTS.md"),
+			"# Project instructions\n",
+		);
+
+		expect(Bun.file(editorialRegistryItem).size).toBeGreaterThan(0);
+		const result = await runCli(project, [
+			"install",
+			"editorial@1.0.0",
+			"--yes",
+		]);
+
+		expect(result.exitCode).toBe(0);
+		expect(result.stdout).toContain("Editorial 1.0.0");
+		expect(result.stdout).toContain("CC-BY-4.0");
+		expect(result.stdout).toContain("Conflicts: none");
+		expect(
+			await readFile(
+				path.join(project, ".agentkogei/editorial/DESIGN.md"),
+				"utf8",
+			),
+		).toContain("# Editorial Interface System");
+		expect(
+			await readFile(
+				path.join(project, ".agentkogei/installed-pack.json"),
+				"utf8",
+			),
+		).toContain('"id": "editorial"');
+		expect(await readFile(path.join(project, "AGENTS.md"), "utf8")).toContain(
+			".agentkogei/editorial/DESIGN.md",
+		);
 	});
 });
 

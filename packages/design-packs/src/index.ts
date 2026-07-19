@@ -28,7 +28,7 @@ export {
 	type UpdatePlan,
 } from "./lifecycle";
 export { type PackManifest, packManifestSchema } from "./manifest";
-export type { FoundationRegistryItem } from "./registry";
+export type { PackRegistryItem } from "./registry";
 export {
 	comparePackReleaseVersions,
 	type PackReleaseVersion,
@@ -42,38 +42,77 @@ export {
 	validatePackRelease,
 } from "./validator";
 
-const foundationReleasesDirectory = fileURLToPath(
-	new URL("../releases/foundation", import.meta.url),
+function createPublishedPack(
+	id: string,
+	description: (manifest: import("./manifest").PackManifest) => string,
+) {
+	const releasesDirectory = fileURLToPath(
+		new URL(`../releases/${id}`, import.meta.url),
+	);
+	const versions = readdirSync(releasesDirectory, {
+		withFileTypes: true,
+	}).flatMap((entry) => {
+		const version = packReleaseVersionSchema.safeParse(entry.name);
+		return entry.isDirectory() && version.success ? [version.data] : [];
+	});
+	versions.sort(comparePackReleaseVersions);
+	const catalogVersion = versions.at(-1);
+	if (!catalogVersion) {
+		throw new Error(`${id} has no Pack Releases`);
+	}
+	function directoryFor(version: PackReleaseVersion) {
+		if (!versions.includes(version)) {
+			throw new Error(`Unknown ${id} Pack Release ${version}`);
+		}
+		return path.join(releasesDirectory, version);
+	}
+	return {
+		id,
+		versions,
+		directory: directoryFor(catalogVersion),
+		directoryFor,
+		async buildRegistryItem(releaseDirectory = directoryFor(catalogVersion)) {
+			const { buildPackRegistryItem } = await import("./registry");
+			return buildPackRegistryItem(releaseDirectory, description);
+		},
+	};
+}
+
+const foundation = createPublishedPack(
+	"foundation",
+	(manifest) =>
+		`${manifest.name} ${manifest.release.version}: a complete, neutral, crisp, highly legible B2B Interface System.`,
+);
+const editorial = createPublishedPack(
+	"editorial",
+	(manifest) =>
+		`${manifest.name} ${manifest.release.version}: ${manifest.preview.summary}`,
 );
 
-export const foundationReleaseVersions = readdirSync(
-	foundationReleasesDirectory,
-	{ withFileTypes: true },
-).flatMap((entry) => {
-	const version = packReleaseVersionSchema.safeParse(entry.name);
-	return entry.isDirectory() && version.success ? [version.data] : [];
-});
-foundationReleaseVersions.sort(comparePackReleaseVersions);
-
-const catalogFoundationVersion = foundationReleaseVersions.at(-1);
-if (!catalogFoundationVersion) {
-	throw new Error("Foundation has no Pack Releases");
-}
+export const publishedPacks = [foundation, editorial] as const;
 
 export function foundationReleaseDirectoryFor(version: PackReleaseVersion) {
-	if (!foundationReleaseVersions.includes(version)) {
-		throw new Error(`Unknown Foundation Pack Release ${version}`);
-	}
-	return path.join(foundationReleasesDirectory, version);
+	return foundation.directoryFor(version);
 }
 
-export const foundationReleaseDirectory = foundationReleaseDirectoryFor(
-	catalogFoundationVersion,
-);
+export const foundationReleaseVersions = foundation.versions;
+export const foundationReleaseDirectory = foundation.directory;
+
+export function editorialReleaseDirectoryFor(version: PackReleaseVersion) {
+	return editorial.directoryFor(version);
+}
+
+export const editorialReleaseVersions = editorial.versions;
+export const editorialReleaseDirectory = editorial.directory;
 
 export async function buildFoundationRegistryItem(
 	releaseDirectory = foundationReleaseDirectory,
 ) {
-	const { buildFoundationRegistryItem: build } = await import("./registry");
-	return build(releaseDirectory);
+	return foundation.buildRegistryItem(releaseDirectory);
+}
+
+export async function buildEditorialRegistryItem(
+	releaseDirectory = editorialReleaseDirectory,
+) {
+	return editorial.buildRegistryItem(releaseDirectory);
 }

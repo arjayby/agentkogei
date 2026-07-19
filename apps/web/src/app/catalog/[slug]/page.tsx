@@ -49,18 +49,14 @@ export default async function PackPage({ params }: PackPageProps) {
 	}
 
 	const actionHref = (
-		pack.slug === "foundation"
-			? `/r/foundation/${pack.release.version}.json`
-			: pack.access === "Open"
-				? "/docs"
-				: "/pricing"
+		pack.access === "Open"
+			? `/r/${pack.slug}/${pack.release.version}.json`
+			: "/pricing"
 	) as Route;
 	const actionLabel =
-		pack.slug === "foundation"
-			? `Retrieve Foundation ${pack.release.version}`
-			: pack.access === "Open"
-				? "Read Installation guide"
-				: "Explore Premium Access";
+		pack.access === "Open"
+			? `Retrieve ${pack.name} ${pack.release.version}`
+			: "Explore Premium Access";
 
 	return (
 		<main>
@@ -119,6 +115,11 @@ export default async function PackPage({ params }: PackPageProps) {
 						>
 							One direction across the whole product.
 						</h2>
+						<p className="max-w-2xl text-muted-foreground">
+							Preview is evidence, not Pack Source. It demonstrates direction
+							and evaluated coverage; use the release action above to retrieve
+							an Open Design Pack.
+						</p>
 					</div>
 					<PackPreviewEvidence pack={pack} />
 				</div>
