@@ -16,8 +16,10 @@ export {
 } from "./installation";
 export {
 	applyUpdate,
+	detachInstalledPack,
 	discardUpdatePlan,
 	discoverUpdate,
+	formatDetachPreview,
 	formatInstalledPackStatus,
 	formatUpdatePreview,
 	type InstalledPackRecord,

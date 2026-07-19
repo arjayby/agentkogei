@@ -10,8 +10,10 @@ import {
 } from "./installation";
 import {
 	applyUpdate,
+	detachInstalledPack,
 	discardUpdatePlan,
 	discoverUpdate,
+	formatDetachPreview,
 	formatInstalledPackStatus,
 	formatUpdatePreview,
 	inspectInstalledPack,
@@ -19,13 +21,35 @@ import {
 
 function usage() {
 	console.error(
-		"Usage:\n  agentkogei install <pack[@version]> [--project <directory>] [--yes]\n  agentkogei status [--project <directory>]\n  agentkogei update [--project <directory>] [--yes]",
+		"Usage:\n  agentkogei install <pack[@version]> [--project <directory>] [--yes]\n  agentkogei status [--project <directory>]\n  agentkogei update [--project <directory>] [--yes]\n  agentkogei detach [--project <directory>] [--yes]",
 	);
 }
 
 function optionValue(arguments_: string[], option: string) {
 	const index = arguments_.indexOf(option);
 	return index === -1 ? undefined : arguments_[index + 1];
+}
+
+async function requestActionConfirmation(
+	arguments_: string[],
+	question: string,
+) {
+	if (arguments_.includes("--yes")) {
+		return true;
+	}
+	if (!process.stdin.isTTY || !process.stdout.isTTY) {
+		return false;
+	}
+	const prompt = createInterface({
+		input: process.stdin,
+		output: process.stdout,
+	});
+	try {
+		const answer = await prompt.question(question);
+		return answer.trim().toLowerCase() === "y";
+	} finally {
+		prompt.close();
+	}
 }
 
 async function main() {
@@ -40,6 +64,31 @@ async function main() {
 	if (arguments_[0] === "status") {
 		console.log(
 			formatInstalledPackStatus(await inspectInstalledPack(projectDirectory)),
+		);
+		return 0;
+	}
+	if (arguments_[0] === "detach") {
+		const status = await inspectInstalledPack(projectDirectory);
+		if (status.managedState === "detached") {
+			console.log(
+				`${status.manifest?.name ?? status.record.pack.id} ${status.record.pack.version} is already detached.`,
+			);
+			return 0;
+		}
+		console.log(formatDetachPreview(status));
+		const confirmed = await requestActionConfirmation(
+			arguments_,
+			"Detach this Installed Pack? [y/N] ",
+		);
+		if (!confirmed) {
+			console.error(
+				"Detach not confirmed. Non-interactive use requires explicit --yes consent.",
+			);
+			return 2;
+		}
+		await detachInstalledPack(status);
+		console.log(
+			`\nDetached ${status.manifest?.name ?? status.record.pack.id} ${status.record.pack.version}.`,
 		);
 		return 0;
 	}
@@ -59,18 +108,10 @@ async function main() {
 			console.error("Update refused because conflicts must be resolved first.");
 			return 1;
 		}
-		let confirmed = arguments_.includes("--yes");
-		if (!confirmed && process.stdin.isTTY && process.stdout.isTTY) {
-			const prompt = createInterface({
-				input: process.stdin,
-				output: process.stdout,
-			});
-			const answer = await prompt.question(
-				`Apply exactly ${discovery.proposed.manifest.release.version}? [y/N] `,
-			);
-			prompt.close();
-			confirmed = answer.trim().toLowerCase() === "y";
-		}
+		const confirmed = await requestActionConfirmation(
+			arguments_,
+			`Apply exactly ${discovery.proposed.manifest.release.version}? [y/N] `,
+		);
 		if (!confirmed) {
 			await discardUpdatePlan(discovery);
 			console.error(
@@ -114,16 +155,10 @@ async function main() {
 		return 1;
 	}
 
-	let confirmed = arguments_.includes("--yes");
-	if (!confirmed && process.stdin.isTTY && process.stdout.isTTY) {
-		const prompt = createInterface({
-			input: process.stdin,
-			output: process.stdout,
-		});
-		const answer = await prompt.question("Install this exact snapshot? [y/N] ");
-		prompt.close();
-		confirmed = answer.trim().toLowerCase() === "y";
-	}
+	const confirmed = await requestActionConfirmation(
+		arguments_,
+		"Install this exact snapshot? [y/N] ",
+	);
 	if (!confirmed) {
 		await discardInstallationPlan(plan);
 		console.error(
