@@ -2,10 +2,12 @@ import { relations } from "drizzle-orm";
 import {
 	boolean,
 	index,
+	integer,
 	pgEnum,
 	pgTable,
 	text,
 	timestamp,
+	uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 export const premiumAccessStateValues = [
@@ -114,9 +116,60 @@ export const premiumAccess = pgTable("premium_access", {
 		.notNull(),
 });
 
+export const deviceAuthorizationRequest = pgTable(
+	"device_authorization_request",
+	{
+		id: text("id").primaryKey(),
+		deviceCodeHash: text("device_code_hash").notNull(),
+		userCodeHash: text("user_code_hash").notNull(),
+		credentialName: text("credential_name").notNull(),
+		status: text("status").default("pending").notNull(),
+		builderId: text("builder_id").references(() => user.id, {
+			onDelete: "cascade",
+		}),
+		expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+		lastPolledAt: timestamp("last_polled_at", { withTimezone: true }),
+		pollingInterval: integer("polling_interval").default(1).notNull(),
+		createdAt: timestamp("created_at", { withTimezone: true })
+			.defaultNow()
+			.notNull(),
+		resolvedAt: timestamp("resolved_at", { withTimezone: true }),
+	},
+	(table) => [
+		uniqueIndex("device_authorization_device_code_idx").on(
+			table.deviceCodeHash,
+		),
+		uniqueIndex("device_authorization_user_code_idx").on(table.userCodeHash),
+	],
+);
+
+export const packCredential = pgTable(
+	"pack_credential",
+	{
+		id: text("id").primaryKey(),
+		builderId: text("builder_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		name: text("name").notNull(),
+		secretHash: text("secret_hash").notNull(),
+		secretSuffix: text("secret_suffix").notNull(),
+		scope: text("scope").default("premium:retrieve").notNull(),
+		createdAt: timestamp("created_at", { withTimezone: true })
+			.defaultNow()
+			.notNull(),
+		lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+		revokedAt: timestamp("revoked_at", { withTimezone: true }),
+	},
+	(table) => [
+		uniqueIndex("pack_credential_secret_hash_idx").on(table.secretHash),
+		index("pack_credential_builder_idx").on(table.builderId),
+	],
+);
+
 export const userRelations = relations(user, ({ many }) => ({
 	sessions: many(session),
 	accounts: many(account),
+	packCredentials: many(packCredential),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -129,6 +182,13 @@ export const sessionRelations = relations(session, ({ one }) => ({
 export const accountRelations = relations(account, ({ one }) => ({
 	user: one(user, {
 		fields: [account.userId],
+		references: [user.id],
+	}),
+}));
+
+export const packCredentialRelations = relations(packCredential, ({ one }) => ({
+	builder: one(user, {
+		fields: [packCredential.builderId],
 		references: [user.id],
 	}),
 }));
