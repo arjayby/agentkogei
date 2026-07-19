@@ -1,10 +1,25 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { buildFoundationRegistryItem } from "@agentkogei/design-packs";
+import {
+	buildFoundationRegistryItem,
+	foundationReleaseDirectoryFor,
+	foundationReleaseVersions,
+} from "@agentkogei/design-packs";
 
 const outputDirectory = path.resolve(import.meta.dirname, "../public/r");
-const foundation = await buildFoundationRegistryItem();
+const foundationReleases = await Promise.all(
+	foundationReleaseVersions.map(async (version) => ({
+		version,
+		item: await buildFoundationRegistryItem(
+			foundationReleaseDirectoryFor(version),
+		),
+	})),
+);
+const foundation = foundationReleases.at(-1)?.item;
+if (!foundation) {
+	throw new Error("Foundation has no Pack Releases");
+}
 const registry = {
 	$schema: "https://ui.shadcn.com/schema/registry.json",
 	name: "agentkogei",
@@ -24,9 +39,11 @@ await mkdir(path.join(outputDirectory, "foundation"), { recursive: true });
 const foundationJson = `${JSON.stringify(foundation, null, "\t")}\n`;
 await Promise.all([
 	writeFile(path.join(outputDirectory, "foundation.json"), foundationJson),
-	writeFile(
-		path.join(outputDirectory, "foundation", "1.0.0.json"),
-		foundationJson,
+	...foundationReleases.map(({ version, item }) =>
+		writeFile(
+			path.join(outputDirectory, "foundation", `${version}.json`),
+			`${JSON.stringify(item, null, "\t")}\n`,
+		),
 	),
 	writeFile(
 		path.join(outputDirectory, "registry.json"),

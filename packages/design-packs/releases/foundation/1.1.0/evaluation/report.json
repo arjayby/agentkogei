@@ -1,0 +1,35 @@
+{
+	"pack": "foundation",
+	"version": "1.1.0",
+	"status": "passed",
+	"standard": "WCAG 2.2 Level AA",
+	"screens": [
+		"marketing",
+		"authentication",
+		"onboarding",
+		"dashboard",
+		"table",
+		"form",
+		"settings",
+		"states"
+	],
+	"coverage": {
+		"viewports": ["1440x900", "390x844"],
+		"colorSchemes": ["light", "dark"],
+		"reducedMotion": true
+	},
+	"automatedChecks": [
+		"document structure",
+		"accessible names",
+		"keyboard focus",
+		"color contrast",
+		"responsive overflow"
+	],
+	"agentGenerationRuns": 3,
+	"humanReview": {
+		"visual": "passed",
+		"accessibility": "passed",
+		"rights": "passed",
+		"reviewedAt": "2026-07-18"
+	}
+}

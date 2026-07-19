@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { packReleaseVersionSchema } from "./release-version";
 
 const sha256Schema = z.string().regex(/^[a-f0-9]{64}$/);
 const relativePathSchema = z
@@ -35,7 +36,7 @@ export const packManifestSchema = z
 		publisher: z.string().min(1),
 		release: z
 			.object({
-				version: z.string().regex(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/),
+				version: packReleaseVersionSchema,
 				publishedAt: z.iso.date(),
 				immutable: z.literal(true),
 			})

@@ -74,7 +74,7 @@ describe("Pack Release publication validation", () => {
 		expect(result).toEqual({
 			ok: true,
 			pack: "foundation",
-			version: "1.0.0",
+			version: "1.1.0",
 			filesValidated: 9,
 		});
 	});
