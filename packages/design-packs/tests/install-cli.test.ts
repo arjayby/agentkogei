@@ -15,7 +15,9 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 import {
 	applyInstallation,
+	detachInstalledPack,
 	foundationReleaseDirectory,
+	inspectInstalledPack,
 	prepareInstallation,
 } from "@agentkogei/design-packs";
 
@@ -212,6 +214,48 @@ async function interruptUpdateDuringCommit(
 		process_.exited,
 	]);
 	return { stderr, exitCode };
+}
+
+async function modifyUpdateDuringCommit(
+	project: string,
+	environment: Record<string, string>,
+) {
+	let timeout: ReturnType<typeof setTimeout> | undefined;
+	const backupObserved = new Promise<string>((resolve, reject) => {
+		const watcher = watch(project, (_event, filename) => {
+			const backup = filename?.toString();
+			if (backup?.startsWith(".agentkogei-backup-")) {
+				watcher.close();
+				resolve(backup);
+			}
+		});
+		timeout = setTimeout(() => {
+			watcher.close();
+			reject(new Error("update did not enter its commit window"));
+		}, 5_000);
+	});
+	const process_ = Bun.spawn(
+		[process.execPath, cliCommand, "update", "--yes", "--project", project],
+		{
+			env: { ...process.env, ...environment },
+			stdout: "pipe",
+			stderr: "pipe",
+		},
+	);
+	const backup = await backupObserved;
+	if (timeout) {
+		clearTimeout(timeout);
+	}
+	await writeFile(
+		path.join(project, backup, "foundation/tokens.css"),
+		"Late Builder customization\n",
+	);
+	const [stdout, stderr, exitCode] = await Promise.all([
+		new Response(process_.stdout).text(),
+		new Response(process_.stderr).text(),
+		process_.exited,
+	]);
+	return { stdout, stderr, exitCode };
 }
 
 afterEach(async () => {
@@ -520,6 +564,138 @@ describe("Installed Pack lifecycle CLI", () => {
 		expect(result.stdout).toContain("Resource integrity: 10/10 verified");
 	});
 
+	test("distinguishes unchanged, modified, missing, and unexpectedly replaced resources", async () => {
+		const project = await temporaryProject();
+		expect(
+			(await runCli(project, ["install", "foundation@1.0.0", "--yes"]))
+				.exitCode,
+		).toBe(0);
+		await writeFile(
+			path.join(project, ".agentkogei/foundation/tokens.css"),
+			"Builder customization\n",
+		);
+		await rm(path.join(project, ".agentkogei/foundation/components.md"));
+		await rm(path.join(project, ".agentkogei/foundation/examples.md"));
+		await mkdir(path.join(project, ".agentkogei/foundation/examples.md"));
+
+		const result = await runCli(project, ["status"]);
+
+		expect(result.exitCode).toBe(0);
+		expect(result.stdout).toContain(
+			".agentkogei/foundation/DESIGN.md: unchanged",
+		);
+		expect(result.stdout).toContain(
+			".agentkogei/foundation/tokens.css: modified",
+		);
+		expect(result.stdout).toContain(
+			".agentkogei/foundation/components.md: missing",
+		);
+		expect(result.stdout).toContain(
+			".agentkogei/foundation/examples.md: unexpectedly replaced",
+		);
+	});
+
+	test("requires explicit confirmation and keeps Detached Pack guidance usable", async () => {
+		const project = await temporaryProject();
+		expect(
+			(await runCli(project, ["install", "foundation@1.0.0", "--yes"]))
+				.exitCode,
+		).toBe(0);
+		const designPath = path.join(project, ".agentkogei/foundation/DESIGN.md");
+		const tokensPath = path.join(project, ".agentkogei/foundation/tokens.css");
+		const agentsPath = path.join(project, "AGENTS.md");
+		await writeFile(designPath, "# Builder Design Contract\n");
+		await writeFile(tokensPath, "/* Builder tokens */\n");
+		const agentsBefore = await readFile(agentsPath, "utf8");
+
+		const declined = await runCli(project, ["detach"]);
+
+		expect(declined.exitCode).toBe(2);
+		expect(declined.stdout).toContain(
+			"Detaching keeps the Design Contract and supporting resources available locally",
+		);
+		expect(declined.stdout).toContain(
+			"Managed Pack Release updates will remain blocked for the Detached Pack",
+		);
+		expect(declined.stdout).toContain(
+			".agentkogei/foundation/tokens.css: modified",
+		);
+		expect(declined.stdout).not.toContain("/* Builder tokens */");
+		expect(declined.stderr).toContain("--yes");
+
+		const detached = await runCli(project, ["detach", "--yes"]);
+
+		expect(detached.exitCode).toBe(0);
+		expect(detached.stdout).toContain("Detached Foundation 1.0.0");
+		expect(await readFile(designPath, "utf8")).toBe(
+			"# Builder Design Contract\n",
+		);
+		expect(await readFile(tokensPath, "utf8")).toBe("/* Builder tokens */\n");
+		expect(await readFile(agentsPath, "utf8")).toBe(agentsBefore);
+		const status = await runCli(project, ["status"]);
+		expect(status.stdout).toContain("Detached Pack: Foundation (foundation)");
+		expect(status.stdout).toContain("Managed state: detached");
+	});
+
+	test("refuses to detach resources that changed after preview", async () => {
+		const project = await temporaryProject();
+		expect(
+			(await runCli(project, ["install", "foundation@1.0.0", "--yes"]))
+				.exitCode,
+		).toBe(0);
+		const tokensPath = path.join(project, ".agentkogei/foundation/tokens.css");
+		await writeFile(tokensPath, "Builder customization\n");
+		const previewed = await inspectInstalledPack(project);
+		await rm(path.join(project, ".agentkogei/foundation/components.md"));
+
+		await expect(detachInstalledPack(previewed)).rejects.toThrow(
+			"changed after detach preview",
+		);
+		const status = await inspectInstalledPack(project);
+		expect(status.managedState).toBe("managed");
+	});
+
+	test("treats concurrent repeated detach calls as an idempotent no-op", async () => {
+		const project = await temporaryProject();
+		expect(
+			(await runCli(project, ["install", "foundation@1.0.0", "--yes"]))
+				.exitCode,
+		).toBe(0);
+		await writeFile(
+			path.join(project, ".agentkogei/foundation/tokens.css"),
+			"Builder customization\n",
+		);
+		const previewed = await inspectInstalledPack(project);
+		expect(await detachInstalledPack(previewed)).toBe(true);
+
+		expect(await detachInstalledPack(previewed)).toBe(false);
+	});
+
+	test("keeps repeated detach operations idempotent and blocks managed updates", async () => {
+		const project = await temporaryProject();
+		expect(
+			(await runCli(project, ["install", "foundation@1.0.0", "--yes"]))
+				.exitCode,
+		).toBe(0);
+		const tokensPath = path.join(project, ".agentkogei/foundation/tokens.css");
+		await writeFile(tokensPath, "Builder customization\n");
+		expect((await runCli(project, ["detach", "--yes"])).exitCode).toBe(0);
+		const recordPath = path.join(project, ".agentkogei/installed-pack.json");
+		const recordBefore = await readFile(recordPath, "utf8");
+
+		const repeated = await runCli(project, ["detach", "--yes"]);
+		const update = await runCli(project, ["update", "--yes"]);
+
+		expect(repeated.exitCode).toBe(0);
+		expect(repeated.stdout).toContain("already detached");
+		expect(await readFile(recordPath, "utf8")).toBe(recordBefore);
+		expect(update.exitCode).toBe(1);
+		expect(update.stderr).toContain(
+			"Managed update refused because this is a Detached Pack",
+		);
+		expect(await readFile(tokensPath, "utf8")).toBe("Builder customization\n");
+	});
+
 	test("discovers that the Installed Pack is already current without changing it", async () => {
 		const project = await temporaryProject();
 		const catalogUrl = await catalogFixture(() => {});
@@ -625,14 +801,14 @@ describe("Installed Pack lifecycle CLI", () => {
 
 		expect(result.exitCode).toBe(1);
 		expect(result.stdout).toContain("Conflicts:");
-		expect(result.stdout).toContain("tokens.css: hash mismatch");
+		expect(result.stdout).toContain("tokens.css: modified");
 		expect(await readFile(tokensPath, "utf8")).toBe("Builder customization\n");
 		const status = await runCli(project, ["status"]);
-		expect(status.stdout).toContain("Managed state: detached");
+		expect(status.stdout).toContain("Managed state: managed");
 		expect(status.stdout).toContain("Pack Release: 1.0.0");
 	});
 
-	test("reports a damaged manifest as detached while preserving status identity", async () => {
+	test("reports a damaged managed manifest while preserving status identity", async () => {
 		const project = await temporaryProject();
 		expect(
 			(await runCli(project, ["install", "foundation@1.0.0", "--yes"]))
@@ -649,7 +825,7 @@ describe("Installed Pack lifecycle CLI", () => {
 		expect(status.stdout).toContain("Installed Pack: foundation (foundation)");
 		expect(status.stdout).toContain("Pack Release: 1.0.0");
 		expect(status.stdout).toContain("Pack License: CC-BY-4.0");
-		expect(status.stdout).toContain("Managed state: detached");
+		expect(status.stdout).toContain("Managed state: managed");
 		expect(status.stdout).toContain("manifest is missing or invalid");
 	});
 
@@ -744,6 +920,32 @@ describe("Installed Pack lifecycle CLI", () => {
 		expect(status.exitCode).toBe(0);
 		expect(status.stdout).toContain("Pack Release: 1.0.0");
 		expect(status.stdout).toContain("Managed state: managed");
+	});
+
+	test("rolls back a resource modified inside the update commit window", async () => {
+		const project = await temporaryProject();
+		const catalogUrl = await updateCatalogFixture("1.1.0");
+		const environment = { AGENTKOGEI_OFFICIAL_CATALOG_URL: catalogUrl };
+		expect(
+			(
+				await runCli(
+					project,
+					["install", "foundation@1.0.0", "--yes"],
+					environment,
+				)
+			).exitCode,
+		).toBe(0);
+
+		const result = await modifyUpdateDuringCommit(project, environment);
+
+		expect(result.exitCode).toBe(1);
+		expect(result.stderr).toContain("changed during update commit");
+		expect(
+			await readFile(
+				path.join(project, ".agentkogei/foundation/tokens.css"),
+				"utf8",
+			),
+		).toBe("Late Builder customization\n");
 	});
 
 	test("recovers the previous snapshot after an uncatchable commit interruption", async () => {

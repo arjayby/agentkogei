@@ -64,6 +64,7 @@ export function installedPackRecord(release: RetrievedPackRelease) {
 	const { manifest, item, source } = release;
 	return {
 		schemaVersion: "1.0",
+		state: "managed",
 		pack: { id: manifest.id, version: manifest.release.version },
 		source,
 		license: manifest.license,

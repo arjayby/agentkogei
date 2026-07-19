@@ -31,10 +31,15 @@ const updateTransactionSchema = z
 	.strict();
 
 const updateTransactionFile = ".agentkogei-update-transaction.json";
+const managedResourceSchema = z
+	.object({ target: z.string().min(1), sha256: sha256Schema })
+	.strict();
+type ManagedResource = z.infer<typeof managedResourceSchema>;
 
 const installedPackRecordSchema = z
 	.object({
 		schemaVersion: z.literal("1.0"),
+		state: z.enum(["managed", "detached"]).default("managed"),
 		pack: z
 			.object({
 				id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
@@ -51,12 +56,8 @@ const installedPackRecordSchema = z
 				attribution: z.string().min(1),
 			})
 			.strict(),
-		targets: z.array(
-			z.object({ target: z.string().min(1), sha256: sha256Schema }).strict(),
-		),
-		manifest: z
-			.object({ target: z.string().min(1), sha256: sha256Schema })
-			.strict(),
+		targets: z.array(managedResourceSchema),
+		manifest: managedResourceSchema,
 	})
 	.strict();
 
@@ -67,6 +68,10 @@ export type InstalledPackStatus = {
 	record: InstalledPackRecord;
 	manifest?: PackManifest;
 	managedState: "managed" | "detached";
+	resources: Array<{
+		target: string;
+		state: "unchanged" | "modified" | "missing" | "unexpectedly replaced";
+	}>;
 	verifiedResources: number;
 	totalResources: number;
 	integrityProblems: string[];
@@ -92,6 +97,50 @@ async function digestFile(target: string) {
 	return createHash("sha256")
 		.update(await readFile(target))
 		.digest("hex");
+}
+
+async function inspectResource(
+	projectDirectory: string,
+	resource: ManagedResource,
+) {
+	const target = path.join(projectDirectory, resource.target);
+	try {
+		const status = await lstat(target);
+		if (!status.isFile() || status.isSymbolicLink()) {
+			return {
+				target: resource.target,
+				state: "unexpectedly replaced" as const,
+			};
+		}
+		return {
+			target: resource.target,
+			state:
+				(await digestFile(target)) === resource.sha256
+					? ("unchanged" as const)
+					: ("modified" as const),
+		};
+	} catch (error) {
+		if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+			return { target: resource.target, state: "missing" as const };
+		}
+		throw error;
+	}
+}
+
+async function snapshotResourcesChanged(
+	snapshotDirectory: string,
+	record: InstalledPackRecord,
+) {
+	const managedPrefix = ".agentkogei/";
+	const statuses = await Promise.all(
+		[record.manifest, ...record.targets].map((resource) =>
+			inspectResource(snapshotDirectory, {
+				...resource,
+				target: resource.target.slice(managedPrefix.length),
+			}),
+		),
+	);
+	return statuses.some((resource) => resource.state !== "unchanged");
 }
 
 async function pathExists(target: string) {
@@ -175,22 +224,17 @@ export async function inspectInstalledPack(
 	}
 
 	const resources = [record.manifest, ...record.targets];
-	const integrityProblems: string[] = [];
-	let verifiedResources = 0;
-	for (const resource of resources) {
-		try {
-			if (
-				(await digestFile(path.join(resolvedProject, resource.target))) !==
-				resource.sha256
-			) {
-				integrityProblems.push(`${resource.target}: hash mismatch`);
-			} else {
-				verifiedResources += 1;
-			}
-		} catch {
-			integrityProblems.push(`${resource.target}: missing or unsafe`);
-		}
-	}
+	const resourceStatuses = await Promise.all(
+		resources.map((resource) => inspectResource(resolvedProject, resource)),
+	);
+	const integrityProblems = resourceStatuses.flatMap((resource) =>
+		resource.state === "unchanged"
+			? []
+			: [`${resource.target}: ${resource.state}`],
+	);
+	const verifiedResources = resourceStatuses.filter(
+		(resource) => resource.state === "unchanged",
+	).length;
 
 	let manifest: PackManifest | undefined;
 	try {
@@ -238,7 +282,8 @@ export async function inspectInstalledPack(
 		projectDirectory: resolvedProject,
 		record,
 		manifest,
-		managedState: integrityProblems.length === 0 ? "managed" : "detached",
+		managedState: record.state,
+		resources: resourceStatuses,
 		verifiedResources,
 		totalResources: resources.length,
 		integrityProblems,
@@ -247,12 +292,16 @@ export async function inspectInstalledPack(
 
 export function formatInstalledPackStatus(status: InstalledPackStatus) {
 	return [
-		`Installed Pack: ${status.manifest?.name ?? status.record.pack.id} (${status.record.pack.id})`,
+		`${status.managedState === "detached" ? "Detached Pack" : "Installed Pack"}: ${status.manifest?.name ?? status.record.pack.id} (${status.record.pack.id})`,
 		`Pack Release: ${status.record.pack.version}`,
 		`Pack Source: ${status.record.source}`,
 		`Pack License: ${status.record.license.spdx} (${status.record.license.name})`,
 		`Managed state: ${status.managedState}`,
 		`Resource integrity: ${status.verifiedResources}/${status.totalResources} verified`,
+		"Resource status:",
+		...status.resources.map(
+			(resource) => `  ${resource.target}: ${resource.state}`,
+		),
 		...(status.integrityProblems.length === 0
 			? []
 			: [
@@ -262,8 +311,60 @@ export function formatInstalledPackStatus(status: InstalledPackStatus) {
 	].join("\n");
 }
 
+export function formatDetachPreview(status: InstalledPackStatus) {
+	const affected = status.resources.filter(
+		(resource) => resource.state !== "unchanged",
+	);
+	return [
+		`Detach ${status.manifest?.name ?? status.record.pack.id} ${status.record.pack.version}?`,
+		"Detaching keeps the Design Contract and supporting resources available locally, and preserves the AGENTS.md reference.",
+		"Managed Pack Release updates will remain blocked for the Detached Pack.",
+		`Affected resources: ${affected.length === 0 ? "none" : `\n${affected.map((resource) => `  ${resource.target}: ${resource.state}`).join("\n")}`}`,
+	].join("\n\n");
+}
+
+export async function detachInstalledPack(status: InstalledPackStatus) {
+	if (status.managedState === "detached") {
+		return false;
+	}
+	const current = await inspectInstalledPack(status.projectDirectory);
+	if (
+		current.record.pack.id !== status.record.pack.id ||
+		current.record.pack.version !== status.record.pack.version
+	) {
+		throw new Error("Project changed after detach preview; detach refused");
+	}
+	if (current.managedState === "detached") {
+		return false;
+	}
+	if (JSON.stringify(current.resources) !== JSON.stringify(status.resources)) {
+		throw new Error("Project changed after detach preview; detach refused");
+	}
+	const recordPath = path.join(
+		status.projectDirectory,
+		".agentkogei/installed-pack.json",
+	);
+	const temporaryRecordPath = `${recordPath}.${crypto.randomUUID()}.tmp`;
+	try {
+		await writeFile(
+			temporaryRecordPath,
+			`${JSON.stringify({ ...current.record, state: "detached" }, null, 2)}\n`,
+			{ mode: 0o644, flag: "wx" },
+		);
+		await rename(temporaryRecordPath, recordPath);
+	} finally {
+		await rm(temporaryRecordPath, { force: true }).catch(() => undefined);
+	}
+	return true;
+}
+
 export async function discoverUpdate(input: { projectDirectory: string }) {
 	const status = await inspectInstalledPack(input.projectDirectory);
+	if (status.managedState === "detached") {
+		throw new Error(
+			"Managed update refused because this is a Detached Pack; reconcile local changes before restoring managed updates.",
+		);
+	}
 	if (!status.manifest) {
 		throw new Error(
 			"Update refused because the Installed Pack manifest is invalid; status can show detached resources, but managed update requires reconciliation.",
@@ -379,6 +480,7 @@ export async function applyUpdate(
 	const current = await inspectInstalledPack(plan.status.projectDirectory);
 	if (
 		current.managedState !== "managed" ||
+		current.integrityProblems.length > 0 ||
 		current.record.pack.id !== plan.status.record.pack.id ||
 		current.record.pack.version !== plan.status.record.pack.version
 	) {
@@ -414,6 +516,7 @@ export async function applyUpdate(
 		const beforeCommit = await inspectInstalledPack(projectDirectory);
 		if (
 			beforeCommit.managedState !== "managed" ||
+			beforeCommit.integrityProblems.length > 0 ||
 			beforeCommit.record.pack.version !== plan.status.record.pack.version
 		) {
 			throw new Error("Project changed after update preview; update refused");
@@ -436,6 +539,11 @@ export async function applyUpdate(
 			if (interruptedSignal) {
 				throw new Error(`Update interrupted by ${interruptedSignal}`);
 			}
+			if (await snapshotResourcesChanged(backupDirectory, plan.status.record)) {
+				throw new Error(
+					"Managed resources changed during update commit; update refused",
+				);
+			}
 			await rename(stagingDirectory, agentkogeiDirectory);
 			replacementMoved = true;
 			if (interruptedSignal) {
@@ -445,13 +553,23 @@ export async function applyUpdate(
 				replacementMoved = false;
 				throw new Error(`Update interrupted by ${interruptedSignal}`);
 			}
+			if (await snapshotResourcesChanged(backupDirectory, plan.status.record)) {
+				throw new Error(
+					"Managed resources changed during update commit; update refused",
+				);
+			}
 			await rm(journalPath, { force: true });
 		} finally {
 			process.off("SIGINT", handleSigint);
 			process.off("SIGTERM", handleSigterm);
 		}
 	} catch (error) {
-		if (previousMoved && !replacementMoved) {
+		if (previousMoved && replacementMoved) {
+			await rm(agentkogeiDirectory, { recursive: true, force: true });
+			await rename(backupDirectory, agentkogeiDirectory);
+			previousMoved = false;
+			replacementMoved = false;
+		} else if (previousMoved) {
 			await rename(backupDirectory, agentkogeiDirectory);
 			previousMoved = false;
 		}
