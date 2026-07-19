@@ -2,8 +2,9 @@ import "@agentkogei/env/web";
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  typedRoutes: true,
-  reactCompiler: true,
+	distDir: process.env.NEXT_TEST_BUILD === "true" ? ".next-test" : ".next",
+	typedRoutes: true,
+	reactCompiler: true,
 };
 
 export default nextConfig;

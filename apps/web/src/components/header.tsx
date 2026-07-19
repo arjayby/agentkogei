@@ -1,7 +1,7 @@
-import { buttonVariants } from "@agentkogei/ui/components/button";
 import type { Route } from "next";
 import Link from "next/link";
 
+import BuilderAccountMenu from "./builder-account-menu";
 import { ModeToggle } from "./mode-toggle";
 
 const navigation = [
@@ -38,15 +38,7 @@ export default function Header() {
 				</nav>
 				<div className="flex items-center gap-2">
 					<ModeToggle />
-					<Link
-						href="/login"
-						className={buttonVariants({
-							variant: "outline",
-							className: "hidden sm:inline-flex",
-						})}
-					>
-						Sign in
-					</Link>
+					<BuilderAccountMenu />
 				</div>
 			</div>
 		</header>

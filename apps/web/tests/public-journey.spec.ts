@@ -24,7 +24,7 @@ async function runLiveCatalogInstallation(project: string) {
 		{
 			env: {
 				...process.env,
-				AGENTKOGEI_OFFICIAL_CATALOG_URL: "http://localhost:3001/r/",
+				AGENTKOGEI_OFFICIAL_CATALOG_URL: "http://localhost:3011/r/",
 			},
 		},
 	);
@@ -229,7 +229,7 @@ test("the generic CLI anonymously installs Editorial from the live Pack Source f
 			"utf8",
 		);
 		expect(record).toContain(
-			'"source": "http://localhost:3001/r/editorial/1.0.0.json"',
+			'"source": "http://localhost:3011/r/editorial/1.0.0.json"',
 		);
 	} finally {
 		await rm(project, { recursive: true, force: true });
