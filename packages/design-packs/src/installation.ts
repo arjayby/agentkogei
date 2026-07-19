@@ -19,6 +19,7 @@ import { fileURLToPath } from "node:url";
 import { z } from "zod";
 
 import { type PackManifest, packManifestSchema } from "./manifest";
+import { packReleaseVersionSchema } from "./release-version";
 import { validatePackRelease } from "./validator";
 
 const registryFileSchema = z
@@ -41,7 +42,7 @@ const registryItemSchema = z
 	})
 	.strict();
 
-type RegistryItem = z.infer<typeof registryItemSchema>;
+export type RegistryItem = z.infer<typeof registryItemSchema>;
 
 export type InstallationPlan = {
 	manifest: PackManifest;
@@ -51,6 +52,62 @@ export type InstallationPlan = {
 	conflicts: string[];
 	releaseDirectory: string;
 };
+
+export type RetrievedPackRelease = {
+	manifest: PackManifest;
+	item: RegistryItem;
+	source: string;
+	releaseDirectory: string;
+};
+
+export function installedPackRecord(release: RetrievedPackRelease) {
+	const { manifest, item, source } = release;
+	return {
+		schemaVersion: "1.0",
+		pack: { id: manifest.id, version: manifest.release.version },
+		source,
+		license: manifest.license,
+		targets: manifest.files.map((file) => ({
+			target: file.target,
+			sha256: file.sha256,
+		})),
+		manifest: {
+			target: `.agentkogei/${manifest.id}/agentkogei.manifest.json`,
+			sha256: createHash("sha256")
+				.update(
+					item.files.find((file) => file.path === "agentkogei.manifest.json")
+						?.content ?? "",
+				)
+				.digest("hex"),
+		},
+	};
+}
+
+export async function stageInstalledPackSnapshot(
+	stagingDirectory: string,
+	release: RetrievedPackRelease,
+) {
+	const { manifest, item } = release;
+	const stagingPackDirectory = path.join(stagingDirectory, manifest.id);
+	await mkdir(stagingPackDirectory, { recursive: true, mode: 0o755 });
+	for (const file of item.files) {
+		const relativeTarget =
+			file.path === "agentkogei.manifest.json"
+				? "agentkogei.manifest.json"
+				: path.relative(`.agentkogei/${manifest.id}`, file.target);
+		if (!isSafeRelativePath(relativeTarget)) {
+			throw new Error(`unsafe snapshot target: ${file.target}`);
+		}
+		const target = path.join(stagingPackDirectory, relativeTarget);
+		await mkdir(path.dirname(target), { recursive: true });
+		await writeFile(target, file.content, { mode: 0o644, flag: "wx" });
+	}
+	await writeFile(
+		path.join(stagingDirectory, "installed-pack.json"),
+		`${JSON.stringify(installedPackRecord(release), null, 2)}\n`,
+		{ mode: 0o644, flag: "wx" },
+	);
+}
 
 const managedBlockStart = "<!-- agentkogei:design-pack:start -->";
 const managedBlockEnd = "<!-- agentkogei:design-pack:end -->";
@@ -276,17 +333,36 @@ export async function prepareInstallation(input: {
 	projectDirectory: string;
 	officialCatalogUrl: string;
 }): Promise<InstallationPlan> {
+	const projectDirectory = await realpath(input.projectDirectory);
+	await access(projectDirectory);
+	const release = await retrievePackRelease(input);
+
+	try {
+		return {
+			...release,
+			projectDirectory,
+			conflicts: await findProjectConflicts(projectDirectory, release.manifest),
+		};
+	} catch (error) {
+		await rm(release.releaseDirectory, { recursive: true, force: true });
+		throw error;
+	}
+}
+
+export async function retrievePackRelease(input: {
+	identity: string;
+	version?: string;
+	officialCatalogUrl: string;
+}): Promise<RetrievedPackRelease> {
 	if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(input.identity)) {
 		throw new Error("invalid Official Catalog identity");
 	}
 	if (
 		input.version &&
-		!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(input.version)
+		!packReleaseVersionSchema.safeParse(input.version).success
 	) {
 		throw new Error("invalid Pack Release version");
 	}
-	const projectDirectory = await realpath(input.projectDirectory);
-	await access(projectDirectory);
 	const source = new URL(
 		input.version
 			? `${input.identity}/${input.version}.json`
@@ -314,19 +390,7 @@ export async function prepareInstallation(input: {
 		);
 	}
 
-	try {
-		return {
-			manifest,
-			item,
-			projectDirectory,
-			source: source.href,
-			conflicts: await findProjectConflicts(projectDirectory, manifest),
-			releaseDirectory,
-		};
-	} catch (error) {
-		await rm(releaseDirectory, { recursive: true, force: true });
-		throw error;
-	}
+	return { manifest, item, source: source.href, releaseDirectory };
 }
 
 function managedAgentsBlock(manifest: PackManifest) {
@@ -377,7 +441,6 @@ export async function applyInstallation(plan: InstallationPlan) {
 		projectDirectory,
 		`.agentkogei-install-${manifest.id}-${crypto.randomUUID()}`,
 	);
-	const stagingPackDirectory = path.join(stagingDirectory, manifest.id);
 	const agentsPath = path.join(projectDirectory, "AGENTS.md");
 	let agentsExisted = true;
 	let agentsHandle: Awaited<ReturnType<typeof open>>;
@@ -428,48 +491,7 @@ export async function applyInstallation(plan: InstallationPlan) {
 	let installationCompleted = false;
 
 	try {
-		await mkdir(stagingPackDirectory, { recursive: true, mode: 0o755 });
-		for (const file of plan.item.files) {
-			const relativeTarget =
-				file.path === "agentkogei.manifest.json"
-					? "agentkogei.manifest.json"
-					: path.relative(`.agentkogei/${manifest.id}`, file.target);
-			if (!isSafeRelativePath(relativeTarget)) {
-				throw new Error(`unsafe install target: ${file.target}`);
-			}
-			const target = path.join(stagingPackDirectory, relativeTarget);
-			await mkdir(path.dirname(target), { recursive: true });
-			await writeFile(target, file.content, { mode: 0o644, flag: "wx" });
-		}
-
-		const record = {
-			schemaVersion: "1.0",
-			pack: { id: manifest.id, version: manifest.release.version },
-			source: plan.source,
-			license: manifest.license,
-			targets: manifest.files.map((file) => ({
-				target: file.target,
-				sha256: file.sha256,
-			})),
-			manifest: {
-				target: `.agentkogei/${manifest.id}/agentkogei.manifest.json`,
-				sha256: createHash("sha256")
-					.update(
-						plan.item.files.find(
-							(file) => file.path === "agentkogei.manifest.json",
-						)?.content ?? "",
-					)
-					.digest("hex"),
-			},
-		};
-		await writeFile(
-			path.join(stagingDirectory, "installed-pack.json"),
-			`${JSON.stringify(record, null, 2)}\n`,
-			{
-				mode: 0o644,
-				flag: "wx",
-			},
-		);
+		await stageInstalledPackSnapshot(stagingDirectory, plan);
 		await agentsHandle.write(agentsAddition);
 		agentsWritten = true;
 		await rename(stagingDirectory, agentkogeiDirectory);
@@ -489,6 +511,8 @@ export async function applyInstallation(plan: InstallationPlan) {
 	}
 }
 
-export async function discardInstallationPlan(plan: InstallationPlan) {
+export async function discardInstallationPlan(plan: {
+	releaseDirectory: string;
+}) {
 	await rm(plan.releaseDirectory, { recursive: true, force: true });
 }

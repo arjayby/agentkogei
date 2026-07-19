@@ -24,7 +24,7 @@ describe("Foundation shadcn-compatible transport", () => {
 		};
 		expect(manifest).toMatchObject({
 			access: "open",
-			release: { immutable: true, version: "1.0.0" },
+			release: { immutable: true, version: "1.1.0" },
 		});
 
 		const designContract = item.files.find(

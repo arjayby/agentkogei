@@ -46,8 +46,7 @@ export async function buildFoundationRegistryItem(
 		name: "foundation",
 		type: "registry:item",
 		title: "Foundation Open Design Pack",
-		description:
-			"Foundation 1.0.0: a complete, neutral, crisp, highly legible B2B Interface System.",
+		description: `Foundation ${manifest.release.version}: a complete, neutral, crisp, highly legible B2B Interface System.`,
 		files,
 	};
 }
