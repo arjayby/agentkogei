@@ -101,6 +101,22 @@ test("a premium Pack Preview shows complete evidence without exposing gated reso
 		),
 	).toBeVisible();
 	await expect(page.getByLabel("Command rendered Pack Preview")).toBeVisible();
+	for (const surfaceEvidence of [
+		"Ship with operational confidence.",
+		"Continue securely",
+		"Verify the runtime connection",
+		"SYSTEM HEALTH",
+		"v1.8.4",
+		"Configuration verified",
+		"Danger zone",
+		"✓Verified",
+	]) {
+		await expect(
+			page.getByText(surfaceEvidence, {
+				exact: surfaceEvidence === "✓Verified",
+			}),
+		).toBeVisible();
+	}
 	await expect(
 		page.getByText(
 			"Installation retrieves the complete release only through the authenticated Premium Pack Source.",
@@ -241,7 +257,7 @@ test("the generic CLI anonymously installs Editorial from the live Pack Source f
 	}
 });
 
-for (const evaluatedPack of ["Foundation", "Editorial"] as const) {
+for (const evaluatedPack of ["Foundation", "Editorial", "Command"] as const) {
 	test(`${evaluatedPack} evaluation renders every required screen across evaluated modes`, async ({
 		page,
 	}) => {

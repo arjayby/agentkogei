@@ -35,22 +35,22 @@ export function PackArtwork({ pack }: { pack: DesignPack }) {
 	if (pack.slug === "command") {
 		return (
 			<div
-				className="flex h-64 flex-col justify-between bg-foreground p-6 font-mono text-background"
+				className="flex h-64 flex-col justify-between bg-[#080b10] p-6 font-mono text-[#e8edf5]"
 				aria-hidden="true"
 			>
-				<div className="flex justify-between text-[0.65rem] uppercase tracking-[0.2em] opacity-60">
+				<div className="flex justify-between text-[#98a4b5] text-[0.65rem] uppercase tracking-[0.2em]">
 					<span>node / 04</span>
 					<span>online</span>
 				</div>
 				<div className="grid grid-cols-[auto_1fr] gap-3 text-xs">
-					<span className="opacity-50">01</span>
+					<span className="text-[#98a4b5]">01</span>
 					<span>deploy --production</span>
-					<span className="opacity-50">02</span>
+					<span className="text-[#98a4b5]">02</span>
 					<span>checks 24/24</span>
-					<span className="opacity-50">03</span>
+					<span className="text-[#98a4b5]">03</span>
 					<span>ready in 18.4s</span>
 				</div>
-				<div className="h-1 w-24 bg-background" />
+				<div className="h-1 w-24 bg-[#55d6ff]" />
 			</div>
 		);
 	}
