@@ -25,6 +25,8 @@ jobs:
       CI: "true"
       CORS_ORIGIN: "http://localhost:3001"
       DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5432/agentkogei"
+      GITHUB_CLIENT_ID: "ci-only-github-client"
+      GITHUB_CLIENT_SECRET: "ci-only-github-secret"
       HUSKY: "0"
       POLAR_ACCESS_TOKEN: "ci-only-polar-token"
       POLAR_SUCCESS_URL: "http://localhost:3001/success"
