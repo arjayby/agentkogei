@@ -166,10 +166,34 @@ export const packCredential = pgTable(
 	],
 );
 
+export const projectLicense = pgTable(
+	"project_license",
+	{
+		id: text("id").primaryKey(),
+		builderId: text("builder_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		packId: text("pack_id").notNull(),
+		packRelease: text("pack_release").notNull(),
+		createdAt: timestamp("created_at", { withTimezone: true })
+			.defaultNow()
+			.notNull(),
+	},
+	(table) => [index("project_license_builder_idx").on(table.builderId)],
+);
+
 export const userRelations = relations(user, ({ many }) => ({
 	sessions: many(session),
 	accounts: many(account),
 	packCredentials: many(packCredential),
+	projectLicenses: many(projectLicense),
+}));
+
+export const projectLicenseRelations = relations(projectLicense, ({ one }) => ({
+	builder: one(user, {
+		fields: [projectLicense.builderId],
+		references: [user.id],
+	}),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({

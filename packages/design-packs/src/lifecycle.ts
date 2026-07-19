@@ -47,6 +47,7 @@ const installedPackRecordSchema = z
 			})
 			.strict(),
 		source: z.url(),
+		projectLicense: z.uuid().optional(),
 		license: z
 			.object({
 				spdx: z.string().min(1),
@@ -296,6 +297,9 @@ export function formatInstalledPackStatus(status: InstalledPackStatus) {
 		`Pack Release: ${status.record.pack.version}`,
 		`Pack Source: ${status.record.source}`,
 		`Pack License: ${status.record.license.spdx} (${status.record.license.name})`,
+		...(status.record.projectLicense
+			? [`Project License: ${status.record.projectLicense}`]
+			: []),
 		`Managed state: ${status.managedState}`,
 		`Resource integrity: ${status.verifiedResources}/${status.totalResources} verified`,
 		"Resource status:",

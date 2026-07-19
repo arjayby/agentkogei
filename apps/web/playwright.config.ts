@@ -1,5 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
+import { buildTestPremiumDeliveryFixture } from "./tests/support/premium-delivery-fixture";
+
 export default defineConfig({
 	testDir: "./tests",
 	fullyParallel: true,
@@ -13,6 +15,13 @@ export default defineConfig({
 	projects: [
 		{
 			name: "chromium",
+			testIgnore: /premium-delivery-journey\.spec\.ts/,
+			use: { ...devices["Desktop Chrome"] },
+		},
+		{
+			name: "premium-delivery",
+			dependencies: ["chromium"],
+			testMatch: /premium-delivery-journey\.spec\.ts/,
 			use: { ...devices["Desktop Chrome"] },
 		},
 	],
@@ -30,6 +39,7 @@ export default defineConfig({
 				"http://localhost:3011/success?checkout_id={CHECKOUT_ID}",
 			POLAR_WEBHOOK_SECRET: "deterministic-polar-webhook-secret",
 			NEXT_TEST_BUILD: "true",
+			PREMIUM_DELIVERY_FIXTURE: buildTestPremiumDeliveryFixture(),
 		},
 		url: "http://localhost:3011",
 		reuseExistingServer: !process.env.CI,

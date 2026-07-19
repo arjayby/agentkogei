@@ -5,9 +5,10 @@
 	"scripts": {
 		"dev": "next dev --port 3001",
 		"dev:test": "next dev --port 3011",
-		"build": "bun run registry:build && next build",
+		"build": "bun run registry:build && next build && bun run artifacts:verify",
 		"check-types": "tsc --noEmit",
 		"registry:build": "bun run scripts/build-registry.ts",
+		"artifacts:verify": "bun run scripts/verify-premium-artifacts.ts",
 		"test": "bun run registry:build && playwright test",
 		"test:public": "playwright test tests/public-journey.spec.ts",
 		"start": "next start"

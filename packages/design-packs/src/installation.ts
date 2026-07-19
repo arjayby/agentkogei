@@ -58,6 +58,14 @@ export type RetrievedPackRelease = {
 	source: string;
 	releaseDirectory: string;
 	sourceKind: "official" | "third-party";
+	projectLicense?: string;
+};
+
+export type PremiumRetrievalAuthorization = {
+	credential: string;
+	server: string;
+	projectLicense: string;
+	action: "install";
 };
 
 export type InstallationPlan = RetrievedPackRelease & {
@@ -73,6 +81,9 @@ export function installedPackRecord(release: RetrievedPackRelease) {
 		pack: { id: manifest.id, version: manifest.release.version },
 		source,
 		license: manifest.license,
+		...(release.projectLicense
+			? { projectLicense: release.projectLicense }
+			: {}),
 		targets: manifest.files.map((file) => ({
 			target: file.target,
 			sha256: file.sha256,
@@ -131,13 +142,33 @@ function isSafeRelativePath(value: string) {
 	);
 }
 
-async function readSource(source: URL) {
+async function readSource(
+	source: URL,
+	authorization?: PremiumRetrievalAuthorization,
+) {
 	if (source.protocol === "file:") {
-		return readFile(fileURLToPath(source), "utf8");
+		return {
+			contents: await readFile(fileURLToPath(source), "utf8"),
+			projectLicense: null,
+		};
 	}
+	const authorizationOrigin = authorization
+		? new URL(authorization.server).origin
+		: null;
 	let current = source;
 	for (let redirects = 0; redirects <= 5; redirects += 1) {
-		const response = await fetch(current, { redirect: "manual" });
+		const canAuthorize = authorizationOrigin === current.origin;
+		const response = await fetch(current, {
+			redirect: "manual",
+			headers:
+				canAuthorize && authorization
+					? {
+							Authorization: `Bearer ${authorization.credential}`,
+							"X-AgentKogei-Project-License": authorization.projectLicense,
+							"X-AgentKogei-Action": authorization.action,
+						}
+					: undefined,
+		});
 		if (response.status >= 300 && response.status < 400) {
 			const location = response.headers.get("location");
 			if (!location) {
@@ -155,7 +186,10 @@ async function readSource(source: URL) {
 		if (!response.ok) {
 			throw new Error(`Pack Source retrieval failed (${response.status})`);
 		}
-		return response.text();
+		return {
+			contents: await response.text(),
+			projectLicense: response.headers.get("x-agentkogei-project-license"),
+		};
 	}
 	throw new Error("Pack Source exceeded the redirect limit");
 }
@@ -358,6 +392,7 @@ export async function prepareInstallation(input: {
 	projectDirectory: string;
 	officialCatalogUrl: string;
 	source?: string;
+	premiumAuthorization?: PremiumRetrievalAuthorization;
 }): Promise<InstallationPlan> {
 	const projectDirectory = await realpath(input.projectDirectory);
 	await access(projectDirectory);
@@ -380,6 +415,7 @@ export async function retrievePackRelease(input: {
 	version?: string;
 	officialCatalogUrl: string;
 	source?: string;
+	premiumAuthorization?: PremiumRetrievalAuthorization;
 }): Promise<RetrievedPackRelease> {
 	if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(input.identity)) {
 		throw new Error("invalid Design Pack identity");
@@ -418,8 +454,11 @@ export async function retrievePackRelease(input: {
 		throw new Error(`unsupported Pack Source protocol: ${source.protocol}`);
 	}
 	let item: RegistryItem;
+	let deliveredProjectLicense: string | null;
 	try {
-		item = registryItemSchema.parse(JSON.parse(await readSource(source)));
+		const retrieved = await readSource(source, input.premiumAuthorization);
+		deliveredProjectLicense = retrieved.projectLicense;
+		item = registryItemSchema.parse(JSON.parse(retrieved.contents));
 	} catch (error) {
 		throw new Error(
 			`Pack Source retrieval or parsing failed: ${error instanceof Error ? error.message : String(error)}`,
@@ -429,6 +468,14 @@ export async function retrievePackRelease(input: {
 		item,
 		input.identity,
 	);
+	if (
+		manifest.access === "premium" &&
+		(!input.premiumAuthorization ||
+			deliveredProjectLicense !== input.premiumAuthorization.projectLicense)
+	) {
+		await rm(releaseDirectory, { recursive: true, force: true });
+		throw new Error("Premium Pack Source did not issue a Project License");
+	}
 	if (input.version && manifest.release.version !== input.version) {
 		await rm(releaseDirectory, { recursive: true, force: true });
 		throw new Error(
@@ -442,6 +489,9 @@ export async function retrievePackRelease(input: {
 		source: source.href,
 		releaseDirectory,
 		sourceKind: input.source ? "third-party" : "official",
+		...(manifest.access === "premium" && deliveredProjectLicense
+			? { projectLicense: deliveredProjectLicense }
+			: {}),
 	};
 }
 
@@ -570,10 +620,72 @@ export async function applyInstallation(plan: InstallationPlan) {
 		}
 		await rm(plan.releaseDirectory, { recursive: true, force: true });
 	}
+
+	return {
+		rollback: async () => {
+			const expectedAgents = `${originalAgents}${agentsAddition}`;
+			const rollbackAgentsHandle = await open(
+				agentsPath,
+				constants.O_RDWR | constants.O_NOFOLLOW,
+			);
+			const currentAgents = await rollbackAgentsHandle.readFile("utf8");
+			const record = JSON.parse(
+				await readFile(
+					path.join(agentkogeiDirectory, "installed-pack.json"),
+					"utf8",
+				),
+			) as {
+				pack?: { id?: string; version?: string };
+				projectLicense?: string;
+			};
+			if (
+				currentAgents !== expectedAgents ||
+				record.pack?.id !== plan.manifest.id ||
+				record.pack.version !== plan.manifest.release.version ||
+				record.projectLicense !== plan.projectLicense
+			) {
+				await rollbackAgentsHandle.close();
+				throw new Error(
+					"Project changed before Project License recording; automatic rollback refused",
+				);
+			}
+			if (agentsExisted) {
+				await rollbackAgentsHandle.truncate(0);
+				await rollbackAgentsHandle.write(originalAgents, 0, "utf8");
+				await rollbackAgentsHandle.close();
+			} else {
+				await rollbackAgentsHandle.close();
+				await rm(agentsPath, { force: true });
+			}
+			await rm(agentkogeiDirectory, { recursive: true, force: true });
+		},
+	};
 }
 
 export async function discardInstallationPlan(plan: {
 	releaseDirectory: string;
 }) {
 	await rm(plan.releaseDirectory, { recursive: true, force: true });
+}
+
+export async function recordPremiumProjectLicense(
+	plan: InstallationPlan,
+	authorization: PremiumRetrievalAuthorization,
+) {
+	if (!plan.projectLicense) return;
+	const source = new URL(plan.source);
+	if (source.origin !== new URL(authorization.server).origin) {
+		throw new Error("Project License authority does not match the Pack Source");
+	}
+	const response = await fetch(source, {
+		method: "POST",
+		headers: {
+			Authorization: `Bearer ${authorization.credential}`,
+			"X-AgentKogei-Project-License": plan.projectLicense,
+			"X-AgentKogei-Action": authorization.action,
+		},
+	});
+	if (!response.ok) {
+		throw new Error(`Project License operation failed (${response.status})`);
+	}
 }

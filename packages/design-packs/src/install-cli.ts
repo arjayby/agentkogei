@@ -1,5 +1,6 @@
 #!/usr/bin/env bun
 
+import { randomUUID } from "node:crypto";
 import { createInterface } from "node:readline/promises";
 
 import {
@@ -7,6 +8,7 @@ import {
 	discardInstallationPlan,
 	formatInstallationPreview,
 	prepareInstallation,
+	recordPremiumProjectLicense,
 } from "./installation";
 import {
 	applyUpdate,
@@ -21,6 +23,7 @@ import {
 import {
 	loginWithPackCredential,
 	logoutPackCredential,
+	readPackCredential,
 } from "./pack-credential-cli";
 
 function usage() {
@@ -156,6 +159,15 @@ async function main() {
 		usage();
 		return 2;
 	}
+	const storedCredential = await readPackCredential();
+	const premiumAuthorization = storedCredential
+		? {
+				credential: storedCredential.credential,
+				server: storedCredential.server,
+				projectLicense: randomUUID(),
+				action: "install" as const,
+			}
+		: undefined;
 	const plan = await prepareInstallation({
 		identity,
 		version,
@@ -164,6 +176,7 @@ async function main() {
 		officialCatalogUrl:
 			process.env.AGENTKOGEI_OFFICIAL_CATALOG_URL ??
 			"https://agentkogei.com/r/",
+		...(premiumAuthorization ? { premiumAuthorization } : {}),
 	});
 	console.log(formatInstallationPreview(plan));
 	if (plan.conflicts.length > 0) {
@@ -186,7 +199,15 @@ async function main() {
 		return 2;
 	}
 
-	await applyInstallation(plan);
+	const applied = await applyInstallation(plan);
+	if (plan.projectLicense && premiumAuthorization) {
+		try {
+			await recordPremiumProjectLicense(plan, premiumAuthorization);
+		} catch (error) {
+			await applied.rollback();
+			throw error;
+		}
+	}
 	console.log(
 		`\nInstalled ${plan.manifest.id}@${plan.manifest.release.version}.`,
 	);

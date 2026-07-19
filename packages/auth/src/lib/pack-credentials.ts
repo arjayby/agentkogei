@@ -319,3 +319,14 @@ export async function expireTestDeviceAuthorization(deviceCode: string) {
 	record.resolvedAt = new Date();
 	return true;
 }
+
+export function setTestPackCredentialScope(secret: string, scope: string) {
+	if (!usesTestBoundary()) return false;
+	const secretHash = hashSecret(secret);
+	const credential = [...getTestState().credentials.values()].find(
+		(candidate) => candidate.secretHash === secretHash,
+	);
+	if (!credential) return false;
+	credential.scope = scope;
+	return true;
+}
