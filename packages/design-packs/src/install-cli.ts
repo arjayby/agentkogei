@@ -21,7 +21,7 @@ import {
 
 function usage() {
 	console.error(
-		"Usage:\n  agentkogei install <pack[@version]> [--project <directory>] [--yes]\n  agentkogei status [--project <directory>]\n  agentkogei update [--project <directory>] [--yes]\n  agentkogei detach [--project <directory>] [--yes]",
+		"Usage:\n  agentkogei install <pack[@version]> [--source <registry-base-url/|registry-item-url>] [--project <directory>] [--yes]\n  agentkogei status [--project <directory>]\n  agentkogei update [--project <directory>] [--yes]\n  agentkogei detach [--project <directory>] [--yes]",
 	);
 }
 
@@ -55,7 +55,11 @@ async function requestActionConfirmation(
 async function main() {
 	const arguments_ = process.argv.slice(2);
 	const projectOption = optionValue(arguments_, "--project");
-	if (arguments_.includes("--project") && !projectOption) {
+	const sourceOption = optionValue(arguments_, "--source");
+	if (
+		(arguments_.includes("--project") && !projectOption) ||
+		(arguments_.includes("--source") && !sourceOption)
+	) {
 		usage();
 		return 2;
 	}
@@ -137,11 +141,11 @@ async function main() {
 		usage();
 		return 2;
 	}
-
 	const plan = await prepareInstallation({
 		identity,
 		version,
 		projectDirectory,
+		source: sourceOption,
 		officialCatalogUrl:
 			process.env.AGENTKOGEI_OFFICIAL_CATALOG_URL ??
 			"https://agentkogei.com/r/",

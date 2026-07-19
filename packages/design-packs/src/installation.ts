@@ -20,13 +20,21 @@ import { z } from "zod";
 
 import { type PackManifest, packManifestSchema } from "./manifest";
 import { packReleaseVersionSchema } from "./release-version";
+import { hasTerminalControl } from "./text-safety";
 import { validatePackRelease } from "./validator";
+
+const registryPathSchema = z
+	.string()
+	.min(1)
+	.refine((value) => !hasTerminalControl(value), {
+		message: "must not contain terminal control characters",
+	});
 
 const registryFileSchema = z
 	.object({
-		path: z.string().min(1),
+		path: registryPathSchema,
 		type: z.literal("registry:file"),
-		target: z.string().min(1),
+		target: registryPathSchema,
 		content: z.string(),
 	})
 	.strict();
@@ -44,20 +52,17 @@ const registryItemSchema = z
 
 export type RegistryItem = z.infer<typeof registryItemSchema>;
 
-export type InstallationPlan = {
-	manifest: PackManifest;
-	item: RegistryItem;
-	projectDirectory: string;
-	source: string;
-	conflicts: string[];
-	releaseDirectory: string;
-};
-
 export type RetrievedPackRelease = {
 	manifest: PackManifest;
 	item: RegistryItem;
 	source: string;
 	releaseDirectory: string;
+	sourceKind: "official" | "third-party";
+};
+
+export type InstallationPlan = RetrievedPackRelease & {
+	projectDirectory: string;
+	conflicts: string[];
 };
 
 export function installedPackRecord(release: RetrievedPackRelease) {
@@ -116,6 +121,7 @@ const managedBlockEnd = "<!-- agentkogei:design-pack:end -->";
 function isSafeRelativePath(value: string) {
 	return (
 		value.length > 0 &&
+		!hasTerminalControl(value) &&
 		!value.startsWith("/") &&
 		!value.includes("\\") &&
 		!value.includes(":") &&
@@ -129,11 +135,29 @@ async function readSource(source: URL) {
 	if (source.protocol === "file:") {
 		return readFile(fileURLToPath(source), "utf8");
 	}
-	const response = await fetch(source);
-	if (!response.ok) {
-		throw new Error(`Pack Source retrieval failed (${response.status})`);
+	let current = source;
+	for (let redirects = 0; redirects <= 5; redirects += 1) {
+		const response = await fetch(current, { redirect: "manual" });
+		if (response.status >= 300 && response.status < 400) {
+			const location = response.headers.get("location");
+			if (!location) {
+				throw new Error("Pack Source redirect is missing a location");
+			}
+			const redirected = new URL(location, current);
+			if (redirected.origin !== source.origin) {
+				throw new Error(
+					"Pack Source redirected outside the chosen Pack Source",
+				);
+			}
+			current = redirected;
+			continue;
+		}
+		if (!response.ok) {
+			throw new Error(`Pack Source retrieval failed (${response.status})`);
+		}
+		return response.text();
 	}
-	return response.text();
+	throw new Error("Pack Source exceeded the redirect limit");
 }
 
 async function pathExists(target: string) {
@@ -192,9 +216,15 @@ async function materializeAndValidate(
 		if (!manifestFile) {
 			throw new Error("registry item is missing agentkogei.manifest.json");
 		}
+		const validation = await validatePackRelease(releaseDirectory);
+		if (!validation.ok) {
+			throw new Error(
+				`Pack Release validation failed:\n${validation.errors.join("\n")}`,
+			);
+		}
 		const manifest = packManifestSchema.parse(JSON.parse(manifestFile.content));
 		if (manifest.id !== identity || item.name !== identity) {
-			throw new Error(`Official Catalog identity does not match ${identity}`);
+			throw new Error(`Pack Source identity does not match ${identity}`);
 		}
 
 		const expectedFiles = new Set([
@@ -229,12 +259,6 @@ async function materializeAndValidate(
 			}
 		}
 
-		const validation = await validatePackRelease(releaseDirectory);
-		if (!validation.ok) {
-			throw new Error(
-				`Pack Release validation failed:\n${validation.errors.join("\n")}`,
-			);
-		}
 		return { manifest, releaseDirectory };
 	} catch (error) {
 		await rm(releaseDirectory, { recursive: true, force: true });
@@ -333,6 +357,7 @@ export async function prepareInstallation(input: {
 	version?: string;
 	projectDirectory: string;
 	officialCatalogUrl: string;
+	source?: string;
 }): Promise<InstallationPlan> {
 	const projectDirectory = await realpath(input.projectDirectory);
 	await access(projectDirectory);
@@ -354,9 +379,10 @@ export async function retrievePackRelease(input: {
 	identity: string;
 	version?: string;
 	officialCatalogUrl: string;
+	source?: string;
 }): Promise<RetrievedPackRelease> {
 	if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(input.identity)) {
-		throw new Error("invalid Official Catalog identity");
+		throw new Error("invalid Design Pack identity");
 	}
 	if (
 		input.version &&
@@ -364,14 +390,33 @@ export async function retrievePackRelease(input: {
 	) {
 		throw new Error("invalid Pack Release version");
 	}
-	const source = new URL(
-		input.version
-			? `${input.identity}/${input.version}.json`
-			: `${input.identity}.json`,
-		input.officialCatalogUrl.endsWith("/")
-			? input.officialCatalogUrl
-			: `${input.officialCatalogUrl}/`,
-	);
+	const releaseItemPath = input.version
+		? `${input.identity}/${input.version}.json`
+		: `${input.identity}.json`;
+	let source: URL;
+	try {
+		if (input.source) {
+			const explicitSource = new URL(input.source);
+			source =
+				explicitSource.pathname.endsWith("/") &&
+				explicitSource.search === "" &&
+				explicitSource.hash === ""
+					? new URL(releaseItemPath, explicitSource)
+					: explicitSource;
+		} else {
+			source = new URL(
+				releaseItemPath,
+				input.officialCatalogUrl.endsWith("/")
+					? input.officialCatalogUrl
+					: `${input.officialCatalogUrl}/`,
+			);
+		}
+	} catch {
+		throw new Error("Pack Source must be an absolute URL");
+	}
+	if (!["file:", "http:", "https:"].includes(source.protocol)) {
+		throw new Error(`unsupported Pack Source protocol: ${source.protocol}`);
+	}
 	let item: RegistryItem;
 	try {
 		item = registryItemSchema.parse(JSON.parse(await readSource(source)));
@@ -391,7 +436,13 @@ export async function retrievePackRelease(input: {
 		);
 	}
 
-	return { manifest, item, source: source.href, releaseDirectory };
+	return {
+		manifest,
+		item,
+		source: source.href,
+		releaseDirectory,
+		sourceKind: input.source ? "third-party" : "official",
+	};
 }
 
 function managedAgentsBlock(manifest: PackManifest) {
@@ -408,8 +459,17 @@ export function formatInstallationPreview(plan: InstallationPlan) {
 		.join("\n  ");
 	return [
 		`${manifest.name} ${manifest.release.version} (${manifest.id})`,
+		`Publisher: ${manifest.publisher}`,
 		`Pack Source: ${plan.source}`,
+		...(plan.sourceKind === "third-party"
+			? [
+					"Third-party notice: this Design Pack is not a Published Pack and carries no AgentKogei Pack Evaluation guarantee.",
+				]
+			: []),
 		`License: ${manifest.license.name} (${manifest.license.spdx})`,
+		`License URL: ${manifest.license.url}`,
+		`License file: ${manifest.license.file}`,
+		`License attribution: ${manifest.license.attribution}`,
 		`Compatibility:\n  ${adapter}`,
 		`Planned writes:\n${[
 			...manifest.files.map((file) => `  ${file.target}`),

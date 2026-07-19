@@ -1,10 +1,25 @@
 import { z } from "zod";
 import { packReleaseVersionSchema } from "./release-version";
+import { hasTerminalControl } from "./text-safety";
 
 const sha256Schema = z.string().regex(/^[a-f0-9]{64}$/);
+const terminalTextSchema = z
+	.string()
+	.min(1)
+	.refine((value) => !hasTerminalControl(value), {
+		message: "must not contain terminal control characters",
+	});
+const terminalUrlSchema = z
+	.url()
+	.refine((value) => !hasTerminalControl(value), {
+		message: "must not contain terminal control characters",
+	});
 const relativePathSchema = z
 	.string()
 	.min(1)
+	.refine((value) => !hasTerminalControl(value), {
+		message: "must not contain terminal control characters",
+	})
 	.refine(
 		(value) =>
 			!value.startsWith("/") &&
@@ -32,8 +47,8 @@ export const packManifestSchema = z
 	.object({
 		schemaVersion: z.literal("1.0"),
 		id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
-		name: z.string().min(1),
-		publisher: z.string().min(1),
+		name: terminalTextSchema,
+		publisher: terminalTextSchema,
 		release: z
 			.object({
 				version: packReleaseVersionSchema,
@@ -44,11 +59,11 @@ export const packManifestSchema = z
 		access: z.enum(["open", "premium"]),
 		license: z
 			.object({
-				spdx: z.string().min(1),
-				name: z.string().min(1),
-				url: z.url(),
+				spdx: terminalTextSchema,
+				name: terminalTextSchema,
+				url: terminalUrlSchema,
 				file: relativePathSchema,
-				attribution: z.string().min(1),
+				attribution: terminalTextSchema,
 			})
 			.strict(),
 		designContract: z.literal("DESIGN.md"),
@@ -59,11 +74,11 @@ export const packManifestSchema = z
 					.array(
 						z
 							.object({
-								id: z.string().min(1),
+								id: terminalTextSchema,
 								frameworks: z.array(z.enum(["react", "nextjs"])).min(1),
-								react: z.string().min(1),
-								nextjs: z.string().min(1),
-								tailwind: z.string().min(1),
+								react: terminalTextSchema,
+								nextjs: terminalTextSchema,
+								tailwind: terminalTextSchema,
 								ui: z.literal("shadcn/ui"),
 								entry: relativePathSchema,
 							})
@@ -77,7 +92,7 @@ export const packManifestSchema = z
 			.object({
 				runtime: z.array(z.string()),
 				development: z.array(z.string()),
-				setup: z.array(z.string().min(1)),
+				setup: z.array(terminalTextSchema),
 			})
 			.strict(),
 		provenance: z

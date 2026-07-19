@@ -65,6 +65,64 @@ async function catalogFixture(
 	return pathToFileURL(`${directory}/`).href;
 }
 
+async function thirdPartySourceFixture(
+	mutate: (item: {
+		files: Array<{ path: string; target: string; content: string }>;
+	}) => void = () => {},
+) {
+	const directory = await temporaryProject();
+	const item = JSON.parse(await readFile(registryItem, "utf8")) as {
+		name: string;
+		title: string;
+		files: Array<{ path: string; target: string; content: string }>;
+	};
+	const manifestFile = item.files.find(
+		(file) => file.path === "agentkogei.manifest.json",
+	);
+	if (!manifestFile) {
+		throw new Error("fixture is missing its manifest");
+	}
+	const manifest = JSON.parse(manifestFile.content) as {
+		id: string;
+		name: string;
+		publisher: string;
+		license: { spdx: string; name: string; url: string; attribution: string };
+		files: Array<{ target: string }>;
+	};
+	item.name = "community-grid";
+	item.title = "Community Grid";
+	manifest.id = "community-grid";
+	manifest.name = "Community Grid";
+	manifest.publisher = "Grid Guild";
+	manifest.license = {
+		...manifest.license,
+		spdx: "MIT",
+		name: "MIT License",
+		url: "https://opensource.org/license/mit",
+		attribution: "Copyright 2026 Grid Guild contributors",
+	};
+	for (const file of [...manifest.files, ...item.files]) {
+		file.target = file.target.replace(
+			".agentkogei/foundation/",
+			".agentkogei/community-grid/",
+		);
+	}
+	manifestFile.content = JSON.stringify(manifest, null, "\t");
+	mutate(item);
+	const releaseDirectory = path.join(directory, "community-grid");
+	await mkdir(releaseDirectory);
+	const serialized = JSON.stringify(item);
+	const source = path.join(directory, "community-grid.json");
+	await Promise.all([
+		writeFile(source, serialized),
+		writeFile(path.join(releaseDirectory, "1.0.0.json"), serialized),
+	]);
+	return {
+		itemUrl: pathToFileURL(source).href,
+		baseUrl: pathToFileURL(`${directory}/`).href,
+	};
+}
+
 async function updateCatalogFixture(
 	version: string,
 	mutate: (item: {
@@ -540,6 +598,450 @@ describe("Foundation Installation CLI", () => {
 		expect(
 			Bun.file(path.join(project, ".agentkogei/installed-pack.json")).size,
 		).toBe(0);
+	});
+});
+
+describe("third-party Pack Source Installation CLI", () => {
+	test("installs a compatible explicit source with informed consent", async () => {
+		const project = await temporaryProject();
+		const { itemUrl: source } = await thirdPartySourceFixture();
+
+		const result = await runCli(project, [
+			"install",
+			"community-grid@1.0.0",
+			"--source",
+			source,
+			"--yes",
+		]);
+
+		expect(result.exitCode).toBe(0);
+		expect(result.stdout).toContain("Publisher: Grid Guild");
+		expect(result.stdout).toContain(`Pack Source: ${source}`);
+		expect(result.stdout).toContain("License: MIT License (MIT)");
+		expect(result.stdout).toContain(
+			"License URL: https://opensource.org/license/mit",
+		);
+		expect(result.stdout).toContain("License file: LICENSE.md");
+		expect(result.stdout).toContain(
+			"License attribution: Copyright 2026 Grid Guild contributors",
+		);
+		expect(result.stdout).toContain("Compatibility:");
+		expect(result.stdout).toContain("Planned writes:");
+		expect(result.stdout).toContain("Setup instructions:");
+		expect(result.stdout).toContain("Conflicts: none");
+		expect(result.stdout).toContain("not a Published Pack");
+		expect(result.stdout).toContain("no AgentKogei Pack Evaluation guarantee");
+
+		const record = JSON.parse(
+			await readFile(
+				path.join(project, ".agentkogei/installed-pack.json"),
+				"utf8",
+			),
+		) as { source: string; pack: { id: string }; license: { spdx: string } };
+		expect(record).toMatchObject({
+			source,
+			pack: { id: "community-grid" },
+			license: { spdx: "MIT" },
+		});
+		expect(
+			await readFile(
+				path.join(project, ".agentkogei/community-grid/DESIGN.md"),
+				"utf8",
+			),
+		).toContain("# Foundation");
+	});
+
+	test("resolves an immutable release from an explicit registry base URL", async () => {
+		const project = await temporaryProject();
+		const { baseUrl } = await thirdPartySourceFixture();
+
+		const result = await runCli(project, [
+			"install",
+			"community-grid@1.0.0",
+			"--source",
+			baseUrl,
+			"--yes",
+		]);
+
+		expect(result.exitCode).toBe(0);
+		expect(result.stdout).toContain(
+			`Pack Source: ${baseUrl}community-grid/1.0.0.json`,
+		);
+	});
+
+	test("accepts an explicit registry item endpoint without a JSON path suffix", async () => {
+		const project = await temporaryProject();
+		const { itemUrl } = await thirdPartySourceFixture();
+		const endpoint = path.join(path.dirname(fileURLToPath(itemUrl)), "pack");
+		await writeFile(endpoint, await readFile(fileURLToPath(itemUrl)));
+		const source = pathToFileURL(endpoint).href;
+
+		const result = await runCli(project, [
+			"install",
+			"community-grid@1.0.0",
+			"--source",
+			source,
+			"--yes",
+		]);
+
+		expect(result.exitCode).toBe(0);
+		expect(result.stdout).toContain(`Pack Source: ${source}`);
+	});
+
+	test("accepts a query-based item endpoint whose path ends in a slash", async () => {
+		const project = await temporaryProject();
+		const { itemUrl } = await thirdPartySourceFixture();
+		const payload = await readFile(fileURLToPath(itemUrl), "utf8");
+		const requestedUrls: string[] = [];
+		const sourceServer = Bun.serve({
+			port: 0,
+			fetch(request) {
+				requestedUrls.push(request.url);
+				return Response.json(JSON.parse(payload));
+			},
+		});
+
+		try {
+			const source = new URL("api/?pack=community-grid", sourceServer.url).href;
+			const result = await runCli(project, [
+				"install",
+				"community-grid@1.0.0",
+				"--source",
+				source,
+				"--yes",
+			]);
+
+			expect(result.exitCode).toBe(0);
+			expect(requestedUrls).toEqual([source]);
+		} finally {
+			sourceServer.stop(true);
+		}
+	});
+
+	test("rejects a third-party manifest with executable hooks before Project mutation", async () => {
+		const project = await temporaryProject();
+		await writeFile(path.join(project, "keep.txt"), "unchanged");
+		const { itemUrl } = await thirdPartySourceFixture((item) => {
+			const manifestFile = item.files.find(
+				(file) => file.path === "agentkogei.manifest.json",
+			);
+			if (manifestFile) {
+				const manifest = JSON.parse(manifestFile.content) as Record<
+					string,
+					unknown
+				>;
+				manifest.hooks = { postinstall: "node install.js" };
+				manifestFile.content = JSON.stringify(manifest);
+			}
+		});
+
+		const result = await runCli(project, [
+			"install",
+			"community-grid@1.0.0",
+			"--source",
+			itemUrl,
+			"--yes",
+		]);
+
+		expect(result.exitCode).toBe(1);
+		expect(result.stderr).toContain(
+			"executable hooks and scripts are prohibited",
+		);
+		expect(await readFile(path.join(project, "keep.txt"), "utf8")).toBe(
+			"unchanged",
+		);
+		expect(Bun.file(path.join(project, ".agentkogei")).size).toBe(0);
+	});
+
+	test("rejects terminal control sequences before showing a third-party preview", async () => {
+		const project = await temporaryProject();
+		const { itemUrl } = await thirdPartySourceFixture((item) => {
+			const manifestFile = item.files.find(
+				(file) => file.path === "agentkogei.manifest.json",
+			);
+			if (manifestFile) {
+				const manifest = JSON.parse(manifestFile.content) as {
+					publisher: string;
+				};
+				manifest.publisher = "\u001b]8;;https://malicious.example\u0007Trusted";
+				manifestFile.content = JSON.stringify(manifest);
+			}
+		});
+
+		const result = await runCli(project, [
+			"install",
+			"community-grid@1.0.0",
+			"--source",
+			itemUrl,
+			"--yes",
+		]);
+
+		expect(result.exitCode).toBe(1);
+		expect(result.stdout).toBe("");
+		expect(result.stderr).toContain("terminal control characters");
+		expect(Bun.file(path.join(project, ".agentkogei")).size).toBe(0);
+	});
+
+	test("rejects terminal control sequences in a publisher license URL before preview", async () => {
+		const project = await temporaryProject();
+		const { itemUrl } = await thirdPartySourceFixture((item) => {
+			const manifestFile = item.files.find(
+				(file) => file.path === "agentkogei.manifest.json",
+			);
+			if (manifestFile) {
+				const manifest = JSON.parse(manifestFile.content) as {
+					license: { url: string };
+				};
+				manifest.license.url =
+					"https://licenses.example/\u001b]8;;https://malicious.example\u0007terms";
+				manifestFile.content = JSON.stringify(manifest);
+			}
+		});
+
+		const result = await runCli(project, [
+			"install",
+			"community-grid@1.0.0",
+			"--source",
+			itemUrl,
+			"--yes",
+		]);
+
+		expect(result.exitCode).toBe(1);
+		expect(result.stdout).toBe("");
+		expect(result.stderr).toContain("terminal control characters");
+		expect(Bun.file(path.join(project, ".agentkogei")).size).toBe(0);
+	});
+
+	test("rejects terminal control sequences in the registry envelope before preview", async () => {
+		const project = await temporaryProject();
+		const { itemUrl } = await thirdPartySourceFixture((item) => {
+			const manifestFile = item.files.find(
+				(file) => file.path === "agentkogei.manifest.json",
+			);
+			if (manifestFile) {
+				manifestFile.target =
+					"\u001b]8;;https://malicious.example\u0007manifest";
+			}
+		});
+
+		const result = await runCli(project, [
+			"install",
+			"community-grid@1.0.0",
+			"--source",
+			itemUrl,
+			"--yes",
+		]);
+
+		expect(result.exitCode).toBe(1);
+		expect(result.stdout).toBe("");
+		expect(result.stderr).toContain("terminal control characters");
+		expect(Bun.file(path.join(project, ".agentkogei")).size).toBe(0);
+	});
+
+	test("rejects third-party package-manager execution instructions before Project mutation", async () => {
+		const project = await temporaryProject();
+		const { itemUrl } = await thirdPartySourceFixture((item) => {
+			const manifestFile = item.files.find(
+				(file) => file.path === "agentkogei.manifest.json",
+			);
+			if (manifestFile) {
+				const manifest = JSON.parse(manifestFile.content) as {
+					dependencies: { setup: string[] };
+				};
+				manifest.dependencies.setup = ["npm install unsafe-package"];
+				manifestFile.content = JSON.stringify(manifest);
+			}
+		});
+
+		const result = await runCli(project, [
+			"install",
+			"community-grid@1.0.0",
+			"--source",
+			itemUrl,
+			"--yes",
+		]);
+
+		expect(result.exitCode).toBe(1);
+		expect(result.stderr).toContain(
+			"dependency guidance must be non-executable",
+		);
+		expect(Bun.file(path.join(project, ".agentkogei")).size).toBe(0);
+	});
+
+	test("rejects third-party unsafe targets and substituted hashes before Project mutation", async () => {
+		const unsafeProject = await temporaryProject();
+		const { itemUrl: unsafeSource } = await thirdPartySourceFixture((item) => {
+			const manifestFile = item.files.find(
+				(file) => file.path === "agentkogei.manifest.json",
+			);
+			if (!manifestFile) return;
+			const manifest = JSON.parse(manifestFile.content) as {
+				files: Array<{ path: string; target: string }>;
+			};
+			const design = manifest.files.find((file) => file.path === "DESIGN.md");
+			const transported = item.files.find((file) => file.path === "DESIGN.md");
+			if (design && transported) {
+				design.target = "../outside.md";
+				transported.target = "../outside.md";
+			}
+			manifestFile.content = JSON.stringify(manifest);
+		});
+
+		const unsafe = await runCli(unsafeProject, [
+			"install",
+			"community-grid@1.0.0",
+			"--source",
+			unsafeSource,
+			"--yes",
+		]);
+		expect(unsafe.exitCode).toBe(1);
+		expect(unsafe.stderr).toContain("safe relative target");
+		expect(Bun.file(path.join(unsafeProject, ".agentkogei")).size).toBe(0);
+
+		const substitutedProject = await temporaryProject();
+		const { itemUrl: substitutedSource } = await thirdPartySourceFixture(
+			(item) => {
+				const design = item.files.find((file) => file.path === "DESIGN.md");
+				if (design) design.content = "substituted bytes\n";
+			},
+		);
+		const substituted = await runCli(substitutedProject, [
+			"install",
+			"community-grid@1.0.0",
+			"--source",
+			substitutedSource,
+			"--yes",
+		]);
+		expect(substituted.exitCode).toBe(1);
+		expect(substituted.stderr).toContain("hash mismatch");
+		expect(Bun.file(path.join(substitutedProject, ".agentkogei")).size).toBe(0);
+	});
+
+	test("leaves third-party symlink and overwrite conflicts unchanged", async () => {
+		const { itemUrl } = await thirdPartySourceFixture();
+		const symlinkProject = await temporaryProject();
+		const outside = await temporaryProject();
+		await symlink(outside, path.join(symlinkProject, ".agentkogei"));
+
+		const symlinkResult = await runCli(symlinkProject, [
+			"install",
+			"community-grid@1.0.0",
+			"--source",
+			itemUrl,
+			"--yes",
+		]);
+		expect(symlinkResult.exitCode).toBe(1);
+		expect(`${symlinkResult.stdout}${symlinkResult.stderr}`).toContain(
+			"symbolic link",
+		);
+		expect(Bun.file(path.join(outside, "installed-pack.json")).size).toBe(0);
+
+		const conflictProject = await temporaryProject();
+		const conflict = path.join(
+			conflictProject,
+			".agentkogei/community-grid/DESIGN.md",
+		);
+		await Bun.write(conflict, "Project-owned design\n");
+		const conflictResult = await runCli(conflictProject, [
+			"install",
+			"community-grid@1.0.0",
+			"--source",
+			itemUrl,
+			"--yes",
+		]);
+		expect(conflictResult.exitCode).toBe(1);
+		expect(conflictResult.stdout).toContain("already exists");
+		expect(await readFile(conflict, "utf8")).toBe("Project-owned design\n");
+	});
+
+	test("contacts only the chosen third-party source without Project data", async () => {
+		const project = await temporaryProject();
+		const projectSecret = "private-project-content-4caa12";
+		await writeFile(path.join(project, "PRIVATE.txt"), projectSecret);
+		const { itemUrl } = await thirdPartySourceFixture();
+		const payload = await readFile(fileURLToPath(itemUrl), "utf8");
+		const officialRequests: string[] = [];
+		const sourceRequests: string[] = [];
+		const officialServer = Bun.serve({
+			port: 0,
+			fetch(request) {
+				officialRequests.push(request.url);
+				return new Response("unexpected", { status: 500 });
+			},
+		});
+		const sourceServer = Bun.serve({
+			port: 0,
+			fetch(request) {
+				sourceRequests.push(
+					`${request.method} ${request.url}\n${JSON.stringify(Object.fromEntries(request.headers))}`,
+				);
+				return Response.json(JSON.parse(payload));
+			},
+		});
+
+		try {
+			const source = new URL("community-grid/1.0.0.json", sourceServer.url)
+				.href;
+			const result = await runCli(
+				project,
+				["install", "community-grid@1.0.0", "--source", source, "--yes"],
+				{ AGENTKOGEI_OFFICIAL_CATALOG_URL: officialServer.url.href },
+			);
+
+			expect(result.exitCode).toBe(0);
+			expect(officialRequests).toEqual([]);
+			expect(sourceRequests).toHaveLength(1);
+			expect(sourceRequests[0]).not.toContain(path.basename(project));
+			expect(sourceRequests[0]).not.toContain(projectSecret);
+		} finally {
+			officialServer.stop(true);
+			sourceServer.stop(true);
+		}
+	});
+
+	test("refuses a redirect to an unchosen Pack Source without contacting it", async () => {
+		const project = await temporaryProject();
+		await writeFile(path.join(project, "keep.txt"), "unchanged");
+		const unchosenRequests: string[] = [];
+		const unchosenServer = Bun.serve({
+			port: 0,
+			fetch(request) {
+				unchosenRequests.push(request.url);
+				return new Response("unexpected", { status: 500 });
+			},
+		});
+		const chosenServer = Bun.serve({
+			port: 0,
+			fetch() {
+				return Response.redirect(
+					new URL("community-grid.json", unchosenServer.url),
+					302,
+				);
+			},
+		});
+
+		try {
+			const result = await runCli(project, [
+				"install",
+				"community-grid@1.0.0",
+				"--source",
+				new URL("community-grid.json", chosenServer.url).href,
+				"--yes",
+			]);
+
+			expect(result.exitCode).toBe(1);
+			expect(result.stderr).toContain(
+				"redirected outside the chosen Pack Source",
+			);
+			expect(unchosenRequests).toEqual([]);
+			expect(await readFile(path.join(project, "keep.txt"), "utf8")).toBe(
+				"unchanged",
+			);
+			expect(Bun.file(path.join(project, ".agentkogei")).size).toBe(0);
+		} finally {
+			chosenServer.stop(true);
+			unchosenServer.stop(true);
+		}
 	});
 });
 
