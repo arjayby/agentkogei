@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
-import { packManifestSchema } from "./manifest";
+import { type PackManifest, packManifestSchema } from "./manifest";
 
 type RegistryFile = {
 	path: string;
@@ -10,18 +10,19 @@ type RegistryFile = {
 	content: string;
 };
 
-export type FoundationRegistryItem = {
+export type PackRegistryItem = {
 	$schema: "https://ui.shadcn.com/schema/registry-item.json";
-	name: "foundation";
+	name: string;
 	type: "registry:item";
-	title: "Foundation Open Design Pack";
+	title: string;
 	description: string;
 	files: RegistryFile[];
 };
 
-export async function buildFoundationRegistryItem(
+export async function buildPackRegistryItem(
 	releaseDirectory: string,
-): Promise<FoundationRegistryItem> {
+	description: (manifest: PackManifest) => string,
+): Promise<PackRegistryItem> {
 	const manifestPath = path.join(releaseDirectory, "agentkogei.manifest.json");
 	const manifestContent = await readFile(manifestPath, "utf8");
 	const manifest = packManifestSchema.parse(JSON.parse(manifestContent));
@@ -37,16 +38,16 @@ export async function buildFoundationRegistryItem(
 	files.unshift({
 		path: "agentkogei.manifest.json",
 		type: "registry:file",
-		target: ".agentkogei/foundation/agentkogei.manifest.json",
+		target: `.agentkogei/${manifest.id}/agentkogei.manifest.json`,
 		content: manifestContent,
 	});
 
 	return {
 		$schema: "https://ui.shadcn.com/schema/registry-item.json",
-		name: "foundation",
+		name: manifest.id,
 		type: "registry:item",
-		title: "Foundation Open Design Pack",
-		description: `Foundation ${manifest.release.version}: a complete, neutral, crisp, highly legible B2B Interface System.`,
+		title: `${manifest.name} Open Design Pack`,
+		description: description(manifest),
 		files,
 	};
 }

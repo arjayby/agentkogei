@@ -1,5 +1,49 @@
+import { spawn } from "node:child_process";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+
+const installationCli = path.resolve(
+	process.cwd(),
+	"../../packages/design-packs/src/install-cli.ts",
+);
+
+async function runLiveCatalogInstallation(project: string) {
+	const process_ = spawn(
+		"bun",
+		[
+			installationCli,
+			"install",
+			"editorial@1.0.0",
+			"--yes",
+			"--project",
+			project,
+		],
+		{
+			env: {
+				...process.env,
+				AGENTKOGEI_OFFICIAL_CATALOG_URL: "http://localhost:3001/r/",
+			},
+		},
+	);
+	let stdout = "";
+	let stderr = "";
+	process_.stdout.setEncoding("utf8");
+	process_.stderr.setEncoding("utf8");
+	process_.stdout.on("data", (chunk: string) => {
+		stdout += chunk;
+	});
+	process_.stderr.on("data", (chunk: string) => {
+		stderr += chunk;
+	});
+	const exitCode = await new Promise<number | null>((resolve, reject) => {
+		process_.once("error", reject);
+		process_.once("close", resolve);
+	});
+	return { exitCode, stdout, stderr };
+}
 
 test("a prospective Builder can understand what a Design Pack changes", async ({
 	page,
@@ -116,70 +160,195 @@ test("a Builder can anonymously retrieve the complete Foundation Pack Release", 
 	).toBeVisible();
 });
 
-test("Foundation evaluation renders every required screen across evaluated modes", async ({
+test("a Builder can preview, retrieve, and distinguish the Editorial Open Design Pack", async ({
 	page,
+	request,
 }) => {
-	const screens = [
-		"Marketing",
-		"Authentication",
-		"Onboarding",
-		"Dashboard",
-		"Table",
-		"Form",
-		"Settings",
-		"States",
-	] as const;
-	const modes = [
-		{
-			viewport: { width: 1440, height: 900 },
-			colorScheme: "light" as const,
-			reducedMotion: "no-preference" as const,
-		},
-		{
-			viewport: { width: 1440, height: 900 },
-			colorScheme: "dark" as const,
-			reducedMotion: "no-preference" as const,
-		},
-		{
-			viewport: { width: 390, height: 844 },
-			colorScheme: "light" as const,
-			reducedMotion: "no-preference" as const,
-		},
-		{
-			viewport: { width: 390, height: 844 },
-			colorScheme: "dark" as const,
-			reducedMotion: "no-preference" as const,
-		},
-		{
-			viewport: { width: 1440, height: 900 },
-			colorScheme: "light" as const,
-			reducedMotion: "reduce" as const,
-		},
-	] as const;
+	const response = await request.get("/r/editorial/1.0.0.json");
 
-	for (const mode of modes) {
-		await page.setViewportSize(mode.viewport);
-		await page.emulateMedia({
-			colorScheme: mode.colorScheme,
-			reducedMotion: mode.reducedMotion,
-		});
-		await page.goto("/catalog/foundation");
-		const preview = page.getByLabel("Foundation rendered Pack Preview");
-		for (const screen of screens) {
-			await expect(preview.getByText(screen, { exact: true })).toBeVisible();
-		}
-		const accessibility = await new AxeBuilder({ page })
-			.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
-			.analyze();
-		expect(accessibility.violations).toEqual([]);
-		const hasHorizontalOverflow = await page.evaluate(
-			() =>
-				document.documentElement.scrollWidth >
-				document.documentElement.clientWidth,
+	expect(response.status()).toBe(200);
+	const registryItem = (await response.json()) as {
+		name: string;
+		files: Array<{ content: string; target: string }>;
+	};
+	expect(registryItem.name).toBe("editorial");
+	const manifestFile = registryItem.files.find((file) =>
+		file.target.endsWith("agentkogei.manifest.json"),
+	);
+	const manifest = JSON.parse(manifestFile?.content ?? "") as {
+		access: string;
+		evaluation: { standard: string };
+		release: { immutable: boolean; version: string };
+	};
+	expect(manifest).toMatchObject({
+		access: "open",
+		evaluation: { standard: "WCAG 2.2 Level AA" },
+		release: { immutable: true, version: "1.0.0" },
+	});
+	expect(
+		registryItem.files.some(
+			(file) =>
+				file.target.endsWith("DESIGN.md") &&
+				file.content.includes("Warmth comes from restraint"),
+		),
+	).toBe(true);
+
+	await page.goto("/catalog/editorial");
+	await expect(page.getByRole("heading", { name: "Editorial" })).toBeVisible();
+	await expect(
+		page.getByRole("link", { name: "Retrieve Editorial 1.0.0" }),
+	).toHaveAttribute("href", "/r/editorial/1.0.0.json");
+	await expect(
+		page.getByLabel("Editorial rendered Pack Preview"),
+	).toBeVisible();
+	await expect(
+		page.getByText("Preview is evidence, not Pack Source", { exact: false }),
+	).toBeVisible();
+	await expect(
+		page.getByText("WCAG 2.2 Level AA", { exact: false }),
+	).toBeVisible();
+});
+
+test("the generic CLI anonymously installs Editorial from the live Pack Source for agent discovery", async () => {
+	const project = await mkdtemp(path.join(tmpdir(), "agentkogei-live-web-"));
+	try {
+		const result = await runLiveCatalogInstallation(project);
+
+		expect(result.exitCode, result.stderr).toBe(0);
+		expect(result.stdout).toContain("Installed editorial@1.0.0");
+		const agents = await readFile(path.join(project, "AGENTS.md"), "utf8");
+		const designContractPath = agents.match(
+			/\.agentkogei\/editorial\/DESIGN\.md/,
+		)?.[0];
+		expect(designContractPath).toBeDefined();
+		expect(
+			await readFile(path.join(project, designContractPath ?? ""), "utf8"),
+		).toContain("# Editorial Interface System");
+		const record = await readFile(
+			path.join(project, ".agentkogei/installed-pack.json"),
+			"utf8",
 		);
-		expect(hasHorizontalOverflow).toBe(false);
+		expect(record).toContain(
+			'"source": "http://localhost:3001/r/editorial/1.0.0.json"',
+		);
+	} finally {
+		await rm(project, { recursive: true, force: true });
 	}
 });
+
+for (const evaluatedPack of ["Foundation", "Editorial"] as const) {
+	test(`${evaluatedPack} evaluation renders every required screen across evaluated modes`, async ({
+		page,
+	}) => {
+		const screens = [
+			"Marketing",
+			"Authentication",
+			"Onboarding",
+			"Dashboard",
+			"Table",
+			"Form",
+			"Settings",
+			"States",
+		] as const;
+		const modes = [
+			{
+				viewport: { width: 1440, height: 900 },
+				colorScheme: "light" as const,
+				reducedMotion: "no-preference" as const,
+				forcedColors: "none" as const,
+			},
+			{
+				viewport: { width: 1440, height: 900 },
+				colorScheme: "dark" as const,
+				reducedMotion: "no-preference" as const,
+				forcedColors: "none" as const,
+			},
+			{
+				viewport: { width: 390, height: 844 },
+				colorScheme: "light" as const,
+				reducedMotion: "no-preference" as const,
+				forcedColors: "none" as const,
+			},
+			{
+				viewport: { width: 390, height: 844 },
+				colorScheme: "dark" as const,
+				reducedMotion: "no-preference" as const,
+				forcedColors: "none" as const,
+			},
+			{
+				viewport: { width: 1440, height: 900 },
+				colorScheme: "light" as const,
+				reducedMotion: "reduce" as const,
+				forcedColors: "none" as const,
+			},
+			{
+				viewport: { width: 320, height: 844 },
+				colorScheme: "light" as const,
+				reducedMotion: "no-preference" as const,
+				forcedColors: "none" as const,
+			},
+			{
+				viewport: { width: 1440, height: 900 },
+				colorScheme: "light" as const,
+				reducedMotion: "no-preference" as const,
+				forcedColors: "active" as const,
+			},
+		] as const;
+
+		for (const mode of modes) {
+			await page.setViewportSize(mode.viewport);
+			await page.emulateMedia({
+				colorScheme: mode.colorScheme,
+				reducedMotion: mode.reducedMotion,
+				forcedColors: mode.forcedColors,
+			});
+			await page.goto(`/catalog/${evaluatedPack.toLowerCase()}`);
+			const preview = page.getByLabel(`${evaluatedPack} rendered Pack Preview`);
+			for (const screen of screens) {
+				await expect(preview.getByText(screen, { exact: true })).toBeVisible();
+			}
+			let accessibilityCheck = new AxeBuilder({ page }).withTags([
+				"wcag2a",
+				"wcag2aa",
+				"wcag21a",
+				"wcag21aa",
+				"wcag22aa",
+			]);
+			if (mode.forcedColors === "active") {
+				accessibilityCheck = accessibilityCheck.disableRules([
+					"color-contrast",
+				]);
+			}
+			const accessibility = await accessibilityCheck.analyze();
+			expect(accessibility.violations).toEqual([]);
+			const overflow = await page.evaluate(() => ({
+				document: {
+					clientWidth: document.documentElement.clientWidth,
+					scrollWidth: document.documentElement.scrollWidth,
+				},
+				elements: [...document.querySelectorAll("body *")]
+					.filter(
+						(element) =>
+							element instanceof HTMLElement &&
+							element.getBoundingClientRect().right >
+								document.documentElement.clientWidth,
+					)
+					.slice(0, 5)
+					.map((element) => ({
+						className: element.getAttribute("class"),
+						text: element.textContent?.slice(0, 80),
+					})),
+			}));
+			expect(overflow).toEqual({
+				document: {
+					clientWidth: mode.viewport.width,
+					scrollWidth: mode.viewport.width,
+				},
+				elements: [],
+			});
+		}
+	});
+}
 
 test("pricing discloses the complete Premium Access offer", async ({
 	page,

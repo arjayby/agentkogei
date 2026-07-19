@@ -13,7 +13,7 @@ const navigation = [
 export default function Header() {
 	return (
 		<header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
-			<div className="mx-auto grid h-14 max-w-[92rem] grid-cols-[auto_1fr_auto] items-center gap-4 px-4 sm:px-8">
+			<div className="mx-auto grid h-14 max-w-[92rem] grid-cols-[auto_1fr_auto] items-center gap-2 px-3 sm:gap-4 sm:px-8">
 				<Link
 					href="/"
 					className="font-medium tracking-tight"
@@ -24,7 +24,7 @@ export default function Header() {
 				</Link>
 				<nav
 					aria-label="Primary navigation"
-					className="flex justify-center gap-4 text-sm sm:gap-7"
+					className="flex justify-center gap-3 text-sm sm:gap-7"
 				>
 					{navigation.map(({ href, label }) => (
 						<Link
