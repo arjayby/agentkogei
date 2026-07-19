@@ -15,6 +15,7 @@
 
 # Build outputs
 /.next/
+/.next-test/
 /out/
 /build/
 /dist/

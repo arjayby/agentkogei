@@ -1,131 +1,85 @@
+"use client";
+
+import {
+	Alert,
+	AlertDescription,
+	AlertTitle,
+} from "@agentkogei/ui/components/alert";
 import { Button } from "@agentkogei/ui/components/button";
-import { Input } from "@agentkogei/ui/components/input";
-import { Label } from "@agentkogei/ui/components/label";
-import { useForm } from "@tanstack/react-form";
-import { useRouter } from "next/navigation";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "@agentkogei/ui/components/card";
+import { Loader2Icon } from "lucide-react";
+import { useState } from "react";
 import { toast } from "sonner";
-import z from "zod";
 
 import { authClient } from "@/lib/auth-client";
 
-import Loader from "./loader";
+export default function SignInForm({
+	callbackURL,
+	hasOAuthError,
+}: {
+	callbackURL: string;
+	hasOAuthError: boolean;
+}) {
+	const [isPending, setIsPending] = useState(false);
 
-export default function SignInForm({ onSwitchToSignUp }: { onSwitchToSignUp: () => void }) {
-  const router = useRouter();
-  const { isPending } = authClient.useSession();
+	async function signInWithGitHub() {
+		setIsPending(true);
+		const errorCallbackURL = `/login?error=oauth_failed&callbackURL=${encodeURIComponent(callbackURL)}`;
+		const result = await authClient.signIn.social({
+			provider: "github",
+			callbackURL,
+			errorCallbackURL,
+		});
+		if (result.error) {
+			setIsPending(false);
+			toast.error("GitHub sign-in could not be started. Please try again.");
+		}
+	}
 
-  const form = useForm({
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-    onSubmit: async ({ value }) => {
-      await authClient.signIn.email(
-        {
-          email: value.email,
-          password: value.password,
-        },
-        {
-          onSuccess: () => {
-            router.push("/dashboard");
-            toast.success("Sign in successful");
-          },
-          onError: (error) => {
-            toast.error(error.error.message || error.error.statusText);
-          },
-        },
-      );
-    },
-    validators: {
-      onSubmit: z.object({
-        email: z.email("Invalid email address"),
-        password: z.string().min(8, "Password must be at least 8 characters"),
-      }),
-    },
-  });
-
-  if (isPending) {
-    return <Loader />;
-  }
-
-  return (
-    <div className="mx-auto w-full mt-10 max-w-md p-6">
-      <h1 className="mb-6 text-center text-3xl font-bold">Welcome Back</h1>
-
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          form.handleSubmit();
-        }}
-        className="space-y-4"
-      >
-        <div>
-          <form.Field name="email">
-            {(field) => (
-              <div className="space-y-2">
-                <Label htmlFor={field.name}>Email</Label>
-                <Input
-                  id={field.name}
-                  name={field.name}
-                  type="email"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.errors.map((error) => (
-                  <p key={error?.message} className="text-red-500">
-                    {error?.message}
-                  </p>
-                ))}
-              </div>
-            )}
-          </form.Field>
-        </div>
-
-        <div>
-          <form.Field name="password">
-            {(field) => (
-              <div className="space-y-2">
-                <Label htmlFor={field.name}>Password</Label>
-                <Input
-                  id={field.name}
-                  name={field.name}
-                  type="password"
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
-                {field.state.meta.errors.map((error) => (
-                  <p key={error?.message} className="text-red-500">
-                    {error?.message}
-                  </p>
-                ))}
-              </div>
-            )}
-          </form.Field>
-        </div>
-
-        <form.Subscribe
-          selector={(state) => ({ canSubmit: state.canSubmit, isSubmitting: state.isSubmitting })}
-        >
-          {({ canSubmit, isSubmitting }) => (
-            <Button type="submit" className="w-full" disabled={!canSubmit || isSubmitting}>
-              {isSubmitting ? "Submitting..." : "Sign In"}
-            </Button>
-          )}
-        </form.Subscribe>
-      </form>
-
-      <div className="mt-4 text-center">
-        <Button
-          variant="link"
-          onClick={onSwitchToSignUp}
-          className="text-indigo-600 hover:text-indigo-800"
-        >
-          Need an account? Sign Up
-        </Button>
-      </div>
-    </div>
-  );
+	return (
+		<Card className="w-full max-w-md">
+			<CardHeader>
+				<CardTitle>
+					<h1>Builder sign in</h1>
+				</CardTitle>
+				<CardDescription>
+					Use your GitHub identity for Premium Access and account-only
+					experiences.
+				</CardDescription>
+			</CardHeader>
+			<CardContent>
+				{hasOAuthError ? (
+					<Alert variant="destructive" className="mb-4">
+						<AlertTitle>Sign-in not completed</AlertTitle>
+						<AlertDescription>
+							GitHub sign-in was canceled or could not be completed. Please try
+							again.
+						</AlertDescription>
+					</Alert>
+				) : null}
+				<Button
+					className="w-full"
+					disabled={isPending}
+					onClick={signInWithGitHub}
+				>
+					{isPending ? (
+						<Loader2Icon data-icon="inline-start" className="animate-spin" />
+					) : null}
+					Continue with GitHub
+				</Button>
+			</CardContent>
+			<CardFooter>
+				<p className="text-muted-foreground">
+					Open Design Packs remain available without an account.
+				</p>
+			</CardFooter>
+		</Card>
+	);
 }

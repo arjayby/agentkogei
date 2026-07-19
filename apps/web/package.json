@@ -4,6 +4,7 @@
 	"private": true,
 	"scripts": {
 		"dev": "next dev --port 3001",
+		"dev:test": "next dev --port 3011",
 		"build": "bun run registry:build && next build",
 		"check-types": "tsc --noEmit",
 		"registry:build": "bun run scripts/build-registry.ts",
@@ -24,7 +25,6 @@
 		"@orpc/zod": "catalog:",
 		"@polar-sh/better-auth": "catalog:",
 		"@swc/helpers": "^0.5.23",
-		"@tanstack/react-form": "^1.33.0",
 		"@tanstack/react-query": "^5.101.2",
 		"babel-plugin-react-compiler": "^1.0.0",
 		"better-auth": "catalog:",
@@ -34,8 +34,7 @@
 		"next-themes": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
-		"sonner": "catalog:",
-		"zod": "catalog:"
+		"sonner": "catalog:"
 	},
 	"devDependencies": {
 		"@agentkogei/config": "workspace:*",

@@ -24,6 +24,16 @@ First, install the dependencies:
 bun install
 ```
 
+Copy `apps/web/.env.example` to `apps/web/.env` and replace its placeholders.
+
+Create a GitHub OAuth App for the web application and configure its authorization callback URL as:
+
+```text
+http://localhost:3001/api/auth/callback/github
+```
+
+Use the deployed application origin in place of `http://localhost:3001` for preview and production OAuth Apps. GitHub is the only account creation and sign-in provider; email/password authentication is disabled.
+
 ## Database Setup
 
 This project uses PostgreSQL with Drizzle ORM.
