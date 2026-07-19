@@ -101,6 +101,11 @@ test("a premium Pack Preview shows complete evidence without exposing gated reso
 		),
 	).toBeVisible();
 	await expect(page.getByLabel("Command rendered Pack Preview")).toBeVisible();
+	await expect(
+		page.getByText(
+			"Installation retrieves the complete release only through the authenticated Premium Pack Source.",
+		),
+	).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Coverage" })).toBeVisible();
 	await expect(
 		page.getByRole("heading", { name: "Included resources" }),

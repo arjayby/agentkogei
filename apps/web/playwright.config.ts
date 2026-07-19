@@ -1,6 +1,9 @@
 import { defineConfig, devices } from "@playwright/test";
 
-import { buildTestPremiumDeliveryFixture } from "./tests/support/premium-delivery-fixture";
+import {
+	buildTestCommandPackRelease,
+	buildTestPremiumDeliveryFixture,
+} from "./tests/support/premium-delivery-fixture";
 
 export default defineConfig({
 	testDir: "./tests",
@@ -40,6 +43,7 @@ export default defineConfig({
 			POLAR_WEBHOOK_SECRET: "deterministic-polar-webhook-secret",
 			NEXT_TEST_BUILD: "true",
 			PREMIUM_DELIVERY_FIXTURE: buildTestPremiumDeliveryFixture(),
+			COMMAND_PREMIUM_RELEASE: buildTestCommandPackRelease(),
 		},
 		url: "http://localhost:3011",
 		reuseExistingServer: !process.env.CI,

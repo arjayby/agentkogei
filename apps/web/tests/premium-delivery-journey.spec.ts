@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -11,6 +11,7 @@ const cliPath = path.resolve(
 	"../../packages/design-packs/src/install-cli.ts",
 );
 const fixtureSource = `${webOrigin}/api/premium-source/delivery-fixture/1.0.0`;
+const commandSource = `${webOrigin}/api/premium-source/command/1.0.0`;
 
 test.describe.configure({ mode: "serial" });
 test.setTimeout(60_000);
@@ -23,7 +24,11 @@ async function signIn(page: Page) {
 
 function runCli(
 	arguments_: string[],
-	options: { configDirectory: string; projectDirectory: string },
+	options: {
+		configDirectory: string;
+		projectDirectory: string;
+		officialCatalogUrl?: string;
+	},
 ) {
 	return new Promise<{ code: number | null; stdout: string; stderr: string }>(
 		(resolve) => {
@@ -33,6 +38,11 @@ function runCli(
 					...process.env,
 					AGENTKOGEI_CONFIG_DIR: options.configDirectory,
 					AGENTKOGEI_NO_BROWSER: "1",
+					...(options.officialCatalogUrl
+						? {
+								AGENTKOGEI_OFFICIAL_CATALOG_URL: options.officialCatalogUrl,
+							}
+						: {}),
 				},
 			});
 			let stdout = "";
@@ -104,6 +114,113 @@ async function authorizeCli(
 test.beforeEach(async ({ request }) => {
 	const response = await request.delete("/api/test/polar/events");
 	expect(response.ok()).toBe(true);
+});
+
+test("an actively subscribed Builder installs the exact protected Command Pack Release under a lasting Project License", async ({
+	page,
+}) => {
+	const temporaryRoot = await mkdtemp(
+		path.join(tmpdir(), "agentkogei-command-installation-"),
+	);
+	const configDirectory = path.join(temporaryRoot, "configuration");
+	const projectDirectory = path.join(temporaryRoot, "project");
+	try {
+		await mkdir(projectDirectory);
+		const anonymous = await page.request.get(commandSource);
+		expect(anonymous.status()).toBe(404);
+		expect(await anonymous.text()).toBe(
+			'{"error":"premium_release_unavailable"}',
+		);
+		for (const protectedSourcePath of [
+			"/r/command.json",
+			"/r/command/1.0.0.json",
+		]) {
+			const response = await page.request.get(protectedSourcePath);
+			expect(response.status()).toBe(404);
+			expect(await response.text()).not.toContain("Command Interface System");
+		}
+		await signIn(page);
+		expect(
+			(
+				await page.request.post("/api/test/polar/events", {
+					data: { eventId: "command-access-active", state: "active" },
+				})
+			).ok(),
+		).toBe(true);
+		await authorizeCli(page, configDirectory, "Command installation terminal");
+
+		const installed = await runCli(["install", "command@1.0.0", "--yes"], {
+			configDirectory,
+			projectDirectory,
+			officialCatalogUrl: `${webOrigin}/r/`,
+		});
+		expect(installed.code, installed.stderr).toBe(0);
+		expect(installed.stdout).toContain("Command 1.0.0");
+		expect(installed.stdout).toContain("AgentKogei Commercial Pack License");
+		expect(installed.stdout).not.toContain("not a Published Pack");
+
+		const record = JSON.parse(
+			await readFile(
+				path.join(projectDirectory, ".agentkogei/installed-pack.json"),
+				"utf8",
+			),
+		) as {
+			pack: { id: string; version: string };
+			projectLicense: string;
+			source: string;
+			targets: Array<{ target: string; sha256: string }>;
+		};
+		expect(record.pack).toEqual({ id: "command", version: "1.0.0" });
+		expect(record.source).toBe(`${webOrigin}/r/command/1.0.0.json`);
+		expect(record.projectLicense).toMatch(/^[0-9a-f-]{36}$/);
+		expect(record.targets.length).toBeGreaterThan(9);
+		for (const target of record.targets) {
+			const contents = await readFile(
+				path.join(projectDirectory, target.target),
+			);
+			expect(createHash("sha256").update(contents).digest("hex")).toBe(
+				target.sha256,
+			);
+		}
+
+		expect(
+			await readFile(
+				path.join(projectDirectory, ".agentkogei/command/DESIGN.md"),
+				"utf8",
+			),
+		).toContain("# Command Interface System");
+		expect(
+			await readFile(
+				path.join(
+					projectDirectory,
+					".agentkogei/command/evaluation/report.json",
+				),
+				"utf8",
+			),
+		).toContain('"standard": "WCAG 2.2 Level AA"');
+
+		const storedLicense = await page.request.get(
+			`/api/test/premium-delivery/licenses/${record.projectLicense}`,
+		);
+		expect(storedLicense.status()).toBe(200);
+		expect(await storedLicense.json()).toEqual({
+			id: record.projectLicense,
+			packId: "command",
+			packRelease: "1.0.0",
+		});
+
+		await rm(configDirectory, { recursive: true, force: true });
+		const status = await runCli(["status"], {
+			configDirectory,
+			projectDirectory,
+		});
+		expect(status.code, status.stderr).toBe(0);
+		expect(status.stdout).toContain(
+			`Project License: ${record.projectLicense}`,
+		);
+	} finally {
+		await rm(temporaryRoot, { recursive: true, force: true });
+	}
 });
 
 test("an actively subscribed Builder installs a licensed premium snapshot for offline use", async ({
