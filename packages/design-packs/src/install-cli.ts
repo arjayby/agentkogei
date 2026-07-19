@@ -18,10 +18,14 @@ import {
 	formatUpdatePreview,
 	inspectInstalledPack,
 } from "./lifecycle";
+import {
+	loginWithPackCredential,
+	logoutPackCredential,
+} from "./pack-credential-cli";
 
 function usage() {
 	console.error(
-		"Usage:\n  agentkogei install <pack[@version]> [--source <registry-base-url/|registry-item-url>] [--project <directory>] [--yes]\n  agentkogei status [--project <directory>]\n  agentkogei update [--project <directory>] [--yes]\n  agentkogei detach [--project <directory>] [--yes]",
+		"Usage:\n  agentkogei login [--server <origin>]\n  agentkogei logout\n  agentkogei install <pack[@version]> [--source <registry-base-url/|registry-item-url>] [--project <directory>] [--yes]\n  agentkogei status [--project <directory>]\n  agentkogei update [--project <directory>] [--yes]\n  agentkogei detach [--project <directory>] [--yes]",
 	);
 }
 
@@ -54,6 +58,17 @@ async function requestActionConfirmation(
 
 async function main() {
 	const arguments_ = process.argv.slice(2);
+	if (arguments_[0] === "login") {
+		const server = optionValue(arguments_, "--server");
+		if (arguments_.includes("--server") && !server) {
+			usage();
+			return 2;
+		}
+		return loginWithPackCredential(server);
+	}
+	if (arguments_[0] === "logout") {
+		return logoutPackCredential();
+	}
 	const projectOption = optionValue(arguments_, "--project");
 	const sourceOption = optionValue(arguments_, "--source");
 	if (

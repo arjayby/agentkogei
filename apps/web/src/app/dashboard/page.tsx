@@ -1,5 +1,6 @@
 import { auth } from "@agentkogei/auth";
 import { getPremiumAccess } from "@agentkogei/auth/lib/entitlements";
+import { listPackCredentials } from "@agentkogei/auth/lib/pack-credentials";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -14,7 +15,10 @@ export default async function DashboardPage() {
 		redirect("/login?callbackURL=%2Fdashboard");
 	}
 
-	const premiumAccess = await getPremiumAccess(session.user.id);
+	const [premiumAccess, packCredentials] = await Promise.all([
+		getPremiumAccess(session.user.id),
+		listPackCredentials(session.user.id),
+	]);
 
 	return (
 		<main className="mx-auto max-w-5xl px-5 py-12 sm:px-8">
@@ -36,6 +40,14 @@ export default async function DashboardPage() {
 							}
 						: null
 				}
+				packCredentials={packCredentials.map((credential) => ({
+					id: credential.id,
+					name: credential.name,
+					secretSuffix: credential.secretSuffix,
+					createdAt: credential.createdAt.toISOString(),
+					lastUsedAt: credential.lastUsedAt?.toISOString() ?? null,
+					revokedAt: credential.revokedAt?.toISOString() ?? null,
+				}))}
 			/>
 		</main>
 	);
