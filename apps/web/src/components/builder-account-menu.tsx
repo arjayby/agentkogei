@@ -42,6 +42,9 @@ export default function BuilderAccountMenu() {
 					<DropdownMenuLabel>Builder account</DropdownMenuLabel>
 					<DropdownMenuSeparator />
 					<DropdownMenuLabel>{session.user.email}</DropdownMenuLabel>
+					<DropdownMenuItem render={<Link href="/dashboard" />}>
+						Premium Access
+					</DropdownMenuItem>
 					<DropdownMenuItem
 						variant="destructive"
 						onClick={async () => {

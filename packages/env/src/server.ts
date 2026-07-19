@@ -32,7 +32,11 @@ export const env = createEnv({
 		GITHUB_CLIENT_SECRET: githubCredentialSchema,
 		GITHUB_OAUTH_TEST_BASE_URL: z.url().optional(),
 		POLAR_ACCESS_TOKEN: z.string().min(1),
+		POLAR_PREMIUM_ACCESS_PRODUCT_ID: z.string().min(1).optional(),
+		POLAR_SERVER: z.enum(["sandbox", "production"]).default("sandbox"),
 		POLAR_SUCCESS_URL: z.url(),
+		POLAR_WEBHOOK_SECRET: z.string().min(1).optional(),
+		POLAR_LEGAL_REVIEW_REFERENCE: z.string().min(1).optional(),
 		CORS_ORIGIN: z.url(),
 		NODE_ENV: z
 			.enum(["development", "production", "test"])

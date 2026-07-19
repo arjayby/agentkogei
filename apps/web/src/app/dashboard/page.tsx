@@ -1,8 +1,7 @@
 import { auth } from "@agentkogei/auth";
+import { getPremiumAccess } from "@agentkogei/auth/lib/entitlements";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
-
-import { authClient } from "@/lib/auth-client";
 
 import Dashboard from "./dashboard";
 
@@ -15,17 +14,29 @@ export default async function DashboardPage() {
 		redirect("/login?callbackURL=%2Fdashboard");
 	}
 
-	const { data: customerState } = await authClient.customer.state({
-		fetchOptions: {
-			headers: await headers(),
-		},
-	});
+	const premiumAccess = await getPremiumAccess(session.user.id);
 
 	return (
-		<div>
-			<h1>Dashboard</h1>
-			<p>Welcome {session.user.name}</p>
-			<Dashboard session={session} customerState={customerState} />
-		</div>
+		<main className="mx-auto max-w-5xl px-5 py-12 sm:px-8">
+			<header className="mb-8 flex flex-col gap-2">
+				<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.2em]">
+					Builder account
+				</p>
+				<h1 className="font-medium text-4xl tracking-tight">
+					Welcome, {session.user.name}
+				</h1>
+			</header>
+			<Dashboard
+				premiumAccess={
+					premiumAccess
+						? {
+								status: premiumAccess.status,
+								currentPeriodEnd:
+									premiumAccess.currentPeriodEnd?.toISOString() ?? null,
+							}
+						: null
+				}
+			/>
+		</main>
 	);
 }

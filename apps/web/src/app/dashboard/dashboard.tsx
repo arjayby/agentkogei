@@ -1,34 +1,108 @@
-"use client";
-import { Button } from "@agentkogei/ui/components/button";
-import { useQuery } from "@tanstack/react-query";
+import { Badge } from "@agentkogei/ui/components/badge";
+import { Button, buttonVariants } from "@agentkogei/ui/components/button";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from "@agentkogei/ui/components/card";
+import Link from "next/link";
 
-import { authClient } from "@/lib/auth-client";
-import { orpc } from "@/utils/orpc";
+type AccountAccess = {
+	status: "active" | "canceling" | "expired" | "refunded" | "reversed";
+	currentPeriodEnd: string | null;
+};
+
+const statusCopy = {
+	active: {
+		label: "Active",
+		description:
+			"Installation, reinstallation, retrieval, and access to new Pack Releases are available.",
+	},
+	canceling: {
+		label: "Canceling at period end",
+		description:
+			"Renewal is canceled. Premium Access remains active for the paid term.",
+	},
+	expired: {
+		label: "Expired",
+		description:
+			"Premium Design Pack retrieval and Installation have ended. Existing eligible Project Licenses remain usable.",
+	},
+	refunded: {
+		label: "Refunded",
+		description:
+			"Premium Access and Project Licenses from the refunded period have ended.",
+	},
+	reversed: {
+		label: "Payment reversed",
+		description:
+			"Premium Access and Project Licenses from the reversed payment period have ended.",
+	},
+} as const;
+
+function formatPeriodEnd(periodEnd: string) {
+	return new Intl.DateTimeFormat("en-US", {
+		dateStyle: "long",
+		timeZone: "UTC",
+	}).format(new Date(periodEnd));
+}
 
 export default function Dashboard({
-  customerState,
-  session,
+	premiumAccess,
 }: {
-  customerState: ReturnType<typeof authClient.customer.state>;
-  session: typeof authClient.$Infer.Session;
+	premiumAccess: AccountAccess | null;
 }) {
-  const privateData = useQuery(orpc.privateData.queryOptions());
+	const copy = premiumAccess ? statusCopy[premiumAccess.status] : null;
+	const canManageBilling =
+		premiumAccess?.status === "active" || premiumAccess?.status === "canceling";
+	const checkoutLabel = premiumAccess
+		? "Review terms to renew"
+		: "Review terms to subscribe";
 
-  const hasProSubscription = (customerState?.activeSubscriptions?.length ?? 0) > 0;
-
-  return (
-    <>
-      <p>API: {privateData.data?.message}</p>
-      <p>Plan: {hasProSubscription ? "Pro" : "Free"}</p>
-      {hasProSubscription ? (
-        <Button onClick={async () => await authClient.customer.portal()}>
-          Manage Subscription
-        </Button>
-      ) : (
-        <Button onClick={async () => await authClient.checkout({ slug: "pro" })}>
-          Upgrade to Pro
-        </Button>
-      )}
-    </>
-  );
+	return (
+		<Card>
+			<CardHeader>
+				<div className="flex flex-wrap items-center justify-between gap-3">
+					<CardTitle>
+						<h2>Premium Access</h2>
+					</CardTitle>
+					<Badge variant={premiumAccess ? "secondary" : "outline"}>
+						{copy?.label ?? "No Premium Access"}
+					</Badge>
+				</div>
+				<CardDescription>
+					One named Builder · Every Premium Design Pack · Unlimited Projects
+				</CardDescription>
+			</CardHeader>
+			<CardContent className="flex flex-col gap-3">
+				<p>
+					{copy?.description ??
+						"Subscribe to use every Premium Design Pack in the Official Catalog."}
+				</p>
+				{premiumAccess?.currentPeriodEnd ? (
+					<p className="font-medium">
+						Access through {formatPeriodEnd(premiumAccess.currentPeriodEnd)}
+					</p>
+				) : null}
+				<p className="text-muted-foreground text-sm">
+					Open Design Packs and their source remain available regardless of
+					billing state.
+				</p>
+			</CardContent>
+			<CardFooter>
+				{canManageBilling ? (
+					<form action="/api/billing/portal" method="post">
+						<Button type="submit">Manage billing with Polar</Button>
+					</form>
+				) : (
+					<Link href="/pricing" className={buttonVariants()}>
+						{checkoutLabel}
+					</Link>
+				)}
+			</CardFooter>
+		</Card>
+	);
 }

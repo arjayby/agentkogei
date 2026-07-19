@@ -1,0 +1,47 @@
+import { auth } from "@agentkogei/auth";
+import {
+	premiumAccessStates,
+	resetTestBillingState,
+} from "@agentkogei/auth/lib/entitlements";
+import { env } from "@agentkogei/env/server";
+import { headers } from "next/headers";
+import { NextResponse } from "next/server";
+import { z } from "zod";
+
+import { deliverTestPolarState } from "@/lib/test-polar";
+
+const testEventSchema = z.object({
+	eventId: z.string().min(1),
+	state: z.enum(premiumAccessStates),
+});
+
+function unavailable() {
+	return new NextResponse(null, { status: 404 });
+}
+
+function isEnabled() {
+	return (
+		env.NODE_ENV !== "production" && Boolean(env.GITHUB_OAUTH_TEST_BASE_URL)
+	);
+}
+
+export async function POST(request: Request) {
+	if (!isEnabled()) return unavailable();
+	const session = await auth.api.getSession({ headers: await headers() });
+	if (!session?.user) return new NextResponse(null, { status: 401 });
+
+	const parsed = testEventSchema.safeParse(await request.json());
+	if (!parsed.success) return NextResponse.json(parsed.error, { status: 400 });
+
+	return deliverTestPolarState({
+		builderId: session.user.id,
+		eventId: parsed.data.eventId,
+		state: parsed.data.state,
+	});
+}
+
+export async function DELETE() {
+	if (!isEnabled()) return unavailable();
+	resetTestBillingState();
+	return NextResponse.json({ reset: true });
+}

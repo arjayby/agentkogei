@@ -1,4 +1,10 @@
-import { buttonVariants } from "@agentkogei/ui/components/button";
+import { auth } from "@agentkogei/auth";
+import {
+	Alert,
+	AlertDescription,
+	AlertTitle,
+} from "@agentkogei/ui/components/alert";
+import { Button, buttonVariants } from "@agentkogei/ui/components/button";
 import {
 	Card,
 	CardContent,
@@ -9,6 +15,7 @@ import {
 } from "@agentkogei/ui/components/card";
 import { ArrowUpRight, Check } from "lucide-react";
 import type { Metadata, Route } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 
 export const metadata: Metadata = {
@@ -24,7 +31,9 @@ const benefits = [
 	"Lasting Project Licenses for eligible installed snapshots",
 ] as const;
 
-export default function PricingPage() {
+export default async function PricingPage() {
+	const session = await auth.api.getSession({ headers: await headers() });
+
 	return (
 		<main>
 			<header className="border-b px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
@@ -76,12 +85,28 @@ export default function PricingPage() {
 								))}
 							</ul>
 						</CardContent>
-						<CardFooter>
+						<CardFooter className="flex flex-wrap gap-3">
+							{session?.user ? (
+								<form action="/api/billing/checkout" method="post">
+									<Button size="lg" type="submit">
+										Continue to Polar — $99/year
+										<ArrowUpRight data-icon="inline-end" aria-hidden="true" />
+									</Button>
+								</form>
+							) : (
+								<Link
+									href={"/login?callbackURL=%2Fpricing" as Route}
+									className={buttonVariants({ size: "lg" })}
+								>
+									Sign in with GitHub to subscribe
+									<ArrowUpRight data-icon="inline-end" aria-hidden="true" />
+								</Link>
+							)}
 							<Link
 								href={"/catalog" as Route}
-								className={buttonVariants({ size: "lg" })}
+								className={buttonVariants({ size: "lg", variant: "outline" })}
 							>
-								Preview Premium packs
+								Preview Premium Design Packs
 								<ArrowUpRight data-icon="inline-end" aria-hidden="true" />
 							</Link>
 						</CardFooter>
@@ -104,7 +129,7 @@ export default function PricingPage() {
 							<p className="leading-7">
 								Refunds required by law, card-network rules, or issued by the
 								Merchant of Record remain exceptions and terminate the affected
-								access and licenses.
+								Premium Access and Project Licenses.
 							</p>
 						</div>
 						<div className="flex flex-col gap-3 bg-background p-6 sm:col-span-2 lg:col-span-1">
@@ -113,12 +138,19 @@ export default function PricingPage() {
 							</p>
 							<p className="leading-7">
 								When Premium Access expires, retrieval, new Installation,
-								reinstallation, and updates stop. A premium snapshot already
-								installed while access was active remains licensed in that
-								Project and works offline without DRM.
+								reinstallation, and access to new Pack Releases stop. A Premium
+								Design Pack snapshot already installed while access was active
+								remains licensed in that Project and works offline without DRM.
 							</p>
 						</div>
 					</div>
+					<Alert className="lg:col-span-2">
+						<AlertTitle>Commercial launch gate</AlertTitle>
+						<AlertDescription>
+							Production payments remain disabled until professional legal
+							review is recorded for the Pack License and checkout disclosures.
+						</AlertDescription>
+					</Alert>
 				</div>
 			</section>
 
