@@ -1,20 +1,27 @@
 {
-	"version": "7",
-	"dialect": "postgresql",
-	"entries": [
-		{
-			"idx": 0,
-			"version": "7",
-			"when": 1784452738759,
-			"tag": "0000_chunky_apocalypse",
-			"breakpoints": true
-		},
-		{
-			"idx": 1,
-			"version": "7",
-			"when": 1784454498999,
-			"tag": "0001_cloudy_maggott",
-			"breakpoints": true
-		}
-	]
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1784452738759,
+      "tag": "0000_chunky_apocalypse",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1784454498999,
+      "tag": "0001_cloudy_maggott",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1784468648328,
+      "tag": "0002_nebulous_dreadnoughts",
+      "breakpoints": true
+    }
+  ]
 }
