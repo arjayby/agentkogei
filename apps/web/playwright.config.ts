@@ -1,6 +1,12 @@
+import { createHash } from "node:crypto";
 import { defineConfig, devices } from "@playwright/test";
 
-import { buildTestPremiumDeliveryFixture } from "./tests/support/premium-delivery-fixture";
+import {
+	buildTestCommandPackRelease,
+	buildTestPremiumDeliveryFixture,
+} from "./tests/support/premium-delivery-fixture";
+
+const commandPremiumRelease = buildTestCommandPackRelease();
 
 export default defineConfig({
 	testDir: "./tests",
@@ -40,6 +46,10 @@ export default defineConfig({
 			POLAR_WEBHOOK_SECRET: "deterministic-polar-webhook-secret",
 			NEXT_TEST_BUILD: "true",
 			PREMIUM_DELIVERY_FIXTURE: buildTestPremiumDeliveryFixture(),
+			COMMAND_PREMIUM_RELEASE: commandPremiumRelease,
+			COMMAND_PREMIUM_RELEASE_SHA256: createHash("sha256")
+				.update(commandPremiumRelease)
+				.digest("hex"),
 		},
 		url: "http://localhost:3011",
 		reuseExistingServer: !process.env.CI,

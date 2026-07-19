@@ -5,7 +5,7 @@ import {
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { getPremiumDeliveryFixture } from "@/lib/premium-delivery-fixture";
+import { getProtectedPremiumRelease } from "@/lib/protected-premium-releases";
 import { observeTestPremiumRetrieval } from "@/lib/test-premium-delivery";
 
 const denial = () =>
@@ -18,7 +18,7 @@ async function releaseIdentity(context: {
 	params: Promise<{ identity: string; version: string }>;
 }) {
 	const release = await context.params;
-	return release.identity === "delivery-fixture" && release.version === "1.0.0"
+	return getProtectedPremiumRelease(release.identity, release.version)
 		? release
 		: null;
 }
@@ -52,9 +52,12 @@ export async function GET(
 		return denial();
 	}
 
-	const fixture = getPremiumDeliveryFixture();
-	if (!fixture) return denial();
-	return NextResponse.json(fixture, {
+	const protectedRelease = getProtectedPremiumRelease(
+		release.identity,
+		release.version,
+	);
+	if (!protectedRelease) return denial();
+	return NextResponse.json(protectedRelease, {
 		headers: {
 			"Cache-Control": "private, no-store",
 			"X-AgentKogei-Project-License": authority.projectLicenseId,

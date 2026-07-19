@@ -263,24 +263,170 @@ function CommandSurface({
 	index: number;
 	surface: PackSurface;
 }) {
+	const referenceScreen = (() => {
+		switch (surface) {
+			case "Marketing":
+				return (
+					<div className="grid gap-3">
+						<p className="max-w-64 font-medium font-sans text-2xl leading-none tracking-[-0.04em]">
+							Ship with operational confidence.
+						</p>
+						<div className="grid grid-cols-3 gap-px border border-[#aebdce] bg-[#aebdce] dark:border-[#283344] dark:bg-[#283344]">
+							{["24 checks", "0 blocked", "18.4s"].map((metric) => (
+								<span
+									key={metric}
+									className="bg-[#fff] p-2 text-[0.65rem] dark:bg-[#0d1118]"
+								>
+									{metric}
+								</span>
+							))}
+						</div>
+					</div>
+				);
+			case "Authentication":
+				return (
+					<div className="grid max-w-64 gap-2">
+						<div className="grid gap-1 text-[0.65rem]">
+							<span>WORK EMAIL</span>
+							<span className="h-8 border border-[#aebdce] bg-white dark:border-[#283344] dark:bg-[#121823]" />
+						</div>
+						<div className="h-8 bg-[#006f95] p-2 text-center text-white dark:bg-[#55d6ff] dark:text-[#051015]">
+							Continue securely
+						</div>
+					</div>
+				);
+			case "Onboarding":
+				return (
+					<div className="grid gap-3">
+						<div className="flex justify-between text-[0.65rem]">
+							<span>02 / CONNECT</span>
+							<span>2 OF 4</span>
+						</div>
+						<div className="grid grid-cols-4 gap-1">
+							{[0, 1, 2, 3].map((step) => (
+								<span
+									key={step}
+									className={`h-1 ${step < 2 ? "bg-[#006f95] dark:bg-[#55d6ff]" : "bg-[#dce5ef] dark:bg-[#283344]"}`}
+								/>
+							))}
+						</div>
+						<p className="font-medium font-sans">
+							Verify the runtime connection
+						</p>
+						<p className="text-[#526174] text-[0.65rem] dark:text-[#98a4b5]">
+							Pending · credentials remain in this Project
+						</p>
+					</div>
+				);
+			case "Dashboard":
+				return (
+					<div className="grid gap-px border border-[#aebdce] bg-[#aebdce] dark:border-[#283344] dark:bg-[#283344]">
+						<div className="grid grid-cols-[1fr_auto] bg-white p-2 dark:bg-[#0d1118]">
+							<span>SYSTEM HEALTH</span>
+							<span className="text-[#087a45] dark:text-[#6ee7a8]">
+								● OPERATIONAL
+							</span>
+						</div>
+						{[
+							"API gateway · 18s ago",
+							"Worker fleet · 24s ago",
+							"Database · 31s ago",
+						].map((row) => (
+							<div key={row} className="bg-white p-2 dark:bg-[#121823]">
+								{row}
+							</div>
+						))}
+					</div>
+				);
+			case "Table":
+				return (
+					<div className="overflow-hidden border border-[#aebdce] dark:border-[#283344]">
+						{[
+							"RELEASE     STATUS        AGE",
+							"v1.8.4      OPERATIONAL   18s",
+							"v1.8.3      SUPERSEDED    2d",
+						].map((row, rowIndex) => (
+							<div
+								key={row}
+								className={`p-2 ${rowIndex === 0 ? "bg-[#e9eef5] text-[#526174] dark:bg-[#192231] dark:text-[#98a4b5]" : "border-[#aebdce] border-t bg-white dark:border-[#283344] dark:bg-[#0d1118]"}`}
+							>
+								{row}
+							</div>
+						))}
+					</div>
+				);
+			case "Form":
+				return (
+					<div className="grid gap-2">
+						<p>RUNTIME / PRODUCTION</p>
+						<div className="grid grid-cols-[1fr_auto] border border-[#aebdce] bg-white dark:border-[#283344] dark:bg-[#121823]">
+							<span className="p-2 text-[#526174] dark:text-[#98a4b5]">
+								region
+							</span>
+							<span className="border-[#aebdce] border-l p-2 dark:border-[#283344]">
+								ap-southeast-1
+							</span>
+						</div>
+						<p className="text-[#087a45] text-[0.65rem] dark:text-[#6ee7a8]">
+							✓ Configuration verified
+						</p>
+					</div>
+				);
+			case "Settings":
+				return (
+					<div className="grid gap-px bg-[#aebdce] dark:bg-[#283344]">
+						{[
+							["Runtime", "Production"],
+							["Notifications", "3 routes"],
+							["Access", "12 members"],
+							["Danger zone", "Review"],
+						].map(([label, value]) => (
+							<div
+								key={label}
+								className="flex justify-between bg-white p-2 dark:bg-[#0d1118]"
+							>
+								<span>{label}</span>
+								<span className="text-[#526174] dark:text-[#98a4b5]">
+									{value}
+								</span>
+							</div>
+						))}
+					</div>
+				);
+			case "States":
+				return (
+					<div className="grid grid-cols-2 gap-2">
+						{[
+							["◌", "Loading"],
+							["□", "Empty"],
+							["!", "Failed"],
+							["✓", "Verified"],
+						].map(([icon, label]) => (
+							<div
+								key={label}
+								className="border border-[#aebdce] bg-white p-2 dark:border-[#283344] dark:bg-[#121823]"
+							>
+								<span className="mr-2 text-[#006f95] dark:text-[#55d6ff]">
+									{icon}
+								</span>
+								{label}
+							</div>
+						))}
+					</div>
+				);
+		}
+	})();
+
 	return (
-		<div className="flex min-h-64 flex-col justify-between bg-foreground p-5 font-mono text-background">
-			<div className="flex justify-between text-[0.65rem] uppercase tracking-[0.18em] opacity-60">
+		<div className="flex min-h-64 flex-col justify-between bg-[#f3f6fa] p-5 font-mono text-[#111827] dark:bg-[#080b10] dark:text-[#e8edf5]">
+			<div className="flex justify-between text-[#526174] text-[0.65rem] uppercase tracking-[0.18em] dark:text-[#98a4b5]">
 				<span>{surface}</span>
 				<span>node.0{index + 1}</span>
 			</div>
-			<div className="grid grid-cols-[3rem_1fr] gap-x-3 gap-y-2 text-xs">
-				<span className="opacity-50">SYS</span>
-				<span>operational</span>
-				<span className="opacity-50">LOAD</span>
-				<span>{72 + index * 9}%</span>
-				<span className="opacity-50">STATE</span>
-				<span>verified</span>
-			</div>
-			<div className="grid grid-cols-8 gap-1">
-				{Array.from({ length: 8 }, (_, cell) => (
-					<div key={cell} className="h-1 bg-background opacity-70" />
-				))}
+			<div className="py-5 text-xs">{referenceScreen}</div>
+			<div className="flex items-center gap-2 text-[#526174] text-[0.6rem] dark:text-[#98a4b5]">
+				<span className="size-1.5 bg-[#087a45] dark:bg-[#6ee7a8]" />
+				<span>COMMAND / EVALUATION BUILD</span>
 			</div>
 		</div>
 	);

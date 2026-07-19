@@ -21,7 +21,7 @@ export default function BuilderAccountMenu() {
 	const { data: session, isPending } = authClient.useSession();
 
 	if (isPending) {
-		return <Skeleton className="h-8 w-24" />;
+		return <Skeleton className="h-8 w-16 sm:w-24" />;
 	}
 
 	if (!session) {

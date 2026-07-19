@@ -116,9 +116,9 @@ export default async function PackPage({ params }: PackPageProps) {
 							One direction across the whole product.
 						</h2>
 						<p className="max-w-2xl text-muted-foreground">
-							Preview is evidence, not Pack Source. It demonstrates direction
-							and evaluated coverage; use the release action above to retrieve
-							an Open Design Pack.
+							{pack.access === "Premium"
+								? "Preview is evidence, not Pack Source. Installation retrieves the complete release only through the authenticated Premium Pack Source."
+								: "Preview is evidence, not Pack Source. It demonstrates direction and evaluated coverage; use the release action above to retrieve an Open Design Pack."}
 						</p>
 					</div>
 					<PackPreviewEvidence pack={pack} />
