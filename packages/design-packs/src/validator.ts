@@ -87,7 +87,7 @@ function validateReleaseRules(manifest: PackManifest) {
 	}
 
 	const executableGuidance =
-		/(?:^|\s)(?:npm|pnpm|yarn|bun|npx|bunx)\s+(?:add|install|i|run|x|dlx)\b|(?:^|\s)(?:curl|wget|bash|sh|node)\s+/i;
+		/(?:^|\s)(?:npm|pnpm|yarn|bun|npx|bunx|corepack|pip|pipx|uv|cargo|go|composer|gem|bundle|make|just|curl|wget|bash|sh|node|deno|python|ruby|perl|powershell|pwsh|cmd|chmod)\s+\S+|(?:^|\s)(?:run|execute|invoke|launch)\b[^.\n]*(?:script\b|\.\/|\S+\.(?:sh|js|ts|py|ps1|bat|cmd)\b)|(?:^|\s)(?:\.{0,2}\/|\/bin\/|\/usr\/bin\/)\S+|\S+\.(?:sh|js|ts|py|ps1|bat|cmd)\b|&&|\|\||`|\$\(/i;
 	for (const instruction of manifest.dependencies.setup) {
 		if (executableGuidance.test(instruction)) {
 			errors.push(`dependency guidance must be non-executable: ${instruction}`);

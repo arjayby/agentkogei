@@ -154,6 +154,51 @@ describe("Pack Release publication validation", () => {
 		}
 	});
 
+	test("rejects an absolute Windows target", async () => {
+		const rootDirectory = await copyFoundationFixture();
+		const manifest = await readManifest(rootDirectory);
+		const files = manifest.files as Array<Record<string, unknown>>;
+		files[0] = { ...files[0], target: "C:/outside/DESIGN.md" };
+		await writeManifest(rootDirectory, manifest);
+
+		const result = await runValidator(rootDirectory);
+
+		expect(result.ok).toBe(false);
+		if (!result.ok) {
+			expect(result.errors.join(" ")).toContain("safe relative target");
+		}
+	});
+
+	test("rejects duplicate destinations", async () => {
+		const rootDirectory = await copyFoundationFixture();
+		const manifest = await readManifest(rootDirectory);
+		const files = manifest.files as Array<Record<string, unknown>>;
+		files[1] = { ...files[1], target: files[0]?.target };
+		await writeManifest(rootDirectory, manifest);
+
+		const result = await runValidator(rootDirectory);
+
+		expect(result.ok).toBe(false);
+		if (!result.ok) {
+			expect(result.errors.join(" ")).toContain("duplicate target");
+		}
+	});
+
+	test("rejects undeclared release resources", async () => {
+		const rootDirectory = await copyFoundationFixture();
+		await writeFile(
+			path.join(rootDirectory, "undeclared.md"),
+			"not declared\n",
+		);
+
+		const result = await runValidator(rootDirectory);
+
+		expect(result.ok).toBe(false);
+		if (!result.ok) {
+			expect(result.errors.join(" ")).toContain("undeclared file");
+		}
+	});
+
 	test("rejects a hash-invalid fixture", async () => {
 		const rootDirectory = await copyFoundationFixture();
 		await writeFile(path.join(rootDirectory, "DESIGN.md"), "substituted\n");
@@ -269,6 +314,38 @@ describe("Pack Release publication validation", () => {
 			expect(result.errors.join(" ")).toContain("non-executable");
 		}
 	});
+
+	for (const command of [
+		"Run npm ci",
+		"Run npm exec setup-tool",
+		"Run pnpm update",
+		"Run yarn set version stable",
+		"Run bun build",
+		"Run ./setup.sh",
+		"Run the setup script",
+		"Run pip install package",
+		"Run corepack pnpm install",
+		"Run make setup",
+		"Run powershell setup.ps1",
+		"./setup.sh",
+		"/bin/sh setup.sh",
+		"chmod +x setup.sh && ./setup.sh",
+	]) {
+		test(`rejects package-manager guidance: ${command}`, async () => {
+			const rootDirectory = await copyFoundationFixture();
+			const manifest = await readManifest(rootDirectory);
+			const dependencies = manifest.dependencies as Record<string, unknown>;
+			dependencies.setup = [command];
+			await writeManifest(rootDirectory, manifest);
+
+			const result = await runValidator(rootDirectory);
+
+			expect(result.ok).toBe(false);
+			if (!result.ok) {
+				expect(result.errors.join(" ")).toContain("non-executable");
+			}
+		});
+	}
 
 	test("rejects fabricated or incomplete evaluation coverage", async () => {
 		const rootDirectory = await copyFoundationFixture();

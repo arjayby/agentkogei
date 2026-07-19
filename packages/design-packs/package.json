@@ -2,6 +2,7 @@
 	"name": "@agentkogei/design-packs",
 	"type": "module",
 	"bin": {
+		"agentkogei": "./src/install-cli.ts",
 		"agentkogei-validate-pack": "./src/cli.ts"
 	},
 	"exports": {

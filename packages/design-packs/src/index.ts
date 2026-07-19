@@ -1,5 +1,12 @@
 import { fileURLToPath } from "node:url";
 
+export {
+	applyInstallation,
+	discardInstallationPlan,
+	formatInstallationPreview,
+	type InstallationPlan,
+	prepareInstallation,
+} from "./installation";
 export { type PackManifest, packManifestSchema } from "./manifest";
 export type { FoundationRegistryItem } from "./registry";
 export {

@@ -7,8 +7,13 @@ const relativePathSchema = z
 	.refine(
 		(value) =>
 			!value.startsWith("/") &&
-			!value.startsWith("\\") &&
-			!value.split(/[\\/]/).includes(".."),
+			!value.includes("\\") &&
+			!value.includes(":") &&
+			value
+				.split("/")
+				.every(
+					(segment) => segment !== "" && segment !== "." && segment !== "..",
+				),
 		{ message: "must be a safe relative target" },
 	);
 
