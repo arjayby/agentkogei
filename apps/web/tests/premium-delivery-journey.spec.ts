@@ -85,15 +85,12 @@ async function authorizeCli(
 		stderr += chunk;
 	});
 
-	const verificationUrl = await new Promise<string>((resolve, reject) => {
+	await new Promise<void>((resolve, reject) => {
 		const startedAt = Date.now();
 		const interval = setInterval(() => {
-			const match = stdout.match(
-				/http:\/\/localhost:3011\/device\?user_code=[A-Z0-9-]+/,
-			);
-			if (match) {
+			if (/http:\/\/localhost:3011\/device\b/.test(stdout)) {
 				clearInterval(interval);
-				resolve(match[0]);
+				resolve();
 			} else if (Date.now() - startedAt > 10_000) {
 				clearInterval(interval);
 				child.kill();
@@ -101,7 +98,17 @@ async function authorizeCli(
 			}
 		}, 20);
 	});
-	await page.goto(verificationUrl);
+	const pending = await page.request.get("/api/test/device/pending", {
+		params: { credential_name: credentialName },
+	});
+	expect(pending.status()).toBe(200);
+	const authorization = (await pending.json()) as {
+		userCode: string;
+		verificationUriComplete: string;
+	};
+	expect(stdout).not.toContain(authorization.userCode);
+	expect(stdout).not.toContain("user_code=");
+	await page.goto(authorization.verificationUriComplete);
 	await page.getByRole("button", { name: "Approve terminal" }).click();
 	const code = await new Promise<number | null>((resolve) =>
 		child.on("exit", resolve),

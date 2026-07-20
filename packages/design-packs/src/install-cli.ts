@@ -4,6 +4,18 @@ import { randomUUID } from "node:crypto";
 import { createInterface } from "node:readline/promises";
 
 import {
+	type DiagnosticCommand,
+	diagnosticCommands,
+} from "./diagnostic-contract";
+import {
+	diagnosticsDisable,
+	diagnosticsEnable,
+	diagnosticsOptInDisclosure,
+	diagnosticsStatus,
+	sendDiagnostic,
+} from "./diagnostics";
+
+import {
 	applyInstallation,
 	discardInstallationPlan,
 	formatInstallationPreview,
@@ -28,13 +40,27 @@ import {
 
 function usage() {
 	console.error(
-		"Usage:\n  agentkogei login [--server <origin>]\n  agentkogei logout\n  agentkogei install <pack[@version]> [--source <registry-base-url/|registry-item-url>] [--project <directory>] [--yes]\n  agentkogei status [--project <directory>]\n  agentkogei update [--project <directory>] [--yes]\n  agentkogei detach [--project <directory>] [--yes]",
+		"Usage:\n  agentkogei login [--server <origin>]\n  agentkogei logout\n  agentkogei install <pack[@version]> [--source <registry-base-url/|registry-item-url>] [--project <directory>] [--yes]\n  agentkogei status [--project <directory>]\n  agentkogei update [--project <directory>] [--yes]\n  agentkogei detach [--project <directory>] [--yes]\n  agentkogei diagnostics <status|enable|disable> [--yes]",
 	);
 }
 
 function optionValue(arguments_: string[], option: string) {
 	const index = arguments_.indexOf(option);
 	return index === -1 ? undefined : arguments_[index + 1];
+}
+
+function redactSensitiveError(error: unknown) {
+	return (error instanceof Error ? error.message : String(error))
+		.replace(/\bBearer\s+\S+/gi, "Bearer [REDACTED]")
+		.replace(/\b(?:ak|apk)_[A-Za-z0-9._~-]+\b/g, "[REDACTED]")
+		.replace(
+			/([?&](?:code|device_code|access_token|authorization_code)=)[^&\s]+/gi,
+			"$1[REDACTED]",
+		)
+		.replace(
+			/("(?:access_token|device_code|credential|authorization_code)"\s*:\s*")[^"]+/gi,
+			"$1[REDACTED]",
+		);
 }
 
 async function requestActionConfirmation(
@@ -61,6 +87,37 @@ async function requestActionConfirmation(
 
 async function main() {
 	const arguments_ = process.argv.slice(2);
+	if (arguments_[0] === "diagnostics") {
+		if (arguments_[1] === "status") {
+			console.log(await diagnosticsStatus());
+			return 0;
+		}
+		if (arguments_[1] === "enable") {
+			console.log(diagnosticsOptInDisclosure());
+			const confirmed = await requestActionConfirmation(
+				arguments_,
+				"Enable these diagnostics? [y/N] ",
+			);
+			if (!confirmed) {
+				console.error(
+					"Diagnostics not enabled. Non-interactive use requires explicit --yes consent.",
+				);
+				return 2;
+			}
+			await diagnosticsEnable();
+			console.log(
+				"Diagnostics enabled. Use `agentkogei diagnostics disable` at any time.",
+			);
+			return 0;
+		}
+		if (arguments_[1] === "disable") {
+			await diagnosticsDisable();
+			console.log("Diagnostics disabled.");
+			return 0;
+		}
+		usage();
+		return 2;
+	}
 	if (arguments_[0] === "login") {
 		const server = optionValue(arguments_, "--server");
 		if (arguments_.includes("--server") && !server) {
@@ -226,9 +283,25 @@ async function main() {
 	return 0;
 }
 
+const command = process.argv[2];
+const diagnosticCommand: DiagnosticCommand | undefined =
+	command !== undefined &&
+	diagnosticCommands.includes(command as DiagnosticCommand)
+		? (command as DiagnosticCommand)
+		: undefined;
+
 try {
 	process.exitCode = await main();
+	if (diagnosticCommand) {
+		await sendDiagnostic(
+			diagnosticCommand,
+			process.exitCode === 0 ? "success" : "error",
+		);
+	}
 } catch (error) {
-	console.error(error instanceof Error ? error.message : String(error));
+	console.error(redactSensitiveError(error));
+	if (diagnosticCommand) {
+		await sendDiagnostic(diagnosticCommand, "error");
+	}
 	process.exitCode = 1;
 }

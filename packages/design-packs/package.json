@@ -6,7 +6,8 @@
 		"agentkogei-validate-pack": "./src/cli.ts"
 	},
 	"exports": {
-		".": "./src/index.ts"
+		".": "./src/index.ts",
+		"./diagnostic-contract": "./src/diagnostic-contract.ts"
 	},
 	"scripts": {
 		"check-types": "tsc --noEmit",

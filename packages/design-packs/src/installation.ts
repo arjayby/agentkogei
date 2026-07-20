@@ -52,6 +52,9 @@ const registryItemSchema = z
 
 export type RegistryItem = z.infer<typeof registryItemSchema>;
 
+const redactedPremiumReleaseError =
+	"Pack Release for the Premium Design Pack is invalid or unavailable";
+
 export type RetrievedPackRelease = {
 	manifest: PackManifest;
 	item: RegistryItem;
@@ -228,10 +231,12 @@ async function findSymlinkAncestor(projectDirectory: string, target: string) {
 async function materializeAndValidate(
 	item: RegistryItem,
 	identity: string,
+	redactAuthorizedSourceDetails = false,
 ): Promise<{ manifest: PackManifest; releaseDirectory: string }> {
 	const releaseDirectory = await mkdtemp(
 		path.join(tmpdir(), "agentkogei-release-"),
 	);
+	let redactReleaseDetails = redactAuthorizedSourceDetails;
 	try {
 		const seenPaths = new Set<string>();
 		for (const file of item.files) {
@@ -250,13 +255,17 @@ async function materializeAndValidate(
 		if (!manifestFile) {
 			throw new Error("registry item is missing agentkogei.manifest.json");
 		}
+		const manifestJson = JSON.parse(manifestFile.content) as {
+			access?: unknown;
+		};
+		redactReleaseDetails ||= manifestJson.access === "premium";
 		const validation = await validatePackRelease(releaseDirectory);
 		if (!validation.ok) {
 			throw new Error(
 				`Pack Release validation failed:\n${validation.errors.join("\n")}`,
 			);
 		}
-		const manifest = packManifestSchema.parse(JSON.parse(manifestFile.content));
+		const manifest = packManifestSchema.parse(manifestJson);
 		if (manifest.id !== identity || item.name !== identity) {
 			throw new Error(`Pack Source identity does not match ${identity}`);
 		}
@@ -296,6 +305,9 @@ async function materializeAndValidate(
 		return { manifest, releaseDirectory };
 	} catch (error) {
 		await rm(releaseDirectory, { recursive: true, force: true });
+		if (redactReleaseDetails) {
+			throw new Error(redactedPremiumReleaseError);
+		}
 		throw error;
 	}
 }
@@ -453,6 +465,10 @@ export async function retrievePackRelease(input: {
 	if (!["file:", "http:", "https:"].includes(source.protocol)) {
 		throw new Error(`unsupported Pack Source protocol: ${source.protocol}`);
 	}
+	const redactAuthorizedSourceDetails = Boolean(
+		input.premiumAuthorization &&
+			source.origin === new URL(input.premiumAuthorization.server).origin,
+	);
 	let item: RegistryItem;
 	let deliveredProjectLicense: string | null;
 	try {
@@ -460,6 +476,9 @@ export async function retrievePackRelease(input: {
 		deliveredProjectLicense = retrieved.projectLicense;
 		item = registryItemSchema.parse(JSON.parse(retrieved.contents));
 	} catch (error) {
+		if (redactAuthorizedSourceDetails) {
+			throw new Error(redactedPremiumReleaseError);
+		}
 		throw new Error(
 			`Pack Source retrieval or parsing failed: ${error instanceof Error ? error.message : String(error)}`,
 		);
@@ -467,6 +486,7 @@ export async function retrievePackRelease(input: {
 	const { manifest, releaseDirectory } = await materializeAndValidate(
 		item,
 		input.identity,
+		redactAuthorizedSourceDetails,
 	);
 	if (
 		manifest.access === "premium" &&
