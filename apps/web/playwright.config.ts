@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { resolve } from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 
 import {
@@ -9,10 +10,12 @@ import {
 
 const commandPremiumRelease = buildTestCommandPackRelease();
 const signalPremiumRelease = buildTestSignalPackRelease();
+const testDatabasePath = resolve(".black-box/postgres");
 
 export default defineConfig({
 	testDir: "./tests",
-	fullyParallel: true,
+	fullyParallel: false,
+	workers: 1,
 	forbidOnly: Boolean(process.env.CI),
 	retries: process.env.CI ? 2 : 0,
 	reporter: "line",
@@ -34,8 +37,11 @@ export default defineConfig({
 		},
 	],
 	webServer: {
-		command: "bun run dev:test",
+		command:
+			"bun run database:test:prepare && AGENTKOGEI_BLACK_BOX_TEST= AGENTKOGEI_TEST_DATABASE_PATH= bun run build && bun run start:test 2>&1 | tee .black-box/application.log",
 		env: {
+			AGENTKOGEI_BLACK_BOX_TEST: "true",
+			AGENTKOGEI_TEST_DATABASE_PATH: testDatabasePath,
 			BETTER_AUTH_URL: "http://localhost:3011",
 			CORS_ORIGIN: "http://localhost:3011",
 			GITHUB_CLIENT_ID: "deterministic-github-client",
@@ -58,7 +64,7 @@ export default defineConfig({
 				.digest("hex"),
 		},
 		url: "http://localhost:3011",
-		reuseExistingServer: !process.env.CI,
+		reuseExistingServer: false,
 		timeout: 120_000,
 	},
 });

@@ -6,12 +6,15 @@
 		"dev": "next dev --port 3001",
 		"dev:test": "next dev --port 3011",
 		"build": "bun run registry:build && next build && bun run artifacts:verify",
+		"database:test:prepare": "bun run --cwd ../../packages/db db:prepare:black-box",
 		"check-types": "tsc --noEmit",
 		"registry:build": "bun run scripts/build-registry.ts",
 		"artifacts:verify": "bun run scripts/verify-premium-artifacts.ts",
-		"test": "bun run registry:build && playwright test",
-		"test:public": "playwright test tests/public-journey.spec.ts",
-		"start": "next start"
+		"logs:verify": "bun run scripts/verify-premium-logs.ts",
+		"test": "bun run --cwd ../../packages/design-packs build && AGENTKOGEI_CLI_PATH=../../packages/design-packs/dist/agentkogei.js playwright test && bun run logs:verify",
+		"test:public": "bun run --cwd ../../packages/design-packs build && AGENTKOGEI_CLI_PATH=../../packages/design-packs/dist/agentkogei.js playwright test tests/public-journey.spec.ts",
+		"start": "next start",
+		"start:test": "next start --port 3011"
 	},
 	"dependencies": {
 		"@agentkogei/api": "workspace:*",

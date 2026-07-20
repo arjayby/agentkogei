@@ -1,4 +1,4 @@
-import { env } from "@agentkogei/env/server";
+import { blackBoxTestBoundaryEnabled } from "@agentkogei/env/server";
 import { Button, buttonVariants } from "@agentkogei/ui/components/button";
 import {
 	Card,
@@ -16,7 +16,7 @@ export default async function TestPolarCheckoutPage({
 }: {
 	searchParams: Promise<{ success_url?: string }>;
 }) {
-	if (env.NODE_ENV === "production" || !env.GITHUB_OAUTH_TEST_BASE_URL) {
+	if (!blackBoxTestBoundaryEnabled) {
 		notFound();
 	}
 	const { success_url: successURL } = await searchParams;

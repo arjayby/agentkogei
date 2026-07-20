@@ -163,13 +163,29 @@ export default function DocsPage() {
 						<div className="grid gap-5 md:grid-cols-2">
 							<Card>
 								<CardHeader>
+									<CardTitle>AgentKogei software</CardTitle>
+									<CardDescription>
+										Open source under the MIT License.
+									</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<p className="leading-7">
+										The web application, CLI, Design Pack specification, and
+										validators may be inspected, modified, distributed, and
+										self-hosted under the MIT License.
+									</p>
+								</CardContent>
+							</Card>
+							<Card>
+								<CardHeader>
 									<CardTitle>Open Design Packs</CardTitle>
 									<CardDescription>Complete and account-free.</CardDescription>
 								</CardHeader>
 								<CardContent>
 									<p className="leading-7">
 										AgentKogei-authored prose and original visual resources use
-										CC BY 4.0, allowing reuse and adaptation with attribution.
+										CC BY 4.0, allowing reuse and adaptation when Builders
+										retain required attribution from the Pack Release.
 									</p>
 								</CardContent>
 							</Card>
@@ -183,9 +199,11 @@ export default function DocsPage() {
 								<CardContent>
 									<div className="flex flex-col gap-3 leading-7">
 										<p>
-											An eligible installed snapshot may be used by Builders and
-											collaborators in that Project, including a genuine public
-											end-product Project, without opening the Pack License.
+											Premium resources are distributed under the commercial
+											Pack License. An eligible installed snapshot may be used
+											by Builders and collaborators in that Project, including a
+											genuine public end-product Project, without opening the
+											Pack License.
 										</p>
 										<p>
 											The local snapshot remains usable offline without
@@ -199,6 +217,21 @@ export default function DocsPage() {
 											AgentKogei never remotely modifies Project files.
 										</p>
 									</div>
+								</CardContent>
+							</Card>
+							<Card>
+								<CardHeader>
+									<CardTitle>Self-hosting boundary</CardTitle>
+									<CardDescription>
+										Open software is not catalog access.
+									</CardDescription>
+								</CardHeader>
+								<CardContent>
+									<p className="leading-7">
+										Self-hosting does not grant Premium Design Pack resources,
+										Pack Credentials, Premium Access, or permission to reproduce
+										the Official Catalog. Access and permission remain separate.
+									</p>
 								</CardContent>
 							</Card>
 						</div>

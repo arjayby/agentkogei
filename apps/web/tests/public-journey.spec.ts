@@ -5,18 +5,18 @@ import path from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-const installationCli = path.resolve(
-	process.cwd(),
-	"../../packages/design-packs/src/install-cli.ts",
-);
+import { cliPath as installationCli } from "./support/cli";
 
-async function runLiveCatalogInstallation(project: string) {
+async function runLiveCatalogInstallation(
+	project: string,
+	pack: "foundation" | "editorial",
+) {
 	const process_ = spawn(
 		"bun",
 		[
 			installationCli,
 			"install",
-			"editorial@1.0.0",
+			`${pack}@1.0.0`,
 			"--yes",
 			"--project",
 			project,
@@ -80,6 +80,62 @@ test("the Official Catalog presents every launch pack with its access class", as
 		catalog.getByRole("link", { name: /Signal.*Premium/i }),
 	).toBeVisible();
 });
+
+for (const pack of [
+	{
+		slug: "foundation",
+		name: "Foundation",
+		access: "Open",
+		license: "CC BY 4.0",
+	},
+	{
+		slug: "editorial",
+		name: "Editorial",
+		access: "Open",
+		license: "CC BY 4.0",
+	},
+	{
+		slug: "command",
+		name: "Command",
+		access: "Premium",
+		license: "Commercial Pack License",
+	},
+	{
+		slug: "signal",
+		name: "Signal",
+		access: "Premium",
+		license: "Commercial Pack License",
+	},
+] as const) {
+	test(`${pack.name} launch smoke exposes Pack Preview, access, compatibility, license, and evaluation evidence`, async ({
+		page,
+	}) => {
+		await page.goto(`/catalog/${pack.slug}`);
+		const product = page.getByRole("main");
+
+		await expect(
+			product.getByRole("heading", { name: pack.name, exact: true }),
+		).toBeVisible();
+		await expect(product.getByText(pack.access, { exact: true })).toBeVisible();
+		await expect(
+			product.getByText(pack.license, { exact: true }),
+		).toBeVisible();
+		await expect(
+			product.getByText("React / Next.js · Tailwind CSS v4 · shadcn/ui", {
+				exact: true,
+			}),
+		).toBeVisible();
+		await expect(
+			product.getByText(
+				"Pack Evaluation passed · WCAG 2.2 Level AA reference implementation",
+				{ exact: true },
+			),
+		).toBeVisible();
+		await expect(
+			product.getByLabel(`${pack.name} rendered Pack Preview`),
+		).toBeVisible();
+	});
+}
 
 test("a premium Pack Preview shows complete evidence without exposing gated resources", async ({
 	page,
@@ -260,32 +316,36 @@ test("a Builder can preview, retrieve, and distinguish the Editorial Open Design
 	).toBeVisible();
 });
 
-test("the generic CLI anonymously installs Editorial from the live Pack Source for agent discovery", async () => {
-	const project = await mkdtemp(path.join(tmpdir(), "agentkogei-live-web-"));
-	try {
-		const result = await runLiveCatalogInstallation(project);
+for (const openPack of ["foundation", "editorial"] as const) {
+	test(`the distributed CLI anonymously installs ${openPack} from the built Pack Source`, async () => {
+		const project = await mkdtemp(path.join(tmpdir(), "agentkogei-live-web-"));
+		try {
+			const result = await runLiveCatalogInstallation(project, openPack);
 
-		expect(result.exitCode, result.stderr).toBe(0);
-		expect(result.stdout).toContain("Installed editorial@1.0.0");
-		const agents = await readFile(path.join(project, "AGENTS.md"), "utf8");
-		const designContractPath = agents.match(
-			/\.agentkogei\/editorial\/DESIGN\.md/,
-		)?.[0];
-		expect(designContractPath).toBeDefined();
-		expect(
-			await readFile(path.join(project, designContractPath ?? ""), "utf8"),
-		).toContain("# Editorial Interface System");
-		const record = await readFile(
-			path.join(project, ".agentkogei/installed-pack.json"),
-			"utf8",
-		);
-		expect(record).toContain(
-			'"source": "http://localhost:3011/r/editorial/1.0.0.json"',
-		);
-	} finally {
-		await rm(project, { recursive: true, force: true });
-	}
-});
+			expect(result.exitCode, result.stderr).toBe(0);
+			expect(result.stdout).toContain(`Installed ${openPack}@1.0.0`);
+			const agents = await readFile(path.join(project, "AGENTS.md"), "utf8");
+			const designContractPath = agents.match(
+				new RegExp(`\\.agentkogei/${openPack}/DESIGN\\.md`),
+			)?.[0];
+			expect(designContractPath).toBeDefined();
+			expect(
+				await readFile(path.join(project, designContractPath ?? ""), "utf8"),
+			).toContain(
+				`# ${openPack[0]?.toUpperCase()}${openPack.slice(1)} Interface System`,
+			);
+			const record = await readFile(
+				path.join(project, ".agentkogei/installed-pack.json"),
+				"utf8",
+			);
+			expect(record).toContain(
+				`"source": "http://localhost:3011/r/${openPack}/1.0.0.json"`,
+			);
+		} finally {
+			await rm(project, { recursive: true, force: true });
+		}
+	});
+}
 
 test("the diagnostics endpoint accepts only the disclosed non-Project fields", async ({
 	request,
@@ -449,6 +509,12 @@ test("pricing discloses the complete Premium Access offer", async ({
 	await expect(
 		page.getByText("remains licensed in that Project", { exact: false }),
 	).toBeVisible();
+	await expect(
+		page.getByText("genuine public end product", { exact: false }),
+	).toBeVisible();
+	await expect(
+		page.getByText("reusing it in another Project", { exact: false }),
+	).toBeVisible();
 });
 
 test("public documentation explains Installation and remains usable on mobile", async ({
@@ -503,6 +569,32 @@ test("public documentation states the complete Project License boundary", async 
 		page.getByText("A refund or payment reversal terminates", {
 			exact: false,
 		}),
+	).toBeVisible();
+});
+
+test("public documentation distinguishes software, Open Design Packs, Premium Design Packs, and self-hosting rights", async ({
+	page,
+}) => {
+	await page.goto("/docs");
+	await expect(
+		page.getByText(
+			"application, CLI, Design Pack specification, and validators",
+			{
+				exact: false,
+			},
+		),
+	).toBeVisible();
+	await expect(
+		page.getByText("Open source under the MIT License.", { exact: true }),
+	).toBeVisible();
+	await expect(
+		page.getByText("retain required attribution", { exact: false }),
+	).toBeVisible();
+	await expect(
+		page.getByText("self-hosting does not grant", { exact: false }),
+	).toBeVisible();
+	await expect(
+		page.getByText("commercial Pack License", { exact: false }),
 	).toBeVisible();
 });
 

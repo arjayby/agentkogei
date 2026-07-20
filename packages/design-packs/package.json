@@ -1,16 +1,24 @@
 {
 	"name": "@agentkogei/design-packs",
+	"version": "0.1.0",
+	"license": "MIT",
 	"type": "module",
 	"bin": {
-		"agentkogei": "./src/install-cli.ts",
-		"agentkogei-validate-pack": "./src/cli.ts"
+		"agentkogei": "./dist/agentkogei.js",
+		"agentkogei-validate-pack": "./dist/agentkogei-validate-pack.js"
 	},
+	"files": [
+		"dist",
+		"LICENSE"
+	],
 	"exports": {
 		".": "./src/index.ts",
 		"./diagnostic-contract": "./src/diagnostic-contract.ts"
 	},
 	"scripts": {
+		"build": "bun build ./src/install-cli.ts --target=bun --outfile=./dist/agentkogei.js && bun build ./src/cli.ts --target=bun --outfile=./dist/agentkogei-validate-pack.js",
 		"check-types": "tsc --noEmit",
+		"distribution:verify": "bun run build && bun run scripts/verify-packed-cli.ts",
 		"test": "bun test",
 		"validate": "bun run src/cli.ts"
 	},

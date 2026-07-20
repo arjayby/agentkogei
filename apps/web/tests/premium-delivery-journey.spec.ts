@@ -5,14 +5,14 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, type Page, test } from "@playwright/test";
 
+import { cliPath } from "./support/cli";
+
 const webOrigin = "http://localhost:3011";
-const cliPath = path.resolve(
-	process.cwd(),
-	"../../packages/design-packs/src/install-cli.ts",
-);
 const fixtureSource = `${webOrigin}/api/premium-source/delivery-fixture/1.0.0`;
 const commandSource = `${webOrigin}/api/premium-source/command/1.0.0`;
 const signalSource = `${webOrigin}/api/premium-source/signal/1.0.0`;
+const premiumReleaseUnavailable =
+	"Pack Release for the Premium Design Pack is invalid or unavailable";
 
 test.describe.configure({ mode: "serial" });
 test.setTimeout(60_000);
@@ -749,9 +749,7 @@ test("cancelation preserves premium updates until expiration and renewal restore
 			projectDirectory,
 		});
 		expect(afterExpiration.code).toBe(1);
-		expect(afterExpiration.stderr).toContain(
-			"Pack Source retrieval failed (404)",
-		);
+		expect(afterExpiration.stderr).toContain(premiumReleaseUnavailable);
 		const deniedNewInstallation = await runCli(
 			["install", "command@1.0.0", "--yes"],
 			{
@@ -761,9 +759,7 @@ test("cancelation preserves premium updates until expiration and renewal restore
 			},
 		);
 		expect(deniedNewInstallation.code).toBe(1);
-		expect(deniedNewInstallation.stderr).toContain(
-			"Pack Source retrieval failed (404)",
-		);
+		expect(deniedNewInstallation.stderr).toContain(premiumReleaseUnavailable);
 		await rm(path.join(reinstallationDirectory, ".agentkogei"), {
 			recursive: true,
 			force: true,
@@ -778,9 +774,7 @@ test("cancelation preserves premium updates until expiration and renewal restore
 			},
 		);
 		expect(deniedReinstallation.code).toBe(1);
-		expect(deniedReinstallation.stderr).toContain(
-			"Pack Source retrieval failed (404)",
-		);
+		expect(deniedReinstallation.stderr).toContain(premiumReleaseUnavailable);
 		const offlineAfterExpiration = await runOfflineStatus(
 			configDirectory,
 			projectDirectory,
@@ -1045,9 +1039,7 @@ for (const terminalState of ["refunded", "reversed"] as const) {
 				projectDirectory,
 			});
 			expect(deniedUpdate.code).toBe(1);
-			expect(deniedUpdate.stderr).toContain(
-				"Pack Source retrieval failed (404)",
-			);
+			expect(deniedUpdate.stderr).toContain(premiumReleaseUnavailable);
 			await rm(path.join(reinstallationDirectory, ".agentkogei"), {
 				recursive: true,
 				force: true,
@@ -1064,9 +1056,7 @@ for (const terminalState of ["refunded", "reversed"] as const) {
 				},
 			);
 			expect(deniedReinstallation.code).toBe(1);
-			expect(deniedReinstallation.stderr).toContain(
-				"Pack Source retrieval failed (404)",
-			);
+			expect(deniedReinstallation.stderr).toContain(premiumReleaseUnavailable);
 
 			const deniedInstallation = await runCli(
 				["install", "command@1.0.0", "--yes"],
@@ -1077,9 +1067,7 @@ for (const terminalState of ["refunded", "reversed"] as const) {
 				},
 			);
 			expect(deniedInstallation.code).toBe(1);
-			expect(deniedInstallation.stderr).toContain(
-				"Pack Source retrieval failed (404)",
-			);
+			expect(deniedInstallation.stderr).toContain(premiumReleaseUnavailable);
 
 			await rm(configDirectory, { recursive: true, force: true });
 			const offlineStatus = await runCli(["status"], {

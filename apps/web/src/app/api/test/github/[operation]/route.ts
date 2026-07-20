@@ -1,4 +1,4 @@
-import { env } from "@agentkogei/env/server";
+import { blackBoxTestBoundaryEnabled, env } from "@agentkogei/env/server";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
@@ -6,9 +6,7 @@ const AUTHORIZATION_CODE = "deterministic-github-code";
 const ACCESS_TOKEN = "deterministic-github-token";
 
 function isEnabled() {
-	return (
-		env.NODE_ENV !== "production" && Boolean(env.GITHUB_OAUTH_TEST_BASE_URL)
-	);
+	return blackBoxTestBoundaryEnabled && Boolean(env.GITHUB_OAUTH_TEST_BASE_URL);
 }
 
 function unavailable() {
@@ -37,7 +35,10 @@ export async function GET(
 			redirectURL.origin !== expectedCallbackURL.origin ||
 			redirectURL.pathname !== expectedCallbackURL.pathname
 		) {
-			return NextResponse.json({ error: "invalid_redirect_uri" }, { status: 400 });
+			return NextResponse.json(
+				{ error: "invalid_redirect_uri" },
+				{ status: 400 },
+			);
 		}
 		redirectURL.searchParams.set("code", AUTHORIZATION_CODE);
 		redirectURL.searchParams.set("state", state);

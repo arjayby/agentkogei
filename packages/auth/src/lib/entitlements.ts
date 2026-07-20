@@ -3,7 +3,10 @@ import {
 	findPremiumAccess,
 } from "@agentkogei/db/billing";
 import { premiumAccessStateValues } from "@agentkogei/db/schema/auth";
-import { env } from "@agentkogei/env/server";
+import {
+	blackBoxDatabaseEnabled,
+	inMemoryBlackBoxBoundaryEnabled,
+} from "@agentkogei/env/server";
 
 import {
 	resetTestProjectLicenses,
@@ -58,16 +61,10 @@ function getTestState(): TestBillingState {
 	return globals[testStateKey];
 }
 
-function isTestBillingBoundary() {
-	return (
-		env.NODE_ENV !== "production" && Boolean(env.GITHUB_OAUTH_TEST_BASE_URL)
-	);
-}
-
 export async function getPremiumAccess(
 	builderId: string,
 ): Promise<PremiumAccess | null> {
-	if (isTestBillingBoundary()) {
+	if (inMemoryBlackBoxBoundaryEnabled) {
 		return getTestState().entitlements.get(builderId) ?? null;
 	}
 
@@ -80,7 +77,7 @@ export async function getPremiumAccess(
 export async function recordBillingEvent(
 	projection: BillingEventProjection,
 ): Promise<"applied" | "duplicate" | "stale"> {
-	if (isTestBillingBoundary()) {
+	if (inMemoryBlackBoxBoundaryEnabled) {
 		const state = getTestState();
 		if (state.events.has(projection.eventId)) return "duplicate";
 		state.events.add(projection.eventId);
@@ -121,8 +118,15 @@ export async function recordBillingEvent(
 	return applyBillingProjection(projection);
 }
 
-export function resetTestBillingState() {
-	if (!isTestBillingBoundary()) return;
+export async function resetTestBillingState() {
+	if (blackBoxDatabaseEnabled) {
+		const { resetBlackBoxProductState } = await import(
+			"@agentkogei/db/testing"
+		);
+		await resetBlackBoxProductState();
+		return;
+	}
+	if (!inMemoryBlackBoxBoundaryEnabled) return;
 	const state = getTestState();
 	state.events.clear();
 	state.entitlements.clear();
