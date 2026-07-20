@@ -141,6 +141,9 @@ export default async function PricingPage() {
 								reinstallation, and access to new Pack Releases stop. A Premium
 								Design Pack snapshot already installed while access was active
 								remains licensed in that Project and works offline without DRM.
+								The Project may be a genuine public end product, but that does
+								not make the Premium Design Pack open or permit extracting or
+								reusing it in another Project.
 							</p>
 						</div>
 					</div>

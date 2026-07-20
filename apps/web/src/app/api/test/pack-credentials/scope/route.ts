@@ -15,7 +15,7 @@ export async function POST(request: Request) {
 		typeof body.credential !== "string" ||
 		!("scope" in body) ||
 		typeof body.scope !== "string" ||
-		!setTestPackCredentialScope(body.credential, body.scope)
+		!(await setTestPackCredentialScope(body.credential, body.scope))
 	) {
 		return new NextResponse(null, { status: 404 });
 	}

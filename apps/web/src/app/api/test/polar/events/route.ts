@@ -3,7 +3,7 @@ import {
 	premiumAccessStates,
 	resetTestBillingState,
 } from "@agentkogei/auth/lib/entitlements";
-import { env } from "@agentkogei/env/server";
+import { blackBoxTestBoundaryEnabled } from "@agentkogei/env/server";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { z } from "zod";
@@ -23,9 +23,7 @@ function unavailable() {
 }
 
 function isEnabled() {
-	return (
-		env.NODE_ENV !== "production" && Boolean(env.GITHUB_OAUTH_TEST_BASE_URL)
-	);
+	return blackBoxTestBoundaryEnabled;
 }
 
 export async function POST(request: Request) {
@@ -50,6 +48,6 @@ export async function POST(request: Request) {
 
 export async function DELETE() {
 	if (!isEnabled()) return unavailable();
-	resetTestBillingState();
+	await resetTestBillingState();
 	return NextResponse.json({ reset: true });
 }

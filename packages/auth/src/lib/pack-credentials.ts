@@ -14,7 +14,11 @@ import {
 	type StoredDeviceAuthorization,
 	type StoredPackCredential,
 } from "@agentkogei/db/pack-credentials";
-import { env } from "@agentkogei/env/server";
+import {
+	blackBoxDatabaseEnabled,
+	blackBoxTestBoundaryEnabled,
+	inMemoryBlackBoxBoundaryEnabled,
+} from "@agentkogei/env/server";
 
 export const packCredentialScope = "premium:retrieve" as const;
 export const packCredentialClientId = "agentkogei-cli" as const;
@@ -45,12 +49,6 @@ function getTestState(): TestPackCredentialState {
 	return globals[testStateKey];
 }
 
-function usesTestBoundary() {
-	return (
-		env.NODE_ENV !== "production" && Boolean(env.GITHUB_OAUTH_TEST_BASE_URL)
-	);
-}
-
 function hashSecret(secret: string) {
 	return createHash("sha256").update(secret).digest("hex");
 }
@@ -68,7 +66,7 @@ function generateUserCode() {
 }
 
 async function saveDeviceRequest(record: StoredDeviceAuthorization) {
-	if (usesTestBoundary()) {
+	if (inMemoryBlackBoxBoundaryEnabled) {
 		getTestState().deviceRequests.set(record.id, record);
 		return;
 	}
@@ -76,7 +74,7 @@ async function saveDeviceRequest(record: StoredDeviceAuthorization) {
 }
 
 async function findByDeviceCodeHash(deviceCodeHash: string) {
-	if (usesTestBoundary()) {
+	if (inMemoryBlackBoxBoundaryEnabled) {
 		return (
 			[...getTestState().deviceRequests.values()].find(
 				(record) => record.deviceCodeHash === deviceCodeHash,
@@ -87,7 +85,7 @@ async function findByDeviceCodeHash(deviceCodeHash: string) {
 }
 
 async function findByUserCodeHash(userCodeHash: string) {
-	if (usesTestBoundary()) {
+	if (inMemoryBlackBoxBoundaryEnabled) {
 		return (
 			[...getTestState().deviceRequests.values()].find(
 				(record) => record.userCodeHash === userCodeHash,
@@ -98,7 +96,7 @@ async function findByUserCodeHash(userCodeHash: string) {
 }
 
 async function markExpired(record: StoredDeviceAuthorization) {
-	if (usesTestBoundary()) {
+	if (inMemoryBlackBoxBoundaryEnabled) {
 		record.status = "expired";
 		record.resolvedAt = new Date();
 		return;
@@ -128,7 +126,7 @@ export async function startDeviceAuthorization(input: {
 		resolvedAt: null,
 	};
 	await saveDeviceRequest(record);
-	if (usesTestBoundary()) {
+	if (blackBoxTestBoundaryEnabled) {
 		getTestState().deviceUserCodes.set(input.credentialName, {
 			origin: input.origin,
 			userCode,
@@ -149,7 +147,7 @@ export async function startDeviceAuthorization(input: {
 }
 
 export function inspectTestDeviceAuthorization(credentialName: string) {
-	if (!usesTestBoundary()) return null;
+	if (!blackBoxTestBoundaryEnabled) return null;
 	const pending = getTestState().deviceUserCodes.get(credentialName);
 	if (!pending) return null;
 	const verificationUriComplete = new URL("/device", pending.origin);
@@ -184,7 +182,7 @@ export async function inspectDeviceAuthorization(
 	}
 	if (record.builderId === builderId) return { ok: true, request: record };
 
-	if (usesTestBoundary()) {
+	if (inMemoryBlackBoxBoundaryEnabled) {
 		record.builderId = builderId;
 		return { ok: true, request: record };
 	}
@@ -205,7 +203,7 @@ export async function decideDeviceAuthorization(input: {
 		input.builderId,
 	);
 	if (!inspection.ok) return false;
-	if (usesTestBoundary()) {
+	if (inMemoryBlackBoxBoundaryEnabled) {
 		inspection.request.status = input.decision;
 		inspection.request.resolvedAt = new Date();
 		return true;
@@ -261,7 +259,7 @@ export async function exchangeDeviceAuthorization(
 		revokedAt: null,
 	};
 
-	if (usesTestBoundary()) {
+	if (inMemoryBlackBoxBoundaryEnabled) {
 		if (record.status !== "approved") {
 			return { ok: false, error: "invalid_grant" };
 		}
@@ -286,7 +284,7 @@ export async function exchangeDeviceAuthorization(
 }
 
 export async function listPackCredentials(builderId: string) {
-	if (usesTestBoundary()) {
+	if (inMemoryBlackBoxBoundaryEnabled) {
 		return [...getTestState().credentials.values()]
 			.filter((credential) => credential.builderId === builderId)
 			.toSorted(
@@ -297,7 +295,7 @@ export async function listPackCredentials(builderId: string) {
 }
 
 export async function revokePackCredential(id: string, builderId: string) {
-	if (usesTestBoundary()) {
+	if (inMemoryBlackBoxBoundaryEnabled) {
 		const credential = getTestState().credentials.get(id);
 		if (
 			!credential ||
@@ -314,7 +312,7 @@ export async function revokePackCredential(id: string, builderId: string) {
 
 export async function verifyPackCredential(secret: string) {
 	const secretHash = hashSecret(secret);
-	if (usesTestBoundary()) {
+	if (inMemoryBlackBoxBoundaryEnabled) {
 		const credential = [...getTestState().credentials.values()].find(
 			(candidate) => candidate.secretHash === secretHash,
 		);
@@ -332,17 +330,25 @@ export async function verifyPackCredential(secret: string) {
 }
 
 export async function expireTestDeviceAuthorization(deviceCode: string) {
-	if (!usesTestBoundary()) return false;
+	if (!blackBoxTestBoundaryEnabled) return false;
 	const record = await findByDeviceCodeHash(hashSecret(deviceCode));
 	if (!record) return false;
-	record.status = "expired";
-	record.resolvedAt = new Date();
+	await markExpired(record);
 	return true;
 }
 
-export function setTestPackCredentialScope(secret: string, scope: string) {
-	if (!usesTestBoundary()) return false;
+export async function setTestPackCredentialScope(
+	secret: string,
+	scope: string,
+) {
+	if (!blackBoxTestBoundaryEnabled) return false;
 	const secretHash = hashSecret(secret);
+	if (blackBoxDatabaseEnabled) {
+		const { setBlackBoxPackCredentialScope } = await import(
+			"@agentkogei/db/testing"
+		);
+		return setBlackBoxPackCredentialScope(secretHash, scope);
+	}
 	const credential = [...getTestState().credentials.values()].find(
 		(candidate) => candidate.secretHash === secretHash,
 	);

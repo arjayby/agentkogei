@@ -16,3 +16,12 @@ export async function recordProjectLicense(license: NewProjectLicense) {
 		.limit(1);
 	return recorded ?? null;
 }
+
+export async function findProjectLicense(id: string) {
+	const [record] = await createDb()
+		.select()
+		.from(projectLicense)
+		.where(eq(projectLicense.id, id))
+		.limit(1);
+	return record ?? null;
+}

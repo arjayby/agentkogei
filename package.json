@@ -34,7 +34,11 @@
 		"build": "turbo run build",
 		"check-types": "turbo run check-types",
 		"test": "turbo run test",
+		"format:check": "biome check --changed --since=main",
+		"launch:verify": "bun run format:check && bun run check-types && bun run db:check && bun run db:migrate:test && bun run build && bun run --cwd packages/design-packs distribution:verify && bun run test",
 		"dev:web": "turbo run dev -F web",
+		"db:check": "bun run --cwd packages/db drizzle-kit check",
+		"db:migrate:test": "AGENTKOGEI_TEST_DATABASE_PATH=../../apps/web/.black-box/postgres bun run --cwd packages/db db:prepare:black-box",
 		"db:push": "turbo run db:push -F @agentkogei/db",
 		"db:studio": "turbo run db:studio -F @agentkogei/db",
 		"db:generate": "turbo run db:generate -F @agentkogei/db",
@@ -67,7 +71,7 @@
 	},
 	"lint-staged": {
 		"*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": [
-			"biome check --write ."
+			"biome check --write"
 		]
 	},
 	"packageManager": "bun@1.3.13"

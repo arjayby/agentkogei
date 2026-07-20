@@ -1,7 +1,9 @@
 import { lstat, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
-const roots = [path.resolve("public"), path.resolve(".next")];
+const buildDirectory =
+	process.env.NEXT_TEST_BUILD === "true" ? ".next-test" : ".next";
+const roots = [path.resolve("public"), path.resolve(buildDirectory)];
 
 function protectedMarkers() {
 	const markers = [Buffer.from("Controlled Premium Delivery Fixture")];

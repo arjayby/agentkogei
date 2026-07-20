@@ -10,11 +10,9 @@ import {
 	test,
 } from "@playwright/test";
 
+import { cliPath } from "./support/cli";
+
 const webOrigin = "http://localhost:3011";
-const cliPath = path.resolve(
-	process.cwd(),
-	"../../packages/design-packs/src/install-cli.ts",
-);
 
 type RunningCli = {
 	stdout: () => string;

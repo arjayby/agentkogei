@@ -1,4 +1,4 @@
-import { env } from "@agentkogei/env/server";
+import { blackBoxTestBoundaryEnabled } from "@agentkogei/env/server";
 import { buttonVariants } from "@agentkogei/ui/components/button";
 import {
 	Card,
@@ -12,7 +12,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 export default function TestPolarPortalPage() {
-	if (env.NODE_ENV === "production" || !env.GITHUB_OAUTH_TEST_BASE_URL) {
+	if (!blackBoxTestBoundaryEnabled) {
 		notFound();
 	}
 	return (

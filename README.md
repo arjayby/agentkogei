@@ -1,4 +1,21 @@
-# agentkogei
+# AgentKogei
+
+AgentKogei gives AI coding agents durable, Project-level design direction through safe, versioned Design Pack Installation.
+
+## Release candidate
+
+Run the complete technical launch gate from the Project root:
+
+```bash
+bun install --frozen-lockfile
+bun run launch:verify
+```
+
+This verifies formatting, types, migrations, production builds, the distributable CLI, premium-resource isolation, and the complete black-box suite. See [the MVP launch handoff](docs/launch-handoff.md) for the test boundary, license distribution, manual commercial validation checklist, deployment migration command, and legal gate. Production payments remain disabled until professional legal review is recorded.
+
+## License boundary
+
+The AgentKogei application, API, CLI, Design Pack specification, and validators are available under the [MIT License](LICENSE). Open Design Packs carry their own CC BY 4.0 license and attribution files. Premium Design Pack resources use a commercial Pack License and are not granted by this source distribution or by self-hosting the software.
 
 This project was created with [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack), a modern TypeScript stack that combines Next.js, Self, ORPC, and more.
 
@@ -123,6 +140,9 @@ agentkogei/
 - `bun run build`: Build all applications
 - `bun run dev:web`: Start only the web application
 - `bun run check-types`: Check TypeScript types across all apps
+- `bun run format:check`: Check formatting and lint rules without rewriting files
+- `bun run launch:verify`: Run the complete technical launch gate
+- `bun run db:check`: Validate the committed Drizzle migration journal
 - `bun run db:push`: Push schema changes to database
 - `bun run db:generate`: Generate database client/types
 - `bun run db:migrate`: Run database migrations

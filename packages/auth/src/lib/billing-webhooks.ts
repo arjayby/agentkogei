@@ -1,4 +1,4 @@
-import { env } from "@agentkogei/env/server";
+import { blackBoxTestBoundaryEnabled, env } from "@agentkogei/env/server";
 import { Webhook } from "standardwebhooks";
 import { z } from "zod";
 
@@ -36,7 +36,10 @@ const refundedEventSchema = z.object({
 		subscription_id: z.string().nullable().optional(),
 		metadata: z.record(z.string(), z.unknown()).default({}),
 		subscription: z
-			.object({ current_period_start: timestampSchema })
+			.object({
+				current_period_start: timestampSchema,
+				current_period_end: timestampSchema,
+			})
 			.nullable(),
 		customer: z.object({ external_id: z.string().nullable().optional() }),
 	}),
@@ -79,7 +82,7 @@ function projectCustomerState(
 async function paymentWasReversed(
 	payload: z.infer<typeof refundedEventSchema>,
 ) {
-	if (env.NODE_ENV !== "production" && env.GITHUB_OAUTH_TEST_BASE_URL) {
+	if (blackBoxTestBoundaryEnabled) {
 		return payload.data.metadata.agentkogei_payment_reversal === true;
 	}
 	const refunds = await polarClient.refunds.list({
@@ -113,8 +116,8 @@ async function projectTerminalEvent(
 		eventId,
 		builderId,
 		status: isPaymentReversal ? "reversed" : "refunded",
-		currentPeriodStart: null,
-		currentPeriodEnd: null,
+		currentPeriodStart: payload.data.subscription.current_period_start,
+		currentPeriodEnd: payload.data.subscription.current_period_end,
 		polarCustomerId: payload.data.customer_id,
 		polarSubscriptionId: payload.data.subscription_id ?? null,
 		sourceEventAt: payload.timestamp,

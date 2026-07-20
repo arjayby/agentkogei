@@ -31,6 +31,8 @@ export const env = createEnv({
 		GITHUB_CLIENT_ID: githubCredentialSchema,
 		GITHUB_CLIENT_SECRET: githubCredentialSchema,
 		GITHUB_OAUTH_TEST_BASE_URL: z.url().optional(),
+		AGENTKOGEI_BLACK_BOX_TEST: z.literal("true").optional(),
+		AGENTKOGEI_TEST_DATABASE_PATH: z.string().min(1).optional(),
 		POLAR_ACCESS_TOKEN: z.string().min(1),
 		POLAR_PREMIUM_ACCESS_PRODUCT_ID: z.string().min(1).optional(),
 		POLAR_SERVER: z.enum(["sandbox", "production"]).default("sandbox"),
@@ -57,3 +59,16 @@ export const env = createEnv({
 	skipValidation: !!process.env.SKIP_ENV_VALIDATION,
 	emptyStringAsUndefined: true,
 });
+
+const authHostname = new URL(env.BETTER_AUTH_URL).hostname;
+
+export const blackBoxTestBoundaryEnabled =
+	env.AGENTKOGEI_BLACK_BOX_TEST === "true" &&
+	process.env.VERCEL_ENV !== "production" &&
+	["localhost", "127.0.0.1", "::1"].includes(authHostname);
+
+export const blackBoxDatabaseEnabled =
+	blackBoxTestBoundaryEnabled && Boolean(env.AGENTKOGEI_TEST_DATABASE_PATH);
+
+export const inMemoryBlackBoxBoundaryEnabled =
+	blackBoxTestBoundaryEnabled && !blackBoxDatabaseEnabled;

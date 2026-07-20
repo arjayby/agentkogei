@@ -2,7 +2,11 @@ import {
 	type NewProjectLicense,
 	recordProjectLicense,
 } from "@agentkogei/db/project-licenses";
-import { env } from "@agentkogei/env/server";
+import {
+	blackBoxDatabaseEnabled,
+	blackBoxTestBoundaryEnabled,
+	inMemoryBlackBoxBoundaryEnabled,
+} from "@agentkogei/env/server";
 
 import { getPremiumAccess } from "./entitlements";
 import { verifyPackCredential } from "./pack-credentials";
@@ -10,12 +14,6 @@ import {
 	findTestProjectLicense,
 	recordTestProjectLicense,
 } from "./test-project-licenses";
-
-function usesTestBoundary() {
-	return (
-		env.NODE_ENV !== "production" && Boolean(env.GITHUB_OAUTH_TEST_BASE_URL)
-	);
-}
 
 function hasActivePremiumAccess(
 	access: Awaited<ReturnType<typeof getPremiumAccess>>,
@@ -29,7 +27,7 @@ function hasActivePremiumAccess(
 }
 
 async function persistProjectLicense(license: NewProjectLicense) {
-	if (usesTestBoundary()) {
+	if (inMemoryBlackBoxBoundaryEnabled) {
 		return recordTestProjectLicense(license);
 	}
 	return recordProjectLicense(license);
@@ -82,9 +80,13 @@ export async function recordPremiumProjectLicense(input: {
 	);
 }
 
-export function inspectTestProjectLicense(id: string) {
-	if (!usesTestBoundary()) return null;
-	const license = findTestProjectLicense(id);
+export async function inspectTestProjectLicense(id: string) {
+	if (!blackBoxTestBoundaryEnabled) return null;
+	const license = blackBoxDatabaseEnabled
+		? await import("@agentkogei/db/project-licenses").then(
+				({ findProjectLicense }) => findProjectLicense(id),
+			)
+		: findTestProjectLicense(id);
 	if (!license) return null;
 	return {
 		id: license.id,

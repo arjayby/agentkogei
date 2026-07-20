@@ -1,6 +1,10 @@
 import { createDb } from "@agentkogei/db";
 import * as schema from "@agentkogei/db/schema/auth";
-import { env } from "@agentkogei/env/server";
+import {
+	blackBoxDatabaseEnabled,
+	blackBoxTestBoundaryEnabled,
+	env,
+} from "@agentkogei/env/server";
 import { checkout, polar, portal } from "@polar-sh/better-auth";
 import type { Polar } from "@polar-sh/sdk";
 import { betterAuth } from "better-auth";
@@ -102,7 +106,12 @@ function createTestPolarClient(baseURL: string) {
 function createTestIdentityBoundary(githubTestBoundaryBaseURL: string) {
 	const testPolarClient = createTestPolarClient(env.BETTER_AUTH_URL);
 	return {
-		database: memoryAdapter(getTestAuthDatabase()),
+		database: blackBoxDatabaseEnabled
+			? drizzleAdapter(createDb(), {
+					provider: "pg" as const,
+					schema: schema,
+				})
+			: memoryAdapter(getTestAuthDatabase()),
 		socialProviders: {},
 		plugins: [
 			genericOAuth({
@@ -140,14 +149,16 @@ function createTestIdentityBoundary(githubTestBoundaryBaseURL: string) {
 }
 
 export function createAuth() {
-	const githubTestBoundaryBaseURL =
-		env.NODE_ENV === "production" ? undefined : env.GITHUB_OAUTH_TEST_BASE_URL;
+	const githubTestBoundaryBaseURL = blackBoxTestBoundaryEnabled
+		? env.GITHUB_OAUTH_TEST_BASE_URL
+		: undefined;
 	const identityBoundary = githubTestBoundaryBaseURL
 		? createTestIdentityBoundary(githubTestBoundaryBaseURL)
 		: createProductionIdentityBoundary();
 
 	return betterAuth({
 		database: identityBoundary.database,
+		...(blackBoxTestBoundaryEnabled ? { rateLimit: { enabled: false } } : {}),
 		trustedOrigins: [env.CORS_ORIGIN],
 		socialProviders: identityBoundary.socialProviders,
 		secret: env.BETTER_AUTH_SECRET,
@@ -157,3 +168,4 @@ export function createAuth() {
 }
 
 export const auth = createAuth();
+export { productionPaymentsEnabled };

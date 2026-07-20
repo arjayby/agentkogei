@@ -1,6 +1,6 @@
 import { createHmac } from "node:crypto";
 import { acceptPolarWebhook } from "@agentkogei/auth/lib/billing-webhooks";
-import { env } from "@agentkogei/env/server";
+import { blackBoxTestBoundaryEnabled, env } from "@agentkogei/env/server";
 
 type TestPremiumAccessState =
 	| "active"
@@ -10,9 +10,7 @@ type TestPremiumAccessState =
 	| "reversed";
 
 export function isTestPolarEnabled() {
-	return (
-		env.NODE_ENV !== "production" && Boolean(env.GITHUB_OAUTH_TEST_BASE_URL)
-	);
+	return blackBoxTestBoundaryEnabled;
 }
 
 function customerStatePayload(

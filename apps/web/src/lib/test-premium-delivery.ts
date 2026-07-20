@@ -1,6 +1,6 @@
 import "server-only";
 
-import { env } from "@agentkogei/env/server";
+import { blackBoxTestBoundaryEnabled } from "@agentkogei/env/server";
 
 type RetrievalObservation = {
 	method: string;
@@ -22,7 +22,7 @@ function observationGlobals() {
 }
 
 export function observeTestPremiumRetrieval(request: Request) {
-	if (env.NODE_ENV === "production" || !env.GITHUB_OAUTH_TEST_BASE_URL) return;
+	if (!blackBoxTestBoundaryEnabled) return;
 	const url = new URL(request.url);
 	const headers = Object.fromEntries(request.headers);
 	if (headers.authorization) headers.authorization = "[Pack Credential]";
@@ -36,8 +36,6 @@ export function observeTestPremiumRetrieval(request: Request) {
 }
 
 export function getTestPremiumRetrievalObservation() {
-	if (env.NODE_ENV === "production" || !env.GITHUB_OAUTH_TEST_BASE_URL) {
-		return null;
-	}
+	if (!blackBoxTestBoundaryEnabled) return null;
 	return observationGlobals()[observationKey] ?? null;
 }

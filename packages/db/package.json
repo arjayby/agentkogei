@@ -1,31 +1,33 @@
 {
-  "name": "@agentkogei/db",
-  "type": "module",
-  "exports": {
-    ".": {
-      "default": "./src/index.ts"
-    },
-    "./*": {
-      "default": "./src/*.ts"
-    }
-  },
-  "scripts": {
-    "check-types": "tsc --noEmit",
-    "db:push": "drizzle-kit push",
-    "db:generate": "drizzle-kit generate",
-    "db:studio": "drizzle-kit studio",
-    "db:migrate": "drizzle-kit migrate"
-  },
-  "dependencies": {
-    "@agentkogei/env": "workspace:*",
-    "@neondatabase/serverless": "^1.1.0",
-    "dotenv": "catalog:",
-    "drizzle-orm": "^0.45.2",
-    "zod": "catalog:"
-  },
-  "devDependencies": {
-    "@agentkogei/config": "workspace:*",
-    "drizzle-kit": "^0.31.10",
-    "typescript": "catalog:"
-  }
+	"name": "@agentkogei/db",
+	"type": "module",
+	"exports": {
+		".": {
+			"default": "./src/index.ts"
+		},
+		"./*": {
+			"default": "./src/*.ts"
+		}
+	},
+	"scripts": {
+		"check-types": "tsc --noEmit",
+		"db:prepare:black-box": "bun run scripts/prepare-black-box-database.ts",
+		"db:push": "drizzle-kit push",
+		"db:generate": "drizzle-kit generate",
+		"db:studio": "drizzle-kit studio",
+		"db:migrate": "drizzle-kit migrate"
+	},
+	"dependencies": {
+		"@agentkogei/env": "workspace:*",
+		"@electric-sql/pglite": "^0.5.4",
+		"@neondatabase/serverless": "^1.1.0",
+		"dotenv": "catalog:",
+		"drizzle-orm": "^0.45.2",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@agentkogei/config": "workspace:*",
+		"drizzle-kit": "^0.31.10",
+		"typescript": "catalog:"
+	}
 }
