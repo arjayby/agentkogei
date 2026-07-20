@@ -287,6 +287,27 @@ test("the generic CLI anonymously installs Editorial from the live Pack Source f
 	}
 });
 
+test("the diagnostics endpoint accepts only the disclosed non-Project fields", async ({
+	request,
+}) => {
+	const diagnostic = {
+		schema_version: "1.0",
+		command: "install",
+		outcome: "success",
+		platform: "darwin",
+		runtime: "bun",
+	};
+	const accepted = await request.post("/api/cli-diagnostics", {
+		data: diagnostic,
+	});
+	expect(accepted.status()).toBe(204);
+
+	const rejected = await request.post("/api/cli-diagnostics", {
+		data: { ...diagnostic, project_name: "private-project" },
+	});
+	expect(rejected.status()).toBe(400);
+});
+
 for (const evaluatedPack of [
 	"Foundation",
 	"Editorial",

@@ -3,6 +3,7 @@ import { mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import {
+	type APIRequestContext,
 	request as createRequestContext,
 	expect,
 	type Page,
@@ -41,6 +42,20 @@ async function authorizeInBrowser(page: Page, verificationUrl: string) {
 	await expect(
 		page.getByRole("heading", { name: "Authorize this terminal" }),
 	).toBeVisible();
+}
+
+async function pendingCliAuthorization(
+	request: APIRequestContext,
+	credentialName: string,
+) {
+	const response = await request.get("/api/test/device/pending", {
+		params: { credential_name: credentialName },
+	});
+	expect(response.status()).toBe(200);
+	return (await response.json()) as {
+		userCode: string;
+		verificationUriComplete: string;
+	};
 }
 
 function startCli(
@@ -113,16 +128,20 @@ test("a Builder approves a terminal Pack Credential with retrieval-only authorit
 			configDirectory,
 			projectDirectory,
 		);
-		const verification = await cli.waitForOutput(
-			/(http:\/\/localhost:3011\/device\?user_code=([A-Z0-9-]+))/,
+		await cli.waitForOutput(/http:\/\/localhost:3011\/device\b/);
+		const verification = await pendingCliAuthorization(
+			request,
+			"Test terminal",
 		);
 
-		expect(cli.stdout()).toContain("Enter code");
-		await authorizeInBrowser(page, verification[1]);
+		expect(cli.stdout()).toContain("authorization code is redacted");
+		expect(cli.stdout()).not.toContain(verification.userCode);
+		expect(cli.stdout()).not.toContain("user_code=");
+		await authorizeInBrowser(page, verification.verificationUriComplete);
 		await expect(
 			page.getByText("Premium Design Pack retrieval only"),
 		).toBeVisible();
-		await expect(page.getByText(verification[2])).toBeVisible();
+		await expect(page.getByText(verification.userCode)).toBeVisible();
 		await page.getByRole("button", { name: "Approve terminal" }).click();
 		await expect(page.getByText("Terminal authorized")).toBeVisible();
 
@@ -248,6 +267,7 @@ test("device polling distinguishes pending, malformed, and replayed requests", a
 
 test("a denied browser request never creates a local Pack Credential", async ({
 	page,
+	request,
 }) => {
 	const temporaryRoot = await mkdtemp(
 		path.join(tmpdir(), "agentkogei-denied-credential-"),
@@ -255,10 +275,13 @@ test("a denied browser request never creates a local Pack Credential", async ({
 	const configDirectory = path.join(temporaryRoot, "configuration");
 	try {
 		const cli = startCli(["login", "--server", webOrigin], configDirectory);
-		const verification = await cli.waitForOutput(
-			/(http:\/\/localhost:3011\/device\?user_code=[A-Z0-9-]+)/,
+		await cli.waitForOutput(/http:\/\/localhost:3011\/device\b/);
+		const verification = await pendingCliAuthorization(
+			request,
+			"Test terminal",
 		);
-		await authorizeInBrowser(page, verification[1]);
+		expect(cli.stdout()).not.toContain(verification.userCode);
+		await authorizeInBrowser(page, verification.verificationUriComplete);
 		await page.getByRole("button", { name: "Deny" }).click();
 		await expect(page.getByText("Authorization denied")).toBeVisible();
 		const result = await cli.waitForExit();

@@ -27,6 +27,7 @@ const userCodeCharacters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 type TestPackCredentialState = {
 	deviceRequests: Map<string, StoredDeviceAuthorization>;
+	deviceUserCodes: Map<string, { origin: string; userCode: string }>;
 	credentials: Map<string, StoredPackCredential>;
 };
 
@@ -38,6 +39,7 @@ function getTestState(): TestPackCredentialState {
 	};
 	globals[testStateKey] ??= {
 		deviceRequests: new Map(),
+		deviceUserCodes: new Map(),
 		credentials: new Map(),
 	};
 	return globals[testStateKey];
@@ -126,6 +128,12 @@ export async function startDeviceAuthorization(input: {
 		resolvedAt: null,
 	};
 	await saveDeviceRequest(record);
+	if (usesTestBoundary()) {
+		getTestState().deviceUserCodes.set(input.credentialName, {
+			origin: input.origin,
+			userCode,
+		});
+	}
 
 	const verificationUri = new URL("/device", input.origin);
 	const verificationUriComplete = new URL(verificationUri);
@@ -137,6 +145,18 @@ export async function startDeviceAuthorization(input: {
 		verification_uri_complete: verificationUriComplete.toString(),
 		expires_in: Math.floor(deviceLifetimeMilliseconds / 1_000),
 		interval: pollingIntervalSeconds,
+	};
+}
+
+export function inspectTestDeviceAuthorization(credentialName: string) {
+	if (!usesTestBoundary()) return null;
+	const pending = getTestState().deviceUserCodes.get(credentialName);
+	if (!pending) return null;
+	const verificationUriComplete = new URL("/device", pending.origin);
+	verificationUriComplete.searchParams.set("user_code", pending.userCode);
+	return {
+		userCode: pending.userCode,
+		verificationUriComplete: verificationUriComplete.toString(),
 	};
 }
 

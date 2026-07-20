@@ -1,7 +1,9 @@
 import { type ChildProcess, spawn } from "node:child_process";
 import { chmod, mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { homedir, platform } from "node:os";
+import { platform } from "node:os";
 import path from "node:path";
+
+import { cliConfigDirectory } from "./cli-config";
 
 const clientId = "agentkogei-cli";
 const scope = "premium:retrieve";
@@ -32,25 +34,12 @@ function normalizeServer(server: string) {
 	return url.toString().replace(/\/$/, "");
 }
 
-function configDirectory() {
-	if (process.env.AGENTKOGEI_CONFIG_DIR) {
-		return path.resolve(process.env.AGENTKOGEI_CONFIG_DIR);
-	}
-	if (platform() === "win32" && process.env.APPDATA) {
-		return path.join(process.env.APPDATA, "AgentKogei");
-	}
-	return path.join(
-		process.env.XDG_CONFIG_HOME ?? path.join(homedir(), ".config"),
-		"agentkogei",
-	);
-}
-
 function credentialFile() {
-	return path.join(configDirectory(), "credentials.json");
+	return path.join(cliConfigDirectory(), "credentials.json");
 }
 
 async function saveCredential(value: StoredCredential) {
-	const directory = configDirectory();
+	const directory = cliConfigDirectory();
 	await mkdir(directory, { recursive: true, mode: 0o700 });
 	await chmod(directory, 0o700);
 	await writeFile(credentialFile(), `${JSON.stringify(value, null, 2)}\n`, {
@@ -104,8 +93,8 @@ export async function loginWithPackCredential(serverOption?: string) {
 	}
 	const device = (await response.json()) as DeviceCodeResponse;
 	console.log("Authorize this terminal in your browser:");
-	console.log(device.verification_uri_complete);
-	console.log(`Enter code: ${device.user_code}`);
+	console.log(device.verification_uri);
+	console.log("The authorization code is redacted from terminal output.");
 	console.log("Waiting for browser approval…");
 	openBrowser(device.verification_uri_complete);
 
