@@ -11,6 +11,8 @@ import {
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export default function TestPolarPortalPage() {
 	if (!blackBoxTestBoundaryEnabled) {
 		notFound();
