@@ -10,6 +10,7 @@ import {
 import path from "node:path";
 import { z } from "zod";
 import {
+	type PremiumRetrievalAuthorization,
 	type RetrievedPackRelease,
 	retrievePackRelease,
 	stageInstalledPackSnapshot,
@@ -362,7 +363,10 @@ export async function detachInstalledPack(status: InstalledPackStatus) {
 	return true;
 }
 
-export async function discoverUpdate(input: { projectDirectory: string }) {
+export async function discoverUpdate(input: {
+	projectDirectory: string;
+	premiumAuthorization?: PremiumRetrievalAuthorization;
+}) {
 	const status = await inspectInstalledPack(input.projectDirectory);
 	if (status.managedState === "detached") {
 		throw new Error(
@@ -388,10 +392,14 @@ export async function discoverUpdate(input: { projectDirectory: string }) {
 			"Installed Pack Source cannot be used for update discovery",
 		);
 	}
-	const catalogRelease = await retrievePackRelease({
+	const retrievalInput = {
 		identity: status.record.pack.id,
 		officialCatalogUrl: catalogUrl,
-	});
+		...(input.premiumAuthorization
+			? { premiumAuthorization: input.premiumAuthorization }
+			: {}),
+	};
+	const catalogRelease = await retrievePackRelease(retrievalInput);
 	if (catalogRelease.manifest.release.version === status.record.pack.version) {
 		await rm(catalogRelease.releaseDirectory, { recursive: true, force: true });
 		return { status, proposed: undefined };
@@ -408,9 +416,8 @@ export async function discoverUpdate(input: { projectDirectory: string }) {
 		);
 	}
 	const proposed = await retrievePackRelease({
-		identity: status.record.pack.id,
+		...retrievalInput,
 		version: catalogRelease.manifest.release.version,
-		officialCatalogUrl: catalogUrl,
 	});
 	await rm(catalogRelease.releaseDirectory, { recursive: true, force: true });
 	if (JSON.stringify(catalogRelease.item) !== JSON.stringify(proposed.item)) {

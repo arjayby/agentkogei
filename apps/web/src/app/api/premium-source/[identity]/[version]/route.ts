@@ -29,11 +29,12 @@ function retrievalAuthority(request: Request) {
 		? authorization.slice("Bearer ".length)
 		: null;
 	const projectLicenseId = request.headers.get("x-agentkogei-project-license");
+	const action = request.headers.get("x-agentkogei-action");
 	return credential &&
 		projectLicenseId &&
 		z.uuid().safeParse(projectLicenseId).success &&
-		request.headers.get("x-agentkogei-action") === "install"
-		? { credential, projectLicenseId }
+		(action === "install" || action === "update")
+		? { credential, projectLicenseId, action }
 		: null;
 }
 
@@ -75,8 +76,10 @@ export async function POST(
 	if (
 		!release ||
 		!authority ||
+		authority.action !== "install" ||
 		!(await recordPremiumProjectLicense({
-			...authority,
+			credential: authority.credential,
+			projectLicenseId: authority.projectLicenseId,
 			packId: release.identity,
 			packRelease: release.version,
 		}))

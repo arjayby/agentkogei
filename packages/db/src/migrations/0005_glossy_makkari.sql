@@ -1,0 +1,2 @@
+ALTER TABLE "premium_access" ADD COLUMN "current_period_start" timestamp with time zone;--> statement-breakpoint
+ALTER TABLE "project_license" ADD COLUMN "premium_access_period_start" timestamp with time zone;

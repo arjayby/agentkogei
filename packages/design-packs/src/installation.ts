@@ -65,7 +65,7 @@ export type PremiumRetrievalAuthorization = {
 	credential: string;
 	server: string;
 	projectLicense: string;
-	action: "install";
+	action: "install" | "update";
 };
 
 export type InstallationPlan = RetrievedPackRelease & {

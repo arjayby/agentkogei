@@ -1,27 +1,48 @@
 {
-  "version": "7",
-  "dialect": "postgresql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "7",
-      "when": 1784452738759,
-      "tag": "0000_chunky_apocalypse",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1784454498999,
-      "tag": "0001_cloudy_maggott",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1784468648328,
-      "tag": "0002_nebulous_dreadnoughts",
-      "breakpoints": true
-    }
-  ]
+	"version": "7",
+	"dialect": "postgresql",
+	"entries": [
+		{
+			"idx": 0,
+			"version": "7",
+			"when": 1784452738759,
+			"tag": "0000_chunky_apocalypse",
+			"breakpoints": true
+		},
+		{
+			"idx": 1,
+			"version": "7",
+			"when": 1784454498999,
+			"tag": "0001_cloudy_maggott",
+			"breakpoints": true
+		},
+		{
+			"idx": 2,
+			"version": "7",
+			"when": 1784468648328,
+			"tag": "0002_nebulous_dreadnoughts",
+			"breakpoints": true
+		},
+		{
+			"idx": 3,
+			"version": "7",
+			"when": 1784545388597,
+			"tag": "0003_mean_cerebro",
+			"breakpoints": true
+		},
+		{
+			"idx": 4,
+			"version": "7",
+			"when": 1784546216733,
+			"tag": "0004_glorious_clint_barton",
+			"breakpoints": true
+		},
+		{
+			"idx": 5,
+			"version": "7",
+			"when": 1784546862178,
+			"tag": "0005_glossy_makkari",
+			"breakpoints": true
+		}
+	]
 }

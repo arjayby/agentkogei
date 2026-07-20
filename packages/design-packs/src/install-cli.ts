@@ -115,8 +115,20 @@ async function main() {
 		return 0;
 	}
 	if (arguments_[0] === "update") {
+		const status = await inspectInstalledPack(projectDirectory);
+		const storedCredential = await readPackCredential();
+		const premiumAuthorization =
+			status.record.projectLicense && storedCredential
+				? {
+						credential: storedCredential.credential,
+						server: storedCredential.server,
+						projectLicense: status.record.projectLicense,
+						action: "update" as const,
+					}
+				: undefined;
 		const discovery = await discoverUpdate({
 			projectDirectory,
+			...(premiumAuthorization ? { premiumAuthorization } : {}),
 		});
 		if (!discovery.proposed) {
 			console.log(

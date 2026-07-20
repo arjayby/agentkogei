@@ -107,6 +107,7 @@ export const premiumAccess = pgTable("premium_access", {
 		.primaryKey()
 		.references(() => user.id, { onDelete: "cascade" }),
 	status: premiumAccessStatus("status").notNull(),
+	currentPeriodStart: timestamp("current_period_start", { withTimezone: true }),
 	currentPeriodEnd: timestamp("current_period_end", { withTimezone: true }),
 	polarCustomerId: text("polar_customer_id"),
 	polarSubscriptionId: text("polar_subscription_id"),
@@ -175,6 +176,15 @@ export const projectLicense = pgTable(
 			.references(() => user.id, { onDelete: "cascade" }),
 		packId: text("pack_id").notNull(),
 		packRelease: text("pack_release").notNull(),
+		polarSubscriptionId: text("polar_subscription_id"),
+		premiumAccessPeriodStart: timestamp("premium_access_period_start", {
+			withTimezone: true,
+		}),
+		premiumAccessPeriodEnd: timestamp("premium_access_period_end", {
+			withTimezone: true,
+		}),
+		terminatedAt: timestamp("terminated_at", { withTimezone: true }),
+		terminationReason: text("termination_reason"),
 		createdAt: timestamp("created_at", { withTimezone: true })
 			.defaultNow()
 			.notNull(),
