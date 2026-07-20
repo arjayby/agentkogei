@@ -423,6 +423,33 @@ test("public documentation explains Installation and remains usable on mobile", 
 	expect(hasHorizontalOverflow).toBe(false);
 });
 
+test("public documentation states the complete Project License boundary", async ({
+	page,
+}) => {
+	await page.goto("/docs");
+	await expect(
+		page.getByText("including a genuine public end-product Project", {
+			exact: false,
+		}),
+	).toBeVisible();
+	await expect(
+		page.getByText("without credentials, runtime checks, or DRM", {
+			exact: false,
+		}),
+	).toBeVisible();
+	await expect(
+		page.getByText(
+			"extraction, resale, republishing, credential sharing, or cross-Project reuse",
+			{ exact: false },
+		),
+	).toBeVisible();
+	await expect(
+		page.getByText("A refund or payment reversal terminates", {
+			exact: false,
+		}),
+	).toBeVisible();
+});
+
 const responsiveRoutes = [
 	"/",
 	"/catalog",

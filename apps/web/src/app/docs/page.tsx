@@ -181,11 +181,24 @@ export default function DocsPage() {
 									</CardDescription>
 								</CardHeader>
 								<CardContent>
-									<p className="leading-7">
-										An eligible installed snapshot may be used by collaborators
-										in that Project, including a public end product, but cannot
-										be extracted or reused elsewhere.
-									</p>
+									<div className="flex flex-col gap-3 leading-7">
+										<p>
+											An eligible installed snapshot may be used by Builders and
+											collaborators in that Project, including a genuine public
+											end-product Project, without opening the Pack License.
+										</p>
+										<p>
+											The local snapshot remains usable offline without
+											credentials, runtime checks, or DRM. The Project License
+											does not permit extraction, resale, republishing,
+											credential sharing, or cross-Project reuse.
+										</p>
+										<p>
+											A refund or payment reversal terminates the affected
+											Project License and future Premium Pack Source access, but
+											AgentKogei never remotely modifies Project files.
+										</p>
+									</div>
 								</CardContent>
 							</Card>
 						</div>

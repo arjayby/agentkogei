@@ -19,9 +19,10 @@ function customerStatePayload(
 	builderId: string,
 	state: TestPremiumAccessState,
 	timestamp: string,
+	currentPeriodStart: string,
+	currentPeriodEnd: string,
 ) {
 	const hasActiveSubscription = state === "active" || state === "canceling";
-	const currentPeriodEnd = "2030-12-31T23:59:59.000Z";
 
 	return {
 		type: "customer.state_changed",
@@ -51,7 +52,7 @@ function customerStatePayload(
 							amount: 9900,
 							currency: "usd",
 							recurring_interval: "year",
-							current_period_start: "2030-01-01T00:00:00.000Z",
+							current_period_start: currentPeriodStart,
 							current_period_end: currentPeriodEnd,
 							trial_start: null,
 							trial_end: null,
@@ -77,26 +78,28 @@ function terminalPayload(
 	builderId: string,
 	state: "refunded" | "reversed",
 	timestamp: string,
+	currentPeriodStart: string,
+	currentPeriodEnd: string,
+	productId: string,
 ) {
-	if (state === "refunded") {
-		return {
-			type: "order.refunded",
-			timestamp,
-			data: {
-				customer_id: "polar-customer-builder-1",
-				subscription_id: "polar-subscription-premium-access",
-				customer: { external_id: builderId },
-			},
-		};
-	}
-
 	return {
-		type: "agentkogei.payment_reversed",
+		type: "order.refunded",
 		timestamp,
 		data: {
+			id: `polar-order-${currentPeriodStart}`,
+			created_at: new Date(
+				new Date(currentPeriodStart).getTime() + 1_000,
+			).toISOString(),
 			customer_id: "polar-customer-builder-1",
+			product_id: productId,
 			subscription_id: "polar-subscription-premium-access",
-			external_customer_id: builderId,
+			metadata:
+				state === "reversed" ? { agentkogei_payment_reversal: true } : {},
+			subscription: {
+				current_period_start: currentPeriodStart,
+				current_period_end: currentPeriodEnd,
+			},
+			customer: { external_id: builderId },
 		},
 	};
 }
@@ -105,10 +108,16 @@ export async function deliverTestPolarState({
 	builderId,
 	eventId,
 	state,
+	periodStart = "2030-01-01T00:00:00.000Z",
+	periodEnd = "2030-12-31T23:59:59.000Z",
+	productId = "polar-premium-access",
 }: {
 	builderId: string;
 	eventId: string;
 	state: TestPremiumAccessState;
+	periodStart?: string;
+	periodEnd?: string;
+	productId?: string;
 }) {
 	if (!isTestPolarEnabled() || !env.POLAR_WEBHOOK_SECRET) {
 		return new Response(null, { status: 404 });
@@ -118,8 +127,21 @@ export async function deliverTestPolarState({
 	const timestamp = new Date().toISOString();
 	const payload =
 		state === "refunded" || state === "reversed"
-			? terminalPayload(builderId, state, timestamp)
-			: customerStatePayload(builderId, state, timestamp);
+			? terminalPayload(
+					builderId,
+					state,
+					timestamp,
+					periodStart,
+					periodEnd,
+					productId,
+				)
+			: customerStatePayload(
+					builderId,
+					state,
+					timestamp,
+					periodStart,
+					periodEnd,
+				);
 	const body = JSON.stringify(payload);
 	const signature = createHmac("sha256", env.POLAR_WEBHOOK_SECRET)
 		.update(`${eventId}.${webhookTimestamp}.${body}`)

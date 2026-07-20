@@ -15,7 +15,10 @@ export async function findPremiumAccess(builderId: string) {
 }
 
 export async function applyBillingProjection(
-	projection: Omit<StoredPremiumAccess, "updatedAt"> & { eventId: string },
+	projection: Omit<StoredPremiumAccess, "updatedAt"> & {
+		eventId: string;
+		affectedPeriodStart: Date | null;
+	},
 ) {
 	const result = await createDb().execute<{
 		result: "applied" | "duplicate" | "stale";
@@ -29,6 +32,7 @@ export async function applyBillingProjection(
 			INSERT INTO premium_access (
 				builder_id,
 				status,
+				current_period_start,
 				current_period_end,
 				polar_customer_id,
 				polar_subscription_id,
@@ -38,6 +42,7 @@ export async function applyBillingProjection(
 			SELECT
 				${projection.builderId},
 				${projection.status}::premium_access_status,
+				${projection.currentPeriodStart},
 				${projection.currentPeriodEnd},
 				${projection.polarCustomerId},
 				${projection.polarSubscriptionId},
@@ -46,6 +51,7 @@ export async function applyBillingProjection(
 			FROM inserted_event
 			ON CONFLICT (builder_id) DO UPDATE SET
 				status = EXCLUDED.status,
+				current_period_start = EXCLUDED.current_period_start,
 				current_period_end = EXCLUDED.current_period_end,
 				polar_customer_id = EXCLUDED.polar_customer_id,
 				polar_subscription_id = EXCLUDED.polar_subscription_id,
@@ -56,11 +62,30 @@ export async function applyBillingProjection(
 					premium_access.status IN ('refunded', 'reversed')
 					AND EXCLUDED.status = 'expired'
 				)
+				AND NOT (
+					EXCLUDED.status IN ('refunded', 'reversed')
+					AND (
+						premium_access.polar_subscription_id IS DISTINCT FROM ${projection.polarSubscriptionId}
+						OR premium_access.current_period_start IS DISTINCT FROM ${projection.affectedPeriodStart}
+					)
+				)
 			RETURNING builder_id
+		), terminated_licenses AS (
+			UPDATE project_license SET
+				terminated_at = ${projection.sourceEventAt},
+				termination_reason = ${projection.status}
+			WHERE builder_id = ${projection.builderId}
+				AND ${projection.status} IN ('refunded', 'reversed')
+				AND polar_subscription_id = ${projection.polarSubscriptionId}
+				AND premium_access_period_start = ${projection.affectedPeriodStart}
+				AND terminated_at IS NULL
+				AND EXISTS (SELECT 1 FROM inserted_event)
+			RETURNING id
 		)
 		SELECT CASE
 			WHEN NOT EXISTS (SELECT 1 FROM inserted_event) THEN 'duplicate'
 			WHEN EXISTS (SELECT 1 FROM updated_entitlement) THEN 'applied'
+			WHEN ${projection.status} IN ('refunded', 'reversed') THEN 'applied'
 			ELSE 'stale'
 		END AS result
 	`);

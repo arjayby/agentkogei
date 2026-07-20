@@ -111,6 +111,27 @@ async function authorizeCli(
 	) as { server: string; credential: string };
 }
 
+async function runOfflineStatus(
+	configDirectory: string,
+	projectDirectory: string,
+) {
+	const storedCredential = await readFile(
+		path.join(configDirectory, "credentials.json"),
+		"utf8",
+	);
+	await rm(configDirectory, { recursive: true, force: true });
+	const status = await runCli(["status"], {
+		configDirectory,
+		projectDirectory,
+	});
+	await mkdir(configDirectory, { recursive: true });
+	await writeFile(
+		path.join(configDirectory, "credentials.json"),
+		storedCredential,
+	);
+	return status;
+}
+
 test.beforeEach(async ({ request }) => {
 	const response = await request.delete("/api/test/polar/events");
 	expect(response.ok()).toBe(true);
@@ -207,6 +228,9 @@ test("an actively subscribed Builder installs the exact protected Command Pack R
 			id: record.projectLicense,
 			packId: "command",
 			packRelease: "1.0.0",
+			status: "active",
+			terminationReason: null,
+			terminatedAt: null,
 		});
 
 		await rm(configDirectory, { recursive: true, force: true });
@@ -323,6 +347,9 @@ test("an actively subscribed Builder installs a licensed premium snapshot for of
 			id: record.projectLicense,
 			packId: "delivery-fixture",
 			packRelease: "1.0.0",
+			status: "active",
+			terminationReason: null,
+			terminatedAt: null,
 		});
 
 		await rm(configDirectory, { recursive: true, force: true });
@@ -411,6 +438,9 @@ test("premium delivery is idempotent and denies every unauthorized state without
 			id: projectLicense,
 			packId: "delivery-fixture",
 			packRelease: "1.0.0",
+			status: "active",
+			terminationReason: null,
+			terminatedAt: null,
 		});
 
 		const missing = await page.request.get(fixtureSource, {
@@ -497,3 +527,427 @@ test("premium delivery is idempotent and denies every unauthorized state without
 		await rm(temporaryRoot, { recursive: true, force: true });
 	}
 });
+
+test("cancelation preserves premium updates until expiration and renewal restores them", async ({
+	page,
+}) => {
+	const temporaryRoot = await mkdtemp(
+		path.join(tmpdir(), "agentkogei-premium-update-lifecycle-"),
+	);
+	const configDirectory = path.join(temporaryRoot, "configuration");
+	const projectDirectory = path.join(temporaryRoot, "project");
+	const reinstallationDirectory = path.join(temporaryRoot, "reinstallation");
+	const newInstallationDirectory = path.join(temporaryRoot, "new-installation");
+	try {
+		await mkdir(projectDirectory);
+		await mkdir(reinstallationDirectory);
+		await mkdir(newInstallationDirectory);
+		await signIn(page);
+		expect(
+			(
+				await page.request.post("/api/test/polar/events", {
+					data: { eventId: "update-lifecycle-active", state: "active" },
+				})
+			).ok(),
+		).toBe(true);
+		await authorizeCli(page, configDirectory, "Update lifecycle terminal");
+		const installed = await runCli(["install", "command@1.0.0", "--yes"], {
+			configDirectory,
+			projectDirectory,
+			officialCatalogUrl: `${webOrigin}/r/`,
+		});
+		expect(installed.code, installed.stderr).toBe(0);
+
+		expect(
+			(
+				await page.request.post("/api/test/polar/events", {
+					data: { eventId: "update-lifecycle-canceling", state: "canceling" },
+				})
+			).ok(),
+		).toBe(true);
+		await page.goto("/catalog/command");
+		await expect(
+			page.getByRole("heading", { level: 1, name: "Command" }),
+		).toBeVisible();
+		const offlineDuringPaidTerm = await runOfflineStatus(
+			configDirectory,
+			projectDirectory,
+		);
+		expect(offlineDuringPaidTerm.code, offlineDuringPaidTerm.stderr).toBe(0);
+		const duringPaidTerm = await runCli(["update"], {
+			configDirectory,
+			projectDirectory,
+		});
+		expect(duringPaidTerm.code, duringPaidTerm.stderr).toBe(0);
+		expect(duringPaidTerm.stdout).toContain("Command 1.0.0 is already current");
+		const installedDuringPaidTerm = await runCli(
+			["install", "command@1.0.0", "--yes"],
+			{
+				configDirectory,
+				projectDirectory: reinstallationDirectory,
+				officialCatalogUrl: `${webOrigin}/r/`,
+			},
+		);
+		expect(installedDuringPaidTerm.code, installedDuringPaidTerm.stderr).toBe(
+			0,
+		);
+
+		expect(
+			(
+				await page.request.post("/api/test/polar/events", {
+					data: { eventId: "update-lifecycle-expired", state: "expired" },
+				})
+			).ok(),
+		).toBe(true);
+		const afterExpiration = await runCli(["update"], {
+			configDirectory,
+			projectDirectory,
+		});
+		expect(afterExpiration.code).toBe(1);
+		expect(afterExpiration.stderr).toContain(
+			"Pack Source retrieval failed (404)",
+		);
+		const deniedNewInstallation = await runCli(
+			["install", "command@1.0.0", "--yes"],
+			{
+				configDirectory,
+				projectDirectory: newInstallationDirectory,
+				officialCatalogUrl: `${webOrigin}/r/`,
+			},
+		);
+		expect(deniedNewInstallation.code).toBe(1);
+		expect(deniedNewInstallation.stderr).toContain(
+			"Pack Source retrieval failed (404)",
+		);
+		await rm(path.join(reinstallationDirectory, ".agentkogei"), {
+			recursive: true,
+			force: true,
+		});
+		await rm(path.join(reinstallationDirectory, "AGENTS.md"), { force: true });
+		const deniedReinstallation = await runCli(
+			["install", "command@1.0.0", "--yes"],
+			{
+				configDirectory,
+				projectDirectory: reinstallationDirectory,
+				officialCatalogUrl: `${webOrigin}/r/`,
+			},
+		);
+		expect(deniedReinstallation.code).toBe(1);
+		expect(deniedReinstallation.stderr).toContain(
+			"Pack Source retrieval failed (404)",
+		);
+		const offlineAfterExpiration = await runOfflineStatus(
+			configDirectory,
+			projectDirectory,
+		);
+		expect(offlineAfterExpiration.code, offlineAfterExpiration.stderr).toBe(0);
+		expect(offlineAfterExpiration.stdout).toContain("Resource integrity:");
+		await page.goto("/catalog/command");
+		await expect(
+			page.getByRole("heading", { level: 1, name: "Command" }),
+		).toBeVisible();
+
+		expect(
+			(
+				await page.request.post("/api/test/polar/events", {
+					data: { eventId: "update-lifecycle-renewed", state: "active" },
+				})
+			).ok(),
+		).toBe(true);
+		const afterRenewal = await runCli(["update"], {
+			configDirectory,
+			projectDirectory,
+		});
+		expect(afterRenewal.code, afterRenewal.stderr).toBe(0);
+		expect(afterRenewal.stdout).toContain("Command 1.0.0 is already current");
+		const reinstalledAfterRenewal = await runCli(
+			["install", "command@1.0.0", "--yes"],
+			{
+				configDirectory,
+				projectDirectory: reinstallationDirectory,
+				officialCatalogUrl: `${webOrigin}/r/`,
+			},
+		);
+		expect(reinstalledAfterRenewal.code, reinstalledAfterRenewal.stderr).toBe(
+			0,
+		);
+		const installedAfterRenewal = await runCli(
+			["install", "command@1.0.0", "--yes"],
+			{
+				configDirectory,
+				projectDirectory: newInstallationDirectory,
+				officialCatalogUrl: `${webOrigin}/r/`,
+			},
+		);
+		expect(installedAfterRenewal.code, installedAfterRenewal.stderr).toBe(0);
+	} finally {
+		await rm(temporaryRoot, { recursive: true, force: true });
+	}
+});
+
+test("a refund terminates only Project Licenses from its affected paid term", async ({
+	page,
+}) => {
+	const temporaryRoot = await mkdtemp(
+		path.join(tmpdir(), "agentkogei-affected-paid-term-"),
+	);
+	const configDirectory = path.join(temporaryRoot, "configuration");
+	const firstTermProject = path.join(temporaryRoot, "first-term-project");
+	const renewedTermProject = path.join(temporaryRoot, "renewed-term-project");
+	const currentTermProject = path.join(temporaryRoot, "current-term-project");
+	const firstPeriodStart = "2030-01-01T00:00:00.000Z";
+	const firstPeriodEnd = "2030-12-31T23:59:59.000Z";
+	const renewedPeriodStart = "2031-01-01T00:00:00.000Z";
+	const renewedPeriodEnd = "2031-12-31T23:59:59.000Z";
+	try {
+		await mkdir(firstTermProject);
+		await mkdir(renewedTermProject);
+		await mkdir(currentTermProject);
+		await signIn(page);
+		expect(
+			(
+				await page.request.post("/api/test/polar/events", {
+					data: {
+						eventId: "affected-term-first-active",
+						state: "active",
+						periodStart: firstPeriodStart,
+						periodEnd: firstPeriodEnd,
+					},
+				})
+			).ok(),
+		).toBe(true);
+		await authorizeCli(page, configDirectory, "Affected term terminal");
+		const firstInstall = await runCli(["install", "command@1.0.0", "--yes"], {
+			configDirectory,
+			projectDirectory: firstTermProject,
+			officialCatalogUrl: `${webOrigin}/r/`,
+		});
+		expect(firstInstall.code, firstInstall.stderr).toBe(0);
+		const firstRecord = JSON.parse(
+			await readFile(
+				path.join(firstTermProject, ".agentkogei/installed-pack.json"),
+				"utf8",
+			),
+		) as { projectLicense: string };
+
+		expect(
+			(
+				await page.request.post("/api/test/polar/events", {
+					data: {
+						eventId: "affected-term-renewed-active",
+						state: "active",
+						periodStart: renewedPeriodStart,
+						periodEnd: renewedPeriodEnd,
+					},
+				})
+			).ok(),
+		).toBe(true);
+		const renewedInstall = await runCli(["install", "command@1.0.0", "--yes"], {
+			configDirectory,
+			projectDirectory: renewedTermProject,
+			officialCatalogUrl: `${webOrigin}/r/`,
+		});
+		expect(renewedInstall.code, renewedInstall.stderr).toBe(0);
+		const renewedRecord = JSON.parse(
+			await readFile(
+				path.join(renewedTermProject, ".agentkogei/installed-pack.json"),
+				"utf8",
+			),
+		) as { projectLicense: string };
+		expect(
+			(
+				await page.request.post("/api/test/polar/events", {
+					data: {
+						eventId: "affected-term-unrelated-refund",
+						state: "refunded",
+						periodStart: renewedPeriodStart,
+						periodEnd: renewedPeriodEnd,
+						productId: "polar-unrelated-product",
+					},
+				})
+			).ok(),
+		).toBe(true);
+		expect(
+			await (
+				await page.request.get(
+					`/api/test/premium-delivery/licenses/${renewedRecord.projectLicense}`,
+				)
+			).json(),
+		).toMatchObject({ status: "active", terminationReason: null });
+
+		expect(
+			(
+				await page.request.post("/api/test/polar/events", {
+					data: {
+						eventId: "affected-term-first-refunded",
+						state: "refunded",
+						periodStart: firstPeriodStart,
+						periodEnd: firstPeriodEnd,
+					},
+				})
+			).ok(),
+		).toBe(true);
+		expect(
+			await (
+				await page.request.get(
+					`/api/test/premium-delivery/licenses/${firstRecord.projectLicense}`,
+				)
+			).json(),
+		).toMatchObject({ status: "terminated", terminationReason: "refunded" });
+		expect(
+			await (
+				await page.request.get(
+					`/api/test/premium-delivery/licenses/${renewedRecord.projectLicense}`,
+				)
+			).json(),
+		).toMatchObject({ status: "active", terminationReason: null });
+
+		const currentTermInstall = await runCli(
+			["install", "command@1.0.0", "--yes"],
+			{
+				configDirectory,
+				projectDirectory: currentTermProject,
+				officialCatalogUrl: `${webOrigin}/r/`,
+			},
+		);
+		expect(currentTermInstall.code, currentTermInstall.stderr).toBe(0);
+	} finally {
+		await rm(temporaryRoot, { recursive: true, force: true });
+	}
+});
+
+for (const terminalState of ["refunded", "reversed"] as const) {
+	test(`${terminalState} access terminates the Project License without modifying the Installed Pack`, async ({
+		page,
+	}) => {
+		const temporaryRoot = await mkdtemp(
+			path.join(tmpdir(), `agentkogei-${terminalState}-lifecycle-`),
+		);
+		const configDirectory = path.join(temporaryRoot, "configuration");
+		const projectDirectory = path.join(temporaryRoot, "project");
+		const reinstallationDirectory = path.join(temporaryRoot, "reinstallation");
+		const deniedProjectDirectory = path.join(temporaryRoot, "denied-project");
+		try {
+			await mkdir(projectDirectory);
+			await mkdir(reinstallationDirectory);
+			await mkdir(deniedProjectDirectory);
+			await signIn(page);
+			expect(
+				(
+					await page.request.post("/api/test/polar/events", {
+						data: {
+							eventId: `${terminalState}-lifecycle-active`,
+							state: "active",
+						},
+					})
+				).ok(),
+			).toBe(true);
+			await authorizeCli(page, configDirectory, `${terminalState} terminal`);
+			const installed = await runCli(["install", "command@1.0.0", "--yes"], {
+				configDirectory,
+				projectDirectory,
+				officialCatalogUrl: `${webOrigin}/r/`,
+			});
+			expect(installed.code, installed.stderr).toBe(0);
+			const installedForReinstallation = await runCli(
+				["install", "command@1.0.0", "--yes"],
+				{
+					configDirectory,
+					projectDirectory: reinstallationDirectory,
+					officialCatalogUrl: `${webOrigin}/r/`,
+				},
+			);
+			expect(
+				installedForReinstallation.code,
+				installedForReinstallation.stderr,
+			).toBe(0);
+			const record = JSON.parse(
+				await readFile(
+					path.join(projectDirectory, ".agentkogei/installed-pack.json"),
+					"utf8",
+				),
+			) as { projectLicense: string };
+			const designContractPath = path.join(
+				projectDirectory,
+				".agentkogei/command/DESIGN.md",
+			);
+			const installedDesignContract = await readFile(
+				designContractPath,
+				"utf8",
+			);
+
+			expect(
+				(
+					await page.request.post("/api/test/polar/events", {
+						data: {
+							eventId: `${terminalState}-lifecycle-terminal`,
+							state: terminalState,
+						},
+					})
+				).ok(),
+			).toBe(true);
+			const terminatedLicense = await page.request.get(
+				`/api/test/premium-delivery/licenses/${record.projectLicense}`,
+			);
+			expect(terminatedLicense.status()).toBe(200);
+			expect(await terminatedLicense.json()).toMatchObject({
+				id: record.projectLicense,
+				status: "terminated",
+				terminationReason: terminalState,
+			});
+			const deniedUpdate = await runCli(["update"], {
+				configDirectory,
+				projectDirectory,
+			});
+			expect(deniedUpdate.code).toBe(1);
+			expect(deniedUpdate.stderr).toContain(
+				"Pack Source retrieval failed (404)",
+			);
+			await rm(path.join(reinstallationDirectory, ".agentkogei"), {
+				recursive: true,
+				force: true,
+			});
+			await rm(path.join(reinstallationDirectory, "AGENTS.md"), {
+				force: true,
+			});
+			const deniedReinstallation = await runCli(
+				["install", "command@1.0.0", "--yes"],
+				{
+					configDirectory,
+					projectDirectory: reinstallationDirectory,
+					officialCatalogUrl: `${webOrigin}/r/`,
+				},
+			);
+			expect(deniedReinstallation.code).toBe(1);
+			expect(deniedReinstallation.stderr).toContain(
+				"Pack Source retrieval failed (404)",
+			);
+
+			const deniedInstallation = await runCli(
+				["install", "command@1.0.0", "--yes"],
+				{
+					configDirectory,
+					projectDirectory: deniedProjectDirectory,
+					officialCatalogUrl: `${webOrigin}/r/`,
+				},
+			);
+			expect(deniedInstallation.code).toBe(1);
+			expect(deniedInstallation.stderr).toContain(
+				"Pack Source retrieval failed (404)",
+			);
+
+			await rm(configDirectory, { recursive: true, force: true });
+			const offlineStatus = await runCli(["status"], {
+				configDirectory,
+				projectDirectory,
+			});
+			expect(offlineStatus.code, offlineStatus.stderr).toBe(0);
+			expect(offlineStatus.stdout).toContain("Resource integrity:");
+			expect(await readFile(designContractPath, "utf8")).toBe(
+				installedDesignContract,
+			);
+		} finally {
+			await rm(temporaryRoot, { recursive: true, force: true });
+		}
+	});
+}

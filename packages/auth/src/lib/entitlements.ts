@@ -5,6 +5,11 @@ import {
 import { premiumAccessStateValues } from "@agentkogei/db/schema/auth";
 import { env } from "@agentkogei/env/server";
 
+import {
+	resetTestProjectLicenses,
+	terminateTestProjectLicenses,
+} from "./test-project-licenses";
+
 export const premiumAccessStates = premiumAccessStateValues;
 
 export type PremiumAccessState = (typeof premiumAccessStates)[number];
@@ -12,6 +17,7 @@ export type PremiumAccessState = (typeof premiumAccessStates)[number];
 export type PremiumAccess = {
 	builderId: string;
 	status: PremiumAccessState;
+	currentPeriodStart: Date | null;
 	currentPeriodEnd: Date | null;
 	polarCustomerId: string | null;
 	polarSubscriptionId: string | null;
@@ -20,6 +26,7 @@ export type PremiumAccess = {
 
 export type BillingEventProjection = PremiumAccess & {
 	eventId: string;
+	affectedPeriodStart: Date | null;
 };
 
 const terminalStates = new Set<PremiumAccessState>(["refunded", "reversed"]);
@@ -79,12 +86,30 @@ export async function recordBillingEvent(
 		state.events.add(projection.eventId);
 
 		const current = state.entitlements.get(projection.builderId);
+		if (projection.status === "refunded" || projection.status === "reversed") {
+			terminateTestProjectLicenses(
+				projection.builderId,
+				projection.status,
+				projection.sourceEventAt,
+				projection.polarSubscriptionId,
+				projection.affectedPeriodStart,
+			);
+			if (
+				current?.currentPeriodStart &&
+				projection.affectedPeriodStart &&
+				current.currentPeriodStart.getTime() !==
+					projection.affectedPeriodStart.getTime()
+			) {
+				return "applied";
+			}
+		}
 		if (!shouldApplyProjection(current ?? null, projection)) {
 			return "stale";
 		}
 		state.entitlements.set(projection.builderId, {
 			builderId: projection.builderId,
 			status: projection.status,
+			currentPeriodStart: projection.currentPeriodStart,
 			currentPeriodEnd: projection.currentPeriodEnd,
 			polarCustomerId: projection.polarCustomerId,
 			polarSubscriptionId: projection.polarSubscriptionId,
@@ -101,4 +126,5 @@ export function resetTestBillingState() {
 	const state = getTestState();
 	state.events.clear();
 	state.entitlements.clear();
+	resetTestProjectLicenses();
 }

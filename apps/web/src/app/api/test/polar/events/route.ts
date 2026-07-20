@@ -13,6 +13,9 @@ import { deliverTestPolarState } from "@/lib/test-polar";
 const testEventSchema = z.object({
 	eventId: z.string().min(1),
 	state: z.enum(premiumAccessStates),
+	periodStart: z.iso.datetime().optional(),
+	periodEnd: z.iso.datetime().optional(),
+	productId: z.string().min(1).optional(),
 });
 
 function unavailable() {
@@ -37,6 +40,11 @@ export async function POST(request: Request) {
 		builderId: session.user.id,
 		eventId: parsed.data.eventId,
 		state: parsed.data.state,
+		...(parsed.data.periodStart
+			? { periodStart: parsed.data.periodStart }
+			: {}),
+		...(parsed.data.periodEnd ? { periodEnd: parsed.data.periodEnd } : {}),
+		...(parsed.data.productId ? { productId: parsed.data.productId } : {}),
 	});
 }
 

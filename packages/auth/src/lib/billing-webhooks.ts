@@ -6,6 +6,7 @@ import {
 	type BillingEventProjection,
 	recordBillingEvent,
 } from "./entitlements";
+import { polarClient } from "./payments";
 
 const timestampSchema = z.string().transform((value) => new Date(value));
 const customerStateEventSchema = z.object({
@@ -18,6 +19,7 @@ const customerStateEventSchema = z.object({
 			z.object({
 				id: z.string(),
 				product_id: z.string(),
+				current_period_start: timestampSchema,
 				current_period_end: timestampSchema,
 				cancel_at_period_end: z.boolean(),
 			}),
@@ -28,24 +30,20 @@ const refundedEventSchema = z.object({
 	type: z.literal("order.refunded"),
 	timestamp: timestampSchema,
 	data: z.object({
+		id: z.string(),
 		customer_id: z.string(),
+		product_id: z.string().nullable(),
 		subscription_id: z.string().nullable().optional(),
+		metadata: z.record(z.string(), z.unknown()).default({}),
+		subscription: z
+			.object({ current_period_start: timestampSchema })
+			.nullable(),
 		customer: z.object({ external_id: z.string().nullable().optional() }),
-	}),
-});
-const testReversalEventSchema = z.object({
-	type: z.literal("agentkogei.payment_reversed"),
-	timestamp: timestampSchema,
-	data: z.object({
-		customer_id: z.string(),
-		subscription_id: z.string().nullable().optional(),
-		external_customer_id: z.string(),
 	}),
 });
 const polarEventSchema = z.union([
 	customerStateEventSchema,
 	refundedEventSchema,
-	testReversalEventSchema,
 ]);
 type PolarEvent = z.infer<typeof polarEventSchema>;
 
@@ -69,38 +67,65 @@ function projectCustomerState(
 				? "canceling"
 				: "active"
 			: "expired",
+		currentPeriodStart: activeSubscription?.current_period_start ?? null,
 		currentPeriodEnd: activeSubscription?.current_period_end ?? null,
 		polarCustomerId: payload.data.id,
 		polarSubscriptionId: activeSubscription?.id ?? null,
 		sourceEventAt: payload.timestamp,
+		affectedPeriodStart: activeSubscription?.current_period_start ?? null,
 	};
 }
 
-function projectTerminalEvent(
+async function paymentWasReversed(
+	payload: z.infer<typeof refundedEventSchema>,
+) {
+	if (env.NODE_ENV !== "production" && env.GITHUB_OAUTH_TEST_BASE_URL) {
+		return payload.data.metadata.agentkogei_payment_reversal === true;
+	}
+	const refunds = await polarClient.refunds.list({
+		orderId: payload.data.id,
+		succeeded: true,
+		limit: 100,
+	});
+	for await (const page of refunds) {
+		if (page.result.items.some((refund) => refund.dispute !== null))
+			return true;
+	}
+	return false;
+}
+
+async function projectTerminalEvent(
 	eventId: string,
-	payload: Exclude<PolarEvent, { type: "customer.state_changed" }>,
-): BillingEventProjection | null {
-	const builderId =
-		payload.type === "order.refunded"
-			? payload.data.customer.external_id
-			: payload.data.external_customer_id;
-	if (!builderId) return null;
+	payload: z.infer<typeof refundedEventSchema>,
+): Promise<BillingEventProjection | null> {
+	const builderId = payload.data.customer.external_id;
+	if (
+		!builderId ||
+		!env.POLAR_PREMIUM_ACCESS_PRODUCT_ID ||
+		payload.data.product_id !== env.POLAR_PREMIUM_ACCESS_PRODUCT_ID ||
+		!payload.data.subscription
+	) {
+		return null;
+	}
+	const isPaymentReversal = await paymentWasReversed(payload);
 
 	return {
 		eventId,
 		builderId,
-		status: payload.type === "order.refunded" ? "refunded" : "reversed",
+		status: isPaymentReversal ? "reversed" : "refunded",
+		currentPeriodStart: null,
 		currentPeriodEnd: null,
 		polarCustomerId: payload.data.customer_id,
 		polarSubscriptionId: payload.data.subscription_id ?? null,
 		sourceEventAt: payload.timestamp,
+		affectedPeriodStart: payload.data.subscription.current_period_start,
 	};
 }
 
-function projectPayload(
+async function projectPayload(
 	eventId: string,
 	payload: PolarEvent,
-): BillingEventProjection | null {
+): Promise<BillingEventProjection | null> {
 	return payload.type === "customer.state_changed"
 		? projectCustomerState(eventId, payload)
 		: projectTerminalEvent(eventId, payload);
@@ -126,18 +151,12 @@ export async function acceptPolarWebhook(request: Request): Promise<Response> {
 			"webhook-timestamp": request.headers.get("webhook-timestamp") ?? "",
 		});
 		const parsed = polarEventSchema.parse(verified);
-		if (
-			parsed.type === "agentkogei.payment_reversed" &&
-			(env.NODE_ENV === "production" || !env.GITHUB_OAUTH_TEST_BASE_URL)
-		) {
-			throw new Error("Test-only billing event");
-		}
 		payload = parsed;
 	} catch {
 		return new Response("Invalid Polar webhook", { status: 400 });
 	}
 
-	const projection = projectPayload(eventId, payload);
+	const projection = await projectPayload(eventId, payload);
 	if (projection) await recordBillingEvent(projection);
 	return Response.json({ received: true });
 }
