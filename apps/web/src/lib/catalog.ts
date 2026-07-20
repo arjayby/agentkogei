@@ -127,7 +127,7 @@ export const designPacks: readonly DesignPack[] = [
 		bestFor: "AI and creative products",
 		release: {
 			version: "1.0.0",
-			publishedAt: "July 18, 2026",
+			publishedAt: "July 20, 2026",
 			changelog:
 				"Initial Published Pack with expressive motion, graphic resources, and full surface coverage.",
 		},

@@ -2,6 +2,7 @@ import {
 	POST as recordProtectedReleaseLicense,
 	GET as retrieveProtectedRelease,
 } from "@/app/api/premium-source/[identity]/[version]/route";
+import { isOfficialPremiumPackIdentity } from "@/lib/protected-premium-releases";
 
 type VersionedOfficialPackSourceContext = {
 	params: Promise<{ identity: string; version: string }>;
@@ -9,11 +10,17 @@ type VersionedOfficialPackSourceContext = {
 
 function premiumSourceContext(context: VersionedOfficialPackSourceContext) {
 	return {
-		params: context.params.then(({ identity, version }) => ({
-			identity:
-				identity === "command" ? identity : "not-in-official-premium-source",
-			version: version.endsWith(".json") ? version.slice(0, -5) : version,
-		})),
+		params: context.params.then(({ identity, version }) => {
+			const releaseVersion = version.endsWith(".json")
+				? version.slice(0, -5)
+				: version;
+			return {
+				identity: isOfficialPremiumPackIdentity(identity)
+					? identity
+					: "not-in-official-premium-source",
+				version: releaseVersion,
+			};
+		}),
 	};
 }
 

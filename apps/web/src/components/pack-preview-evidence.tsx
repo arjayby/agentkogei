@@ -439,13 +439,160 @@ function SignalSurface({
 	index: number;
 	surface: PackSurface;
 }) {
+	const referenceScreen = (() => {
+		switch (surface) {
+			case "Marketing":
+				return (
+					<div className="grid gap-3">
+						<p className="max-w-64 font-black text-3xl leading-[0.88] tracking-[-0.06em]">
+							Turn ideas into momentum.
+						</p>
+						<div className="flex items-center gap-2 font-bold text-[0.65rem] uppercase tracking-[0.12em]">
+							<span className="bg-[#17112d] px-3 py-2 text-white dark:bg-[#fff7ef] dark:text-[#17112d]">
+								Start creating
+							</span>
+							<span>See what moves →</span>
+						</div>
+					</div>
+				);
+			case "Authentication":
+				return (
+					<div className="grid max-w-64 gap-2">
+						<p className="font-black text-2xl leading-none">Enter the studio</p>
+						<div className="h-9 border-2 border-[#17112d] bg-[#fff7ef] dark:border-[#fff7ef] dark:bg-[#17112d]" />
+						<div className="bg-[#17112d] p-2 text-center font-bold text-white text-xs dark:bg-[#fff7ef] dark:text-[#17112d]">
+							Continue
+						</div>
+					</div>
+				);
+			case "Onboarding":
+				return (
+					<div className="grid gap-3">
+						<div className="flex items-center gap-2 font-bold text-[0.65rem] uppercase">
+							<span className="grid size-7 place-items-center rounded-full bg-[#17112d] text-white dark:bg-[#fff7ef] dark:text-[#17112d]">
+								02
+							</span>
+							<span>Build your direction</span>
+						</div>
+						<p className="max-w-64 font-black text-2xl leading-none">
+							Shape your first signal
+						</p>
+						<div className="grid grid-cols-4 gap-1">
+							{[0, 1, 2, 3].map((step) => (
+								<span
+									key={step}
+									className={`h-2 ${step < 2 ? "bg-[#17112d] dark:bg-[#fff7ef]" : "border-2 border-[#17112d] dark:border-[#fff7ef]"}`}
+								/>
+							))}
+						</div>
+					</div>
+				);
+			case "Dashboard":
+				return (
+					<div className="grid grid-cols-[1fr_auto] gap-3">
+						<div>
+							<p className="font-bold text-[0.65rem] tracking-[0.16em]">
+								LIVE MOMENTUM
+							</p>
+							<p className="font-black text-5xl tracking-[-0.08em]">84%</p>
+						</div>
+						<div className="flex items-end gap-1" aria-hidden="true">
+							{[10, 18, 28, 22, 38].map((height) => (
+								<span
+									key={height}
+									className="w-3 bg-[#17112d] dark:bg-[#fff7ef]"
+									style={{ height }}
+								/>
+							))}
+						</div>
+					</div>
+				);
+			case "Table":
+				return (
+					<div className="grid gap-1 font-bold text-xs">
+						{[
+							["Aurora launch", "READY"],
+							["Color system", "LIVE"],
+							["Motion study", "REVIEW"],
+						].map(([name, status], row) => (
+							<div
+								key={name}
+								className={`flex items-center justify-between border-2 border-[#17112d] p-2 dark:border-[#fff7ef] ${row === 1 ? "translate-x-2 bg-[#17112d] text-white dark:bg-[#fff7ef] dark:text-[#17112d]" : "bg-[#fff7ef] text-[#17112d] dark:bg-[#17112d] dark:text-[#fff7ef]"}`}
+							>
+								<span>{name}</span>
+								<span>{status}</span>
+							</div>
+						))}
+					</div>
+				);
+			case "Form":
+				return (
+					<div className="grid gap-2 font-bold text-xs">
+						<p>PROJECT ACCENT</p>
+						<div className="grid grid-cols-[2.5rem_1fr] border-2 border-[#17112d] bg-[#fff7ef] dark:border-[#fff7ef] dark:bg-[#17112d]">
+							<span className="bg-[#ff4f87]" aria-hidden="true" />
+							<span className="p-2">Color system ready</span>
+						</div>
+						<p className="flex items-center gap-2">
+							<span aria-hidden="true">●</span> Contrast verified
+						</p>
+					</div>
+				);
+			case "Settings":
+				return (
+					<div className="grid gap-2 font-bold text-xs">
+						<p className="font-black text-2xl">Motion preference</p>
+						{[
+							["Expressive", "ON"],
+							["Reduced motion", "RESPECTED"],
+							["Sound", "OFF"],
+						].map(([label, value]) => (
+							<div
+								key={label}
+								className="flex justify-between border-[#17112d] border-b-2 pb-2 dark:border-[#fff7ef]"
+							>
+								<span>{label}</span>
+								<span>{value}</span>
+							</div>
+						))}
+					</div>
+				);
+			case "States":
+				return (
+					<div className="grid grid-cols-2 gap-2 font-bold text-xs">
+						{[
+							"Finding a rhythm",
+							"Nothing here yet",
+							"Needs attention",
+							"Ready to launch",
+						].map((state, stateIndex) => (
+							<div
+								key={state}
+								className={`${stateIndex === 3 ? "bg-[#17112d] text-white dark:bg-[#fff7ef] dark:text-[#17112d]" : "border-2 border-[#17112d] dark:border-[#fff7ef]"} p-2`}
+							>
+								{state}
+							</div>
+						))}
+					</div>
+				);
+		}
+	})();
+
 	return (
-		<div className="relative min-h-64 overflow-hidden bg-primary p-6 text-primary-foreground">
-			<div className="absolute -top-10 -right-10 size-36 rounded-full border-[1.5rem] border-primary-foreground" />
-			<p className="font-mono text-xs uppercase tracking-[0.18em]">{surface}</p>
-			<p className="absolute bottom-6 left-6 max-w-48 font-semibold text-4xl leading-[0.86] tracking-[-0.07em]">
-				Signal 0{index + 1}
-			</p>
+		<div className="relative flex min-h-64 flex-col justify-between overflow-hidden bg-[#ffd84d] p-5 text-[#17112d] dark:bg-[#6328e0] dark:text-[#fff7ef]">
+			<div
+				className="pointer-events-none absolute top-2 right-2 size-16 rounded-full border-[#ff4f87] border-[0.8rem] motion-safe:animate-[spin_9s_linear_infinite]"
+				aria-hidden="true"
+			/>
+			<div className="relative flex items-center justify-between font-black text-[0.65rem] uppercase tracking-[0.18em]">
+				<span>{surface}</span>
+				<span>S/0{index + 1}</span>
+			</div>
+			<div className="relative py-5">{referenceScreen}</div>
+			<div className="relative flex items-center gap-2 font-bold text-[0.6rem] uppercase tracking-[0.12em]">
+				<span className="size-2 rotate-45 bg-[#ff4f87]" aria-hidden="true" />
+				<span>Signal / evaluation build</span>
+			</div>
 		</div>
 	);
 }

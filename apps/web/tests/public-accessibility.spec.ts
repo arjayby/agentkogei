@@ -7,6 +7,7 @@ const publicRoutes = [
 	"/catalog/foundation",
 	"/catalog/editorial",
 	"/catalog/command",
+	"/catalog/signal",
 	"/pricing",
 	"/docs",
 ] as const;
