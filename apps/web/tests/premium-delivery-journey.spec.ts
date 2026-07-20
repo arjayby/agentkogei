@@ -12,6 +12,7 @@ const cliPath = path.resolve(
 );
 const fixtureSource = `${webOrigin}/api/premium-source/delivery-fixture/1.0.0`;
 const commandSource = `${webOrigin}/api/premium-source/command/1.0.0`;
+const signalSource = `${webOrigin}/api/premium-source/signal/1.0.0`;
 
 test.describe.configure({ mode: "serial" });
 test.setTimeout(60_000);
@@ -231,6 +232,143 @@ test("an actively subscribed Builder installs the exact protected Command Pack R
 			status: "active",
 			terminationReason: null,
 			terminatedAt: null,
+		});
+
+		await rm(configDirectory, { recursive: true, force: true });
+		const status = await runCli(["status"], {
+			configDirectory,
+			projectDirectory,
+		});
+		expect(status.code, status.stderr).toBe(0);
+		expect(status.stdout).toContain(
+			`Project License: ${record.projectLicense}`,
+		);
+	} finally {
+		await rm(temporaryRoot, { recursive: true, force: true });
+	}
+});
+
+test("an actively subscribed Builder discovers and installs the exact protected Signal Pack Release under a lasting Project License", async ({
+	page,
+}) => {
+	const temporaryRoot = await mkdtemp(
+		path.join(tmpdir(), "agentkogei-signal-installation-"),
+	);
+	const configDirectory = path.join(temporaryRoot, "configuration");
+	const projectDirectory = path.join(temporaryRoot, "project");
+	try {
+		await mkdir(projectDirectory);
+		for (const source of [signalSource, `${webOrigin}/r/signal/1.0.0.json`]) {
+			const anonymous = await page.request.get(source);
+			expect(anonymous.status()).toBe(404);
+			expect(await anonymous.text()).not.toContain("# Signal Interface System");
+		}
+
+		await signIn(page);
+		expect(
+			(
+				await page.request.post("/api/test/polar/events", {
+					data: { eventId: "signal-access-active", state: "active" },
+				})
+			).ok(),
+		).toBe(true);
+		const { credential } = await authorizeCli(
+			page,
+			configDirectory,
+			"Signal installation terminal",
+		);
+		expect(
+			(
+				await page.request.post("/api/test/polar/events", {
+					data: { eventId: "signal-access-expired", state: "expired" },
+				})
+			).ok(),
+		).toBe(true);
+		const inactive = await page.request.get(signalSource, {
+			headers: {
+				authorization: `Bearer ${credential}`,
+				"x-agentkogei-project-license": randomUUID(),
+				"x-agentkogei-action": "install",
+			},
+		});
+		expect(inactive.status()).toBe(404);
+		expect(await inactive.text()).toBe(
+			'{"error":"premium_release_unavailable"}',
+		);
+		expect(
+			(
+				await page.request.post("/api/test/polar/events", {
+					data: { eventId: "signal-access-renewed", state: "active" },
+				})
+			).ok(),
+		).toBe(true);
+
+		const installed = await runCli(["install", "signal@1.0.0", "--yes"], {
+			configDirectory,
+			projectDirectory,
+			officialCatalogUrl: `${webOrigin}/r/`,
+		});
+		expect(installed.code, installed.stderr).toBe(0);
+		expect(installed.stdout).toContain("Signal 1.0.0");
+		expect(installed.stdout).toContain("AgentKogei Commercial Pack License");
+
+		const record = JSON.parse(
+			await readFile(
+				path.join(projectDirectory, ".agentkogei/installed-pack.json"),
+				"utf8",
+			),
+		) as {
+			pack: { id: string; version: string };
+			projectLicense: string;
+			source: string;
+			targets: Array<{ target: string; sha256: string }>;
+		};
+		expect(record.pack).toEqual({ id: "signal", version: "1.0.0" });
+		expect(record.source).toBe(`${webOrigin}/r/signal/1.0.0.json`);
+		expect(record.projectLicense).toMatch(/^[0-9a-f-]{36}$/);
+		expect(record.targets.length).toBeGreaterThan(11);
+		for (const target of record.targets) {
+			const contents = await readFile(
+				path.join(projectDirectory, target.target),
+			);
+			expect(createHash("sha256").update(contents).digest("hex")).toBe(
+				target.sha256,
+			);
+		}
+		expect(
+			await readFile(
+				path.join(projectDirectory, ".agentkogei/signal/DESIGN.md"),
+				"utf8",
+			),
+		).toContain("# Signal Interface System");
+		const stackAdapter = await readFile(
+			path.join(
+				projectDirectory,
+				".agentkogei/signal/adapters/react-tailwind-shadcn/README.md",
+			),
+			"utf8",
+		);
+		expect(stackAdapter).toContain("# Signal React / Next.js Stack Adapter");
+		expect(stackAdapter).not.toContain("Foundation");
+		expect(
+			await readFile(
+				path.join(
+					projectDirectory,
+					".agentkogei/signal/resources/orbit-field.svg",
+				),
+				"utf8",
+			),
+		).toContain("Signal orbit field");
+
+		const storedLicense = await page.request.get(
+			`/api/test/premium-delivery/licenses/${record.projectLicense}`,
+		);
+		expect(storedLicense.status()).toBe(200);
+		expect(await storedLicense.json()).toMatchObject({
+			id: record.projectLicense,
+			packId: "signal",
+			packRelease: "1.0.0",
+			status: "active",
 		});
 
 		await rm(configDirectory, { recursive: true, force: true });

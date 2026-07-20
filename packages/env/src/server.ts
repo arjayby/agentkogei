@@ -43,6 +43,11 @@ export const env = createEnv({
 			.string()
 			.regex(/^[a-f0-9]{64}$/)
 			.optional(),
+		SIGNAL_PREMIUM_RELEASE: z.string().min(1).optional(),
+		SIGNAL_PREMIUM_RELEASE_SHA256: z
+			.string()
+			.regex(/^[a-f0-9]{64}$/)
+			.optional(),
 		CORS_ORIGIN: z.url(),
 		NODE_ENV: z
 			.enum(["development", "production", "test"])

@@ -57,14 +57,14 @@ export function PackArtwork({ pack }: { pack: DesignPack }) {
 
 	return (
 		<div
-			className="relative h-64 overflow-hidden bg-primary text-primary-foreground"
+			className="relative h-64 overflow-hidden bg-[#6328e0] text-[#fff7ef]"
 			aria-hidden="true"
 		>
-			<div className="absolute -top-12 -right-12 size-48 rounded-full border-[2rem] border-primary-foreground" />
+			<div className="absolute top-4 right-4 size-28 rounded-full border-[#ff4f87] border-[1.5rem]" />
 			<div className="absolute bottom-7 left-7 max-w-48 font-semibold text-5xl leading-[0.82] tracking-[-0.08em]">
 				Make it felt.
 			</div>
-			<div className="absolute right-8 bottom-8 size-10 rotate-45 bg-primary-foreground" />
+			<div className="absolute right-8 bottom-8 size-10 rotate-45 bg-[#ffd84d]" />
 		</div>
 	);
 }

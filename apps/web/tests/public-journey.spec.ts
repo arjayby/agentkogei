@@ -136,6 +136,36 @@ test("a premium Pack Preview shows complete evidence without exposing gated reso
 	).toHaveCount(0);
 });
 
+test("Signal publicly demonstrates its distinct evaluated Interface System without exposing gated resources", async ({
+	page,
+}) => {
+	await page.goto("/catalog/signal");
+
+	await expect(page.getByRole("heading", { name: "Signal" })).toBeVisible();
+	await expect(page.getByLabel("Signal rendered Pack Preview")).toBeVisible();
+	for (const surfaceEvidence of [
+		"Turn ideas into momentum.",
+		"Enter the studio",
+		"Shape your first signal",
+		"LIVE MOMENTUM",
+		"Color system ready",
+		"Motion preference",
+		"Ready to launch",
+	]) {
+		await expect(
+			page.getByText(surfaceEvidence, { exact: false }),
+		).toBeVisible();
+	}
+	await expect(
+		page.getByText("WCAG 2.2 Level AA", { exact: false }),
+	).toBeVisible();
+	await expect(page.getByText("Commercial Pack License")).toBeVisible();
+	await expect(page.getByText("DESIGN.md", { exact: true })).toHaveCount(0);
+	await expect(
+		page.getByText("registry payload", { exact: false }),
+	).toHaveCount(0);
+});
+
 test("a Builder can anonymously retrieve the complete Foundation Pack Release", async ({
 	page,
 	request,
@@ -257,7 +287,12 @@ test("the generic CLI anonymously installs Editorial from the live Pack Source f
 	}
 });
 
-for (const evaluatedPack of ["Foundation", "Editorial", "Command"] as const) {
+for (const evaluatedPack of [
+	"Foundation",
+	"Editorial",
+	"Command",
+	"Signal",
+] as const) {
 	test(`${evaluatedPack} evaluation renders every required screen across evaluated modes`, async ({
 		page,
 	}) => {
@@ -454,6 +489,7 @@ const responsiveRoutes = [
 	"/",
 	"/catalog",
 	"/catalog/command",
+	"/catalog/signal",
 	"/pricing",
 	"/docs",
 ] as const;

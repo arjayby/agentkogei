@@ -4,9 +4,11 @@ import { defineConfig, devices } from "@playwright/test";
 import {
 	buildTestCommandPackRelease,
 	buildTestPremiumDeliveryFixture,
+	buildTestSignalPackRelease,
 } from "./tests/support/premium-delivery-fixture";
 
 const commandPremiumRelease = buildTestCommandPackRelease();
+const signalPremiumRelease = buildTestSignalPackRelease();
 
 export default defineConfig({
 	testDir: "./tests",
@@ -49,6 +51,10 @@ export default defineConfig({
 			COMMAND_PREMIUM_RELEASE: commandPremiumRelease,
 			COMMAND_PREMIUM_RELEASE_SHA256: createHash("sha256")
 				.update(commandPremiumRelease)
+				.digest("hex"),
+			SIGNAL_PREMIUM_RELEASE: signalPremiumRelease,
+			SIGNAL_PREMIUM_RELEASE_SHA256: createHash("sha256")
+				.update(signalPremiumRelease)
 				.digest("hex"),
 		},
 		url: "http://localhost:3011",

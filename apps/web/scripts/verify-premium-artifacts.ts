@@ -5,18 +5,24 @@ const roots = [path.resolve("public"), path.resolve(".next")];
 
 function protectedMarkers() {
 	const markers = [Buffer.from("Controlled Premium Delivery Fixture")];
-	if (!process.env.COMMAND_PREMIUM_RELEASE) return markers;
-	try {
-		const release = JSON.parse(process.env.COMMAND_PREMIUM_RELEASE) as {
-			files?: Array<{ content?: string }>;
-		};
-		for (const file of release.files ?? []) {
-			if (file.content) markers.push(Buffer.from(file.content));
+	for (const variable of [
+		"COMMAND_PREMIUM_RELEASE",
+		"SIGNAL_PREMIUM_RELEASE",
+	] as const) {
+		const serialized = process.env[variable];
+		if (!serialized) continue;
+		try {
+			const release = JSON.parse(serialized) as {
+				files?: Array<{ content?: string }>;
+			};
+			for (const file of release.files ?? []) {
+				if (file.content) markers.push(Buffer.from(file.content));
+			}
+		} catch {
+			throw new Error(`${variable} is not valid JSON`);
 		}
-		return markers;
-	} catch {
-		throw new Error("COMMAND_PREMIUM_RELEASE is not valid JSON");
 	}
+	return markers;
 }
 
 const gatedMarkers = protectedMarkers();
