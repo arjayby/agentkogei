@@ -16,9 +16,9 @@ permissions:
 
 jobs:
   verify:
-    name: Type-check and build
+    name: Type-check, build, and test
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 30
     env:
       BETTER_AUTH_SECRET: "ci-only-secret-ci-only-secret-ci-only"
       BETTER_AUTH_URL: "http://localhost:3001"
@@ -46,3 +46,23 @@ jobs:
 
       - name: Build
         run: bun run build
+
+      # The black-box journeys drive a real browser against the built product.
+      # Their database is embedded, so no service container is required.
+      - name: Install the black-box browser
+        run: bun x playwright install --with-deps chromium
+        working-directory: apps/web
+
+      - name: Test
+        run: bun run test
+
+      - name: Upload black-box failure evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: black-box-evidence
+          path: |
+            apps/web/test-results
+            apps/web/.black-box/application.log
+          if-no-files-found: ignore
+          retention-days: 7
