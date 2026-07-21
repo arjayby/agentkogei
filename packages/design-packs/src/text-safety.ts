@@ -7,4 +7,4 @@ export const hasTerminalControl = (value: string) =>
  * bidirectional overrides—can hide direction from the Builder reviewing it.
  */
 export const hasHiddenDocumentControl = (value: string) =>
-	/[^\P{Cc}\n\r\t]|\p{Cf}/u.test(value);
+	hasTerminalControl(value.replaceAll(/[\n\r\t]/g, " "));

@@ -114,7 +114,7 @@ async function runAdd(project: string, arguments_: string[]) {
 		cwd: project,
 		env: {
 			...process.env,
-			AGENTKOGEI_OFFICIAL_CATALOG_URL: catalogUrl,
+			AGENTKOGEI_CONTRACT_CATALOG_URL: catalogUrl,
 		},
 		stdout: "pipe",
 		stderr: "pipe",

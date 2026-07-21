@@ -1,4 +1,3 @@
-import { spawn } from "node:child_process";
 import { existsSync } from "node:fs";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -6,77 +5,30 @@ import path from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-import { cliPath as installationCli } from "./support/cli";
+import { runCli } from "./support/cli";
 
-async function runLiveCatalogInstallation(
+function runLiveCatalogInstallation(
 	project: string,
 	pack: "foundation" | "editorial",
 ) {
-	const process_ = spawn(
-		"bun",
-		[
-			installationCli,
-			"install",
-			`${pack}@1.0.0`,
-			"--yes",
-			"--project",
-			project,
-		],
-		{
-			env: {
-				...process.env,
-				AGENTKOGEI_OFFICIAL_CATALOG_URL: "http://localhost:3011/r/",
-			},
+	return runCli(["install", `${pack}@1.0.0`, "--yes", "--project", project], {
+		environment: {
+			AGENTKOGEI_OFFICIAL_CATALOG_URL: "http://localhost:3011/r/",
 		},
-	);
-	let stdout = "";
-	let stderr = "";
-	process_.stdout.setEncoding("utf8");
-	process_.stderr.setEncoding("utf8");
-	process_.stdout.on("data", (chunk: string) => {
-		stdout += chunk;
 	});
-	process_.stderr.on("data", (chunk: string) => {
-		stderr += chunk;
-	});
-	const exitCode = await new Promise<number | null>((resolve, reject) => {
-		process_.once("error", reject);
-		process_.once("close", resolve);
-	});
-	return { exitCode, stdout, stderr };
 }
 
-async function runDesignContractInstallation(
+function runDesignContractInstallation(
 	project: string,
 	selector: string,
 	options: string[] = ["--yes"],
 ) {
-	const process_ = spawn(
-		"bun",
-		[installationCli, "add", selector, ...options],
-		{
-			cwd: project,
-			env: {
-				...process.env,
-				AGENTKOGEI_OFFICIAL_CATALOG_URL: "http://localhost:3011/contracts/",
-			},
+	return runCli(["add", selector, ...options], {
+		cwd: project,
+		environment: {
+			AGENTKOGEI_CONTRACT_CATALOG_URL: "http://localhost:3011/contracts/",
 		},
-	);
-	let stdout = "";
-	let stderr = "";
-	process_.stdout.setEncoding("utf8");
-	process_.stderr.setEncoding("utf8");
-	process_.stdout.on("data", (chunk: string) => {
-		stdout += chunk;
 	});
-	process_.stderr.on("data", (chunk: string) => {
-		stderr += chunk;
-	});
-	const exitCode = await new Promise<number | null>((resolve, reject) => {
-		process_.once("error", reject);
-		process_.once("close", resolve);
-	});
-	return { exitCode, stdout, stderr };
 }
 
 test("a prospective Builder can understand what a Design Pack changes", async ({
@@ -399,7 +351,8 @@ test("the Official Catalog delivers Foundation as raw Design Contract Markdown",
 	);
 	const contract = await current.text();
 	expect(contract).toContain("# Foundation Interface System");
-	expect(contract).toContain("## Semantic tokens (`tokens.css`)");
+	expect(contract).toContain("## Token definitions (`tokens.css`)");
+	expect(contract).not.toContain("evaluation/");
 	expect(contract).toContain("- Design Pack: Foundation (`foundation`)");
 	expect(contract).not.toContain("registry:item");
 

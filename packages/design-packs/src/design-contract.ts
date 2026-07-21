@@ -13,14 +13,19 @@ export type DesignContract = {
 	designPack: string;
 	packRelease: string;
 	packLicense: string;
+	access: PackManifest["access"];
 	markdown: string;
 };
 
-/** Release resources that carry publication evidence rather than direction. */
-const evidenceMediaType = "application/json";
+/**
+ * Pack Evaluation materials prove a release was fit to publish. They are
+ * evidence about the Design Pack rather than direction for a Project, so they
+ * stay in the Official Catalog instead of a Builder's Design Contract.
+ */
+const publicationEvidenceDirectory = "evaluation/";
 
 const consolidatedCode: Record<string, { title: string; language: string }> = {
-	"text/css": { title: "Semantic tokens", language: "css" },
+	"text/css": { title: "Token definitions", language: "css" },
 };
 
 function headingLevel(line: string) {
@@ -98,7 +103,8 @@ export async function buildDesignContract(
 	for (const file of manifest.files) {
 		if (
 			file.path === manifest.designContract ||
-			file.mediaType === evidenceMediaType
+			file.path === manifest.evaluation.evidence ||
+			file.path.startsWith(publicationEvidenceDirectory)
 		) {
 			continue;
 		}
@@ -124,6 +130,7 @@ export async function buildDesignContract(
 		designPack: manifest.name,
 		packRelease: manifest.release.version,
 		packLicense: `${manifest.license.name} (${manifest.license.spdx})`,
+		access: manifest.access,
 		markdown: `${sections.join("\n\n")}\n`,
 	};
 }

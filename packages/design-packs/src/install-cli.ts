@@ -88,9 +88,14 @@ async function requestActionConfirmation(
 	}
 }
 
+/**
+ * Raw Design Contract delivery has its own setting because the legacy registry
+ * transport still reads `AGENTKOGEI_OFFICIAL_CATALOG_URL`; one variable cannot
+ * name two incompatible endpoints.
+ */
 function designContractCatalogUrl() {
 	return (
-		process.env.AGENTKOGEI_OFFICIAL_CATALOG_URL ??
+		process.env.AGENTKOGEI_CONTRACT_CATALOG_URL ??
 		"https://agentkogei.com/contracts/"
 	);
 }

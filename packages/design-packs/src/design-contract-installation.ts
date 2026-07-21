@@ -9,11 +9,11 @@ import {
 } from "node:fs/promises";
 import path from "node:path";
 
+import { managedBlockEnd, managedBlockStart } from "./agents-reference";
+import { packIdentityPattern } from "./pack-identity";
 import { packReleaseVersionSchema } from "./release-version";
 import { hasHiddenDocumentControl, hasTerminalControl } from "./text-safety";
 
-const managedBlockStart = "<!-- agentkogei:design-pack:start -->";
-const managedBlockEnd = "<!-- agentkogei:design-pack:end -->";
 const managedReference = [
 	managedBlockStart,
 	"## AgentKogei Design Pack",
@@ -74,7 +74,7 @@ export async function retrieveDesignContract(input: {
 	version?: string | undefined;
 	officialCatalogUrl: string;
 }): Promise<RetrievedDesignContract> {
-	if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(input.identity)) {
+	if (!packIdentityPattern.test(input.identity)) {
 		throw new Error("invalid Design Pack identity");
 	}
 	if (
@@ -386,29 +386,40 @@ export function formatDesignContractPreview(
 	].join("\n\n");
 }
 
+const createdFileMode = 0o644;
+
+/**
+ * Replaces one Project file in a single step, so a Builder's editor or agent
+ * never observes a half-written document, and returns the undo for it. An
+ * existing file keeps its own permissions.
+ */
 async function writeProjectFile(
-	plan: DesignContractInstallationPlan,
 	target: string,
 	contents: string,
 	original: string | null,
 ) {
-	const temporary = path.join(
-		plan.projectDirectory,
-		`.agentkogei-write-${randomUUID()}`,
-	);
-	await writeFile(temporary, contents, { mode: 0o644, flag: "wx" });
-	try {
-		await rename(temporary, target);
-	} catch (error) {
-		await rm(temporary, { force: true });
-		throw error;
-	}
+	const mode = original === null ? createdFileMode : (await lstat(target)).mode;
+	const write = async (bytes: string) => {
+		const temporary = path.join(
+			path.dirname(target),
+			`.${path.basename(target)}.${randomUUID()}.tmp`,
+		);
+		await writeFile(temporary, bytes, { mode, flag: "wx" });
+		try {
+			await rename(temporary, target);
+		} catch (error) {
+			await rm(temporary, { force: true });
+			throw error;
+		}
+	};
+
+	await write(contents);
 	return async () => {
 		if (original === null) {
 			await rm(target, { force: true });
 			return;
 		}
-		await writeFile(target, original, { mode: 0o644 });
+		await write(original);
 	};
 }
 
@@ -433,14 +444,12 @@ export async function applyDesignContractInstallation(
 		throw new Error("Project changed after preview; Installation refused");
 	}
 	const restoreContract = await writeProjectFile(
-		plan,
 		plan.designContractPath,
 		plan.markdown,
 		plan.currentContract,
 	);
 	try {
 		await writeProjectFile(
-			plan,
 			plan.agentsPath,
 			plan.plannedAgents,
 			plan.currentAgents,

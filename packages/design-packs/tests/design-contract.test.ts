@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import {
 	buildDesignContract,
+	editorialReleaseDirectoryFor,
 	foundationReleaseDirectoryFor,
 } from "@agentkogei/design-packs";
 
@@ -9,7 +10,7 @@ const foundation = () =>
 	buildDesignContract(foundationReleaseDirectoryFor("1.1.0"));
 
 describe("Design Contract compilation", () => {
-	test("reports the Design Pack, Pack Release, and Pack License of the release", async () => {
+	test("reports the Design Pack, Pack Release, Pack License, and access of the release", async () => {
 		const contract = await foundation();
 
 		expect(contract).toMatchObject({
@@ -17,7 +18,18 @@ describe("Design Contract compilation", () => {
 			designPack: "Foundation",
 			packRelease: "1.1.0",
 			packLicense: "Creative Commons Attribution 4.0 International (CC-BY-4.0)",
+			access: "open",
 		});
+	});
+
+	test("leaves publication evidence out of the direction a Project installs", async () => {
+		const { markdown } = await buildDesignContract(
+			editorialReleaseDirectoryFor("1.0.0"),
+		);
+
+		expect(markdown).toContain("# Editorial Interface System");
+		expect(markdown).not.toContain("evaluation/");
+		expect(markdown).not.toContain("agent-generation evidence");
 	});
 
 	test("carries the complete design direction of every release resource", async () => {
@@ -43,7 +55,7 @@ describe("Design Contract compilation", () => {
 
 		for (const heading of [
 			"## Foundation component guidance (`components.md`)",
-			"## Semantic tokens (`tokens.css`)",
+			"## Token definitions (`tokens.css`)",
 			"## Agent examples (`examples.md`)",
 			"## Foundation validation guidance (`validation.md`)",
 			"## React / Next.js, Tailwind CSS v4, and shadcn/ui Stack Adapter (`adapters/react-tailwind-shadcn/README.md`)",

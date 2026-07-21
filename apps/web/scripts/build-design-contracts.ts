@@ -21,6 +21,14 @@ const catalog = Object.fromEntries(
 							`${pack.id} ${version} declares Pack Release ${contract.packRelease}`,
 						);
 					}
+					// This catalog is compiled into the public bundle and served
+					// without authentication, so only Open Design Contracts belong in
+					// it. A Premium Pack Release must fail the build rather than ship.
+					if (contract.access !== "open") {
+						throw new Error(
+							`${pack.id} ${version} is ${contract.access} and cannot be published as an Open Design Contract`,
+						);
+					}
 					return [version, contract] as const;
 				}),
 			);
