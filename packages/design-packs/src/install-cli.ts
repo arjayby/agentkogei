@@ -1,7 +1,6 @@
 #!/usr/bin/env bun
 
 import { randomUUID } from "node:crypto";
-import { createInterface } from "node:readline/promises";
 import { addDesignContract } from "./add-design-contract";
 import {
 	type DiagnosticCommand,
@@ -36,6 +35,10 @@ import {
 	logoutPackCredential,
 	readPackCredential,
 } from "./pack-credential-cli";
+import {
+	requestTerminalConsent,
+	terminalIsInteractive,
+} from "./terminal-consent";
 
 function usage() {
 	console.error(
@@ -66,29 +69,17 @@ async function requestActionConfirmation(
 	arguments_: string[],
 	question: string,
 ) {
-	if (arguments_.includes("--yes")) {
-		return true;
-	}
-	if (!process.stdin.isTTY || !process.stdout.isTTY) {
-		return false;
-	}
-	const prompt = createInterface({
-		input: process.stdin,
-		output: process.stdout,
+	return requestTerminalConsent(question, {
+		consented: arguments_.includes("--yes"),
+		interactive: terminalIsInteractive(),
 	});
-	try {
-		const answer = await prompt.question(question);
-		return answer.trim().toLowerCase() === "y";
-	} finally {
-		prompt.close();
-	}
 }
 
 async function main() {
 	const arguments_ = process.argv.slice(2);
 	if (arguments_[0] === "add") {
 		const result = await addDesignContract(arguments_.slice(1), {
-			interactive: Boolean(process.stdin.isTTY && process.stdout.isTTY),
+			interactive: terminalIsInteractive(),
 		});
 		if (result !== "usage") return result;
 		usage();

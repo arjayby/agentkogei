@@ -1,5 +1,3 @@
-import { desc, eq } from "drizzle-orm";
-
 import { createDb } from "./index";
 import { premiumEntitlementEvent } from "./schema/auth";
 
@@ -15,12 +13,4 @@ export async function recordPremiumEntitlementEvent(
 		.insert(premiumEntitlementEvent)
 		.values(event)
 		.onConflictDoNothing();
-}
-
-export async function listPremiumEntitlementEvents(builderId: string) {
-	return createDb()
-		.select()
-		.from(premiumEntitlementEvent)
-		.where(eq(premiumEntitlementEvent.builderId, builderId))
-		.orderBy(desc(premiumEntitlementEvent.occurredAt));
 }

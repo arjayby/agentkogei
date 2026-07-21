@@ -1108,6 +1108,7 @@ test("a subscribed Builder adds the Premium Command Design Contract without crea
 	);
 	const configDirectory = path.join(temporaryRoot, "configuration");
 	const projectDirectory = path.join(temporaryRoot, "project");
+	const revokedProjectDirectory = path.join(temporaryRoot, "revoked-project");
 	const designContractPath = path.join(projectDirectory, "DESIGN.md");
 	const addCommand = (options: string[] = ["--yes"]) =>
 		runCli(["add", "command@1.0.0", ...options], {
@@ -1126,12 +1127,23 @@ test("a subscribed Builder adds the Premium Command Design Contract without crea
 			path.join(projectDirectory, "package.json"),
 			'{"name":"secret-project","dependencies":{"dependency-marker":"1.0.0"}}',
 		);
+		await mkdir(revokedProjectDirectory);
 
 		for (const anonymousPath of ["/contracts/command", commandContractPath]) {
 			const anonymous = await page.request.get(anonymousPath);
 			expect(anonymous.status()).toBe(401);
 			expect(await anonymous.text()).not.toContain("Command Interface System");
 		}
+		const unknownRelease = await page.request.get("/contracts/command/9.9.9");
+		expect(unknownRelease.status()).toBe(404);
+		// Signal is still a multi-resource Pack Release, so it has no Design
+		// Contract to deliver yet. The Official Catalog must answer for it
+		// rather than fail, and must never leak it either way.
+		const unconsolidated = await page.request.get("/contracts/signal");
+		expect([401, 404]).toContain(unconsolidated.status());
+		expect(await unconsolidated.text()).not.toContain(
+			"Signal Interface System",
+		);
 		const withoutCredential = await addCommand();
 		expect(withoutCredential.code).toBe(2);
 		expect(withoutCredential.stderr).toContain("agentkogei login");
@@ -1210,7 +1222,7 @@ test("a subscribed Builder adds the Premium Command Design Contract without crea
 		expect(events[0]).toMatchObject({
 			packId: "command",
 			packRelease: "1.0.0",
-			action: "add",
+			action: "retrieval",
 		});
 		expect(events[0]?.builderId).toBeTruthy();
 		expect(Date.parse(events[0]?.occurredAt ?? "")).toBeGreaterThan(0);
@@ -1238,6 +1250,23 @@ test("a subscribed Builder adds the Premium Command Design Contract without crea
 		const afterExpiry = await addCommand(["--yes", "--force"]);
 		expect(afterExpiry.code).toBe(1);
 		expect(afterExpiry.stderr).toContain("Premium Access");
+		expect(await readFile(designContractPath, "utf8")).toBe(designContract);
+
+		await page.goto("/dashboard");
+		const credentialRow = page.getByRole("article", {
+			name: "Pack Credential Command contract terminal",
+		});
+		await credentialRow.getByRole("button", { name: "Revoke" }).click();
+		await expect(credentialRow.getByText("Revoked")).toBeVisible();
+		const afterRevocation = await runCli(["add", "command@1.0.0", "--yes"], {
+			configDirectory,
+			projectDirectory: revokedProjectDirectory,
+			contractCatalogUrl,
+		});
+		expect(afterRevocation.code).toBe(2);
+		expect(afterRevocation.stdout).not.toContain("Command Interface System");
+		expect(await readdir(revokedProjectDirectory)).toEqual([]);
+
 		await rm(configDirectory, { recursive: true, force: true });
 		expect(await readFile(designContractPath, "utf8")).toBe(designContract);
 	} finally {

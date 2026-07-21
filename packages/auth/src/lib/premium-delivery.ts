@@ -80,13 +80,16 @@ export async function authorizePremiumRetrieval(
 /**
  * Records that an entitled Builder retrieved one Pack Release. A Design
  * Contract Installation has no per-Project identifier, so the evidence carries
- * only the Builder, the Pack Release, the action, and when it happened.
+ * only the Builder, the Pack Release, the action, and when it happened. The
+ * action is the retrieval itself rather than the Installation: the Official
+ * Catalog releases the gated document before the Builder consents to write it,
+ * and never learns whether they did.
  */
 export async function recordPremiumEntitlementEvent(input: {
 	builderId: string;
 	packId: string;
 	packRelease: string;
-	action: "add";
+	action: "retrieval";
 }) {
 	const event: NewPremiumEntitlementEvent = {
 		id: randomUUID(),

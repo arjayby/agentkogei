@@ -8,9 +8,9 @@ import { z } from "zod";
 import openDesignContracts from "@/generated/open-design-contracts.json";
 import { catalogSelector } from "@/lib/catalog-selector";
 import {
+	currentOfficialPremiumRelease,
 	getProtectedPremiumRelease,
 	isOfficialPremiumPackIdentity,
-	officialPremiumPackReleases,
 } from "@/lib/protected-premium-releases";
 import { observeTestPremiumRetrieval } from "@/lib/test-premium-delivery";
 
@@ -58,22 +58,34 @@ const protectedReleaseSchema = z.object({
 
 const compiledPremiumContracts = new Map<string, DeliveredDesignContract>();
 
+/**
+ * Resolves a Premium selector to the Design Contract the Official Catalog can
+ * deliver for it. A Pack Release that is provisioned but does not consolidate
+ * into one document has no Design Contract to deliver yet, so it reads as
+ * absent rather than failing the request.
+ */
 async function findPremiumDesignContract(identity: string, version?: string) {
 	if (!isOfficialPremiumPackIdentity(identity)) return null;
-	const selected = version ?? officialPremiumPackReleases(identity).at(-1);
+	const selected = version ?? currentOfficialPremiumRelease(identity);
 	if (!selected) return null;
-	const cached = compiledPremiumContracts.get(`${identity}@${selected}`);
+	const selector = `${identity}@${selected}`;
+	const cached = compiledPremiumContracts.get(selector);
 	if (cached) return cached;
 
 	const release = protectedReleaseSchema.safeParse(
 		getProtectedPremiumRelease(identity, selected),
 	);
 	if (!release.success) return null;
-	const contract = await buildDesignContractFromResources(
-		Object.fromEntries(
-			release.data.files.map((file) => [file.path, file.content]),
-		),
-	);
+	let contract: Awaited<ReturnType<typeof buildDesignContractFromResources>>;
+	try {
+		contract = await buildDesignContractFromResources(
+			Object.fromEntries(
+				release.data.files.map((file) => [file.path, file.content]),
+			),
+		);
+	} catch {
+		return null;
+	}
 	if (
 		contract.identity !== identity ||
 		contract.packRelease !== selected ||
@@ -87,7 +99,7 @@ async function findPremiumDesignContract(identity: string, version?: string) {
 		packLicense: contract.packLicense,
 		markdown: contract.markdown,
 	};
-	compiledPremiumContracts.set(`${identity}@${selected}`, delivered);
+	compiledPremiumContracts.set(selector, delivered);
 	return delivered;
 }
 
@@ -104,7 +116,7 @@ export function designContractResponse(
 				: immutable
 					? "public, max-age=31536000, immutable"
 					: "public, max-age=300",
-			"x-content-type-options": "nosniff",
+			...(gated ? { "x-content-type-options": "nosniff" } : {}),
 			"x-agentkogei-design-pack": contract.designPack,
 			"x-agentkogei-pack-release": contract.packRelease,
 			"x-agentkogei-pack-license": contract.packLicense,
@@ -197,7 +209,7 @@ export async function deliverDesignContract(
 		builderId: authorization.builderId,
 		packId: identity,
 		packRelease: premiumContract.packRelease,
-		action: "add",
+		action: "retrieval",
 	});
 	return designContractResponse(premiumContract, {
 		immutable: version !== undefined,

@@ -1,5 +1,3 @@
-import { createInterface } from "node:readline/promises";
-
 import {
 	applyDesignContractInstallation,
 	type DesignContractInstallationPlan,
@@ -12,6 +10,7 @@ import {
 	loginWithPackCredential,
 	readPackCredential,
 } from "./pack-credential-cli";
+import { requestTerminalConsent } from "./terminal-consent";
 
 /**
  * Raw Design Contract delivery has its own setting because the legacy registry
@@ -76,24 +75,6 @@ async function planWithPremiumAuthorization(
 		if (authorized !== 0) return null;
 		console.log("");
 		return plan();
-	}
-}
-
-async function requestInstallationConsent(
-	question: string,
-	options: { consented: boolean; interactive: boolean },
-) {
-	if (options.consented) return true;
-	if (!options.interactive) return false;
-	const prompt = createInterface({
-		input: process.stdin,
-		output: process.stdout,
-	});
-	try {
-		const answer = await prompt.question(question);
-		return answer.trim().toLowerCase() === "y";
-	} finally {
-		prompt.close();
 	}
 }
 
@@ -168,7 +149,7 @@ export async function addDesignContract(
 		return 2;
 	}
 
-	const confirmed = await requestInstallationConsent(
+	const confirmed = await requestTerminalConsent(
 		plan.designContractChange === "replace"
 			? "Replace this DESIGN.md? [y/N] "
 			: "Write this Design Contract? [y/N] ",

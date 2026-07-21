@@ -80,14 +80,14 @@ function provenanceSection(manifest: PackManifest) {
  * from the payload the Official Catalog holds, so both compile into the same
  * Design Contract.
  */
-export type PackReleaseResource = (resourcePath: string) => Promise<string>;
+type ReadPackReleaseResource = (resourcePath: string) => Promise<string>;
 
 /**
  * Consolidates every resource that carries design direction into one document,
  * so an Installed Pack never depends on a separate file.
  */
 async function compileDesignContract(
-	read: PackReleaseResource,
+	read: ReadPackReleaseResource,
 ): Promise<DesignContract> {
 	const manifest = packManifestSchema.parse(
 		JSON.parse(await read("agentkogei.manifest.json")),

@@ -37,15 +37,17 @@ export function isOfficialPremiumPackIdentity(
 }
 
 /**
- * The Pack Releases of one Premium Design Pack, oldest first, so a bare
- * identity can resolve to the current release exactly as an Open pack does.
+ * The Pack Release a bare Premium identity selects, resolved the same way an
+ * Open pack's current release is: the highest semantic version published.
  */
-export function officialPremiumPackReleases(
+export function currentOfficialPremiumRelease(
 	identity: OfficialPremiumPackIdentity,
 ) {
 	return (
 		Object.keys(protectedReleaseLoaders[identity]) as PackReleaseVersion[]
-	).toSorted(comparePackReleaseVersions);
+	)
+		.toSorted(comparePackReleaseVersions)
+		.at(-1);
 }
 
 export function getProtectedPremiumRelease(identity: string, version: string) {
