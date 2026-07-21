@@ -1,6 +1,13 @@
 import { spawn } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import {
+	mkdir,
+	mkdtemp,
+	readdir,
+	readFile,
+	rm,
+	writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, type Page, test } from "@playwright/test";
@@ -8,6 +15,8 @@ import { expect, type Page, test } from "@playwright/test";
 import { cliPath } from "./support/cli";
 
 const webOrigin = "http://localhost:3011";
+const contractCatalogUrl = `${webOrigin}/contracts/`;
+const commandContractPath = "/contracts/command/1.0.0";
 const fixtureSource = `${webOrigin}/api/premium-source/delivery-fixture/1.0.0`;
 const commandSource = `${webOrigin}/api/premium-source/command/1.0.0`;
 const signalSource = `${webOrigin}/api/premium-source/signal/1.0.0`;
@@ -29,6 +38,7 @@ function runCli(
 		configDirectory: string;
 		projectDirectory: string;
 		officialCatalogUrl?: string;
+		contractCatalogUrl?: string;
 	},
 ) {
 	return new Promise<{ code: number | null; stdout: string; stderr: string }>(
@@ -42,6 +52,11 @@ function runCli(
 					...(options.officialCatalogUrl
 						? {
 								AGENTKOGEI_OFFICIAL_CATALOG_URL: options.officialCatalogUrl,
+							}
+						: {}),
+					...(options.contractCatalogUrl
+						? {
+								AGENTKOGEI_CONTRACT_CATALOG_URL: options.contractCatalogUrl,
 							}
 						: {}),
 				},
@@ -1084,3 +1099,148 @@ for (const terminalState of ["refunded", "reversed"] as const) {
 		}
 	});
 }
+
+test("a subscribed Builder adds the Premium Command Design Contract without creating a Project identifier", async ({
+	page,
+}) => {
+	const temporaryRoot = await mkdtemp(
+		path.join(tmpdir(), "agentkogei-command-design-contract-"),
+	);
+	const configDirectory = path.join(temporaryRoot, "configuration");
+	const projectDirectory = path.join(temporaryRoot, "project");
+	const designContractPath = path.join(projectDirectory, "DESIGN.md");
+	const addCommand = (options: string[] = ["--yes"]) =>
+		runCli(["add", "command@1.0.0", ...options], {
+			configDirectory,
+			projectDirectory,
+			contractCatalogUrl,
+		});
+	try {
+		await mkdir(projectDirectory);
+		await mkdir(path.join(projectDirectory, ".git"));
+		await writeFile(
+			path.join(projectDirectory, ".git/config"),
+			'[remote "origin"]\nurl = git@example.com:private/secret-project.git\n',
+		);
+		await writeFile(
+			path.join(projectDirectory, "package.json"),
+			'{"name":"secret-project","dependencies":{"dependency-marker":"1.0.0"}}',
+		);
+
+		for (const anonymousPath of ["/contracts/command", commandContractPath]) {
+			const anonymous = await page.request.get(anonymousPath);
+			expect(anonymous.status()).toBe(401);
+			expect(await anonymous.text()).not.toContain("Command Interface System");
+		}
+		const withoutCredential = await addCommand();
+		expect(withoutCredential.code).toBe(2);
+		expect(withoutCredential.stderr).toContain("agentkogei login");
+		expect(await readdir(projectDirectory)).not.toContain("DESIGN.md");
+
+		await signIn(page);
+		expect(
+			(
+				await page.request.post("/api/test/polar/events", {
+					data: { eventId: "command-contract-active", state: "active" },
+				})
+			).ok(),
+		).toBe(true);
+		await authorizeCli(page, configDirectory, "Command contract terminal");
+
+		expect(
+			(
+				await page.request.post("/api/test/polar/events", {
+					data: { eventId: "command-contract-expired", state: "expired" },
+				})
+			).ok(),
+		).toBe(true);
+		const inactive = await addCommand();
+		expect(inactive.code).toBe(1);
+		expect(inactive.stderr).toContain("Premium Access");
+		expect(inactive.stdout).not.toContain("Command Interface System");
+		expect(await readdir(projectDirectory)).not.toContain("DESIGN.md");
+		expect(
+			await (
+				await page.request.get("/api/test/premium-delivery/entitlement-events")
+			).json(),
+		).toEqual([]);
+
+		expect(
+			(
+				await page.request.post("/api/test/polar/events", {
+					data: { eventId: "command-contract-renewed", state: "active" },
+				})
+			).ok(),
+		).toBe(true);
+		const added = await addCommand();
+		expect(added.code, added.stderr).toBe(0);
+		expect(added.stdout).toContain("Command 1.0.0 (command)");
+		expect(added.stdout).toContain("AgentKogei Commercial Pack License");
+		const designContract = await readFile(designContractPath, "utf8");
+		expect(designContract.startsWith("# Command Interface System\n")).toBe(
+			true,
+		);
+		expect(designContract).toContain("## Provenance");
+		expect(designContract).not.toContain("sha256");
+		expect(
+			await readFile(path.join(projectDirectory, "AGENTS.md"), "utf8"),
+		).toContain("<!-- agentkogei:design-pack:start -->");
+		expect(await readdir(projectDirectory)).not.toContain(".agentkogei");
+
+		const observation = (await (
+			await page.request.get("/api/test/premium-delivery/observation")
+		).json()) as {
+			method: string;
+			pathname: string;
+			search: string;
+			headers: Record<string, string>;
+			hasBody: boolean;
+		};
+		expect(observation).toMatchObject({
+			method: "GET",
+			pathname: commandContractPath,
+			search: "",
+			hasBody: false,
+		});
+		expect(observation.headers["x-agentkogei-project-license"]).toBeUndefined();
+		const events = (await (
+			await page.request.get("/api/test/premium-delivery/entitlement-events")
+		).json()) as Array<Record<string, string>>;
+		expect(events).toHaveLength(1);
+		expect(events[0]).toMatchObject({
+			packId: "command",
+			packRelease: "1.0.0",
+			action: "add",
+		});
+		expect(events[0]?.builderId).toBeTruthy();
+		expect(Date.parse(events[0]?.occurredAt ?? "")).toBeGreaterThan(0);
+		for (const evidence of [
+			JSON.stringify(observation),
+			JSON.stringify(events),
+		]) {
+			for (const privateValue of [
+				projectDirectory,
+				"secret-project",
+				"dependency-marker",
+				"projectLicense",
+			]) {
+				expect(evidence).not.toContain(privateValue);
+			}
+		}
+
+		expect(
+			(
+				await page.request.post("/api/test/polar/events", {
+					data: { eventId: "command-contract-lapsed", state: "expired" },
+				})
+			).ok(),
+		).toBe(true);
+		const afterExpiry = await addCommand(["--yes", "--force"]);
+		expect(afterExpiry.code).toBe(1);
+		expect(afterExpiry.stderr).toContain("Premium Access");
+		await rm(configDirectory, { recursive: true, force: true });
+		expect(await readFile(designContractPath, "utf8")).toBe(designContract);
+	} finally {
+		await rm(temporaryRoot, { recursive: true, force: true });
+	}
+});

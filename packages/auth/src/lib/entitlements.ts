@@ -8,6 +8,7 @@ import {
 	inMemoryBlackBoxBoundaryEnabled,
 } from "@agentkogei/env/server";
 
+import { resetTestPremiumEntitlementEvents } from "./test-entitlement-events";
 import {
 	resetTestProjectLicenses,
 	terminateTestProjectLicenses,
@@ -131,4 +132,5 @@ export async function resetTestBillingState() {
 	state.events.clear();
 	state.entitlements.clear();
 	resetTestProjectLicenses();
+	resetTestPremiumEntitlementEvents();
 }

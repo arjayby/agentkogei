@@ -192,6 +192,30 @@ export const projectLicense = pgTable(
 	(table) => [index("project_license_builder_idx").on(table.builderId)],
 );
 
+/**
+ * Audit evidence that an entitled Builder retrieved one Premium Pack Release.
+ * A Design Contract Installation creates no per-Project identifier, so this
+ * table deliberately has no column that could name or link back to a Project.
+ */
+export const premiumEntitlementEvent = pgTable(
+	"premium_entitlement_event",
+	{
+		id: text("id").primaryKey(),
+		builderId: text("builder_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		packId: text("pack_id").notNull(),
+		packRelease: text("pack_release").notNull(),
+		action: text("action").notNull(),
+		occurredAt: timestamp("occurred_at", { withTimezone: true })
+			.defaultNow()
+			.notNull(),
+	},
+	(table) => [
+		index("premium_entitlement_event_builder_idx").on(table.builderId),
+	],
+);
+
 export const userRelations = relations(user, ({ many }) => ({
 	sessions: many(session),
 	accounts: many(account),

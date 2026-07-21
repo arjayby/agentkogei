@@ -9,6 +9,7 @@ import {
 
 export {
 	buildDesignContract,
+	buildDesignContractFromResources,
 	type DesignContract,
 } from "./design-contract";
 export {
@@ -16,6 +17,8 @@ export {
 	type DesignContractInstallationPlan,
 	formatDesignContractDiff,
 	formatDesignContractPreview,
+	PackCredentialRequiredError,
+	PremiumAccessRequiredError,
 	planDesignContractInstallation,
 	retrieveDesignContract,
 } from "./design-contract-installation";

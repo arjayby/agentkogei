@@ -50,6 +50,19 @@ export type RetrievedDesignContract = {
 	source: string;
 };
 
+/**
+ * The Official Catalog will not release a Premium Design Contract to this CLI
+ * installation yet. A browser authorization can resolve it, so the Installation
+ * path treats it differently from every other refusal.
+ */
+export class PackCredentialRequiredError extends Error {}
+
+/**
+ * The Pack Credential is valid but the Builder's Premium Access is not active.
+ * No amount of reauthorization changes that, so the Installation stops.
+ */
+export class PremiumAccessRequiredError extends Error {}
+
 function packSelector(identity: string, version?: string) {
 	return version ? `${identity}@${version}` : identity;
 }
@@ -67,12 +80,15 @@ function catalogHeader(response: Response, name: string, selector: string) {
 /**
  * Retrieves one Design Contract from the first-party Official Catalog as raw
  * UTF-8 Markdown. Every response is proven to be an installable Design Contract
- * before any part of it reaches the Project.
+ * before any part of it reaches the Project. A Pack Credential is the only
+ * thing the request carries beyond the selector, so the Official Catalog learns
+ * nothing about the Project receiving the Design Contract.
  */
 export async function retrieveDesignContract(input: {
 	identity: string;
 	version?: string | undefined;
 	officialCatalogUrl: string;
+	packCredential?: string | undefined;
 }): Promise<RetrievedDesignContract> {
 	if (!packIdentityPattern.test(input.identity)) {
 		throw new Error("invalid Design Pack identity");
@@ -104,10 +120,25 @@ export async function retrieveDesignContract(input: {
 
 	const response = await fetch(source, {
 		redirect: "manual",
-		headers: { accept: "text/markdown" },
+		headers: {
+			accept: "text/markdown",
+			...(input.packCredential
+				? { authorization: `Bearer ${input.packCredential}` }
+				: {}),
+		},
 	});
 	if (response.status >= 300 && response.status < 400) {
 		throw new Error(`Official Catalog redirected the request for ${selector}`);
+	}
+	if (response.status === 401) {
+		throw new PackCredentialRequiredError(
+			`${selector} is a Premium Design Pack and needs an authorized Pack Credential`,
+		);
+	}
+	if (response.status === 403) {
+		throw new PremiumAccessRequiredError(
+			`${selector} needs active Premium Access`,
+		);
 	}
 	if (!response.ok) {
 		throw new Error(
@@ -223,6 +254,7 @@ export async function planDesignContractInstallation(input: {
 	version?: string | undefined;
 	projectDirectory: string;
 	officialCatalogUrl: string;
+	packCredential?: string | undefined;
 }): Promise<DesignContractInstallationPlan> {
 	const projectDirectory = await realpath(input.projectDirectory);
 	const designContractPath = path.join(projectDirectory, "DESIGN.md");

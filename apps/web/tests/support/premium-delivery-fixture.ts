@@ -123,11 +123,6 @@ export function buildTestCommandPackRelease() {
 			content:
 				"# Synthetic terminal patterns\n\nTest-only anatomy for selectable output, status annotations, and keyboard workflows.\n",
 		},
-		{
-			path: "resources/technical-icons.svg",
-			content:
-				'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><title>Synthetic technical icon resource</title><path d="M4 12h16M12 4v16" fill="none" stroke="currentColor"/></svg>\n',
-		},
 	] as const;
 	for (const resource of syntheticResources) {
 		release.files.push({
@@ -268,11 +263,7 @@ export function buildTestSignalPackRelease() {
 	release.description =
 		"Synthetic protected Signal release used only at the premium delivery test boundary.";
 	release.files = release.files
-		.filter(
-			(file) =>
-				!file.path.startsWith("patterns/") &&
-				file.path !== "resources/technical-icons.svg",
-		)
+		.filter((file) => !file.path.startsWith("patterns/"))
 		.map((file) => ({
 			...file,
 			target: file.target.replace(
