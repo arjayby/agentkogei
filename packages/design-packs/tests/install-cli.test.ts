@@ -37,6 +37,10 @@ const editorialRegistryItem = new URL(
 const catalogBaseUrl = new URL("../../../apps/web/public/r/", import.meta.url)
 	.href;
 const temporaryDirectories: string[] = [];
+// These tests race a real CLI subprocess, so the window they wait for opens
+// whenever the machine gets around to it. A cold CI runner is an order of
+// magnitude slower than a warm laptop.
+const commitWindowTimeoutMs = 20_000;
 
 type CliResult = {
 	exitCode: number;
@@ -256,7 +260,7 @@ async function interruptUpdateDuringCommit(
 		timeout = setTimeout(() => {
 			watcher.close();
 			reject(new Error("update did not enter its commit window"));
-		}, 5_000);
+		}, commitWindowTimeoutMs);
 	});
 	const process_ = Bun.spawn(
 		[process.execPath, cliCommand, "update", "--yes", "--project", project],
@@ -294,7 +298,7 @@ async function modifyUpdateDuringCommit(
 		timeout = setTimeout(() => {
 			watcher.close();
 			reject(new Error("update did not enter its commit window"));
-		}, 5_000);
+		}, commitWindowTimeoutMs);
 	});
 	const process_ = Bun.spawn(
 		[process.execPath, cliCommand, "update", "--yes", "--project", project],

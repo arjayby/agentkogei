@@ -23,7 +23,15 @@
 		},
 		"test": {
 			"dependsOn": ["^check-types"],
-			"cache": false
+			"cache": false,
+			"env": [
+				"BETTER_AUTH_SECRET",
+				"BETTER_AUTH_URL",
+				"CORS_ORIGIN",
+				"DATABASE_URL",
+				"POLAR_ACCESS_TOKEN",
+				"POLAR_SUCCESS_URL"
+			]
 		},
 		"dev": {
 			"cache": false,
