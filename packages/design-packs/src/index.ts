@@ -8,6 +8,18 @@ import {
 } from "./release-version";
 
 export {
+	buildDesignContract,
+	type DesignContract,
+} from "./design-contract";
+export {
+	applyDesignContractInstallation,
+	type DesignContractInstallationPlan,
+	formatDesignContractDiff,
+	formatDesignContractPreview,
+	planDesignContractInstallation,
+	retrieveDesignContract,
+} from "./design-contract-installation";
+export {
 	applyInstallation,
 	discardInstallationPlan,
 	formatInstallationPreview,

@@ -5,9 +5,10 @@
 	"scripts": {
 		"dev": "next dev --port 3001",
 		"dev:test": "next dev --port 3011",
-		"build": "bun run registry:build && next build && bun run artifacts:verify",
+		"build": "bun run registry:build && bun run contracts:build && next build && bun run artifacts:verify",
 		"database:test:prepare": "bun run --cwd ../../packages/db db:prepare:black-box",
 		"check-types": "tsc --noEmit",
+		"contracts:build": "bun run scripts/build-design-contracts.ts",
 		"registry:build": "bun run scripts/build-registry.ts",
 		"artifacts:verify": "bun run scripts/verify-premium-artifacts.ts",
 		"logs:verify": "bun run scripts/verify-premium-logs.ts",
