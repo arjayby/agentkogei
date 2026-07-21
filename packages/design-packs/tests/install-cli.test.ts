@@ -4,6 +4,7 @@ import { watch } from "node:fs";
 import {
 	mkdir,
 	mkdtemp,
+	readdir,
 	readFile,
 	rm,
 	symlink,
@@ -244,24 +245,70 @@ async function interruptUpdateAfterPreview(
 	await process_.exited;
 }
 
+const backupPrefix = ".agentkogei-backup-";
+
+/**
+ * Waits for an update to enter its commit window, which the backup directory
+ * marks. File-system events and a directory poll race each other because the
+ * two do not report identically across platforms, and the window is brief.
+ */
+function watchForCommitWindow(project: string) {
+	let observe: (backup: string) => void = () => {};
+	const observed = new Promise<string>((resolve) => {
+		observe = resolve;
+	});
+	const watcher = watch(project, (_event, filename) => {
+		const entry = filename ? path.basename(filename.toString()) : undefined;
+		if (entry?.startsWith(backupPrefix)) {
+			observe(entry);
+		}
+	});
+	let polling = true;
+	void (async () => {
+		while (polling) {
+			const entry = (await readdir(project)).find((name) =>
+				name.startsWith(backupPrefix),
+			);
+			if (entry) {
+				observe(entry);
+				return;
+			}
+			await Bun.sleep(2);
+		}
+	})();
+	return {
+		observed,
+		close() {
+			polling = false;
+			watcher.close();
+		},
+	};
+}
+
+/**
+ * Reports why the window never opened. Without the subprocess's own output a
+ * failure here is indistinguishable from a slow machine.
+ */
+async function reportMissingCommitWindow(
+	process_: ReturnType<typeof Bun.spawn>,
+): Promise<never> {
+	await Bun.sleep(commitWindowTimeoutMs);
+	process_.kill("SIGKILL");
+	const [stdout, stderr] = await Promise.all([
+		new Response(process_.stdout as ReadableStream).text(),
+		new Response(process_.stderr as ReadableStream).text(),
+	]);
+	throw new Error(
+		`update did not enter its commit window\nstdout:\n${stdout}\nstderr:\n${stderr}`,
+	);
+}
+
 async function interruptUpdateDuringCommit(
 	project: string,
 	environment: Record<string, string>,
 	signal: "SIGTERM" | "SIGKILL" = "SIGTERM",
 ) {
-	let timeout: ReturnType<typeof setTimeout> | undefined;
-	const backupObserved = new Promise<void>((resolve, reject) => {
-		const watcher = watch(project, (_event, filename) => {
-			if (filename?.toString().startsWith(".agentkogei-backup-")) {
-				watcher.close();
-				resolve();
-			}
-		});
-		timeout = setTimeout(() => {
-			watcher.close();
-			reject(new Error("update did not enter its commit window"));
-		}, commitWindowTimeoutMs);
-	});
+	const commitWindow = watchForCommitWindow(project);
 	const process_ = Bun.spawn(
 		[process.execPath, cliCommand, "update", "--yes", "--project", project],
 		{
@@ -270,9 +317,13 @@ async function interruptUpdateDuringCommit(
 			stderr: "pipe",
 		},
 	);
-	await backupObserved;
-	if (timeout) {
-		clearTimeout(timeout);
+	try {
+		await Promise.race([
+			commitWindow.observed,
+			reportMissingCommitWindow(process_),
+		]);
+	} finally {
+		commitWindow.close();
 	}
 	process_.kill(signal);
 	const [stderr, exitCode] = await Promise.all([
@@ -286,20 +337,7 @@ async function modifyUpdateDuringCommit(
 	project: string,
 	environment: Record<string, string>,
 ) {
-	let timeout: ReturnType<typeof setTimeout> | undefined;
-	const backupObserved = new Promise<string>((resolve, reject) => {
-		const watcher = watch(project, (_event, filename) => {
-			const backup = filename?.toString();
-			if (backup?.startsWith(".agentkogei-backup-")) {
-				watcher.close();
-				resolve(backup);
-			}
-		});
-		timeout = setTimeout(() => {
-			watcher.close();
-			reject(new Error("update did not enter its commit window"));
-		}, commitWindowTimeoutMs);
-	});
+	const commitWindow = watchForCommitWindow(project);
 	const process_ = Bun.spawn(
 		[process.execPath, cliCommand, "update", "--yes", "--project", project],
 		{
@@ -308,9 +346,14 @@ async function modifyUpdateDuringCommit(
 			stderr: "pipe",
 		},
 	);
-	const backup = await backupObserved;
-	if (timeout) {
-		clearTimeout(timeout);
+	let backup: string;
+	try {
+		backup = await Promise.race([
+			commitWindow.observed,
+			reportMissingCommitWindow(process_),
+		]);
+	} finally {
+		commitWindow.close();
 	}
 	await writeFile(
 		path.join(project, backup, "foundation/tokens.css"),
