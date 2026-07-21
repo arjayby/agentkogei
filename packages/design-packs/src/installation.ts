@@ -18,7 +18,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
 
+import { managedBlockEnd, managedBlockStart } from "./agents-reference";
 import { type PackManifest, packManifestSchema } from "./manifest";
+import { packIdentityPattern } from "./pack-identity";
 import { packReleaseVersionSchema } from "./release-version";
 import { hasTerminalControl } from "./text-safety";
 import { validatePackRelease } from "./validator";
@@ -128,9 +130,6 @@ export async function stageInstalledPackSnapshot(
 		{ mode: 0o644, flag: "wx" },
 	);
 }
-
-const managedBlockStart = "<!-- agentkogei:design-pack:start -->";
-const managedBlockEnd = "<!-- agentkogei:design-pack:end -->";
 
 function isSafeRelativePath(value: string) {
 	return (
@@ -429,7 +428,7 @@ export async function retrievePackRelease(input: {
 	source?: string;
 	premiumAuthorization?: PremiumRetrievalAuthorization;
 }): Promise<RetrievedPackRelease> {
-	if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(input.identity)) {
+	if (!packIdentityPattern.test(input.identity)) {
 		throw new Error("invalid Design Pack identity");
 	}
 	if (

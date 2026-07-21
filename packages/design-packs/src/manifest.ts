@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { packIdentitySchema } from "./pack-identity";
 import { packReleaseVersionSchema } from "./release-version";
 import { hasTerminalControl } from "./text-safety";
 
@@ -46,7 +47,7 @@ const fileSchema = z
 export const packManifestSchema = z
 	.object({
 		schemaVersion: z.literal("1.0"),
-		id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+		id: packIdentitySchema,
 		name: terminalTextSchema,
 		publisher: terminalTextSchema,
 		release: z

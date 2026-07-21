@@ -16,6 +16,7 @@ import {
 	stageInstalledPackSnapshot,
 } from "./installation";
 import { type PackManifest, packManifestSchema } from "./manifest";
+import { packIdentitySchema } from "./pack-identity";
 import {
 	type PackReleaseVersion,
 	packReleaseVersionSchema,
@@ -43,7 +44,7 @@ const installedPackRecordSchema = z
 		state: z.enum(["managed", "detached"]).default("managed"),
 		pack: z
 			.object({
-				id: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+				id: packIdentitySchema,
 				version: packReleaseVersionSchema,
 			})
 			.strict(),
