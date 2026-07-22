@@ -19,7 +19,12 @@ import path from "node:path";
 
 import { addDesignContract } from "../src/add-design-contract";
 
-const commandContract = `# Command Interface System
+/** One Design Contract per Premium catalog identity, as the Official Catalog
+ * delivers it: complete direction followed by human-readable provenance. */
+const premiumDesignContracts = {
+	command: {
+		designPack: "Command",
+		markdown: `# Command Interface System
 
 Dark-first, dense, and technical direction for the whole product.
 
@@ -29,7 +34,27 @@ Dark-first, dense, and technical direction for the whole product.
 
 - Design Pack: Command (\`command\`)
 - Pack License: AgentKogei Commercial Pack License (LicenseRef-AgentKogei-Commercial)
-`;
+`,
+	},
+	signal: {
+		designPack: "Signal",
+		markdown: `# Signal Interface System
+
+Bold geometry, expressive color, and richer motion for the whole product.
+
+---
+
+## Provenance
+
+- Design Pack: Signal (\`signal\`)
+- Pack License: AgentKogei Commercial Pack License (LicenseRef-AgentKogei-Commercial)
+`,
+	},
+} as const;
+
+type PremiumIdentity = keyof typeof premiumDesignContracts;
+
+const commandContract = premiumDesignContracts.command.markdown;
 
 type ServerState = {
 	premiumAccess: "active" | "inactive";
@@ -57,12 +82,13 @@ function resetState(): ServerState {
 	};
 }
 
-function markdownResponse() {
-	return new Response(commandContract, {
+function markdownResponse(identity: PremiumIdentity) {
+	const contract = premiumDesignContracts[identity];
+	return new Response(contract.markdown, {
 		headers: {
 			"content-type": "text/markdown; charset=utf-8",
 			"cache-control": "private, no-store",
-			"x-agentkogei-design-pack": "Command",
+			"x-agentkogei-design-pack": contract.designPack,
 			"x-agentkogei-pack-release": "1.0.0",
 			"x-agentkogei-pack-license":
 				"AgentKogei Commercial Pack License (LicenseRef-AgentKogei-Commercial)",
@@ -70,8 +96,8 @@ function markdownResponse() {
 	});
 }
 
-function refusal(status: 401 | 403, explanation: string) {
-	return new Response(`command ${explanation}\n`, {
+function refusal(status: 401 | 403, explanation: string, identity: string) {
+	return new Response(`${identity} ${explanation}\n`, {
 		status,
 		headers: {
 			"content-type": "text/plain; charset=utf-8",
@@ -116,7 +142,11 @@ const catalog = Bun.serve({
 			state.credentials.add(credential);
 			return Response.json({ access_token: credential });
 		}
-		if (!url.pathname.startsWith("/contracts/command")) {
+		const identity = url.pathname.split("/")[2] ?? "";
+		if (
+			!url.pathname.startsWith("/contracts/") ||
+			!Object.hasOwn(premiumDesignContracts, identity)
+		) {
 			return new Response("not a Pack Release in the Official Catalog\n", {
 				status: 404,
 				headers: { "content-type": "text/plain; charset=utf-8" },
@@ -136,11 +166,12 @@ const catalog = Bun.serve({
 			return refusal(
 				401,
 				"is a Premium Design Pack and needs an authorized Pack Credential.",
+				identity,
 			);
 		}
 		return state.premiumAccess === "active"
-			? markdownResponse()
-			: refusal(403, "needs active Premium Access.");
+			? markdownResponse(identity as PremiumIdentity)
+			: refusal(403, "needs active Premium Access.", identity);
 	},
 });
 
@@ -215,23 +246,31 @@ async function projectEntries() {
 }
 
 describe("Premium Installation with inline authorization", () => {
-	test("authorizes in the browser and resumes the original Installation", async () => {
-		const result = await addDesignContract(["command", "--yes"], {
-			interactive: true,
-		});
+	test.each(Object.keys(premiumDesignContracts) as PremiumIdentity[])(
+		"authorizes in the browser and resumes the original %s Installation",
+		async (identity) => {
+			const result = await addDesignContract([identity, "--yes"], {
+				interactive: true,
+			});
 
-		expect(result).toBe(0);
-		expect(output.join("\n")).toContain(
-			"Authorize this terminal in your browser",
-		);
-		expect(await projectFile("DESIGN.md")).toBe(commandContract);
-		expect(await projectFile("AGENTS.md")).toContain("`DESIGN.md`");
-		expect(
-			JSON.parse(
-				await readFile(path.join(configDirectory, "credentials.json"), "utf8"),
-			),
-		).toMatchObject({ server: catalogOrigin });
-	});
+			expect(result).toBe(0);
+			expect(output.join("\n")).toContain(
+				"Authorize this terminal in your browser",
+			);
+			expect(await projectFile("DESIGN.md")).toBe(
+				premiumDesignContracts[identity].markdown,
+			);
+			expect(await projectFile("AGENTS.md")).toContain("`DESIGN.md`");
+			expect(
+				JSON.parse(
+					await readFile(
+						path.join(configDirectory, "credentials.json"),
+						"utf8",
+					),
+				),
+			).toMatchObject({ server: catalogOrigin });
+		},
+	);
 
 	test("installs directly when an authorized Pack Credential already exists", async () => {
 		await storeCredential("ak_pack_existing");

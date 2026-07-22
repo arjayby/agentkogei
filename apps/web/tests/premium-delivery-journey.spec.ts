@@ -16,7 +16,6 @@ import { cliPath } from "./support/cli";
 
 const webOrigin = "http://localhost:3011";
 const contractCatalogUrl = `${webOrigin}/contracts/`;
-const commandContractPath = "/contracts/command/1.0.0";
 const fixtureSource = `${webOrigin}/api/premium-source/delivery-fixture/1.0.0`;
 const commandSource = `${webOrigin}/api/premium-source/command/1.0.0`;
 const signalSource = `${webOrigin}/api/premium-source/signal/1.0.0`;
@@ -363,15 +362,17 @@ test("an actively subscribed Builder discovers and installs the exact protected 
 				"utf8",
 			),
 		).toContain("# Signal Interface System");
-		const stackAdapter = await readFile(
+		const mvpStackDirection = await readFile(
 			path.join(
 				projectDirectory,
 				".agentkogei/signal/adapters/react-tailwind-shadcn/README.md",
 			),
 			"utf8",
 		);
-		expect(stackAdapter).toContain("# Signal React / Next.js Stack Adapter");
-		expect(stackAdapter).not.toContain("Foundation");
+		expect(mvpStackDirection).toContain(
+			"# Signal on React / Next.js, Tailwind CSS v4, and shadcn/ui",
+		);
+		expect(mvpStackDirection).not.toContain("Foundation");
 		expect(
 			await readFile(
 				path.join(
@@ -1100,175 +1101,300 @@ for (const terminalState of ["refunded", "reversed"] as const) {
 	});
 }
 
-test("a subscribed Builder adds the Premium Command Design Contract without creating a Project identifier", async ({
+/**
+ * The Premium Design Packs the Official Catalog gates, with the direction each
+ * Design Contract must carry. These journeys observe only the HTTP routes and
+ * the real CLI process, so what a pack contains is stated here rather than
+ * imported from the delivery code under test.
+ */
+const premiumDesignPacks = [
+	{
+		identity: "command",
+		designPack: "Command",
+		direction: [
+			"## Command component and state recipes",
+			"## Token definitions",
+			"--command-primary: oklch(0.72 0.16 195);",
+			"## Command operations patterns",
+			"## Command on React / Next.js, Tailwind CSS v4, and shadcn/ui",
+		],
+		otherPack: "Signal",
+	},
+	{
+		identity: "signal",
+		designPack: "Signal",
+		direction: [
+			"## Signal motion patterns",
+			"## Token definitions",
+			"--signal-primary: oklch(0.53 0.25 293);",
+			// A meaningful graphic arrives in the document under its own
+			// accessible name rather than as a resource beside it.
+			"## Signal orbit field",
+			'<circle cx="230" cy="55" r="42"',
+			"## Signal on React / Next.js, Tailwind CSS v4, and shadcn/ui",
+		],
+		otherPack: "Command",
+	},
+] as const;
+
+for (const pack of premiumDesignPacks) {
+	const { identity, designPack, direction, otherPack } = pack;
+	const heading = `# ${designPack} Interface System`;
+
+	test(`a subscribed Builder adds the Premium ${designPack} Design Contract without creating a Project identifier`, async ({
+		page,
+	}) => {
+		const temporaryRoot = await mkdtemp(
+			path.join(tmpdir(), `agentkogei-${identity}-design-contract-`),
+		);
+		const configDirectory = path.join(temporaryRoot, "configuration");
+		const projectDirectory = path.join(temporaryRoot, "project");
+		const revokedProjectDirectory = path.join(temporaryRoot, "revoked-project");
+		const designContractPath = path.join(projectDirectory, "DESIGN.md");
+		const addPack = (selector: string, options: string[] = ["--yes"]) =>
+			runCli(["add", selector, ...options], {
+				configDirectory,
+				projectDirectory,
+				contractCatalogUrl,
+			});
+		const premiumAccess = async (eventId: string, state: string) =>
+			expect(
+				(
+					await page.request.post("/api/test/polar/events", {
+						data: { eventId, state },
+					})
+				).ok(),
+			).toBe(true);
+		const entitlementEvents = async () =>
+			(await (
+				await page.request.get("/api/test/premium-delivery/entitlement-events")
+			).json()) as Array<Record<string, string>>;
+
+		try {
+			await mkdir(projectDirectory);
+			await mkdir(path.join(projectDirectory, ".git"));
+			await writeFile(
+				path.join(projectDirectory, ".git/config"),
+				'[remote "origin"]\nurl = git@example.com:private/secret-project.git\n',
+			);
+			await writeFile(
+				path.join(projectDirectory, "package.json"),
+				'{"name":"secret-project","dependencies":{"dependency-marker":"1.0.0"}}',
+			);
+			await mkdir(revokedProjectDirectory);
+
+			for (const anonymousPath of [
+				`/contracts/${identity}`,
+				`/contracts/${identity}/1.0.0`,
+			]) {
+				const anonymous = await page.request.get(anonymousPath);
+				expect(anonymous.status()).toBe(401);
+				expect(await anonymous.text()).not.toContain(heading);
+			}
+			const unknownRelease = await page.request.get(
+				`/contracts/${identity}/9.9.9`,
+			);
+			expect(unknownRelease.status()).toBe(404);
+			const withoutCredential = await addPack(`${identity}@1.0.0`);
+			expect(withoutCredential.code).toBe(2);
+			expect(withoutCredential.stderr).toContain("agentkogei login");
+			expect(await readdir(projectDirectory)).not.toContain("DESIGN.md");
+
+			await signIn(page);
+			await premiumAccess(`${identity}-contract-active`, "active");
+			const { credential } = await authorizeCli(
+				page,
+				configDirectory,
+				`${designPack} contract terminal`,
+			);
+
+			await premiumAccess(`${identity}-contract-expired`, "expired");
+			const beforeDenial = await entitlementEvents();
+			const inactive = await addPack(`${identity}@1.0.0`);
+			expect(inactive.code).toBe(1);
+			expect(inactive.stderr).toContain("Premium Access");
+			expect(inactive.stdout).not.toContain(heading);
+			expect(await readdir(projectDirectory)).not.toContain("DESIGN.md");
+			expect(await entitlementEvents()).toEqual(beforeDenial);
+
+			await premiumAccess(`${identity}-contract-renewed`, "active");
+			const added = await addPack(identity);
+			expect(added.code, added.stderr).toBe(0);
+			expect(added.stdout).toContain(`${designPack} 1.0.0 (${identity})`);
+			expect(added.stdout).toContain("AgentKogei Commercial Pack License");
+			const designContract = await readFile(designContractPath, "utf8");
+			expect(designContract.startsWith(`${heading}\n`)).toBe(true);
+			for (const line of direction) {
+				expect(designContract).toContain(line);
+			}
+			expect(designContract).toContain("## Provenance");
+			expect(designContract).toContain(
+				`- Design Pack: ${designPack} (\`${identity}\`)`,
+			);
+			// One self-contained document: no other pack's direction, no resource
+			// a Project never receives, and no machine metadata.
+			for (const absent of [
+				otherPack,
+				"Foundation",
+				"sha256",
+				"agentkogei.manifest.json",
+				".agentkogei/",
+				"evaluation/",
+			]) {
+				expect(designContract).not.toContain(absent);
+			}
+			expect(
+				await readFile(path.join(projectDirectory, "AGENTS.md"), "utf8"),
+			).toContain("<!-- agentkogei:design-pack:start -->");
+			expect(await readdir(projectDirectory)).not.toContain(".agentkogei");
+
+			// The bare identity and the explicit version select one immutable
+			// Pack Release, so naming it changes nothing in the Project.
+			const exactRelease = await addPack(`${identity}@1.0.0`);
+			expect(exactRelease.code, exactRelease.stderr).toBe(0);
+			expect(exactRelease.stdout).toContain(
+				`${designPack} 1.0.0 is already this Project's Design Contract`,
+			);
+			expect(await readFile(designContractPath, "utf8")).toBe(designContract);
+
+			const observation = (await (
+				await page.request.get("/api/test/premium-delivery/observation")
+			).json()) as {
+				method: string;
+				pathname: string;
+				search: string;
+				headers: Record<string, string>;
+				hasBody: boolean;
+			};
+			expect(observation).toMatchObject({
+				method: "GET",
+				pathname: `/contracts/${identity}/1.0.0`,
+				search: "",
+				hasBody: false,
+			});
+			expect(
+				observation.headers["x-agentkogei-project-license"],
+			).toBeUndefined();
+			const events = await entitlementEvents();
+			const retrievals = events.filter((event) => event.packId === identity);
+			expect(retrievals).toHaveLength(2);
+			for (const event of retrievals) {
+				expect(event).toMatchObject({
+					packId: identity,
+					packRelease: "1.0.0",
+					action: "retrieval",
+				});
+				expect(event.builderId).toBeTruthy();
+				expect(Date.parse(event.occurredAt ?? "")).toBeGreaterThan(0);
+			}
+			for (const evidence of [
+				JSON.stringify(observation),
+				JSON.stringify(events),
+			]) {
+				for (const privateValue of [
+					projectDirectory,
+					"secret-project",
+					"dependency-marker",
+					"projectLicense",
+				]) {
+					expect(evidence).not.toContain(privateValue);
+				}
+			}
+
+			// The Pack Preview stays public evidence and never carries the gated
+			// document a Builder pays for.
+			const preview = await page.request.get(`/catalog/${identity}`);
+			expect(preview.status()).toBe(200);
+			const previewBody = await preview.text();
+			for (const line of [heading, ...direction]) {
+				expect(previewBody).not.toContain(line);
+			}
+
+			await premiumAccess(`${identity}-contract-lapsed`, "expired");
+			const afterExpiry = await addPack(`${identity}@1.0.0`, [
+				"--yes",
+				"--force",
+			]);
+			expect(afterExpiry.code).toBe(1);
+			expect(afterExpiry.stderr).toContain("Premium Access");
+			expect(await readFile(designContractPath, "utf8")).toBe(designContract);
+
+			await premiumAccess(`${identity}-contract-refunded`, "refunded");
+			const refunded = await page.request.get(`/contracts/${identity}`, {
+				headers: { authorization: `Bearer ${credential}` },
+			});
+			expect(refunded.status()).toBe(403);
+			expect(refunded.headers()["cache-control"]).toContain("no-store");
+			expect(await refunded.text()).not.toContain(heading);
+
+			await premiumAccess(`${identity}-contract-restored`, "active");
+			await page.goto("/dashboard");
+			const credentialRow = page.getByRole("article", {
+				name: `Pack Credential ${designPack} contract terminal`,
+			});
+			await credentialRow.getByRole("button", { name: "Revoke" }).click();
+			await expect(credentialRow.getByText("Revoked")).toBeVisible();
+			const afterRevocation = await runCli(["add", identity, "--yes"], {
+				configDirectory,
+				projectDirectory: revokedProjectDirectory,
+				contractCatalogUrl,
+			});
+			expect(afterRevocation.code).toBe(2);
+			expect(afterRevocation.stdout).not.toContain(heading);
+			expect(await readdir(revokedProjectDirectory)).toEqual([]);
+
+			// An Installed Pack stays usable with no credential, no Premium
+			// Access, and no network.
+			await rm(configDirectory, { recursive: true, force: true });
+			expect(await readFile(designContractPath, "utf8")).toBe(designContract);
+		} finally {
+			await rm(temporaryRoot, { recursive: true, force: true });
+		}
+	});
+}
+
+test("replacing one Premium Design Contract with another needs explicit force", async ({
 	page,
 }) => {
 	const temporaryRoot = await mkdtemp(
-		path.join(tmpdir(), "agentkogei-command-design-contract-"),
+		path.join(tmpdir(), "agentkogei-premium-replacement-"),
 	);
 	const configDirectory = path.join(temporaryRoot, "configuration");
 	const projectDirectory = path.join(temporaryRoot, "project");
-	const revokedProjectDirectory = path.join(temporaryRoot, "revoked-project");
 	const designContractPath = path.join(projectDirectory, "DESIGN.md");
-	const addCommand = (options: string[] = ["--yes"]) =>
-		runCli(["add", "command@1.0.0", ...options], {
+	const addPack = (selector: string, options: string[] = ["--yes"]) =>
+		runCli(["add", selector, ...options], {
 			configDirectory,
 			projectDirectory,
 			contractCatalogUrl,
 		});
 	try {
 		await mkdir(projectDirectory);
-		await mkdir(path.join(projectDirectory, ".git"));
-		await writeFile(
-			path.join(projectDirectory, ".git/config"),
-			'[remote "origin"]\nurl = git@example.com:private/secret-project.git\n',
-		);
-		await writeFile(
-			path.join(projectDirectory, "package.json"),
-			'{"name":"secret-project","dependencies":{"dependency-marker":"1.0.0"}}',
-		);
-		await mkdir(revokedProjectDirectory);
-
-		for (const anonymousPath of ["/contracts/command", commandContractPath]) {
-			const anonymous = await page.request.get(anonymousPath);
-			expect(anonymous.status()).toBe(401);
-			expect(await anonymous.text()).not.toContain("Command Interface System");
-		}
-		const unknownRelease = await page.request.get("/contracts/command/9.9.9");
-		expect(unknownRelease.status()).toBe(404);
-		// Signal is still a multi-resource Pack Release, so it has no Design
-		// Contract to deliver yet. The Official Catalog must answer for it
-		// rather than fail, and must never leak it either way.
-		const unconsolidated = await page.request.get("/contracts/signal");
-		expect([401, 404]).toContain(unconsolidated.status());
-		expect(await unconsolidated.text()).not.toContain(
-			"Signal Interface System",
-		);
-		const withoutCredential = await addCommand();
-		expect(withoutCredential.code).toBe(2);
-		expect(withoutCredential.stderr).toContain("agentkogei login");
-		expect(await readdir(projectDirectory)).not.toContain("DESIGN.md");
-
 		await signIn(page);
 		expect(
 			(
 				await page.request.post("/api/test/polar/events", {
-					data: { eventId: "command-contract-active", state: "active" },
+					data: { eventId: "premium-replacement-active", state: "active" },
 				})
 			).ok(),
 		).toBe(true);
-		await authorizeCli(page, configDirectory, "Command contract terminal");
+		await authorizeCli(page, configDirectory, "Premium replacement terminal");
 
-		expect(
-			(
-				await page.request.post("/api/test/polar/events", {
-					data: { eventId: "command-contract-expired", state: "expired" },
-				})
-			).ok(),
-		).toBe(true);
-		const inactive = await addCommand();
-		expect(inactive.code).toBe(1);
-		expect(inactive.stderr).toContain("Premium Access");
-		expect(inactive.stdout).not.toContain("Command Interface System");
-		expect(await readdir(projectDirectory)).not.toContain("DESIGN.md");
-		expect(
-			await (
-				await page.request.get("/api/test/premium-delivery/entitlement-events")
-			).json(),
-		).toEqual([]);
-
-		expect(
-			(
-				await page.request.post("/api/test/polar/events", {
-					data: { eventId: "command-contract-renewed", state: "active" },
-				})
-			).ok(),
-		).toBe(true);
-		const added = await addCommand();
+		const added = await addPack("command@1.0.0");
 		expect(added.code, added.stderr).toBe(0);
-		expect(added.stdout).toContain("Command 1.0.0 (command)");
-		expect(added.stdout).toContain("AgentKogei Commercial Pack License");
-		const designContract = await readFile(designContractPath, "utf8");
-		expect(designContract.startsWith("# Command Interface System\n")).toBe(
-			true,
-		);
-		expect(designContract).toContain("## Provenance");
-		expect(designContract).not.toContain("sha256");
-		expect(
-			await readFile(path.join(projectDirectory, "AGENTS.md"), "utf8"),
-		).toContain("<!-- agentkogei:design-pack:start -->");
-		expect(await readdir(projectDirectory)).not.toContain(".agentkogei");
+		const commandContract = await readFile(designContractPath, "utf8");
 
-		const observation = (await (
-			await page.request.get("/api/test/premium-delivery/observation")
-		).json()) as {
-			method: string;
-			pathname: string;
-			search: string;
-			headers: Record<string, string>;
-			hasBody: boolean;
-		};
-		expect(observation).toMatchObject({
-			method: "GET",
-			pathname: commandContractPath,
-			search: "",
-			hasBody: false,
-		});
-		expect(observation.headers["x-agentkogei-project-license"]).toBeUndefined();
-		const events = (await (
-			await page.request.get("/api/test/premium-delivery/entitlement-events")
-		).json()) as Array<Record<string, string>>;
-		expect(events).toHaveLength(1);
-		expect(events[0]).toMatchObject({
-			packId: "command",
-			packRelease: "1.0.0",
-			action: "retrieval",
-		});
-		expect(events[0]?.builderId).toBeTruthy();
-		expect(Date.parse(events[0]?.occurredAt ?? "")).toBeGreaterThan(0);
-		for (const evidence of [
-			JSON.stringify(observation),
-			JSON.stringify(events),
-		]) {
-			for (const privateValue of [
-				projectDirectory,
-				"secret-project",
-				"dependency-marker",
-				"projectLicense",
-			]) {
-				expect(evidence).not.toContain(privateValue);
-			}
-		}
+		const refused = await addPack("signal@1.0.0");
+		expect(refused.code).toBe(2);
+		expect(refused.stderr).toContain("requires --yes --force");
+		expect(await readFile(designContractPath, "utf8")).toBe(commandContract);
 
-		expect(
-			(
-				await page.request.post("/api/test/polar/events", {
-					data: { eventId: "command-contract-lapsed", state: "expired" },
-				})
-			).ok(),
-		).toBe(true);
-		const afterExpiry = await addCommand(["--yes", "--force"]);
-		expect(afterExpiry.code).toBe(1);
-		expect(afterExpiry.stderr).toContain("Premium Access");
-		expect(await readFile(designContractPath, "utf8")).toBe(designContract);
-
-		await page.goto("/dashboard");
-		const credentialRow = page.getByRole("article", {
-			name: "Pack Credential Command contract terminal",
-		});
-		await credentialRow.getByRole("button", { name: "Revoke" }).click();
-		await expect(credentialRow.getByText("Revoked")).toBeVisible();
-		const afterRevocation = await runCli(["add", "command@1.0.0", "--yes"], {
-			configDirectory,
-			projectDirectory: revokedProjectDirectory,
-			contractCatalogUrl,
-		});
-		expect(afterRevocation.code).toBe(2);
-		expect(afterRevocation.stdout).not.toContain("Command Interface System");
-		expect(await readdir(revokedProjectDirectory)).toEqual([]);
-
-		await rm(configDirectory, { recursive: true, force: true });
-		expect(await readFile(designContractPath, "utf8")).toBe(designContract);
+		const replaced = await addPack("signal@1.0.0", ["--yes", "--force"]);
+		expect(replaced.code, replaced.stderr).toBe(0);
+		expect(replaced.stdout).toContain("Replacing the existing DESIGN.md");
+		const signalContract = await readFile(designContractPath, "utf8");
+		expect(signalContract.startsWith("# Signal Interface System\n")).toBe(true);
+		expect(signalContract).not.toContain("Command");
 	} finally {
 		await rm(temporaryRoot, { recursive: true, force: true });
 	}

@@ -24,8 +24,28 @@ export type DesignContract = {
  */
 const publicationEvidenceDirectory = "evaluation/";
 
-const consolidatedCode: Record<string, { title: string; language: string }> = {
-	"text/css": { title: "Token definitions", language: "css" },
+/**
+ * A meaningful graphic already carries its own accessible name, so that name is
+ * what a Builder and an AI coding agent look for once the graphic lives inside
+ * the document rather than beside it.
+ */
+function graphicName(contents: string) {
+	return (
+		/<title[^>]*>([^<]*)<\/title>/.exec(contents)?.[1]?.trim() || undefined
+	);
+}
+
+/**
+ * How a resource that is not Markdown becomes one titled section. A media type
+ * a release declares once carries a fixed title; one it may declare many times
+ * takes each title from the resource, so two sections never claim one name.
+ */
+const consolidatedCode: Record<
+	string,
+	{ language: string; title: (contents: string) => string | undefined }
+> = {
+	"text/css": { language: "css", title: () => "Token definitions" },
+	"image/svg+xml": { language: "svg", title: graphicName },
 };
 
 function headingLevel(line: string) {
@@ -68,16 +88,18 @@ function consolidatedSection(
 /**
  * Rewrites a non-Markdown resource as one fenced section, so direction a
  * Builder used to receive as a separate file still arrives verbatim. Returns
- * nothing for a media type consolidation cannot represent as text.
+ * nothing for a media type consolidation cannot represent as text, or for a
+ * resource that supplies no name to title its section with.
  */
 function consolidatedCodeSection(
 	mediaType: string,
 	contents: string,
 ): ConsolidatedSection | undefined {
 	const code = consolidatedCode[mediaType];
-	if (!code) return undefined;
+	const title = code?.title(contents);
+	if (!code || !title) return undefined;
 	return {
-		title: code.title,
+		title,
 		body: `\`\`\`${code.language}\n${contents.trimEnd()}\n\`\`\``,
 	};
 }
@@ -162,7 +184,7 @@ async function compileDesignContract(
 				: consolidatedCodeSection(file.mediaType, contents);
 		if (!section) {
 			throw new Error(
-				`${manifest.id} declares ${file.path} as unconsolidatable ${file.mediaType}`,
+				`${manifest.id} cannot consolidate ${file.path} as ${file.mediaType}`,
 			);
 		}
 		// One title must name one section, or a resolved cross-reference would

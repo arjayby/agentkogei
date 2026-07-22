@@ -5,16 +5,36 @@ import {
 	comparePackReleaseVersions,
 	type PackReleaseVersion,
 } from "@agentkogei/design-packs/release-version";
-import { blackBoxTestBoundaryEnabled, env } from "@agentkogei/env/server";
+import { env } from "@agentkogei/env/server";
 
-const commandReleaseSha256 =
-	"a133792d57a94895b045d39967fa990ba7fb454a907581ea533d316196982760";
-
+/**
+ * How each protected Pack Release is provisioned: the release payload itself
+ * and, for an Official Catalog Premium Design Pack, the digest the payload must
+ * match. Provisioning both together keeps the pinned digest describing the
+ * release actually being served rather than an earlier edition of it.
+ */
 const protectedReleaseLoaders = {
-	"delivery-fixture": { "1.0.0": () => env.PREMIUM_DELIVERY_FIXTURE },
-	command: { "1.0.0": () => env.COMMAND_PREMIUM_RELEASE },
-	signal: { "1.0.0": () => env.SIGNAL_PREMIUM_RELEASE },
-} satisfies Record<string, Record<string, () => string | undefined>>;
+	"delivery-fixture": {
+		"1.0.0": { release: () => env.PREMIUM_DELIVERY_FIXTURE },
+	},
+	command: {
+		"1.0.0": {
+			release: () => env.COMMAND_PREMIUM_RELEASE,
+			sha256: () => env.COMMAND_PREMIUM_RELEASE_SHA256,
+		},
+	},
+	signal: {
+		"1.0.0": {
+			release: () => env.SIGNAL_PREMIUM_RELEASE,
+			sha256: () => env.SIGNAL_PREMIUM_RELEASE_SHA256,
+		},
+	},
+} satisfies Record<string, Record<string, ProtectedReleaseLoader>>;
+
+type ProtectedReleaseLoader = {
+	release: () => string | undefined;
+	sha256?: () => string | undefined;
+};
 
 export type ProtectedPremiumReleaseIdentity =
 	keyof typeof protectedReleaseLoaders;
@@ -52,29 +72,22 @@ export function currentOfficialPremiumRelease(
 
 export function getProtectedPremiumRelease(identity: string, version: string) {
 	if (!Object.hasOwn(protectedReleaseLoaders, identity)) return null;
-	const protectedIdentity = identity as ProtectedPremiumReleaseIdentity;
-	const releases: Record<string, () => string | undefined> =
-		protectedReleaseLoaders[protectedIdentity];
-	const serialized = releases[version]?.();
+	const releases: Record<string, ProtectedReleaseLoader> =
+		protectedReleaseLoaders[identity as ProtectedPremiumReleaseIdentity];
+	const loader = releases[version];
+	if (!loader) return null;
+	const serialized = loader.release();
 	if (!serialized) return null;
-	if (identity === "command") {
-		const expectedDigest = blackBoxTestBoundaryEnabled
-			? env.COMMAND_PREMIUM_RELEASE_SHA256
-			: commandReleaseSha256;
+	if (loader.sha256) {
+		// A Premium Pack Release is immutable, so a payload that does not match
+		// its pinned digest is not the release the Official Catalog published.
+		const expectedDigest = loader.sha256();
 		if (
 			!expectedDigest ||
 			createHash("sha256").update(serialized).digest("hex") !== expectedDigest
 		) {
 			return null;
 		}
-	}
-	if (
-		identity === "signal" &&
-		(!env.SIGNAL_PREMIUM_RELEASE_SHA256 ||
-			createHash("sha256").update(serialized).digest("hex") !==
-				env.SIGNAL_PREMIUM_RELEASE_SHA256)
-	) {
-		return null;
 	}
 	try {
 		return JSON.parse(serialized) as unknown;
