@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import AxeBuilder from "@axe-core/playwright";
@@ -21,17 +21,6 @@ const openDesignPacks = [
 	},
 	{ identity: "editorial", designPack: "Editorial", releases: ["1.0.0"] },
 ] as const;
-
-function runLiveCatalogInstallation(
-	project: string,
-	pack: (typeof openDesignPacks)[number]["identity"],
-) {
-	return runCli(["install", `${pack}@1.0.0`, "--yes", "--project", project], {
-		environment: {
-			AGENTKOGEI_OFFICIAL_CATALOG_URL: "http://localhost:3011/r/",
-		},
-	});
-}
 
 function runDesignContractInstallation(
 	project: string,
@@ -461,36 +450,51 @@ test("a Builder can preview, retrieve, and distinguish the Editorial Open Design
 	).toBeVisible();
 });
 
-for (const { identity: openPack } of openDesignPacks) {
-	test(`the distributed CLI anonymously installs ${openPack} from the built Pack Source`, async () => {
-		const project = await mkdtemp(path.join(tmpdir(), "agentkogei-live-web-"));
-		try {
-			const result = await runLiveCatalogInstallation(project, openPack);
+/**
+ * The interface AgentKogei retired before publishing the CLI. Each entry is an
+ * invocation a Builder might copy from a stale note; none of them may quietly
+ * work, and none of them may touch the Project on the way to refusing.
+ */
+const retiredInvocations = (elsewhere: string) =>
+	[
+		["install", "foundation@1.0.0", "--yes"],
+		["status"],
+		["update", "--yes"],
+		["detach", "--yes"],
+		["add", "foundation", "--source", "http://localhost:3011/r/", "--yes"],
+		["add", "foundation", "--project", elsewhere, "--yes"],
+	] as const;
 
-			expect(result.exitCode, result.stderr).toBe(0);
-			expect(result.stdout).toContain(`Installed ${openPack}@1.0.0`);
-			const agents = await readFile(path.join(project, "AGENTS.md"), "utf8");
-			const designContractPath = agents.match(
-				new RegExp(`\\.agentkogei/${openPack}/DESIGN\\.md`),
-			)?.[0];
-			expect(designContractPath).toBeDefined();
-			expect(
-				await readFile(path.join(project, designContractPath ?? ""), "utf8"),
-			).toContain(
-				`# ${openPack[0]?.toUpperCase()}${openPack.slice(1)} Interface System`,
+test("the distributed CLI rejects every retired command and flag without touching a Project", async () => {
+	const project = await mkdtemp(path.join(tmpdir(), "agentkogei-retired-"));
+	const elsewhere = await mkdtemp(path.join(tmpdir(), "agentkogei-elsewhere-"));
+	try {
+		for (const invocation of retiredInvocations(elsewhere)) {
+			const result = await runCli([...invocation], {
+				cwd: project,
+				environment: {
+					AGENTKOGEI_CONTRACT_CATALOG_URL: "http://localhost:3011/contracts/",
+				},
+			});
+
+			expect(result.exitCode, `${invocation.join(" ")}: ${result.stdout}`).toBe(
+				2,
 			);
-			const record = await readFile(
-				path.join(project, ".agentkogei/installed-pack.json"),
-				"utf8",
-			);
-			expect(record).toContain(
-				`"source": "http://localhost:3011/r/${openPack}/1.0.0.json"`,
-			);
-		} finally {
-			await rm(project, { recursive: true, force: true });
+			expect(result.stdout).toBe("");
+			for (const retiredVerb of ["install", "status", "update", "detach"]) {
+				expect(result.stderr).not.toContain(`agentkogei ${retiredVerb}`);
+			}
+			expect(result.stderr).toContain("agentkogei add <pack[@version]>");
+			// Neither the directory the CLI ran in nor the one a retired flag
+			// named may gain a file on the way to a refusal.
+			expect(await readdir(project)).toEqual([]);
+			expect(await readdir(elsewhere)).toEqual([]);
 		}
-	});
-}
+	} finally {
+		await rm(project, { recursive: true, force: true });
+		await rm(elsewhere, { recursive: true, force: true });
+	}
+});
 
 test("an unresolved Design Contract selector is refused as plain text", async ({
 	request,
@@ -634,7 +638,7 @@ test("the diagnostics endpoint accepts only the disclosed non-Project fields", a
 }) => {
 	const diagnostic = {
 		schema_version: "1.0",
-		command: "install",
+		command: "add",
 		outcome: "success",
 		platform: "darwin",
 		runtime: "node",

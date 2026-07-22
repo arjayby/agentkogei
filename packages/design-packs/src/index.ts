@@ -22,34 +22,12 @@ export {
 	planDesignContractInstallation,
 	retrieveDesignContract,
 } from "./design-contract-installation";
-export {
-	applyInstallation,
-	discardInstallationPlan,
-	formatInstallationPreview,
-	type InstallationPlan,
-	prepareInstallation,
-} from "./installation";
-export {
-	applyUpdate,
-	detachInstalledPack,
-	discardUpdatePlan,
-	discoverUpdate,
-	formatDetachPreview,
-	formatInstalledPackStatus,
-	formatUpdatePreview,
-	type InstalledPackRecord,
-	type InstalledPackStatus,
-	inspectInstalledPack,
-	type UpdatePlan,
-} from "./lifecycle";
 export { type PackManifest, packManifestSchema } from "./manifest";
 export type { PackRegistryItem } from "./registry";
 export {
 	comparePackReleaseVersions,
 	type PackReleaseVersion,
 	packReleaseVersionSchema,
-	type SemanticLevel,
-	semanticLevelBetween,
 } from "./release-version";
 export {
 	type PackValidationOptions,

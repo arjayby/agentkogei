@@ -1,13 +1,6 @@
 import { z } from "zod";
 
-export const diagnosticCommands = [
-	"login",
-	"logout",
-	"install",
-	"status",
-	"update",
-	"detach",
-] as const;
+export const diagnosticCommands = ["add", "login", "logout"] as const;
 
 export const diagnosticPayloadSchema = z
 	.object({

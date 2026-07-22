@@ -12,11 +12,8 @@ import {
 } from "./pack-credential-cli";
 import { requestTerminalConsent } from "./terminal-consent";
 
-/**
- * Raw Design Contract delivery has its own setting because the legacy registry
- * transport still reads `AGENTKOGEI_OFFICIAL_CATALOG_URL`; one variable cannot
- * name two incompatible endpoints.
- */
+/** Where `add` retrieves Design Contracts, overridable so tests and previews
+ * can point at a catalog other than the production one. */
 function designContractCatalogUrl() {
 	return (
 		process.env.AGENTKOGEI_CONTRACT_CATALOG_URL ??
