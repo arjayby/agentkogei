@@ -17,15 +17,9 @@ const openDesignPacks = [
 	{
 		identity: "foundation",
 		designPack: "Foundation",
-		currentRelease: "1.1.0",
-		priorRelease: "1.0.0",
+		releases: ["1.0.0", "1.1.0"],
 	},
-	{
-		identity: "editorial",
-		designPack: "Editorial",
-		currentRelease: "1.0.0",
-		priorRelease: undefined,
-	},
+	{ identity: "editorial", designPack: "Editorial", releases: ["1.0.0"] },
 ] as const;
 
 function runLiveCatalogInstallation(
@@ -366,15 +360,13 @@ test("an unresolved Design Contract selector is refused as plain text", async ({
 });
 
 for (const openPack of openDesignPacks) {
-	const { identity, designPack, currentRelease, priorRelease } = openPack;
+	const { identity, designPack, releases } = openPack;
+	const currentRelease = releases[releases.length - 1] as string;
 
 	test(`the Official Catalog delivers ${designPack} as raw Design Contract Markdown`, async ({
 		request,
 	}) => {
 		const current = await request.get(`/contracts/${identity}`);
-		const pinned = await request.get(
-			`/contracts/${identity}/${currentRelease}`,
-		);
 
 		expect(current.status()).toBe(200);
 		expect(current.headers()["content-type"]).toBe(
@@ -388,33 +380,37 @@ for (const openPack of openDesignPacks) {
 		const contract = await current.text();
 		expect(contract).toContain(`# ${designPack} Interface System`);
 		expect(contract).toContain("\n## Token definitions\n");
-		expect(contract).toContain("Stack Adapter\n");
+		expect(contract).toContain("shadcn/ui");
 		expect(contract).toContain(
 			`- Design Pack: ${designPack} (\`${identity}\`)`,
 		);
-		for (const dependency of [
-			"tokens.css",
-			"evaluation/",
+		// The Official Catalog serves a document a Project can read on its own,
+		// so nothing a Builder never receives may reach it.
+		for (const machineMetadata of [
 			"agentkogei.manifest.json",
 			".agentkogei/",
 			"registry:item",
+			"sha256",
 		]) {
-			expect(contract).not.toContain(dependency);
+			expect(contract).not.toContain(machineMetadata);
 		}
+	});
 
-		expect(pinned.status()).toBe(200);
-		expect(await pinned.text()).toBe(contract);
+	test(`every published ${designPack} Pack Release has its own immutable raw route`, async ({
+		request,
+	}) => {
+		const delivered = await Promise.all(
+			releases.map(async (release) => {
+				const response = await request.get(`/contracts/${identity}/${release}`);
+				expect(response.status()).toBe(200);
+				expect(response.headers()["x-agentkogei-pack-release"]).toBe(release);
+				return response.text();
+			}),
+		);
+		const current = await request.get(`/contracts/${identity}`);
 
-		if (priorRelease) {
-			const immutable = await request.get(
-				`/contracts/${identity}/${priorRelease}`,
-			);
-			expect(immutable.status()).toBe(200);
-			expect(immutable.headers()["x-agentkogei-pack-release"]).toBe(
-				priorRelease,
-			);
-			expect(await immutable.text()).not.toBe(contract);
-		}
+		expect(delivered.at(-1)).toBe(await current.text());
+		expect(new Set(delivered).size).toBe(releases.length);
 	});
 
 	test(`the distributed CLI adds ${designPack} to a Project as one Design Contract`, async ({
@@ -458,32 +454,35 @@ for (const openPack of openDesignPacks) {
 		}
 	});
 
-	test(`the distributed CLI adds an explicit ${designPack} Pack Release`, async ({
-		request,
-	}) => {
-		const release = priorRelease ?? currentRelease;
-		const project = await mkdtemp(
-			path.join(tmpdir(), "agentkogei-add-release-"),
-		);
-		try {
-			const added = await runDesignContractInstallation(
-				project,
-				`${identity}@${release}`,
+	for (const release of releases) {
+		test(`the distributed CLI adds the explicit ${designPack} Pack Release ${release}`, async ({
+			request,
+		}) => {
+			const project = await mkdtemp(
+				path.join(tmpdir(), "agentkogei-add-release-"),
 			);
+			try {
+				const added = await runDesignContractInstallation(
+					project,
+					`${identity}@${release}`,
+				);
 
-			expect(added.exitCode, added.stderr).toBe(0);
-			expect(added.stdout).toContain(`Added ${designPack} ${release}`);
-			const delivered = await request.get(`/contracts/${identity}/${release}`);
-			expect(await readFile(path.join(project, "DESIGN.md"), "utf8")).toBe(
-				await delivered.text(),
-			);
-			expect(await readFile(path.join(project, "AGENTS.md"), "utf8")).toContain(
-				"`DESIGN.md`",
-			);
-		} finally {
-			await rm(project, { recursive: true, force: true });
-		}
-	});
+				expect(added.exitCode, added.stderr).toBe(0);
+				expect(added.stdout).toContain(`Added ${designPack} ${release}`);
+				const delivered = await request.get(
+					`/contracts/${identity}/${release}`,
+				);
+				expect(await readFile(path.join(project, "DESIGN.md"), "utf8")).toBe(
+					await delivered.text(),
+				);
+				expect(
+					await readFile(path.join(project, "AGENTS.md"), "utf8"),
+				).toContain("`DESIGN.md`");
+			} finally {
+				await rm(project, { recursive: true, force: true });
+			}
+		});
+	}
 }
 
 test("the diagnostics endpoint accepts only the disclosed non-Project fields", async ({

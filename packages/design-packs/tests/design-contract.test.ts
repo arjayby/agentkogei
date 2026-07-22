@@ -188,27 +188,28 @@ describe("Design Contract compilation", () => {
 type DeclaredResource = { path: string; mediaType: string };
 
 /**
- * Picks a substantive line of a release resource that consolidation does not
- * rewrite, so a test can prove the resource's direction reached the document
- * without restating how the compiler assembles it.
+ * Every line of a release resource that consolidation carries through
+ * unchanged. Headings move one level deeper and lines naming a resource are
+ * rewritten to name a section, so a test can hold the compiler to the rest
+ * without restating how it assembles the document.
  */
-async function distinctiveDirection(
+async function verbatimDirection(
 	directory: string,
 	resource: DeclaredResource,
 	resourcePaths: string[],
 ) {
 	const contents = await readFile(path.join(directory, resource.path), "utf8");
-	const line = contents
+	const lines = contents
 		.split("\n")
 		.filter(
-			(candidate) =>
-				!candidate.startsWith("#") &&
-				!resourcePaths.some((resourcePath) => candidate.includes(resourcePath)),
-		)
-		.sort((a, b) => b.length - a.length)
-		.at(0);
-	if (!line) throw new Error(`${resource.path} carries no direction`);
-	return line;
+			(line) =>
+				line.trim() !== "" &&
+				!line.startsWith("#") &&
+				!resourcePaths.some((resourcePath) => line.includes(resourcePath)),
+		);
+	if (lines.length === 0)
+		throw new Error(`${resource.path} carries no direction`);
+	return lines;
 }
 
 describe.each(publishedReleases)(
@@ -216,22 +217,31 @@ describe.each(publishedReleases)(
 	(selector, directory) => {
 		const version = selector.split("@").at(-1);
 
-		test("carries every published resource's direction inside one document", async () => {
+		async function declaredResources() {
 			const manifest = JSON.parse(
 				await readFile(
 					path.join(directory, "agentkogei.manifest.json"),
 					"utf8",
 				),
 			) as { files: DeclaredResource[]; evaluation: { evidence: string } };
-			const resourcePaths = manifest.files.map((file) => file.path);
-			const consolidated = manifest.files.filter(
-				(file) =>
-					file.path !== "DESIGN.md" &&
-					file.path !== manifest.evaluation.evidence &&
-					!file.path.startsWith("evaluation/"),
-			);
+			return {
+				paths: manifest.files.map((file) => file.path),
+				consolidated: manifest.files.filter(
+					(file) =>
+						file.path !== "DESIGN.md" &&
+						file.path !== manifest.evaluation.evidence &&
+						!file.path.startsWith("evaluation/"),
+				),
+			};
+		}
+
+		test("carries every published resource's direction inside one document", async () => {
+			const { paths, consolidated } = await declaredResources();
 			const { markdown } = await buildDesignContract(directory);
 
+			// Tokens, component direction, the MVP-stack implementation
+			// direction, examples, validation guidance, licensing, and
+			// attribution all belong to the single document a Project installs.
 			expect(consolidated.map((file) => file.path)).toEqual([
 				"tokens.css",
 				"components.md",
@@ -242,9 +252,13 @@ describe.each(publishedReleases)(
 				"ATTRIBUTION.md",
 			]);
 			for (const resource of consolidated) {
-				expect(markdown).toContain(
-					await distinctiveDirection(directory, resource, resourcePaths),
-				);
+				for (const line of await verbatimDirection(
+					directory,
+					resource,
+					paths,
+				)) {
+					expect(markdown).toContain(line);
+				}
 			}
 		});
 

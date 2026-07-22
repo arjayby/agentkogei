@@ -67,19 +67,15 @@ function consolidatedSection(
 
 /**
  * Rewrites a non-Markdown resource as one fenced section, so direction a
- * Builder used to receive as a separate file still arrives verbatim.
+ * Builder used to receive as a separate file still arrives verbatim. Returns
+ * nothing for a media type consolidation cannot represent as text.
  */
 function consolidatedCodeSection(
-	identity: string,
-	file: { path: string; mediaType: string },
+	mediaType: string,
 	contents: string,
-): ConsolidatedSection {
-	const code = consolidatedCode[file.mediaType];
-	if (!code) {
-		throw new Error(
-			`${identity} declares ${file.path} as unconsolidatable ${file.mediaType}`,
-		);
-	}
+): ConsolidatedSection | undefined {
+	const code = consolidatedCode[mediaType];
+	if (!code) return undefined;
 	return {
 		title: code.title,
 		body: `\`\`\`${code.language}\n${contents.trimEnd()}\n\`\`\``,
@@ -148,6 +144,7 @@ async function compileDesignContract(
 
 	const sections = [(await read(manifest.designContract)).trimEnd()];
 	const sectionTitles = new Map<string, string>();
+	const claimedTitles = new Set<string>();
 	const withheldResources: string[] = [];
 	for (const file of manifest.files) {
 		if (file.path === manifest.designContract) continue;
@@ -162,12 +159,20 @@ async function compileDesignContract(
 		const section =
 			file.mediaType === "text/markdown"
 				? consolidatedSection(file.path, contents)
-				: consolidatedCodeSection(manifest.id, file, contents);
-		if ([...sectionTitles.values()].includes(section.title)) {
+				: consolidatedCodeSection(file.mediaType, contents);
+		if (!section) {
+			throw new Error(
+				`${manifest.id} declares ${file.path} as unconsolidatable ${file.mediaType}`,
+			);
+		}
+		// One title must name one section, or a resolved cross-reference would
+		// point at two places at once.
+		if (claimedTitles.has(section.title)) {
 			throw new Error(
 				`${manifest.id} consolidates two resources as "${section.title}"`,
 			);
 		}
+		claimedTitles.add(section.title);
 		sectionTitles.set(file.path, section.title);
 		sections.push(`## ${section.title}\n\n${section.body}`);
 	}

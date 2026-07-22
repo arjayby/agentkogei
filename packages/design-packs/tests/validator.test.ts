@@ -75,14 +75,19 @@ describe("Pack Release publication validation", () => {
 	for (const pack of publishedPacks) {
 		for (const version of pack.versions) {
 			test(`accepts the published ${pack.id} Open Design Pack Release ${version}`, async () => {
-				const result = await runValidator(pack.directoryFor(version));
+				const releaseDirectory = pack.directoryFor(version);
+				const { files } = (await readManifest(releaseDirectory)) as unknown as {
+					files: unknown[];
+				};
 
-				expect(result).toMatchObject({
+				const result = await runValidator(releaseDirectory);
+
+				expect(result).toEqual({
 					ok: true,
 					pack: pack.id,
 					version,
+					filesValidated: files.length,
 				});
-				expect(result).toHaveProperty("filesValidated");
 			});
 		}
 	}
