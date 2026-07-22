@@ -7,9 +7,24 @@ import { expect, test } from "@playwright/test";
 
 import { runCli } from "./support/cli";
 
+/**
+ * The Open Design Packs a Builder can install without an account, named the way
+ * the Official Catalog publishes them. These journeys observe only the HTTP
+ * routes and the real CLI process, so the expected catalog is stated here
+ * rather than imported from the delivery code under test.
+ */
+const openDesignPacks = [
+	{
+		identity: "foundation",
+		designPack: "Foundation",
+		releases: ["1.0.0", "1.1.0"],
+	},
+	{ identity: "editorial", designPack: "Editorial", releases: ["1.0.0"] },
+] as const;
+
 function runLiveCatalogInstallation(
 	project: string,
-	pack: "foundation" | "editorial",
+	pack: (typeof openDesignPacks)[number]["identity"],
 ) {
 	return runCli(["install", `${pack}@1.0.0`, "--yes", "--project", project], {
 		environment: {
@@ -302,7 +317,7 @@ test("a Builder can preview, retrieve, and distinguish the Editorial Open Design
 	).toBeVisible();
 });
 
-for (const openPack of ["foundation", "editorial"] as const) {
+for (const { identity: openPack } of openDesignPacks) {
 	test(`the distributed CLI anonymously installs ${openPack} from the built Pack Source`, async () => {
 		const project = await mkdtemp(path.join(tmpdir(), "agentkogei-live-web-"));
 		try {
@@ -333,75 +348,142 @@ for (const openPack of ["foundation", "editorial"] as const) {
 	});
 }
 
-test("the Official Catalog delivers Foundation as raw Design Contract Markdown", async ({
+test("an unresolved Design Contract selector is refused as plain text", async ({
 	request,
 }) => {
-	const current = await request.get("/contracts/foundation");
-	const immutable = await request.get("/contracts/foundation/1.0.0");
 	const unknown = await request.get("/contracts/fondation");
-
-	expect(current.status()).toBe(200);
-	expect(current.headers()["content-type"]).toBe(
-		"text/markdown; charset=utf-8",
-	);
-	expect(current.headers()["x-agentkogei-design-pack"]).toBe("Foundation");
-	expect(current.headers()["x-agentkogei-pack-release"]).toBe("1.1.0");
-	expect(current.headers()["x-agentkogei-pack-license"]).toBe(
-		"Creative Commons Attribution 4.0 International (CC-BY-4.0)",
-	);
-	const contract = await current.text();
-	expect(contract).toContain("# Foundation Interface System");
-	expect(contract).toContain("## Token definitions (`tokens.css`)");
-	expect(contract).not.toContain("evaluation/");
-	expect(contract).toContain("- Design Pack: Foundation (`foundation`)");
-	expect(contract).not.toContain("registry:item");
-
-	expect(immutable.status()).toBe(200);
-	expect(immutable.headers()["x-agentkogei-pack-release"]).toBe("1.0.0");
-	expect(await immutable.text()).not.toBe(contract);
+	const unknownRelease = await request.get("/contracts/foundation/9.9.9");
 
 	expect(unknown.status()).toBe(404);
 	expect(unknown.headers()["content-type"]).toContain("text/plain");
+	expect(unknownRelease.status()).toBe(404);
 });
 
-test("the distributed CLI adds Foundation to a Project as one Design Contract", async ({
-	request,
-}) => {
-	const project = await mkdtemp(path.join(tmpdir(), "agentkogei-add-web-"));
-	const existingInstructions =
-		"# Project agents\n\nKeep the Makefile current.\n";
-	try {
-		await writeFile(path.join(project, "AGENTS.md"), existingInstructions);
+for (const openPack of openDesignPacks) {
+	const { identity, designPack, releases } = openPack;
+	const currentRelease = releases[releases.length - 1] as string;
 
-		const refused = await runDesignContractInstallation(
-			project,
-			"foundation",
-			[],
+	test(`the Official Catalog delivers ${designPack} as raw Design Contract Markdown`, async ({
+		request,
+	}) => {
+		const current = await request.get(`/contracts/${identity}`);
+
+		expect(current.status()).toBe(200);
+		expect(current.headers()["content-type"]).toBe(
+			"text/markdown; charset=utf-8",
 		);
-		const added = await runDesignContractInstallation(project, "foundation");
-		const repeated = await runDesignContractInstallation(project, "foundation");
-
-		expect(refused.exitCode).toBe(2);
-		expect(refused.stdout).toContain("Foundation 1.1.0 (foundation)");
-		expect(refused.stdout).toContain(path.join(project, "DESIGN.md"));
-		expect(added.exitCode, added.stderr).toBe(0);
-		expect(added.stdout).toContain("Added Foundation 1.1.0");
-		expect(repeated.exitCode, repeated.stderr).toBe(0);
-
-		const delivered = await request.get("/contracts/foundation");
-		expect(await readFile(path.join(project, "DESIGN.md"), "utf8")).toBe(
-			await delivered.text(),
+		expect(current.headers()["x-agentkogei-design-pack"]).toBe(designPack);
+		expect(current.headers()["x-agentkogei-pack-release"]).toBe(currentRelease);
+		expect(current.headers()["x-agentkogei-pack-license"]).toBe(
+			"Creative Commons Attribution 4.0 International (CC-BY-4.0)",
 		);
-		const agents = await readFile(path.join(project, "AGENTS.md"), "utf8");
-		expect(agents).toContain(existingInstructions);
-		expect(agents).toContain("<!-- agentkogei:design-pack:start -->");
-		expect(agents.match(/agentkogei:design-pack:start/g)).toHaveLength(1);
-		expect(agents).toContain("`DESIGN.md`");
-		expect(existsSync(path.join(project, ".agentkogei"))).toBe(false);
-	} finally {
-		await rm(project, { recursive: true, force: true });
+		const contract = await current.text();
+		expect(contract).toContain(`# ${designPack} Interface System`);
+		expect(contract).toContain("\n## Token definitions\n");
+		expect(contract).toContain("shadcn/ui");
+		expect(contract).toContain(
+			`- Design Pack: ${designPack} (\`${identity}\`)`,
+		);
+		// The Official Catalog serves a document a Project can read on its own,
+		// so nothing a Builder never receives may reach it.
+		for (const machineMetadata of [
+			"agentkogei.manifest.json",
+			".agentkogei/",
+			"registry:item",
+			"sha256",
+		]) {
+			expect(contract).not.toContain(machineMetadata);
+		}
+	});
+
+	test(`every published ${designPack} Pack Release has its own immutable raw route`, async ({
+		request,
+	}) => {
+		const delivered = await Promise.all(
+			releases.map(async (release) => {
+				const response = await request.get(`/contracts/${identity}/${release}`);
+				expect(response.status()).toBe(200);
+				expect(response.headers()["x-agentkogei-pack-release"]).toBe(release);
+				return response.text();
+			}),
+		);
+		const current = await request.get(`/contracts/${identity}`);
+
+		expect(delivered.at(-1)).toBe(await current.text());
+		expect(new Set(delivered).size).toBe(releases.length);
+	});
+
+	test(`the distributed CLI adds ${designPack} to a Project as one Design Contract`, async ({
+		request,
+	}) => {
+		const project = await mkdtemp(path.join(tmpdir(), "agentkogei-add-web-"));
+		const existingInstructions =
+			"# Project agents\n\nKeep the Makefile current.\n";
+		try {
+			await writeFile(path.join(project, "AGENTS.md"), existingInstructions);
+
+			const refused = await runDesignContractInstallation(
+				project,
+				identity,
+				[],
+			);
+			const added = await runDesignContractInstallation(project, identity);
+			const repeated = await runDesignContractInstallation(project, identity);
+
+			expect(refused.exitCode).toBe(2);
+			expect(refused.stdout).toContain(
+				`${designPack} ${currentRelease} (${identity})`,
+			);
+			expect(refused.stdout).toContain(path.join(project, "DESIGN.md"));
+			expect(added.exitCode, added.stderr).toBe(0);
+			expect(added.stdout).toContain(`Added ${designPack} ${currentRelease}`);
+			expect(repeated.exitCode, repeated.stderr).toBe(0);
+
+			const delivered = await request.get(`/contracts/${identity}`);
+			expect(await readFile(path.join(project, "DESIGN.md"), "utf8")).toBe(
+				await delivered.text(),
+			);
+			const agents = await readFile(path.join(project, "AGENTS.md"), "utf8");
+			expect(agents).toContain(existingInstructions);
+			expect(agents).toContain("<!-- agentkogei:design-pack:start -->");
+			expect(agents.match(/agentkogei:design-pack:start/g)).toHaveLength(1);
+			expect(agents).toContain("`DESIGN.md`");
+			expect(existsSync(path.join(project, ".agentkogei"))).toBe(false);
+		} finally {
+			await rm(project, { recursive: true, force: true });
+		}
+	});
+
+	for (const release of releases) {
+		test(`the distributed CLI adds the explicit ${designPack} Pack Release ${release}`, async ({
+			request,
+		}) => {
+			const project = await mkdtemp(
+				path.join(tmpdir(), "agentkogei-add-release-"),
+			);
+			try {
+				const added = await runDesignContractInstallation(
+					project,
+					`${identity}@${release}`,
+				);
+
+				expect(added.exitCode, added.stderr).toBe(0);
+				expect(added.stdout).toContain(`Added ${designPack} ${release}`);
+				const delivered = await request.get(
+					`/contracts/${identity}/${release}`,
+				);
+				expect(await readFile(path.join(project, "DESIGN.md"), "utf8")).toBe(
+					await delivered.text(),
+				);
+				expect(
+					await readFile(path.join(project, "AGENTS.md"), "utf8"),
+				).toContain("`DESIGN.md`");
+			} finally {
+				await rm(project, { recursive: true, force: true });
+			}
+		});
 	}
-});
+}
 
 test("the diagnostics endpoint accepts only the disclosed non-Project fields", async ({
 	request,

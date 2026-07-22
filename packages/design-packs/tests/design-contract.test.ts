@@ -7,10 +7,17 @@ import {
 	buildDesignContractFromResources,
 	editorialReleaseDirectoryFor,
 	foundationReleaseDirectoryFor,
+	publishedPacks,
 } from "@agentkogei/design-packs";
 
 const foundation = () =>
 	buildDesignContract(foundationReleaseDirectoryFor("1.1.0"));
+
+const publishedReleases = publishedPacks.flatMap((pack) =>
+	pack.versions.map(
+		(version) => [`${pack.id}@${version}`, pack.directoryFor(version)] as const,
+	),
+);
 
 describe("Design Contract compilation", () => {
 	test("reports the Design Pack, Pack Release, Pack License, and access of the release", async () => {
@@ -53,20 +60,62 @@ describe("Design Contract compilation", () => {
 		}
 	});
 
-	test("names each consolidated resource so its cross-references resolve inside the document", async () => {
+	test("gives each consolidated resource one section of a single outline", async () => {
 		const { markdown } = await foundation();
 
 		for (const heading of [
-			"## Foundation component guidance (`components.md`)",
-			"## Token definitions (`tokens.css`)",
-			"## Agent examples (`examples.md`)",
-			"## Foundation validation guidance (`validation.md`)",
-			"## React / Next.js, Tailwind CSS v4, and shadcn/ui Stack Adapter (`adapters/react-tailwind-shadcn/README.md`)",
+			"## Foundation component guidance",
+			"## Token definitions",
+			"## Agent examples",
+			"## Foundation validation guidance",
+			"## React / Next.js, Tailwind CSS v4, and shadcn/ui Stack Adapter",
 		]) {
-			expect(markdown).toContain(heading);
+			expect(markdown).toContain(`\n${heading}\n`);
 		}
 		expect(markdown).not.toContain("\n# Foundation component guidance");
 		expect(markdown).toContain("### Buttons");
+	});
+
+	test("resolves cross-references to sections rather than to files a Project never receives", async () => {
+		const { markdown } = await foundation();
+
+		expect(markdown).toContain(
+			"Use semantic roles from the Token definitions section;",
+		);
+		expect(markdown).toContain(
+			"Follow the anatomy in the Foundation component guidance section.",
+		);
+		expect(markdown).toContain(
+			"follows the React / Next.js, Tailwind CSS v4, and shadcn/ui Stack Adapter section and passes the Foundation validation guidance section",
+		);
+	});
+
+	test("refuses a release whose direction still points outside the document", async () => {
+		const directory = foundationReleaseDirectoryFor("1.1.0");
+		const manifest = JSON.parse(
+			await readFile(path.join(directory, "agentkogei.manifest.json"), "utf8"),
+		) as { files: Array<{ path: string }> };
+		const resources = Object.fromEntries(
+			await Promise.all(
+				["agentkogei.manifest.json", ...manifest.files.map((file) => file.path)]
+					.filter((resource) => !resource.startsWith("evaluation/"))
+					.map(
+						async (resource) =>
+							[
+								resource,
+								await readFile(path.join(directory, resource), "utf8"),
+							] as const,
+					),
+			),
+		);
+
+		await expect(
+			buildDesignContractFromResources({
+				...resources,
+				"components.md":
+					"# Foundation component guidance\n\nSee validation.md.\n",
+			}),
+		).rejects.toThrow("foundation 1.1.0 still depends on validation.md");
 	});
 
 	test("ends with human-readable provenance and no machine metadata", async () => {
@@ -135,3 +184,118 @@ describe("Design Contract compilation", () => {
 		expect(previous.markdown).not.toBe(current.markdown);
 	});
 });
+
+type DeclaredResource = { path: string; mediaType: string };
+
+/**
+ * Every line of a release resource that consolidation carries through
+ * unchanged. Headings move one level deeper and lines naming a resource are
+ * rewritten to name a section, so a test can hold the compiler to the rest
+ * without restating how it assembles the document.
+ */
+async function verbatimDirection(
+	directory: string,
+	resource: DeclaredResource,
+	resourcePaths: string[],
+) {
+	const contents = await readFile(path.join(directory, resource.path), "utf8");
+	const lines = contents
+		.split("\n")
+		.filter(
+			(line) =>
+				line.trim() !== "" &&
+				!line.startsWith("#") &&
+				!resourcePaths.some((resourcePath) => line.includes(resourcePath)),
+		);
+	if (lines.length === 0)
+		throw new Error(`${resource.path} carries no direction`);
+	return lines;
+}
+
+describe.each(publishedReleases)(
+	"Open Design Contract %s",
+	(selector, directory) => {
+		const version = selector.split("@").at(-1);
+
+		async function declaredResources() {
+			const manifest = JSON.parse(
+				await readFile(
+					path.join(directory, "agentkogei.manifest.json"),
+					"utf8",
+				),
+			) as { files: DeclaredResource[]; evaluation: { evidence: string } };
+			return {
+				paths: manifest.files.map((file) => file.path),
+				consolidated: manifest.files.filter(
+					(file) =>
+						file.path !== "DESIGN.md" &&
+						file.path !== manifest.evaluation.evidence &&
+						!file.path.startsWith("evaluation/"),
+				),
+			};
+		}
+
+		test("carries every published resource's direction inside one document", async () => {
+			const { paths, consolidated } = await declaredResources();
+			const { markdown } = await buildDesignContract(directory);
+
+			// Tokens, component direction, the MVP-stack implementation
+			// direction, examples, validation guidance, licensing, and
+			// attribution all belong to the single document a Project installs.
+			expect(consolidated.map((file) => file.path)).toEqual([
+				"tokens.css",
+				"components.md",
+				"adapters/react-tailwind-shadcn/README.md",
+				"examples.md",
+				"validation.md",
+				"LICENSE.md",
+				"ATTRIBUTION.md",
+			]);
+			for (const resource of consolidated) {
+				for (const line of await verbatimDirection(
+					directory,
+					resource,
+					paths,
+				)) {
+					expect(markdown).toContain(line);
+				}
+			}
+		});
+
+		test("depends on no separate resource, manifest, or machine metadata", async () => {
+			const { markdown } = await buildDesignContract(directory);
+
+			for (const dependency of [
+				"tokens.css",
+				"components.md",
+				"examples.md",
+				"validation.md",
+				"LICENSE.md",
+				"ATTRIBUTION.md",
+				"adapters/",
+				"evaluation/",
+				"agentkogei.manifest.json",
+				".agentkogei/",
+				"sha256",
+			]) {
+				expect(markdown).not.toContain(dependency);
+			}
+		});
+
+		test("ends with human-readable provenance for this exact Pack Release", async () => {
+			const contract = await buildDesignContract(directory);
+			const provenance = contract.markdown.slice(
+				contract.markdown.lastIndexOf("\n## Provenance\n"),
+			);
+
+			expect(contract.packRelease).toBe(version);
+			expect(provenance).toContain(
+				`- Design Pack: ${contract.designPack} (\`${contract.identity}\`)`,
+			);
+			expect(provenance).toContain(`- Pack Release: ${version}, published `);
+			expect(provenance).toContain(`- Pack License: ${contract.packLicense}`);
+			expect(provenance).toContain("AgentKogei Official Catalog");
+			expect(contract.markdown).toEndWith("\n");
+		});
+	},
+);

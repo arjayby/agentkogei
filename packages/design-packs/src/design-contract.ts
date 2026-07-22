@@ -33,12 +33,18 @@ function headingLevel(line: string) {
 	return heading ? (heading[1] as string).length : 0;
 }
 
+/** One consolidated resource, ready to be placed in the single document. */
+type ConsolidatedSection = { title: string; body: string };
+
 /**
  * Rewrites a supporting Markdown resource as one section of the Design
  * Contract: its own title becomes the section heading and everything below it
  * moves one level deeper so the document keeps a single outline.
  */
-function consolidatedSection(resourcePath: string, contents: string) {
+function consolidatedSection(
+	resourcePath: string,
+	contents: string,
+): ConsolidatedSection {
 	const lines = contents.trimEnd().split("\n");
 	let title = resourcePath;
 	let fenced = false;
@@ -56,7 +62,44 @@ function consolidatedSection(resourcePath: string, contents: string) {
 		}
 		body.push(level > 0 && level < 6 ? `#${line}` : line);
 	}
-	return `## ${title} (\`${resourcePath}\`)\n\n${body.join("\n").trim()}`;
+	return { title, body: body.join("\n").trim() };
+}
+
+/**
+ * Rewrites a non-Markdown resource as one fenced section, so direction a
+ * Builder used to receive as a separate file still arrives verbatim. Returns
+ * nothing for a media type consolidation cannot represent as text.
+ */
+function consolidatedCodeSection(
+	mediaType: string,
+	contents: string,
+): ConsolidatedSection | undefined {
+	const code = consolidatedCode[mediaType];
+	if (!code) return undefined;
+	return {
+		title: code.title,
+		body: `\`\`\`${code.language}\n${contents.trimEnd()}\n\`\`\``,
+	};
+}
+
+/**
+ * A Project receives the Design Contract and nothing else, so a cross-reference
+ * written as a release resource path would send an AI coding agent looking for
+ * a file that was never installed. Each such reference becomes the section that
+ * now holds that resource's direction.
+ */
+function resolveResourceReferences(
+	markdown: string,
+	sectionTitles: ReadonlyMap<string, string>,
+) {
+	let resolved = markdown;
+	for (const [resourcePath, title] of sectionTitles) {
+		resolved = resolved.replaceAll(
+			`\`${resourcePath}\``,
+			`the ${title} section`,
+		);
+	}
+	return resolved;
 }
 
 function provenanceSection(manifest: PackManifest) {
@@ -100,30 +143,53 @@ async function compileDesignContract(
 	}
 
 	const sections = [(await read(manifest.designContract)).trimEnd()];
+	const sectionTitles = new Map<string, string>();
+	const claimedTitles = new Set<string>();
+	const withheldResources: string[] = [];
 	for (const file of manifest.files) {
+		if (file.path === manifest.designContract) continue;
 		if (
-			file.path === manifest.designContract ||
 			file.path === manifest.evaluation.evidence ||
 			file.path.startsWith(publicationEvidenceDirectory)
 		) {
+			withheldResources.push(file.path);
 			continue;
 		}
 		const contents = await read(file.path);
-		if (file.mediaType === "text/markdown") {
-			sections.push(consolidatedSection(file.path, contents));
-			continue;
-		}
-		const code = consolidatedCode[file.mediaType];
-		if (!code) {
+		const section =
+			file.mediaType === "text/markdown"
+				? consolidatedSection(file.path, contents)
+				: consolidatedCodeSection(file.mediaType, contents);
+		if (!section) {
 			throw new Error(
 				`${manifest.id} declares ${file.path} as unconsolidatable ${file.mediaType}`,
 			);
 		}
-		sections.push(
-			`## ${code.title} (\`${file.path}\`)\n\n\`\`\`${code.language}\n${contents.trimEnd()}\n\`\`\``,
-		);
+		// One title must name one section, or a resolved cross-reference would
+		// point at two places at once.
+		if (claimedTitles.has(section.title)) {
+			throw new Error(
+				`${manifest.id} consolidates two resources as "${section.title}"`,
+			);
+		}
+		claimedTitles.add(section.title);
+		sectionTitles.set(file.path, section.title);
+		sections.push(`## ${section.title}\n\n${section.body}`);
 	}
 	sections.push(provenanceSection(manifest));
+
+	const markdown = `${resolveResourceReferences(
+		sections.join("\n\n"),
+		sectionTitles,
+	)}\n`;
+	const dangling = [...sectionTitles.keys(), ...withheldResources].filter(
+		(resourcePath) => markdown.includes(resourcePath),
+	);
+	if (dangling.length > 0) {
+		throw new Error(
+			`${manifest.id} ${manifest.release.version} still depends on ${dangling.join(", ")}`,
+		);
+	}
 
 	return {
 		identity: manifest.id,
@@ -131,7 +197,7 @@ async function compileDesignContract(
 		packRelease: manifest.release.version,
 		packLicense: `${manifest.license.name} (${manifest.license.spdx})`,
 		access: manifest.access,
-		markdown: `${sections.join("\n\n")}\n`,
+		markdown,
 	};
 }
 
