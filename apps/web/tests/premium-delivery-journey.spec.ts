@@ -16,7 +16,6 @@ import { cliPath, runCli as runPackagedCli } from "./support/cli";
 
 const webOrigin = "http://localhost:3011";
 const contractCatalogUrl = `${webOrigin}/contracts/`;
-const fixtureSource = `${webOrigin}/api/premium-source/delivery-fixture/1.0.0`;
 
 test.describe.configure({ mode: "serial" });
 test.setTimeout(60_000);
@@ -112,8 +111,8 @@ test("premium delivery is idempotent and denies every unauthorized state without
 		path.join(tmpdir(), "agentkogei-premium-denials-"),
 	);
 	const configDirectory = path.join(temporaryRoot, "configuration");
-	const marker = "Controlled Premium Delivery Fixture";
-	const projectLicense = randomUUID();
+	const gatedSource = "/contracts/command/1.0.0";
+	const marker = "# Command Interface System";
 	try {
 		await signIn(page);
 		const activeEvent = await page.request.post("/api/test/polar/events", {
@@ -125,63 +124,25 @@ test("premium delivery is idempotent and denies every unauthorized state without
 			configDirectory,
 			"Premium denial terminal",
 		);
-		const authorizedHeaders = {
-			authorization: `Bearer ${credential}`,
-			"x-agentkogei-project-license": projectLicense,
-			"x-agentkogei-action": "install",
-		};
+		const authorized = { authorization: `Bearer ${credential}` };
 
-		const first = await page.request.get(fixtureSource, {
-			headers: authorizedHeaders,
-		});
+		const first = await page.request.get(gatedSource, { headers: authorized });
 		expect(first.status()).toBe(200);
-		expect(first.headers()["cache-control"]).toContain("no-store");
-		expect(first.headers()["x-agentkogei-project-license"]).toBe(
-			projectLicense,
+		expect(first.headers()["content-type"]).toBe(
+			"text/markdown; charset=utf-8",
 		);
+		expect(first.headers()["cache-control"]).toContain("no-store");
 		expect(await first.text()).toContain(marker);
 
-		const repeated = await page.request.get(fixtureSource, {
-			headers: authorizedHeaders,
+		// The same authorized retrieval repeats without additional consent or
+		// state, because delivery writes nothing on the Builder's behalf.
+		const repeated = await page.request.get(gatedSource, {
+			headers: authorized,
 		});
 		expect(repeated.status()).toBe(200);
-		expect(repeated.headers()["x-agentkogei-project-license"]).toBe(
-			projectLicense,
-		);
-		expect(
-			(
-				await page.request.get(
-					`/api/test/premium-delivery/licenses/${projectLicense}`,
-				)
-			).status(),
-		).toBe(404);
-		for (let attempt = 0; attempt < 2; attempt += 1) {
-			const recorded = await page.request.post(fixtureSource, {
-				headers: authorizedHeaders,
-			});
-			expect(recorded.status()).toBe(204);
-		}
-		expect(
-			await (
-				await page.request.get(
-					`/api/test/premium-delivery/licenses/${projectLicense}`,
-				)
-			).json(),
-		).toEqual({
-			id: projectLicense,
-			packId: "delivery-fixture",
-			packRelease: "1.0.0",
-			status: "active",
-			terminationReason: null,
-			terminatedAt: null,
-		});
+		expect(await repeated.text()).toBe(await first.text());
 
-		const missing = await page.request.get(fixtureSource, {
-			headers: {
-				"x-agentkogei-project-license": randomUUID(),
-				"x-agentkogei-action": "install",
-			},
-		});
+		const missing = await page.request.get(gatedSource);
 		expect(
 			(
 				await page.request.post("/api/test/pack-credentials/scope", {
@@ -189,12 +150,8 @@ test("premium delivery is idempotent and denies every unauthorized state without
 				})
 			).status(),
 		).toBe(204);
-		const insufficient = await page.request.get(fixtureSource, {
-			headers: {
-				authorization: `Bearer ${credential}`,
-				"x-agentkogei-project-license": randomUUID(),
-				"x-agentkogei-action": "install",
-			},
+		const insufficient = await page.request.get(gatedSource, {
+			headers: authorized,
 		});
 		expect(
 			(
@@ -211,11 +168,8 @@ test("premium delivery is idempotent and denies every unauthorized state without
 				})
 			).ok(),
 		).toBe(true);
-		const inactive = await page.request.get(fixtureSource, {
-			headers: {
-				...authorizedHeaders,
-				"x-agentkogei-project-license": randomUUID(),
-			},
+		const inactive = await page.request.get(gatedSource, {
+			headers: authorized,
 		});
 		expect(
 			(
@@ -231,28 +185,34 @@ test("premium delivery is idempotent and denies every unauthorized state without
 		});
 		await credentialRow.getByRole("button", { name: "Revoke" }).click();
 		await expect(credentialRow.getByText("Revoked")).toBeVisible();
-		const revoked = await page.request.get(fixtureSource, {
-			headers: {
-				...authorizedHeaders,
-				"x-agentkogei-project-license": randomUUID(),
-			},
+		const revoked = await page.request.get(gatedSource, {
+			headers: authorized,
 		});
 
-		for (const denial of [missing, insufficient, inactive, revoked]) {
-			expect(denial.status()).toBe(404);
-			expect(denial.headers()["cache-control"]).toContain("no-store");
-			const body = await denial.text();
-			expect(body).toBe('{"error":"premium_release_unavailable"}');
+		for (const denial of [
+			{ response: missing, status: 401 },
+			{ response: insufficient, status: 401 },
+			{ response: inactive, status: 403 },
+			{ response: revoked, status: 401 },
+		]) {
+			expect(denial.response.status()).toBe(denial.status);
+			expect(denial.response.headers()["cache-control"]).toContain("no-store");
+			expect(denial.response.headers()["content-type"]).toContain("text/plain");
+			const body = await denial.response.text();
 			expect(body).not.toContain(marker);
 			expect(body).not.toContain(credential);
 		}
 
-		for (const publicPath of [
-			"/r/delivery-fixture.json",
-			"/r/delivery-fixture/1.0.0.json",
-			"/catalog/delivery-fixture",
+		// The registry transport is gone: no envelope, no resource tree, and no
+		// public route for a gated Pack Release.
+		for (const retiredPath of [
+			"/r/command.json",
+			"/r/command/1.0.0.json",
+			"/api/premium-source/command/1.0.0",
 		]) {
-			const response = await page.request.get(publicPath);
+			const response = await page.request.get(retiredPath, {
+				headers: authorized,
+			});
 			expect(response.status()).toBe(404);
 			expect(await response.text()).not.toContain(marker);
 		}
@@ -303,13 +263,16 @@ for (const terminalState of ["refunded", "reversed"] as const) {
 			const recordLicense = async (projectLicense: string) =>
 				expect(
 					(
-						await page.request.post(fixtureSource, {
-							headers: {
-								authorization: `Bearer ${credential}`,
-								"x-agentkogei-project-license": projectLicense,
-								"x-agentkogei-action": "install",
+						await page.request.post(
+							`/api/test/premium-delivery/licenses/${projectLicense}`,
+							{
+								data: {
+									credential,
+									packId: "command",
+									packRelease: "1.0.0",
+								},
 							},
-						})
+						)
 					).status(),
 				).toBe(204);
 
@@ -546,6 +509,7 @@ for (const pack of premiumDesignPacks) {
 				otherPack,
 				"Foundation",
 				"sha256",
+				"pack-evaluation.json",
 				"agentkogei.manifest.json",
 				".agentkogei/",
 				"evaluation/",

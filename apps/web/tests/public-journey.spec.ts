@@ -364,33 +364,18 @@ test("a Builder can anonymously retrieve the complete Foundation Pack Release", 
 	page,
 	request,
 }) => {
-	const response = await request.get("/r/foundation/1.0.0.json");
+	const response = await request.get("/contracts/foundation/1.0.0");
 
 	expect(response.status()).toBe(200);
-	expect(response.headers()["content-type"]).toContain("application/json");
-	const registryItem = (await response.json()) as {
-		name: string;
-		type: string;
-		files: Array<{ content: string; target: string }>;
-	};
-	expect(registryItem).toMatchObject({
-		name: "foundation",
-		type: "registry:item",
-	});
-	const manifestFile = registryItem.files.find((file) =>
-		file.target.endsWith("agentkogei.manifest.json"),
+	expect(response.headers()["content-type"]).toBe(
+		"text/markdown; charset=utf-8",
 	);
-	const manifest = JSON.parse(manifestFile?.content ?? "") as {
-		access: string;
-		release: { immutable: boolean; version: string };
-	};
-	expect(manifest).toMatchObject({
-		access: "open",
-		release: { immutable: true, version: "1.0.0" },
-	});
-	expect(
-		registryItem.files.some((file) => file.target.endsWith("DESIGN.md")),
-	).toBe(true);
+	expect(response.headers()["x-agentkogei-pack-release"]).toBe("1.0.0");
+	// An exact Pack Release is immutable, so it may be cached forever.
+	expect(response.headers()["cache-control"]).toContain("immutable");
+	const contract = await response.text();
+	expect(contract).toContain("# Foundation Interface System");
+	expect(contract).toContain("## Final validation checklist");
 
 	await page.goto("/catalog/foundation");
 	await expect(
@@ -406,34 +391,13 @@ test("a Builder can preview, retrieve, and distinguish the Editorial Open Design
 	page,
 	request,
 }) => {
-	const response = await request.get("/r/editorial/1.0.0.json");
+	const response = await request.get("/contracts/editorial/1.0.0");
 
 	expect(response.status()).toBe(200);
-	const registryItem = (await response.json()) as {
-		name: string;
-		files: Array<{ content: string; target: string }>;
-	};
-	expect(registryItem.name).toBe("editorial");
-	const manifestFile = registryItem.files.find((file) =>
-		file.target.endsWith("agentkogei.manifest.json"),
-	);
-	const manifest = JSON.parse(manifestFile?.content ?? "") as {
-		access: string;
-		evaluation: { standard: string };
-		release: { immutable: boolean; version: string };
-	};
-	expect(manifest).toMatchObject({
-		access: "open",
-		evaluation: { standard: "WCAG 2.2 Level AA" },
-		release: { immutable: true, version: "1.0.0" },
-	});
-	expect(
-		registryItem.files.some(
-			(file) =>
-				file.target.endsWith("DESIGN.md") &&
-				file.content.includes("Warmth comes from restraint"),
-		),
-	).toBe(true);
+	expect(response.headers()["x-agentkogei-design-pack"]).toBe("Editorial");
+	const contract = await response.text();
+	expect(contract).toContain("# Editorial Interface System");
+	expect(contract).toContain("Warmth comes from restraint");
 
 	await page.goto("/catalog/editorial");
 	await expect(page.getByRole("heading", { name: "Editorial" })).toBeVisible();
@@ -535,12 +499,30 @@ for (const openPack of openDesignPacks) {
 		// The Official Catalog serves a document a Project can read on its own,
 		// so nothing a Builder never receives may reach it.
 		for (const machineMetadata of [
+			"pack-evaluation.json",
 			"agentkogei.manifest.json",
 			".agentkogei/",
 			"registry:item",
 			"sha256",
 		]) {
 			expect(contract).not.toContain(machineMetadata);
+		}
+	});
+
+	test(`the retired registry transport serves no ${designPack} Pack Release`, async ({
+		request,
+	}) => {
+		for (const retiredPath of [
+			`/r/${identity}.json`,
+			`/r/${identity}/${currentRelease}.json`,
+			`/r/${identity}`,
+			`/api/premium-source/${identity}/${currentRelease}`,
+		]) {
+			const response = await request.get(retiredPath);
+			expect(response.status(), retiredPath).toBe(404);
+			expect(await response.text()).not.toContain(
+				`# ${designPack} Interface System`,
+			);
 		}
 	});
 

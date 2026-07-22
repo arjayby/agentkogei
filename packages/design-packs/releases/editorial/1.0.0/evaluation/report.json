@@ -5,7 +5,7 @@
 	"standard": "WCAG 2.2 Level AA",
 	"referenceImplementation": {
 		"route": "/catalog/editorial",
-		"stackAdapter": "react-tailwind-shadcn",
+		"stack": "react-tailwind-shadcn",
 		"usesReleasedTokens": true,
 		"agentRunEvidence": "evaluation/agent-runs.md"
 	},

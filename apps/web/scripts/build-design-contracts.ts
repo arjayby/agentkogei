@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { buildDesignContract, publishedPacks } from "agentkogei/src/index";
+import { publishedPacks, readDesignContract } from "agentkogei/src/index";
 
 const outputFile = path.resolve(
 	import.meta.dirname,
@@ -13,9 +13,7 @@ const catalog = Object.fromEntries(
 		publishedPacks.map(async (pack) => {
 			const releases = await Promise.all(
 				pack.versions.map(async (version) => {
-					const contract = await buildDesignContract(
-						pack.directoryFor(version),
-					);
+					const contract = await readDesignContract(pack.directoryFor(version));
 					if (contract.packRelease !== version) {
 						throw new Error(
 							`${pack.id} ${version} declares Pack Release ${contract.packRelease}`,

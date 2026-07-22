@@ -8,9 +8,9 @@ import {
 } from "./release-version";
 
 export {
-	buildDesignContract,
-	buildDesignContractFromResources,
 	type DesignContract,
+	designContractSchema,
+	readDesignContract,
 } from "./design-contract";
 export {
 	applyDesignContractInstallation,
@@ -22,8 +22,12 @@ export {
 	planDesignContractInstallation,
 	retrieveDesignContract,
 } from "./design-contract-installation";
-export { type PackManifest, packManifestSchema } from "./manifest";
-export type { PackRegistryItem } from "./registry";
+export {
+	designContractFileName,
+	type PackEvaluationRecord,
+	packEvaluationFileName,
+	packEvaluationRecordSchema,
+} from "./pack-evaluation";
 export {
 	comparePackReleaseVersions,
 	type PackReleaseVersion,
@@ -35,10 +39,7 @@ export {
 	validatePackRelease,
 } from "./validator";
 
-function createPublishedPack(
-	id: string,
-	description: (manifest: import("./manifest").PackManifest) => string,
-) {
+function createPublishedPack(id: string) {
 	const releasesDirectory = fileURLToPath(
 		new URL(`../releases/${id}`, import.meta.url),
 	);
@@ -64,23 +65,11 @@ function createPublishedPack(
 		versions,
 		directory: directoryFor(catalogVersion),
 		directoryFor,
-		async buildRegistryItem(releaseDirectory = directoryFor(catalogVersion)) {
-			const { buildPackRegistryItem } = await import("./registry");
-			return buildPackRegistryItem(releaseDirectory, description);
-		},
 	};
 }
 
-const foundation = createPublishedPack(
-	"foundation",
-	(manifest) =>
-		`${manifest.name} ${manifest.release.version}: a complete, neutral, crisp, highly legible B2B Interface System.`,
-);
-const editorial = createPublishedPack(
-	"editorial",
-	(manifest) =>
-		`${manifest.name} ${manifest.release.version}: ${manifest.preview.summary}`,
-);
+const foundation = createPublishedPack("foundation");
+const editorial = createPublishedPack("editorial");
 
 export const publishedPacks = [foundation, editorial] as const;
 
@@ -97,15 +86,3 @@ export function editorialReleaseDirectoryFor(version: PackReleaseVersion) {
 
 export const editorialReleaseVersions = editorial.versions;
 export const editorialReleaseDirectory = editorial.directory;
-
-export async function buildFoundationRegistryItem(
-	releaseDirectory = foundationReleaseDirectory,
-) {
-	return foundation.buildRegistryItem(releaseDirectory);
-}
-
-export async function buildEditorialRegistryItem(
-	releaseDirectory = editorialReleaseDirectory,
-) {
-	return editorial.buildRegistryItem(releaseDirectory);
-}

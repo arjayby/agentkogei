@@ -31,22 +31,18 @@ const relativePathSchema = z
 				.every(
 					(segment) => segment !== "" && segment !== "." && segment !== "..",
 				),
-		{ message: "must be a safe relative target" },
+		{ message: "must be a safe relative path inside the Pack Release" },
 	);
 
-const fileSchema = z
+/**
+ * The file every Pack Release keeps beside its Design Contract, recording what
+ * Pack Evaluation examined before the release became a Published Pack. It is
+ * internal product tooling: the Official Catalog delivers the Design Contract
+ * alone, so nothing here ever reaches a Project.
+ */
+export const packEvaluationRecordSchema = z
 	.object({
-		path: relativePathSchema,
-		target: relativePathSchema,
-		sha256: sha256Schema,
-		mediaType: z.string().min(1),
-		mode: z.literal("0644"),
-	})
-	.strict();
-
-export const packManifestSchema = z
-	.object({
-		schemaVersion: z.literal("1.0"),
+		schemaVersion: z.literal("2.0"),
 		id: packIdentitySchema,
 		name: terminalTextSchema,
 		publisher: terminalTextSchema,
@@ -63,44 +59,29 @@ export const packManifestSchema = z
 				spdx: terminalTextSchema,
 				name: terminalTextSchema,
 				url: terminalUrlSchema,
-				file: relativePathSchema,
 				attribution: terminalTextSchema,
 			})
 			.strict(),
-		designContract: z.literal("DESIGN.md"),
+		/**
+		 * The one document the release publishes, pinned by digest so an
+		 * already-published release cannot be edited under its own version.
+		 */
+		designContract: z.object({ sha256: sha256Schema }).strict(),
+		/** The single stack each first-party Design Contract directly targets. */
 		compatibility: z
 			.object({
-				frameworkNeutral: z.literal(true),
-				adapters: z
-					.array(
-						z
-							.object({
-								id: terminalTextSchema,
-								frameworks: z.array(z.enum(["react", "nextjs"])).min(1),
-								react: terminalTextSchema,
-								nextjs: terminalTextSchema,
-								tailwind: terminalTextSchema,
-								ui: z.literal("shadcn/ui"),
-								entry: relativePathSchema,
-							})
-							.strict(),
-					)
-					.min(1),
-			})
-			.strict(),
-		files: z.array(fileSchema).min(1),
-		dependencies: z
-			.object({
-				runtime: z.array(z.string()),
-				development: z.array(z.string()),
-				setup: z.array(terminalTextSchema),
+				frameworks: z.array(z.enum(["react", "nextjs"])).min(1),
+				react: terminalTextSchema,
+				nextjs: terminalTextSchema,
+				tailwind: terminalTextSchema,
+				ui: z.literal("shadcn/ui"),
 			})
 			.strict(),
 		provenance: z
 			.array(
 				z
 					.object({
-						paths: z.array(relativePathSchema).min(1),
+						work: terminalTextSchema,
 						origin: z.enum(["original", "third-party"]),
 						author: z.string().min(1),
 						license: z.string().min(1),
@@ -126,7 +107,7 @@ export const packManifestSchema = z
 						rightsReview: z.literal("passed"),
 					})
 					.strict(),
-				evidence: relativePathSchema,
+				evidence: z.array(relativePathSchema).min(1),
 			})
 			.strict(),
 		preview: z
@@ -146,4 +127,10 @@ export const packManifestSchema = z
 	})
 	.strict();
 
-export type PackManifest = z.infer<typeof packManifestSchema>;
+export type PackEvaluationRecord = z.infer<typeof packEvaluationRecordSchema>;
+
+/** The Design Contract a Pack Release publishes, by its fixed name. */
+export const designContractFileName = "DESIGN.md";
+
+/** The Pack Evaluation record beside it, by its fixed name. */
+export const packEvaluationFileName = "pack-evaluation.json";

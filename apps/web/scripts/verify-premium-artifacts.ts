@@ -3,10 +3,15 @@ import path from "node:path";
 
 const buildDirectory =
 	process.env.NEXT_TEST_BUILD === "true" ? ".next-test" : ".next";
-const roots = [path.resolve("public"), path.resolve(buildDirectory)];
+const roots = [path.resolve(buildDirectory)];
 
+/**
+ * Every byte of every gated Design Contract the build has been provisioned
+ * with. Each protected Pack Release is the raw Markdown a Project installs, so
+ * the whole document is the marker that must not reach a build artifact.
+ */
 function protectedMarkers() {
-	const markers = [Buffer.from("Controlled Premium Delivery Fixture")];
+	const markers: Buffer[] = [];
 	for (const variable of [
 		"COMMAND_PREMIUM_RELEASE",
 		"SIGNAL_PREMIUM_RELEASE",
@@ -14,12 +19,8 @@ function protectedMarkers() {
 		const serialized = process.env[variable];
 		if (!serialized) continue;
 		try {
-			const release = JSON.parse(serialized) as {
-				files?: Array<{ content?: string }>;
-			};
-			for (const file of release.files ?? []) {
-				if (file.content) markers.push(Buffer.from(file.content));
-			}
+			const release = JSON.parse(serialized) as { markdown?: string };
+			if (release.markdown) markers.push(Buffer.from(release.markdown));
 		} catch {
 			throw new Error(`${variable} is not valid JSON`);
 		}
@@ -45,6 +46,13 @@ async function filesBelow(directory: string): Promise<string[]> {
 	).flat();
 }
 
+if (gatedMarkers.length === 0) {
+	console.log(
+		"Skipped: this build was provisioned with no protected Pack Release.",
+	);
+	process.exit(0);
+}
+
 const leakedFiles: string[] = [];
 for (const root of roots) {
 	for (const file of await filesBelow(root)) {
@@ -57,8 +65,10 @@ for (const root of roots) {
 
 if (leakedFiles.length > 0) {
 	throw new Error(
-		`Gated premium fixture bytes appeared in build artifacts:\n${leakedFiles.join("\n")}`,
+		`Gated Design Contract bytes appeared in build artifacts:\n${leakedFiles.join("\n")}`,
 	);
 }
 
-console.log("Verified: gated premium fixture bytes are absent from artifacts.");
+console.log(
+	`Verified: ${gatedMarkers.length} gated Design Contracts are absent from build artifacts.`,
+);

@@ -2,14 +2,21 @@ import { createHash } from "node:crypto";
 import { lstat, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
-import { type PackManifest, packManifestSchema } from "./manifest";
+import {
+	designContractFileName,
+	type PackEvaluationRecord,
+	packEvaluationFileName,
+	packEvaluationRecordSchema,
+} from "./pack-evaluation";
+import { hasHiddenDocumentControl } from "./text-safety";
 
 export type PackValidationResult =
 	| {
 			ok: true;
 			pack: string;
 			version: string;
-			filesValidated: number;
+			designContractBytes: number;
+			evidenceValidated: number;
 	  }
 	| { ok: false; errors: string[] };
 
@@ -31,107 +38,88 @@ async function listFiles(directory: string, prefix = ""): Promise<string[]> {
 	return files.flat();
 }
 
-function validateReleaseRules(manifest: PackManifest) {
+/**
+ * The MVP stack every first-party Design Contract targets directly. A release
+ * that widens or narrows it has not been evaluated for the stack the Official
+ * Catalog promises.
+ */
+const evaluatedStack = {
+	frameworks: ["react", "nextjs"],
+	react: ">=18 <20",
+	nextjs: ">=15 <17",
+	tailwind: ">=4 <5",
+	ui: "shadcn/ui",
+} as const;
+
+const requiredScreens = [
+	"marketing",
+	"authentication",
+	"onboarding",
+	"dashboard",
+	"table",
+	"form",
+	"settings",
+	"states",
+];
+const requiredChecks = [
+	"structure",
+	"accessibility",
+	"responsive overflow",
+	"color contrast",
+];
+
+function validateReleaseRules(record: PackEvaluationRecord) {
 	const errors: string[] = [];
-	const targets = new Set<string>();
-	const declaredPaths = new Set(manifest.files.map((file) => file.path));
-	const provenancedPaths = new Set(
-		manifest.provenance.flatMap((entry) => entry.paths),
-	);
+	const { compatibility } = record;
 
-	for (const file of manifest.files) {
-		if (targets.has(file.target)) {
-			errors.push(`duplicate target: ${file.target}`);
-		}
-		targets.add(file.target);
-		if (!provenancedPaths.has(file.path)) {
-			errors.push(`missing provenance for ${file.path}`);
-		}
-	}
-
-	for (const provenancePath of provenancedPaths) {
-		if (!declaredPaths.has(provenancePath)) {
-			errors.push(`provenance references undeclared file: ${provenancePath}`);
-		}
-	}
-
-	const adapter = manifest.compatibility.adapters.find(
-		(candidate) => candidate.id === "react-tailwind-shadcn",
-	);
 	if (
-		!adapter?.frameworks.includes("react") ||
-		!adapter.frameworks.includes("nextjs") ||
-		adapter.react !== ">=18 <20" ||
-		adapter.nextjs !== ">=15 <17" ||
-		adapter.tailwind !== ">=4 <5" ||
-		adapter.ui !== "shadcn/ui"
+		!evaluatedStack.frameworks.every((framework) =>
+			compatibility.frameworks.includes(framework),
+		) ||
+		compatibility.react !== evaluatedStack.react ||
+		compatibility.nextjs !== evaluatedStack.nextjs ||
+		compatibility.tailwind !== evaluatedStack.tailwind ||
+		compatibility.ui !== evaluatedStack.ui
 	) {
 		errors.push(
-			"MVP compatibility requires the React / Next.js, Tailwind CSS v4, and shadcn/ui Stack Adapter",
+			"MVP compatibility requires React / Next.js, Tailwind CSS v4, and shadcn/ui",
 		);
 	}
 
-	if (manifest.changelog.breaking && !manifest.changelog.migrationNotes) {
+	if (record.changelog.breaking && !record.changelog.migrationNotes) {
 		errors.push("major or breaking releases require migration notes");
 	}
 
-	for (const requiredPath of [
-		manifest.designContract,
-		manifest.license.file,
-		manifest.evaluation.evidence,
-		...manifest.compatibility.adapters.map((entry) => entry.entry),
-	]) {
-		if (!declaredPaths.has(requiredPath)) {
-			errors.push(`required resource is not declared: ${requiredPath}`);
-		}
+	if (
+		!record.provenance.some((entry) => entry.license === record.license.spdx)
+	) {
+		errors.push(
+			`provenance does not account for the Pack License: ${record.license.spdx}`,
+		);
 	}
 
-	const executableGuidance =
-		/(?:^|\s)(?:npm|pnpm|yarn|bun|npx|bunx|corepack|pip|pipx|uv|cargo|go|composer|gem|bundle|make|just|curl|wget|bash|sh|node|deno|python|ruby|perl|powershell|pwsh|cmd|chmod)\s+\S+|(?:^|\s)(?:run|execute|invoke|launch)\b[^.\n]*(?:script\b|\.\/|\S+\.(?:sh|js|ts|py|ps1|bat|cmd)\b)|(?:^|\s)(?:\.{0,2}\/|\/bin\/|\/usr\/bin\/)\S+|\S+\.(?:sh|js|ts|py|ps1|bat|cmd)\b|&&|\|\||`|\$\(/i;
-	for (const instruction of manifest.dependencies.setup) {
-		if (executableGuidance.test(instruction)) {
-			errors.push(`dependency guidance must be non-executable: ${instruction}`);
-		}
-	}
-
-	const requiredScreens = [
-		"marketing",
-		"authentication",
-		"onboarding",
-		"dashboard",
-		"table",
-		"form",
-		"settings",
-		"states",
-	];
-	const requiredChecks = [
-		"structure",
-		"accessibility",
-		"responsive overflow",
-		"color contrast",
-	];
 	for (const screen of requiredScreens) {
-		if (!manifest.evaluation.screens.includes(screen)) {
+		if (!record.evaluation.screens.includes(screen)) {
 			errors.push(`evaluation is missing required screen: ${screen}`);
 		}
 	}
-	if (new Set(manifest.evaluation.screens).size !== requiredScreens.length) {
+	if (new Set(record.evaluation.screens).size !== requiredScreens.length) {
 		errors.push("evaluation screens must be unique and complete");
 	}
 	for (const viewport of ["1440x900", "390x844"]) {
-		if (!manifest.evaluation.viewports.includes(viewport)) {
+		if (!record.evaluation.viewports.includes(viewport)) {
 			errors.push(`evaluation is missing required viewport: ${viewport}`);
 		}
 	}
 	if (
-		!manifest.evaluation.colorSchemes.includes("light") ||
-		!manifest.evaluation.colorSchemes.includes("dark") ||
-		new Set(manifest.evaluation.colorSchemes).size !== 2
+		!record.evaluation.colorSchemes.includes("light") ||
+		!record.evaluation.colorSchemes.includes("dark") ||
+		new Set(record.evaluation.colorSchemes).size !== 2
 	) {
 		errors.push("evaluation must cover both light and dark color schemes");
 	}
 	for (const check of requiredChecks) {
-		if (!manifest.evaluation.automatedChecks.includes(check)) {
+		if (!record.evaluation.automatedChecks.includes(check)) {
 			errors.push(`evaluation is missing automated check: ${check}`);
 		}
 	}
@@ -139,100 +127,172 @@ function validateReleaseRules(manifest: PackManifest) {
 	return errors;
 }
 
+/**
+ * A Pack Release publishes one document and the evidence Pack Evaluation rests
+ * on. Anything else in the directory would be a resource a Project never
+ * receives, which is also how a script or hook would arrive.
+ */
+async function validateReleaseContents(
+	rootDirectory: string,
+	record: PackEvaluationRecord,
+) {
+	const errors: string[] = [];
+	const published = new Set([
+		designContractFileName,
+		packEvaluationFileName,
+		...record.evaluation.evidence,
+	]);
+	const present = await listFiles(rootDirectory);
+
+	for (const file of present) {
+		if (!published.has(file)) {
+			errors.push(`unpublished file: ${file}`);
+		}
+	}
+	for (const file of published) {
+		if (!present.includes(file)) {
+			errors.push(`published file is missing: ${file}`);
+			continue;
+		}
+		if ((await lstat(path.join(rootDirectory, file))).isSymbolicLink()) {
+			errors.push(`symbolic link is prohibited: ${file}`);
+		}
+	}
+	return errors;
+}
+
+/**
+ * A Project receives the Design Contract and nothing else, so the document must
+ * read as inert prose and must not send an AI coding agent looking for a
+ * release resource that was never installed.
+ */
+function validateDesignContract(
+	record: PackEvaluationRecord,
+	contract: Buffer,
+) {
+	const errors: string[] = [];
+	const digest = createHash("sha256").update(contract).digest("hex");
+	if (digest !== record.designContract.sha256) {
+		errors.push(`hash mismatch for ${designContractFileName}`);
+	}
+
+	let markdown: string;
+	try {
+		markdown = new TextDecoder("utf-8", { fatal: true }).decode(contract);
+	} catch {
+		errors.push(`${designContractFileName} is not valid UTF-8 text`);
+		return errors;
+	}
+	if (markdown.trim().length === 0) {
+		errors.push(`${designContractFileName} carries no direction`);
+	}
+	if (hasHiddenDocumentControl(markdown)) {
+		errors.push(`${designContractFileName} contains hidden control characters`);
+	}
+	for (const withheld of [
+		packEvaluationFileName,
+		...record.evaluation.evidence,
+	]) {
+		if (markdown.includes(withheld)) {
+			errors.push(`${designContractFileName} still depends on ${withheld}`);
+		}
+	}
+	return errors;
+}
+
+/**
+ * A Pack Release is immutable, so republishing the same version must reproduce
+ * both the evaluated document and the record of what was evaluated.
+ */
+async function validateAgainstPublishedRelease(
+	publishedReleaseDirectory: string,
+	release: { record: PackEvaluationRecord; contents: string; contract: Buffer },
+) {
+	try {
+		const publishedContents = await readFile(
+			path.join(publishedReleaseDirectory, packEvaluationFileName),
+			"utf8",
+		);
+		const published = packEvaluationRecordSchema.parse(
+			JSON.parse(publishedContents),
+		);
+		if (
+			published.id !== release.record.id ||
+			published.release.version !== release.record.release.version
+		) {
+			return [];
+		}
+		const publishedContract = await readFile(
+			path.join(publishedReleaseDirectory, designContractFileName),
+		);
+		return publishedContents === release.contents &&
+			publishedContract.equals(release.contract)
+			? []
+			: [
+					`immutable Pack Release ${release.record.id}@${release.record.release.version} differs from the published snapshot`,
+				];
+	} catch {
+		return ["published release metadata is missing or invalid"];
+	}
+}
+
+/**
+ * Pack Evaluation as the Official Catalog runs it before a Pack Release becomes
+ * a Published Pack. It is internal product tooling for first-party releases
+ * rather than an author SDK, so it validates a release directory in this
+ * repository rather than an arbitrary published artifact.
+ */
 export async function validatePackRelease(
 	rootDirectory: string,
 	options: PackValidationOptions = {},
 ): Promise<PackValidationResult> {
 	const errors: string[] = [];
-	let manifestContents: string;
+	let recordContents: string;
 	let source: unknown;
 
 	try {
-		manifestContents = await readFile(
-			path.join(rootDirectory, "agentkogei.manifest.json"),
+		recordContents = await readFile(
+			path.join(rootDirectory, packEvaluationFileName),
 			"utf8",
 		);
-		source = JSON.parse(manifestContents);
+		source = JSON.parse(recordContents);
 	} catch {
-		return { ok: false, errors: ["manifest is missing or invalid JSON"] };
+		return {
+			ok: false,
+			errors: ["Pack Evaluation record is missing or invalid JSON"],
+		};
 	}
 
-	if (
-		typeof source === "object" &&
-		source !== null &&
-		["hooks", "scripts", "postinstall", "preinstall"].some((key) =>
-			Object.hasOwn(source, key),
-		)
-	) {
-		errors.push("executable hooks and scripts are prohibited");
-	}
-
-	const parsed = packManifestSchema.safeParse(source);
+	const parsed = packEvaluationRecordSchema.safeParse(source);
 	if (!parsed.success) {
-		errors.push(
-			...parsed.error.issues.map(
-				(issue) => `${issue.path.join(".") || "manifest"}: ${issue.message}`,
+		return {
+			ok: false,
+			errors: parsed.error.issues.map(
+				(issue) =>
+					`${issue.path.join(".") || "pack evaluation"}: ${issue.message}`,
 			),
-		);
-		return { ok: false, errors };
+		};
 	}
 
-	const manifest = parsed.data;
-	errors.push(...validateReleaseRules(manifest));
+	const record = parsed.data;
+	errors.push(...validateReleaseRules(record));
+	errors.push(...(await validateReleaseContents(rootDirectory, record)));
 
-	const physicalFiles = (await listFiles(rootDirectory)).filter(
-		(file) => file !== "agentkogei.manifest.json",
-	);
-	const declaredPaths = new Set(manifest.files.map((file) => file.path));
-	for (const physicalFile of physicalFiles) {
-		if (!declaredPaths.has(physicalFile)) {
-			errors.push(`undeclared file: ${physicalFile}`);
-		}
+	let contract: Buffer;
+	try {
+		contract = await readFile(path.join(rootDirectory, designContractFileName));
+	} catch {
+		return { ok: false, errors: [...errors, "Design Contract is missing"] };
 	}
-
-	for (const file of manifest.files) {
-		try {
-			const absolutePath = path.join(rootDirectory, file.path);
-			const status = await lstat(absolutePath);
-			if (status.isSymbolicLink()) {
-				errors.push(`symbolic link is prohibited: ${file.path}`);
-				continue;
-			}
-			const contents = await readFile(absolutePath);
-			const digest = createHash("sha256").update(contents).digest("hex");
-			if (digest !== file.sha256) {
-				errors.push(`hash mismatch for ${file.path}`);
-			}
-		} catch {
-			errors.push(`declared file is missing: ${file.path}`);
-		}
-	}
+	errors.push(...validateDesignContract(record, contract));
 
 	if (options.publishedReleaseDirectory) {
-		try {
-			const publishedManifestContents = await readFile(
-				path.join(
-					options.publishedReleaseDirectory,
-					"agentkogei.manifest.json",
-				),
-				"utf8",
-			);
-			const publishedManifest = packManifestSchema.parse(
-				JSON.parse(publishedManifestContents),
-			);
-			if (
-				publishedManifest.id === manifest.id &&
-				publishedManifest.release.version === manifest.release.version
-			) {
-				if (publishedManifestContents !== manifestContents) {
-					errors.push(
-						`immutable Pack Release ${manifest.id}@${manifest.release.version} differs from the published snapshot`,
-					);
-				}
-			}
-		} catch {
-			errors.push("published release metadata is missing or invalid");
-		}
+		errors.push(
+			...(await validateAgainstPublishedRelease(
+				options.publishedReleaseDirectory,
+				{ record, contents: recordContents, contract },
+			)),
+		);
 	}
 
 	if (errors.length > 0) {
@@ -241,8 +301,9 @@ export async function validatePackRelease(
 
 	return {
 		ok: true,
-		pack: manifest.id,
-		version: manifest.release.version,
-		filesValidated: manifest.files.length,
+		pack: record.id,
+		version: record.release.version,
+		designContractBytes: contract.byteLength,
+		evidenceValidated: record.evaluation.evidence.length,
 	};
 }
