@@ -12,9 +12,16 @@ import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { InstallationCommand } from "@/components/installation-command";
 import { PackArtwork } from "@/components/pack-artwork";
 import { PackPreviewEvidence } from "@/components/pack-preview-evidence";
-import { designPacks, getDesignPack } from "@/lib/catalog";
+import {
+	contractSections,
+	currentRelease,
+	designPacks,
+	getDesignPack,
+	premiumValueStatement,
+} from "@/lib/catalog";
 
 type PackPageProps = {
 	params: Promise<{ slug: string }>;
@@ -48,15 +55,21 @@ export default async function PackPage({ params }: PackPageProps) {
 		notFound();
 	}
 
+	const release = currentRelease(pack);
+	const isOpen = pack.access === "Open";
+	// An Open Design Pack is genuinely inspectable, so its Pack Preview links
+	// straight to the raw Design Contract a Project would install. A Premium
+	// Design Contract is the subscription's value, so its Pack Preview offers
+	// Premium Access instead.
 	const actionHref = (
-		pack.access === "Open"
-			? `/r/${pack.slug}/${pack.release.version}.json`
-			: "/pricing"
+		isOpen ? `/contracts/${pack.slug}/${release.version}` : "/pricing"
 	) as Route;
-	const actionLabel =
-		pack.access === "Open"
-			? `Retrieve ${pack.name} ${pack.release.version}`
-			: "Explore Premium Access";
+	const actionLabel = isOpen
+		? `Read the ${pack.name} ${release.version} Design Contract`
+		: "Explore Premium Access";
+	const accessNote = isOpen
+		? `${pack.name} is an Open Design Pack, so add retrieves it without an AgentKogei account. The CLI shows the absolute target and the exact change before it writes anything.`
+		: `${pack.name} is a Premium Design Pack, so add needs active Premium Access. When the CLI holds no Pack Credential it starts browser authorization and resumes the same Installation after you approve it.`;
 
 	return (
 		<main>
@@ -78,7 +91,7 @@ export default async function PackPage({ params }: PackPageProps) {
 						<div className="flex flex-wrap items-center gap-3 font-mono text-muted-foreground text-xs uppercase tracking-[0.2em]">
 							<Badge variant="outline">{pack.access}</Badge>
 							<span aria-hidden="true">/</span>
-							<span>Release {pack.release.version}</span>
+							<span>Release {release.version}</span>
 						</div>
 						<h1 className="font-medium text-6xl tracking-[-0.065em] sm:text-8xl">
 							{pack.name}
@@ -100,6 +113,14 @@ export default async function PackPage({ params }: PackPageProps) {
 				</div>
 			</section>
 
+			<section className="border-b px-5 py-12 sm:px-8 lg:px-12">
+				<div className="mx-auto max-w-7xl">
+					<InstallationCommand identity={pack.slug}>
+						{accessNote}
+					</InstallationCommand>
+				</div>
+			</section>
+
 			<section
 				className="border-b px-5 py-12 sm:px-8 lg:px-12 lg:py-20"
 				aria-labelledby="preview-heading"
@@ -116,9 +137,9 @@ export default async function PackPage({ params }: PackPageProps) {
 							One direction across the whole product.
 						</h2>
 						<p className="max-w-2xl text-muted-foreground">
-							{pack.access === "Premium"
-								? "Preview is evidence, not Pack Source. Installation retrieves the complete release only through the authenticated Premium Pack Source."
-								: "Preview is evidence, not Pack Source. It demonstrates direction and evaluated coverage; use the release action above to retrieve an Open Design Pack."}
+							{isOpen
+								? "Preview is evidence, not the Design Contract. It demonstrates direction and evaluated coverage; the Design Contract itself is public, so you can read every word before you add it."
+								: "Preview is evidence, not the Design Contract. The Official Catalog delivers the complete Pack Release only to a CLI authorized by a Builder with active Premium Access."}
 						</p>
 					</div>
 					<PackPreviewEvidence pack={pack} />
@@ -133,7 +154,7 @@ export default async function PackPage({ params }: PackPageProps) {
 								<h2>Release evidence</h2>
 							</CardTitle>
 							<CardDescription>
-								Public metadata for release {pack.release.version}.
+								Public metadata for release {release.version}.
 							</CardDescription>
 						</CardHeader>
 						<CardContent>
@@ -201,23 +222,28 @@ export default async function PackPage({ params }: PackPageProps) {
 					<Card>
 						<CardHeader>
 							<CardTitle>
-								<h2>Included resources</h2>
+								<h2>Inside the Design Contract</h2>
 							</CardTitle>
 							<CardDescription>
-								Descriptions only for Premium Pack Preview resources.
+								Installation writes one root DESIGN.md and nothing beside it.
 							</CardDescription>
 						</CardHeader>
-						<CardContent>
+						<CardContent className="flex flex-col gap-6">
 							<ul className="flex flex-col gap-3">
-								{pack.resources.map((resource) => (
+								{contractSections.map((section) => (
 									<li
-										key={resource}
+										key={section}
 										className="border-b pb-3 last:border-b-0 last:pb-0"
 									>
-										{resource}
+										{section}
 									</li>
 								))}
 							</ul>
+							{isOpen ? null : (
+								<p className="text-muted-foreground leading-7">
+									{premiumValueStatement}
+								</p>
+							)}
 						</CardContent>
 					</Card>
 
@@ -227,22 +253,26 @@ export default async function PackPage({ params }: PackPageProps) {
 								<h2>Release history</h2>
 							</CardTitle>
 							<CardDescription>
-								Immutable semantic Pack Releases.
+								Immutable semantic Pack Releases, newest first.
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="flex flex-col gap-8">
-							<div className="grid gap-2 sm:grid-cols-[8rem_1fr]">
-								<span className="font-mono">v{pack.release.version}</span>
-								<span className="text-muted-foreground">
-									Published {pack.release.publishedAt}
-								</span>
-							</div>
-							<div>
-								<h3 className="mb-2 font-medium text-base">Changelog</h3>
-								<p className="text-muted-foreground leading-7">
-									{pack.release.changelog}
-								</p>
-							</div>
+							{pack.releases.map((published) => (
+								<div key={published.version} className="flex flex-col gap-2">
+									<div className="grid gap-2 sm:grid-cols-[8rem_1fr]">
+										<span className="font-mono">v{published.version}</span>
+										<span className="text-muted-foreground">
+											Published {published.publishedAt}
+										</span>
+									</div>
+									<div>
+										<h3 className="mb-2 font-medium text-base">Changelog</h3>
+										<p className="text-muted-foreground leading-7">
+											{published.changelog}
+										</p>
+									</div>
+								</div>
+							))}
 						</CardContent>
 					</Card>
 				</div>

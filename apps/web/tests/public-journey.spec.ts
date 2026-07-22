@@ -138,6 +138,156 @@ for (const pack of [
 	});
 }
 
+/**
+ * The one-command Installation flow every Builder-facing surface advertises:
+ * `npx` first because it is the shortest mainstream path, then the equivalent
+ * command for each other package runner AgentKogei supports.
+ */
+function packageRunnerCommands(identity: string) {
+	return [
+		["npm (primary)", `npx agentkogei@latest add ${identity}`],
+		["pnpm", `pnpm dlx agentkogei@latest add ${identity}`],
+		["Yarn", `yarn dlx agentkogei@latest add ${identity}`],
+		["Bun", `bunx agentkogei@latest add ${identity}`],
+	] as const;
+}
+
+/**
+ * Vocabulary these surfaces used to carry, each naming something `add` never
+ * delivers. A Pack Preview that says any of it again is promising a Builder a
+ * resource tree, a transport envelope, or a lifecycle that does not exist.
+ */
+const retiredInstallationPromises = [
+	"Included resources",
+	"Stack Adapter",
+	"Pack Source",
+	"manifest",
+	"registry",
+	"managed update",
+] as const;
+
+const launchPacks = [
+	{
+		slug: "foundation",
+		name: "Foundation",
+		access: "Open",
+		release: "1.1.0",
+	},
+	{ slug: "editorial", name: "Editorial", access: "Open", release: "1.0.0" },
+	{ slug: "command", name: "Command", access: "Premium", release: "1.0.0" },
+	{ slug: "signal", name: "Signal", access: "Premium", release: "1.0.0" },
+] as const;
+
+const openLaunchPacks = launchPacks.filter(({ access }) => access === "Open");
+const premiumLaunchPacks = launchPacks.filter(
+	({ access }) => access === "Premium",
+);
+
+for (const pack of launchPacks) {
+	test(`the ${pack.name} Pack Preview shows one add command for every supported package runner`, async ({
+		page,
+	}) => {
+		await page.goto(`/catalog/${pack.slug}`);
+		const installation = page.getByRole("region", {
+			name: "Installation command",
+		});
+
+		await expect(installation.getByRole("term")).toHaveText(
+			packageRunnerCommands(pack.slug).map(([runner]) => runner),
+		);
+		await expect(installation.getByRole("definition")).toHaveText(
+			packageRunnerCommands(pack.slug).map(([, command]) => command),
+		);
+	});
+
+	test(`the ${pack.name} Pack Preview promises one Design Contract and nothing beside it`, async ({
+		page,
+	}) => {
+		await page.goto(`/catalog/${pack.slug}`);
+		const preview = page.getByRole("main");
+
+		await expect(
+			preview.getByRole("heading", { name: "Inside the Design Contract" }),
+		).toBeVisible();
+		await expect(
+			preview.getByText("one root DESIGN.md", { exact: false }),
+		).toBeVisible();
+		for (const retired of retiredInstallationPromises) {
+			await expect(preview.getByText(retired, { exact: false })).toHaveCount(0);
+		}
+	});
+}
+
+for (const openPack of openLaunchPacks) {
+	test(`the ${openPack.name} Pack Preview offers its raw Design Contract and account-free access`, async ({
+		page,
+		request,
+	}) => {
+		await page.goto(`/catalog/${openPack.slug}`);
+		const preview = page.getByRole("main");
+		const installation = preview.getByRole("region", {
+			name: "Installation command",
+		});
+
+		await expect(
+			preview.getByRole("link", {
+				name: `Read the ${openPack.name} ${openPack.release} Design Contract`,
+			}),
+		).toHaveAttribute(
+			"href",
+			`/contracts/${openPack.slug}/${openPack.release}`,
+		);
+		await expect(
+			installation.getByText("without an AgentKogei account", { exact: false }),
+		).toBeVisible();
+		await expect(preview.locator('a[href*="/r/"]')).toHaveCount(0);
+
+		const delivered = await request.get(
+			`/contracts/${openPack.slug}/${openPack.release}`,
+		);
+		expect(delivered.status()).toBe(200);
+		expect(delivered.headers()["content-type"]).toBe(
+			"text/markdown; charset=utf-8",
+		);
+		// The Pack Preview advertises a version it does not itself deliver, so it
+		// can drift behind the catalog. A Builder following the visible command
+		// gets whatever a bare identity selects, and both must name one release.
+		const current = await request.get(`/contracts/${openPack.slug}`);
+		expect(current.headers()["x-agentkogei-pack-release"]).toBe(
+			openPack.release,
+		);
+	});
+}
+
+for (const premiumPack of premiumLaunchPacks) {
+	test(`the ${premiumPack.name} Pack Preview justifies Premium Access without exposing its Design Contract`, async ({
+		page,
+	}) => {
+		await page.goto(`/catalog/${premiumPack.slug}`);
+		const preview = page.getByRole("main");
+		const installation = preview.getByRole("region", {
+			name: "Installation command",
+		});
+
+		for (const premiumValue of [
+			"creative distinctiveness",
+			"production depth",
+			"breadth of direction",
+		]) {
+			await expect(
+				preview.getByText(premiumValue, { exact: false }),
+			).toBeVisible();
+		}
+		await expect(
+			installation.getByText("active Premium Access", { exact: false }),
+		).toBeVisible();
+		await expect(
+			installation.getByText("browser authorization", { exact: false }),
+		).toBeVisible();
+		await expect(preview.locator('a[href^="/contracts/"]')).toHaveCount(0);
+	});
+}
+
 test("a premium Pack Preview shows complete evidence without exposing gated resources", async ({
 	page,
 }) => {
@@ -176,18 +326,17 @@ test("a premium Pack Preview shows complete evidence without exposing gated reso
 	}
 	await expect(
 		page.getByText(
-			"Installation retrieves the complete release only through the authenticated Premium Pack Source.",
+			"The Official Catalog delivers the complete Pack Release only to a CLI authorized by a Builder with active Premium Access.",
 		),
 	).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Coverage" })).toBeVisible();
 	await expect(
-		page.getByRole("heading", { name: "Included resources" }),
+		page.getByRole("heading", { name: "Inside the Design Contract" }),
 	).toBeVisible();
 	await expect(
 		page.getByRole("heading", { name: "Release history" }),
 	).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Changelog" })).toBeVisible();
-	await expect(page.getByText("DESIGN.md", { exact: true })).toHaveCount(0);
 	await expect(
 		page.getByText("registry payload", { exact: false }),
 	).toHaveCount(0);
@@ -217,7 +366,6 @@ test("Signal publicly demonstrates its distinct evaluated Interface System witho
 		page.getByText("WCAG 2.2 Level AA", { exact: false }),
 	).toBeVisible();
 	await expect(page.getByText("Commercial Pack License")).toBeVisible();
-	await expect(page.getByText("DESIGN.md", { exact: true })).toHaveCount(0);
 	await expect(
 		page.getByText("registry payload", { exact: false }),
 	).toHaveCount(0);
@@ -256,9 +404,6 @@ test("a Builder can anonymously retrieve the complete Foundation Pack Release", 
 	).toBe(true);
 
 	await page.goto("/catalog/foundation");
-	await expect(
-		page.getByRole("link", { name: "Retrieve Foundation 1.0.0" }),
-	).toHaveAttribute("href", "/r/foundation/1.0.0.json");
 	await expect(
 		page.getByText("Desktop 1440×900 and mobile 390×844"),
 	).toBeVisible();
@@ -304,13 +449,12 @@ test("a Builder can preview, retrieve, and distinguish the Editorial Open Design
 	await page.goto("/catalog/editorial");
 	await expect(page.getByRole("heading", { name: "Editorial" })).toBeVisible();
 	await expect(
-		page.getByRole("link", { name: "Retrieve Editorial 1.0.0" }),
-	).toHaveAttribute("href", "/r/editorial/1.0.0.json");
-	await expect(
 		page.getByLabel("Editorial rendered Pack Preview"),
 	).toBeVisible();
 	await expect(
-		page.getByText("Preview is evidence, not Pack Source", { exact: false }),
+		page.getByText("Preview is evidence, not the Design Contract", {
+			exact: false,
+		}),
 	).toBeVisible();
 	await expect(
 		page.getByText("WCAG 2.2 Level AA", { exact: false }),
@@ -653,6 +797,15 @@ test("pricing discloses the complete Premium Access offer", async ({
 	await expect(
 		page.getByText("reusing it in another Project", { exact: false }),
 	).toBeVisible();
+	await expect(
+		page.getByText("unlimited Projects with one add command", { exact: false }),
+	).toBeVisible();
+	await expect(
+		page.getByText(
+			"creative distinctiveness, production depth, and breadth of direction",
+			{ exact: false },
+		),
+	).toBeVisible();
 });
 
 test("public documentation explains Installation and remains usable on mobile", async ({
@@ -681,6 +834,86 @@ test("public documentation explains Installation and remains usable on mobile", 
 			document.documentElement.clientWidth,
 	);
 	expect(hasHorizontalOverflow).toBe(false);
+});
+
+test("public documentation presents the same add command for every package runner", async ({
+	page,
+}) => {
+	await page.goto("/docs");
+	const installation = page.getByRole("region", {
+		name: "Installation command",
+	});
+
+	await expect(installation.getByRole("term")).toHaveText(
+		packageRunnerCommands("foundation").map(([runner]) => runner),
+	);
+	await expect(installation.getByRole("definition")).toHaveText(
+		packageRunnerCommands("foundation").map(([, command]) => command),
+	);
+});
+
+test("public documentation describes the single Design Contract Installation writes", async ({
+	page,
+}) => {
+	await page.goto("/docs");
+	const documentation = page.getByRole("main");
+
+	await expect(
+		documentation.getByText("one root DESIGN.md", { exact: false }),
+	).toBeVisible();
+	await expect(
+		documentation.getByText("one marked AGENTS.md block", { exact: false }),
+	).toBeVisible();
+	for (const retired of retiredInstallationPromises) {
+		await expect(
+			documentation.getByText(retired, { exact: false }),
+		).toHaveCount(0);
+	}
+});
+
+test("public documentation retrieves Design Contracts as raw Markdown rather than registry JSON", async ({
+	page,
+	request,
+}) => {
+	await page.goto("/docs");
+	const documentation = page.getByRole("main");
+
+	await expect(
+		documentation.getByRole("link", {
+			name: "Read the Foundation Design Contract",
+		}),
+	).toHaveAttribute("href", "/contracts/foundation");
+	await expect(documentation.locator('a[href*="/r/"]')).toHaveCount(0);
+
+	const delivered = await request.get("/contracts/foundation");
+	expect(delivered.status()).toBe(200);
+	expect(delivered.headers()["content-type"]).toBe(
+		"text/markdown; charset=utf-8",
+	);
+});
+
+test("public documentation separates open software from third-party pack distribution", async ({
+	page,
+}) => {
+	await page.goto("/docs");
+	const documentation = page.getByRole("main");
+
+	await expect(
+		documentation.getByText("Open source under the MIT License.", {
+			exact: true,
+		}),
+	).toBeVisible();
+	await expect(
+		documentation.getByText("contains only first-party Design Packs", {
+			exact: false,
+		}),
+	).toBeVisible();
+	await expect(
+		documentation.getByText(
+			"does not support installing a Design Pack from a third-party source",
+			{ exact: false },
+		),
+	).toBeVisible();
 });
 
 test("public documentation states the complete Project License boundary", async ({

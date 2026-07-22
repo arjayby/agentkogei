@@ -15,6 +15,8 @@ import { ArrowUpRight } from "lucide-react";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
 
+import { InstallationCommand } from "@/components/installation-command";
+
 export const metadata: Metadata = {
 	title: "Documentation — AgentKogei",
 	description: "Install and use AgentKogei Design Packs safely in a Project.",
@@ -22,6 +24,7 @@ export const metadata: Metadata = {
 
 const sections = [
 	{ href: "#installation", label: "Installation" },
+	{ href: "#retrieval", label: "Design Contract retrieval" },
 	{ href: "#one-pack", label: "One-pack constraint" },
 	{ href: "#supported-stack", label: "Supported stack" },
 	{ href: "#licensing", label: "Licensing" },
@@ -80,25 +83,76 @@ export default function DocsPage() {
 						</h2>
 						<div className="flex max-w-3xl flex-col gap-5 text-base text-muted-foreground leading-8">
 							<p>
-								Installation applies an exact, versioned Design Pack snapshot
-								inside your Project. The snapshot gives current and future
-								coding agents a stable Design Contract to follow; it does not
-								automatically redesign an existing interface.
+								Run one command from your Project root. Installation writes one
+								root DESIGN.md containing the complete Pack Release, and creates
+								or updates one marked AGENTS.md block so your coding agents
+								discover it. It gives agents a stable Design Contract to follow;
+								it does not automatically redesign an existing interface.
 							</p>
 							<p>
-								Choose a Pack Release, review every planned write and conflict,
-								then explicitly confirm. Open packs require no AgentKogei
-								account. Premium packs require an active Pack Credential at
-								retrieval time.
+								A bare Design Pack identity selects the current Pack Release
+								through the Official Catalog, and{" "}
+								<code className="font-mono">foundation@1.1.0</code> selects that
+								immutable release. Before writing, the CLI shows the Design
+								Pack, Pack Release, Pack License, absolute target, and the exact
+								change, then waits for your confirmation.
 							</p>
 						</div>
-						<pre className="mt-8 max-w-3xl overflow-x-auto border bg-foreground p-5 font-mono text-background text-sm">
-							<code>
-								{
-									"$ agentkogei install foundation@1.0.0\n→ validate\n→ preview writes\n→ confirm"
-								}
-							</code>
-						</pre>
+						<div className="mt-8 max-w-3xl">
+							<InstallationCommand identity="foundation">
+								agentkogei@latest selects the newest CLI, not the newest Design
+								Pack. Open Design Packs add without an AgentKogei account;
+								Premium Design Packs use the same command and start browser
+								authorization when the CLI holds no Pack Credential.
+							</InstallationCommand>
+						</div>
+						<div className="mt-8 flex max-w-3xl flex-col gap-5 text-base text-muted-foreground leading-8">
+							<p>
+								Re-running add is the only way to move to another Pack Release.
+								Replacing an existing DESIGN.md shows the diff and asks
+								directly; unattended replacement requires both --yes and
+								--force. Removing a Design Pack is an ordinary Project edit:
+								delete DESIGN.md and the marked AGENTS.md block.
+							</p>
+						</div>
+					</section>
+
+					<section
+						id="retrieval"
+						className="scroll-mt-24 border-b py-12"
+						aria-labelledby="retrieval-heading"
+					>
+						<p className="mb-4 font-mono text-muted-foreground text-xs uppercase tracking-[0.18em]">
+							02 / Inspection
+						</p>
+						<h2
+							id="retrieval-heading"
+							className="mb-6 font-medium text-3xl tracking-tight"
+						>
+							Design Contract retrieval
+						</h2>
+						<div className="flex max-w-3xl flex-col gap-5 text-base text-muted-foreground leading-8">
+							<p>
+								The Official Catalog delivers a Pack Release as the exact raw
+								Markdown bytes a Project installs, so what you read is what you
+								add. Every Open Design Contract is publicly retrievable without
+								an account.
+							</p>
+							<p>
+								A Premium Design Contract uses the same raw endpoint behind a
+								Pack Credential and active Premium Access, so gated direction
+								never reaches an unauthorized caller.
+							</p>
+						</div>
+						<div className="mt-8">
+							<Link
+								href={"/contracts/foundation" as Route}
+								className={buttonVariants({ variant: "outline" })}
+							>
+								Read the Foundation Design Contract
+								<ArrowUpRight data-icon="inline-end" aria-hidden="true" />
+							</Link>
+						</div>
 					</section>
 
 					<section
@@ -107,7 +161,7 @@ export default function DocsPage() {
 						aria-labelledby="one-pack-heading"
 					>
 						<p className="mb-4 font-mono text-muted-foreground text-xs uppercase tracking-[0.18em]">
-							02 / Coherence
+							03 / Coherence
 						</p>
 						<h2
 							id="one-pack-heading"
@@ -116,11 +170,11 @@ export default function DocsPage() {
 							One-pack constraint
 						</h2>
 						<p className="max-w-3xl text-base text-muted-foreground leading-8">
-							A Project can have at most one Installed Pack. The CLI refuses
-							silent merging or replacement because two competing Interface
-							Systems would undermine the durable direction Installation exists
-							to provide. Changing packs is always an explicit lifecycle
-							decision.
+							A Project can have at most one Installed Pack, because two
+							competing Interface Systems would undermine the durable direction
+							Installation exists to provide. There is nothing to merge: one
+							DESIGN.md either stands or is replaced, and replacing it is always
+							a visible, confirmed decision.
 						</p>
 					</section>
 
@@ -130,7 +184,7 @@ export default function DocsPage() {
 						aria-labelledby="stack-heading"
 					>
 						<p className="mb-4 font-mono text-muted-foreground text-xs uppercase tracking-[0.18em]">
-							03 / Compatibility
+							04 / Compatibility
 						</p>
 						<h2
 							id="stack-heading"
@@ -139,10 +193,10 @@ export default function DocsPage() {
 							Supported stack
 						</h2>
 						<p className="max-w-3xl text-base text-muted-foreground leading-8">
-							The MVP validates a React or Next.js Stack Adapter using Tailwind
-							CSS v4 and shadcn/ui. Design Packs stay framework-neutral at their
-							core, so future adapters can add integrations without redefining
-							the Interface System.
+							Every Design Contract targets React or Next.js with Tailwind CSS
+							v4 and shadcn/ui directly, and carries that implementation
+							direction inside the document. Supporting another application
+							stack is a future product decision, not a slot to fill.
 						</p>
 					</section>
 
@@ -152,7 +206,7 @@ export default function DocsPage() {
 						aria-labelledby="licensing-heading"
 					>
 						<p className="mb-4 font-mono text-muted-foreground text-xs uppercase tracking-[0.18em]">
-							04 / Permission
+							05 / Permission
 						</p>
 						<h2
 							id="licensing-heading"
@@ -183,9 +237,9 @@ export default function DocsPage() {
 								</CardHeader>
 								<CardContent>
 									<p className="leading-7">
-										AgentKogei-authored prose and original visual resources use
-										CC BY 4.0, allowing reuse and adaptation when Builders
-										retain required attribution from the Pack Release.
+										AgentKogei-authored Design Contract prose uses CC BY 4.0,
+										allowing reuse and adaptation when Builders retain required
+										attribution from the Pack Release.
 									</p>
 								</CardContent>
 							</Card>
@@ -199,11 +253,11 @@ export default function DocsPage() {
 								<CardContent>
 									<div className="flex flex-col gap-3 leading-7">
 										<p>
-											Premium resources are distributed under the commercial
-											Pack License. An eligible installed snapshot may be used
-											by Builders and collaborators in that Project, including a
-											genuine public end-product Project, without opening the
-											Pack License.
+											A Premium Design Contract is distributed under the
+											commercial Pack License. An eligible installed snapshot
+											may be used by Builders and collaborators in that Project,
+											including a genuine public end-product Project, without
+											opening the Pack License.
 										</p>
 										<p>
 											The local snapshot remains usable offline without
@@ -213,7 +267,7 @@ export default function DocsPage() {
 										</p>
 										<p>
 											A refund or payment reversal terminates the affected
-											Project License and future Premium Pack Source access, but
+											Project License and future Official Catalog access, but
 											AgentKogei never remotely modifies Project files.
 										</p>
 									</div>
@@ -221,17 +275,28 @@ export default function DocsPage() {
 							</Card>
 							<Card>
 								<CardHeader>
-									<CardTitle>Self-hosting boundary</CardTitle>
+									<CardTitle>Open software, first-party catalog</CardTitle>
 									<CardDescription>
 										Open software is not catalog access.
 									</CardDescription>
 								</CardHeader>
 								<CardContent>
-									<p className="leading-7">
-										Self-hosting does not grant Premium Design Pack resources,
-										Pack Credentials, Premium Access, or permission to reproduce
-										the Official Catalog. Access and permission remain separate.
-									</p>
+									<div className="flex flex-col gap-3 leading-7">
+										<p>
+											Self-hosting does not grant Premium Design Pack content,
+											Pack Credentials, Premium Access, or permission to
+											reproduce the Official Catalog. Access and permission
+											remain separate.
+										</p>
+										<p>
+											The Official Catalog contains only first-party Design
+											Packs, and AgentKogei does not support installing a Design
+											Pack from a third-party source. Opening the repository,
+											the CLI, and the Design Contract format is a software
+											decision, not a commitment to distribute anyone else's
+											packs.
+										</p>
+									</div>
 								</CardContent>
 							</Card>
 						</div>
@@ -243,7 +308,7 @@ export default function DocsPage() {
 						aria-labelledby="safety-heading"
 					>
 						<p className="mb-4 font-mono text-muted-foreground text-xs uppercase tracking-[0.18em]">
-							05 / Trust boundary
+							06 / Trust boundary
 						</p>
 						<h2
 							id="safety-heading"
@@ -257,9 +322,11 @@ export default function DocsPage() {
 								dependency installation, or package-manager commands.
 							</AlertTitle>
 							<AlertDescription>
-								It validates declared files and safe relative targets, previews
-								writes, rejects conflicts, and leaves dependency or setup
-								guidance for the Builder to apply.
+								A Design Contract is inert Markdown. The CLI rejects any catalog
+								response that is not successful, valid UTF-8 Markdown; it writes
+								only DESIGN.md and its marked AGENTS.md block inside the current
+								directory, and leaves any setup guidance for the Builder to
+								apply.
 							</AlertDescription>
 						</Alert>
 						<div className="mt-10">
