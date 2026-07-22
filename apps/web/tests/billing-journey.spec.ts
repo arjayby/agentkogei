@@ -131,7 +131,7 @@ test("verified idempotent Polar events drive every account access state", async 
 
 	await page.goto("/catalog/foundation");
 	await expect(page.getByRole("heading", { name: /Foundation/ })).toBeVisible();
-	const openPack = await page.request.get("/r/foundation/1.1.0.json");
+	const openPack = await page.request.get("/contracts/foundation/1.1.0");
 	expect(openPack.ok()).toBe(true);
 });
 

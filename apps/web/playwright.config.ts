@@ -4,7 +4,6 @@ import { defineConfig, devices } from "@playwright/test";
 
 import {
 	buildTestCommandPackRelease,
-	buildTestPremiumDeliveryFixture,
 	buildTestSignalPackRelease,
 } from "./tests/support/premium-delivery-fixture";
 
@@ -53,7 +52,6 @@ export default defineConfig({
 				"http://localhost:3011/success?checkout_id={CHECKOUT_ID}",
 			POLAR_WEBHOOK_SECRET: "deterministic-polar-webhook-secret",
 			NEXT_TEST_BUILD: "true",
-			PREMIUM_DELIVERY_FIXTURE: buildTestPremiumDeliveryFixture(),
 			COMMAND_PREMIUM_RELEASE: commandPremiumRelease,
 			COMMAND_PREMIUM_RELEASE_SHA256: createHash("sha256")
 				.update(commandPremiumRelease)

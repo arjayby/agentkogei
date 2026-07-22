@@ -12,9 +12,9 @@ import path from "node:path";
 
 import {
 	applyDesignContractInstallation,
-	buildDesignContract,
 	foundationReleaseDirectoryFor,
 	planDesignContractInstallation,
+	readDesignContract,
 } from "../src/index";
 
 const cliCommand = new URL("../src/install-cli.ts", import.meta.url).pathname;
@@ -30,8 +30,8 @@ type CatalogResponse = {
 };
 
 const contracts = {
-	"1.0.0": await buildDesignContract(foundationReleaseDirectoryFor("1.0.0")),
-	"1.1.0": await buildDesignContract(foundationReleaseDirectoryFor("1.1.0")),
+	"1.0.0": await readDesignContract(foundationReleaseDirectoryFor("1.0.0")),
+	"1.1.0": await readDesignContract(foundationReleaseDirectoryFor("1.1.0")),
 };
 
 let overrides = new Map<string, CatalogResponse>();

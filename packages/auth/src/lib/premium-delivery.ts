@@ -51,10 +51,6 @@ async function authorizedPremiumCredential(secret: string) {
 		: null;
 }
 
-export async function authorizePremiumDelivery(input: { credential: string }) {
-	return Boolean(await authorizedPremiumCredential(input.credential));
-}
-
 /**
  * Why a Premium Design Contract retrieval may proceed or not. The CLI needs the
  * two denials kept apart: a missing or rejected Pack Credential is worth a
@@ -123,7 +119,7 @@ export async function inspectTestPremiumEntitlementEvents() {
 	}));
 }
 
-export async function recordPremiumProjectLicense(input: {
+async function recordPremiumProjectLicense(input: {
 	credential: string;
 	projectLicenseId: string;
 	packId: string;
@@ -155,6 +151,21 @@ export async function recordPremiumProjectLicense(input: {
 			recorded.packId === input.packId &&
 			recorded.packRelease === input.packRelease,
 	);
+}
+
+/**
+ * Records one Project License at the black-box test boundary. Premium delivery
+ * is raw Markdown and carries no Project identifier, so a journey that exercises
+ * refund and reversal behavior has to provision the license it then observes.
+ */
+export async function recordTestPremiumProjectLicense(input: {
+	credential: string;
+	projectLicenseId: string;
+	packId: string;
+	packRelease: string;
+}) {
+	if (!blackBoxTestBoundaryEnabled) return false;
+	return recordPremiumProjectLicense(input);
 }
 
 export async function inspectTestProjectLicense(id: string) {

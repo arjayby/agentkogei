@@ -41,23 +41,52 @@ async function copyFoundationFixture() {
 	return rootDirectory;
 }
 
-async function readManifest(rootDirectory: string) {
+async function readEvaluationRecord(rootDirectory: string) {
 	return JSON.parse(
-		await readFile(
-			path.join(rootDirectory, "agentkogei.manifest.json"),
-			"utf8",
-		),
+		await readFile(path.join(rootDirectory, "pack-evaluation.json"), "utf8"),
 	) as Record<string, unknown>;
 }
 
-async function writeManifest(
+async function writeEvaluationRecord(
 	rootDirectory: string,
-	manifest: Record<string, unknown>,
+	record: Record<string, unknown>,
 ) {
 	await writeFile(
-		path.join(rootDirectory, "agentkogei.manifest.json"),
-		`${JSON.stringify(manifest, null, 2)}\n`,
+		path.join(rootDirectory, "pack-evaluation.json"),
+		`${JSON.stringify(record, null, "\t")}\n`,
 	);
+}
+
+/** Applies one mutation to a copied release and evaluates the result. */
+async function evaluateMutatedRelease(
+	mutate: (record: Record<string, unknown>) => void,
+) {
+	const rootDirectory = await copyFoundationFixture();
+	const record = await readEvaluationRecord(rootDirectory);
+	mutate(record);
+	await writeEvaluationRecord(rootDirectory, record);
+	const result = await runValidator(rootDirectory);
+	return result.ok ? "" : result.errors.join(" ");
+}
+
+/**
+ * Rewrites a copied release's Design Contract and re-pins its digest, so what
+ * the evaluation catches is the change to the document rather than the
+ * substitution that carried it.
+ */
+async function evaluateRewrittenDesignContract(
+	rewrite: (markdown: string) => string,
+) {
+	const rootDirectory = await copyFoundationFixture();
+	const contractPath = path.join(rootDirectory, "DESIGN.md");
+	const markdown = rewrite(await readFile(contractPath, "utf8"));
+	await writeFile(contractPath, markdown);
+	const record = await readEvaluationRecord(rootDirectory);
+	(record.designContract as Record<string, unknown>).sha256 =
+		new Bun.CryptoHasher("sha256").update(markdown).digest("hex");
+	await writeEvaluationRecord(rootDirectory, record);
+	const result = await runValidator(rootDirectory);
+	return result.ok ? "" : result.errors.join(" ");
 }
 
 afterEach(async () => {
@@ -76,9 +105,12 @@ describe("Pack Release publication validation", () => {
 		for (const version of pack.versions) {
 			test(`accepts the published ${pack.id} Open Design Pack Release ${version}`, async () => {
 				const releaseDirectory = pack.directoryFor(version);
-				const { files } = (await readManifest(releaseDirectory)) as unknown as {
-					files: unknown[];
-				};
+				const record = (await readEvaluationRecord(
+					releaseDirectory,
+				)) as unknown as { evaluation: { evidence: string[] } };
+				const contract = await readFile(
+					path.join(releaseDirectory, "DESIGN.md"),
+				);
 
 				const result = await runValidator(releaseDirectory);
 
@@ -86,133 +118,101 @@ describe("Pack Release publication validation", () => {
 					ok: true,
 					pack: pack.id,
 					version,
-					filesValidated: files.length,
+					designContractBytes: contract.byteLength,
+					evidenceFilesValidated: record.evaluation.evidence.length,
 				});
 			});
 		}
 	}
 
-	const invalidManifestCases = [
+	const invalidRecordCases = [
 		{
 			name: "incomplete",
-			mutate(manifest: Record<string, unknown>) {
-				Reflect.deleteProperty(manifest, "evaluation");
+			mutate(record: Record<string, unknown>) {
+				Reflect.deleteProperty(record, "evaluation");
 			},
 			error: "evaluation",
 		},
 		{
-			name: "incompatible",
-			mutate(manifest: Record<string, unknown>) {
-				const compatibility = manifest.compatibility as {
-					adapters: Array<Record<string, unknown>>;
-				};
-				compatibility.adapters[0] = {
-					...compatibility.adapters[0],
-					tailwind: "^3.0.0",
-				};
-			},
-			error: "Tailwind CSS v4",
-		},
-		{
 			name: "unlicensed",
-			mutate(manifest: Record<string, unknown>) {
-				Reflect.deleteProperty(manifest, "license");
+			mutate(record: Record<string, unknown>) {
+				Reflect.deleteProperty(record, "license");
 			},
 			error: "license",
 		},
 		{
 			name: "unprovenanced",
-			mutate(manifest: Record<string, unknown>) {
-				manifest.provenance = [];
+			mutate(record: Record<string, unknown>) {
+				record.provenance = [];
 			},
 			error: "provenance",
 		},
 		{
 			name: "executable",
-			mutate(manifest: Record<string, unknown>) {
-				manifest.hooks = { postinstall: "node install.js" };
+			mutate(record: Record<string, unknown>) {
+				record.hooks = { postinstall: "node install.js" };
 			},
-			error: "executable",
+			error: "hooks",
 		},
 	] as const;
 
-	for (const fixture of invalidManifestCases) {
+	for (const fixture of invalidRecordCases) {
 		test(`rejects a representative ${fixture.name} fixture`, async () => {
-			const rootDirectory = await copyFoundationFixture();
-			const manifest = await readManifest(rootDirectory);
-			fixture.mutate(manifest);
-			await writeManifest(rootDirectory, manifest);
-
-			const result = await runValidator(rootDirectory);
-
-			expect(result.ok).toBe(false);
-			if (!result.ok) {
-				expect(result.errors.join(" ")).toContain(fixture.error);
-			}
+			expect(await evaluateMutatedRelease(fixture.mutate)).toContain(
+				fixture.error,
+			);
 		});
 	}
 
-	test("rejects an unsafe traversal target", async () => {
-		const rootDirectory = await copyFoundationFixture();
-		const manifest = await readManifest(rootDirectory);
-		const files = manifest.files as Array<Record<string, unknown>>;
-		files[0] = { ...files[0], target: "../DESIGN.md" };
-		await writeManifest(rootDirectory, manifest);
+	test("rejects a Pack License no provenance entry accounts for", async () => {
+		const errors = await evaluateMutatedRelease((record) => {
+			const license = record.license as Record<string, unknown>;
+			license.spdx = "MIT";
+		});
 
-		const result = await runValidator(rootDirectory);
-
-		expect(result.ok).toBe(false);
-		if (!result.ok) {
-			expect(result.errors.join(" ")).toContain("safe relative target");
-		}
+		expect(errors).toContain(
+			"provenance does not account for the Pack License",
+		);
 	});
 
-	test("rejects an absolute Windows target", async () => {
-		const rootDirectory = await copyFoundationFixture();
-		const manifest = await readManifest(rootDirectory);
-		const files = manifest.files as Array<Record<string, unknown>>;
-		files[0] = { ...files[0], target: "C:/outside/DESIGN.md" };
-		await writeManifest(rootDirectory, manifest);
+	test("rejects an evaluation evidence path that escapes the Pack Release", async () => {
+		const errors = await evaluateMutatedRelease((record) => {
+			const evaluation = record.evaluation as Record<string, unknown>;
+			evaluation.evidence = ["../report.json"];
+		});
 
-		const result = await runValidator(rootDirectory);
-
-		expect(result.ok).toBe(false);
-		if (!result.ok) {
-			expect(result.errors.join(" ")).toContain("safe relative target");
-		}
+		expect(errors).toContain("safe relative path");
 	});
 
-	test("rejects duplicate destinations", async () => {
-		const rootDirectory = await copyFoundationFixture();
-		const manifest = await readManifest(rootDirectory);
-		const files = manifest.files as Array<Record<string, unknown>>;
-		files[1] = { ...files[1], target: files[0]?.target };
-		await writeManifest(rootDirectory, manifest);
-
-		const result = await runValidator(rootDirectory);
-
-		expect(result.ok).toBe(false);
-		if (!result.ok) {
-			expect(result.errors.join(" ")).toContain("duplicate target");
-		}
-	});
-
-	test("rejects undeclared release resources", async () => {
+	test("rejects an unpublished release resource", async () => {
 		const rootDirectory = await copyFoundationFixture();
 		await writeFile(
-			path.join(rootDirectory, "undeclared.md"),
-			"not declared\n",
+			path.join(rootDirectory, "components.md"),
+			"a resource no Project receives\n",
 		);
 
 		const result = await runValidator(rootDirectory);
 
 		expect(result.ok).toBe(false);
 		if (!result.ok) {
-			expect(result.errors.join(" ")).toContain("undeclared file");
+			expect(result.errors.join(" ")).toContain(
+				"unpublished file: components.md",
+			);
 		}
 	});
 
-	test("rejects a hash-invalid fixture", async () => {
+	test("rejects declared evaluation evidence that is not present", async () => {
+		const errors = await evaluateMutatedRelease((record) => {
+			const evaluation = record.evaluation as Record<string, unknown>;
+			evaluation.evidence = ["evaluation/missing.json"];
+		});
+
+		expect(errors).toContain(
+			"published file is missing: evaluation/missing.json",
+		);
+	});
+
+	test("rejects a substituted Design Contract", async () => {
 		const rootDirectory = await copyFoundationFixture();
 		await writeFile(path.join(rootDirectory, "DESIGN.md"), "substituted\n");
 
@@ -220,11 +220,84 @@ describe("Pack Release publication validation", () => {
 
 		expect(result.ok).toBe(false);
 		if (!result.ok) {
-			expect(result.errors.join(" ")).toContain("hash mismatch");
+			expect(result.errors.join(" ")).toContain("hash mismatch for DESIGN.md");
 		}
 	});
 
-	test("rejects a symlinked release resource", async () => {
+	test("rejects a Design Contract that hides direction in control characters", async () => {
+		expect(
+			await evaluateRewrittenDesignContract((markdown) => `${markdown}‮EXTRA\n`),
+		).toContain("hidden control characters");
+	});
+
+	test("rejects a Design Contract that still points at publication evidence", async () => {
+		expect(
+			await evaluateRewrittenDesignContract(
+				(markdown) => `${markdown}\nSee evaluation/report.json.\n`,
+			),
+		).toContain("DESIGN.md still depends on evaluation/report.json");
+	});
+
+	// A Project receives one inert document. Direction it can only follow by
+	// running something is the shape the retired executable-hook schema and
+	// dependency-setup guidance used to be screened for.
+	for (const executable of [
+		{
+			language: "sh",
+			block: "```sh\nnpm install @agentkogei/foundation\n```",
+		},
+		{ language: "bash", block: "```bash\n./setup.sh\n```" },
+		{ language: "js", block: "```js\nrequire('node:child_process')\n```" },
+	]) {
+		test(`rejects a Design Contract presenting an executable ${executable.language} block`, async () => {
+			expect(
+				await evaluateRewrittenDesignContract(
+					(markdown) => `${markdown}\n## Setup\n\n${executable.block}\n`,
+				),
+			).toContain(
+				`DESIGN.md presents an executable ${executable.language} block`,
+			);
+		});
+	}
+
+	test("accepts the token and graphic blocks a Design Contract is made of", async () => {
+		expect(
+			await evaluateRewrittenDesignContract(
+				(markdown) =>
+					`${markdown}\n## Hero graphic\n\n\`\`\`svg\n<svg role="img"><title>Hero</title></svg>\n\`\`\`\n`,
+			),
+		).toBe("");
+	});
+
+	// ADR 0009: provenance reaches a Project as human-readable text in the
+	// Design Contract, because a Project receives no other file to carry it.
+	for (const fact of [
+		{ name: "Design Pack", key: "name" },
+		{ name: "Pack License", key: "license.name" },
+		{ name: "attribution", key: "license.attribution" },
+	]) {
+		test(`rejects a Design Contract that does not state its ${fact.name}`, async () => {
+			const rootDirectory = await copyFoundationFixture();
+			const record = await readEvaluationRecord(rootDirectory);
+			const [group, field] = fact.key.split(".");
+			const target = (
+				field ? (record[group as string] as Record<string, unknown>) : record
+			) as Record<string, unknown>;
+			target[field ?? (group as string)] = "Unstated in the Design Contract";
+			await writeEvaluationRecord(rootDirectory, record);
+
+			const result = await runValidator(rootDirectory);
+
+			expect(result.ok).toBe(false);
+			if (!result.ok) {
+				expect(result.errors.join(" ")).toContain(
+					`DESIGN.md does not state its ${fact.name}`,
+				);
+			}
+		});
+	}
+
+	test("rejects a symlinked Design Contract", async () => {
 		const rootDirectory = await copyFoundationFixture();
 		const outsideFile = `${rootDirectory}-outside-design.md`;
 		await writeFile(outsideFile, "outside the Pack Release\n");
@@ -241,153 +314,70 @@ describe("Pack Release publication validation", () => {
 	});
 
 	test("rejects invalid semantic release metadata", async () => {
-		const rootDirectory = await copyFoundationFixture();
-		const manifest = await readManifest(rootDirectory);
-		const release = manifest.release as Record<string, unknown>;
-		release.version = "01.0.0";
-		await writeManifest(rootDirectory, manifest);
-
-		const result = await runValidator(rootDirectory);
-
-		expect(result.ok).toBe(false);
-		if (!result.ok) {
-			expect(result.errors.join(" ")).toContain("release.version");
-		}
-	});
-
-	test("rejects an adapter range that also admits Tailwind CSS v3", async () => {
-		const rootDirectory = await copyFoundationFixture();
-		const manifest = await readManifest(rootDirectory);
-		const compatibility = manifest.compatibility as {
-			adapters: Array<Record<string, unknown>>;
-		};
-		compatibility.adapters[0] = {
-			...compatibility.adapters[0],
-			tailwind: ">=3 <5",
-		};
-		await writeManifest(rootDirectory, manifest);
-
-		const result = await runValidator(rootDirectory);
-
-		expect(result.ok).toBe(false);
-		if (!result.ok) {
-			expect(result.errors.join(" ")).toContain("Tailwind CSS v4");
-		}
-	});
-
-	test("rejects incompatible React and Next.js adapter ranges", async () => {
-		const rootDirectory = await copyFoundationFixture();
-		const manifest = await readManifest(rootDirectory);
-		const compatibility = manifest.compatibility as {
-			adapters: Array<Record<string, unknown>>;
-		};
-		compatibility.adapters[0] = {
-			...compatibility.adapters[0],
-			react: ">=1",
-			nextjs: ">=1",
-		};
-		await writeManifest(rootDirectory, manifest);
-
-		const result = await runValidator(rootDirectory);
-
-		expect(result.ok).toBe(false);
-		if (!result.ok) {
-			expect(result.errors.join(" ")).toContain("MVP compatibility");
-		}
-	});
-
-	test("rejects required metadata that points to an undeclared resource", async () => {
-		const rootDirectory = await copyFoundationFixture();
-		const manifest = await readManifest(rootDirectory);
-		const evaluation = manifest.evaluation as Record<string, unknown>;
-		evaluation.evidence = "evaluation/missing.json";
-		await writeManifest(rootDirectory, manifest);
-
-		const result = await runValidator(rootDirectory);
-
-		expect(result.ok).toBe(false);
-		if (!result.ok) {
-			expect(result.errors.join(" ")).toContain(
-				"required resource is not declared",
-			);
-		}
-	});
-
-	test("rejects dependency guidance that asks to execute a package manager", async () => {
-		const rootDirectory = await copyFoundationFixture();
-		const manifest = await readManifest(rootDirectory);
-		const dependencies = manifest.dependencies as Record<string, unknown>;
-		dependencies.setup = ["Run npm install example-package"];
-		await writeManifest(rootDirectory, manifest);
-
-		const result = await runValidator(rootDirectory);
-
-		expect(result.ok).toBe(false);
-		if (!result.ok) {
-			expect(result.errors.join(" ")).toContain("non-executable");
-		}
-	});
-
-	for (const command of [
-		"Run npm ci",
-		"Run npm exec setup-tool",
-		"Run pnpm update",
-		"Run yarn set version stable",
-		"Run bun build",
-		"Run ./setup.sh",
-		"Run the setup script",
-		"Run pip install package",
-		"Run corepack pnpm install",
-		"Run make setup",
-		"Run powershell setup.ps1",
-		"./setup.sh",
-		"/bin/sh setup.sh",
-		"chmod +x setup.sh && ./setup.sh",
-	]) {
-		test(`rejects package-manager guidance: ${command}`, async () => {
-			const rootDirectory = await copyFoundationFixture();
-			const manifest = await readManifest(rootDirectory);
-			const dependencies = manifest.dependencies as Record<string, unknown>;
-			dependencies.setup = [command];
-			await writeManifest(rootDirectory, manifest);
-
-			const result = await runValidator(rootDirectory);
-
-			expect(result.ok).toBe(false);
-			if (!result.ok) {
-				expect(result.errors.join(" ")).toContain("non-executable");
-			}
+		const errors = await evaluateMutatedRelease((record) => {
+			(record.release as Record<string, unknown>).version = "01.0.0";
 		});
-	}
+
+		expect(errors).toContain("release.version");
+	});
+
+	test("rejects a compatibility range that also admits Tailwind CSS v3", async () => {
+		const errors = await evaluateMutatedRelease((record) => {
+			(record.compatibility as Record<string, unknown>).tailwind = ">=3 <5";
+		});
+
+		expect(errors).toContain("MVP compatibility");
+	});
+
+	test("rejects incompatible React and Next.js ranges", async () => {
+		const errors = await evaluateMutatedRelease((record) => {
+			const compatibility = record.compatibility as Record<string, unknown>;
+			compatibility.react = ">=1";
+			compatibility.nextjs = ">=1";
+		});
+
+		expect(errors).toContain("MVP compatibility");
+	});
+
+	test("rejects a user interface library outside the evaluated stack", async () => {
+		const errors = await evaluateMutatedRelease((record) => {
+			(record.compatibility as Record<string, unknown>).ui = "radix";
+		});
+
+		expect(errors).toContain("compatibility.ui");
+	});
+
+	test("rejects a breaking release with no migration notes", async () => {
+		const errors = await evaluateMutatedRelease((record) => {
+			const changelog = record.changelog as Record<string, unknown>;
+			changelog.breaking = true;
+			changelog.migrationNotes = null;
+		});
+
+		expect(errors).toContain("migration notes");
+	});
 
 	test("rejects fabricated or incomplete evaluation coverage", async () => {
-		const rootDirectory = await copyFoundationFixture();
-		const manifest = await readManifest(rootDirectory);
-		const evaluation = manifest.evaluation as Record<string, unknown>;
-		evaluation.screens = Array.from({ length: 8 }, () => "placeholder");
-		evaluation.viewports = ["800x600", "1024x768"];
-		evaluation.colorSchemes = ["light", "light"];
-		evaluation.automatedChecks = ["passed"];
-		await writeManifest(rootDirectory, manifest);
+		const errors = await evaluateMutatedRelease((record) => {
+			const evaluation = record.evaluation as Record<string, unknown>;
+			evaluation.screens = Array.from({ length: 8 }, () => "placeholder");
+			evaluation.viewports = ["800x600", "1024x768"];
+			evaluation.colorSchemes = ["light", "light"];
+			evaluation.automatedChecks = ["passed"];
+		});
 
-		const result = await runValidator(rootDirectory);
-
-		expect(result.ok).toBe(false);
-		if (!result.ok) {
-			const errors = result.errors.join(" ");
-			expect(errors).toContain("required screen");
-			expect(errors).toContain("required viewport");
-			expect(errors).toContain("both light and dark");
-			expect(errors).toContain("automated check");
-		}
+		expect(errors).toContain("required screen");
+		expect(errors).toContain("required viewport");
+		expect(errors).toContain("both light and dark");
+		expect(errors).toContain("automated check");
 	});
 
 	test("rejects changed bytes under an already-published Pack Release", async () => {
 		const rootDirectory = await copyFoundationFixture();
-		const manifest = await readManifest(rootDirectory);
-		const files = manifest.files as Array<Record<string, unknown>>;
-		files[0] = { ...files[0], sha256: "a".repeat(64) };
-		await writeManifest(rootDirectory, manifest);
+		const record = await readEvaluationRecord(rootDirectory);
+		const changelog = record.changelog as Record<string, unknown>;
+		changelog.summary = "Quietly revised after publication.";
+		await writeEvaluationRecord(rootDirectory, record);
 
 		const result = await runValidator(
 			rootDirectory,

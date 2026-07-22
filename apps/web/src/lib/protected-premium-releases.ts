@@ -8,15 +8,12 @@ import {
 } from "agentkogei/src/release-version";
 
 /**
- * How each protected Pack Release is provisioned: the release payload itself
- * and, for an Official Catalog Premium Design Pack, the digest the payload must
- * match. Provisioning both together keeps the pinned digest describing the
- * release actually being served rather than an earlier edition of it.
+ * How each protected Pack Release is provisioned: the Design Contract payload
+ * itself and the digest it must match. Provisioning both together keeps the
+ * pinned digest describing the release actually being served rather than an
+ * earlier edition of it.
  */
 const protectedReleaseLoaders = {
-	"delivery-fixture": {
-		"1.0.0": { release: () => env.PREMIUM_DELIVERY_FIXTURE },
-	},
 	command: {
 		"1.0.0": {
 			release: () => env.COMMAND_PREMIUM_RELEASE,
@@ -33,15 +30,10 @@ const protectedReleaseLoaders = {
 
 type ProtectedReleaseLoader = {
 	release: () => string | undefined;
-	sha256?: () => string | undefined;
+	sha256: () => string | undefined;
 };
 
-export type ProtectedPremiumReleaseIdentity =
-	keyof typeof protectedReleaseLoaders;
-export type OfficialPremiumPackIdentity = Exclude<
-	ProtectedPremiumReleaseIdentity,
-	"delivery-fixture"
->;
+export type OfficialPremiumPackIdentity = keyof typeof protectedReleaseLoaders;
 
 const officialPremiumPackIdentities = new Set<OfficialPremiumPackIdentity>([
 	"command",
@@ -73,21 +65,19 @@ export function currentOfficialPremiumRelease(
 export function getProtectedPremiumRelease(identity: string, version: string) {
 	if (!Object.hasOwn(protectedReleaseLoaders, identity)) return null;
 	const releases: Record<string, ProtectedReleaseLoader> =
-		protectedReleaseLoaders[identity as ProtectedPremiumReleaseIdentity];
+		protectedReleaseLoaders[identity as OfficialPremiumPackIdentity];
 	const loader = releases[version];
 	if (!loader) return null;
 	const serialized = loader.release();
 	if (!serialized) return null;
-	if (loader.sha256) {
-		// A Premium Pack Release is immutable, so a payload that does not match
-		// its pinned digest is not the release the Official Catalog published.
-		const expectedDigest = loader.sha256();
-		if (
-			!expectedDigest ||
-			createHash("sha256").update(serialized).digest("hex") !== expectedDigest
-		) {
-			return null;
-		}
+	// A Premium Pack Release is immutable, so a payload that does not match its
+	// pinned digest is not the release the Official Catalog published.
+	const expectedDigest = loader.sha256();
+	if (
+		!expectedDigest ||
+		createHash("sha256").update(serialized).digest("hex") !== expectedDigest
+	) {
+		return null;
 	}
 	try {
 		return JSON.parse(serialized) as unknown;

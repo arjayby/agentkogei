@@ -1,0 +1,86 @@
+{
+	"schemaVersion": "2.0",
+	"id": "foundation",
+	"name": "Foundation",
+	"publisher": "AgentKogei",
+	"release": {
+		"version": "1.0.0",
+		"publishedAt": "2026-07-18",
+		"immutable": true
+	},
+	"access": "open",
+	"license": {
+		"spdx": "CC-BY-4.0",
+		"name": "Creative Commons Attribution 4.0 International",
+		"url": "https://creativecommons.org/licenses/by/4.0/",
+		"attribution": "Foundation Interface System by AgentKogei, licensed under CC BY 4.0."
+	},
+	"designContract": {
+		"sha256": "6eadd5c6f3084bfdefdc9be2e550cecd8d4aff025489d9343871d2f8ff6497dd"
+	},
+	"compatibility": {
+		"frameworks": ["react", "nextjs"],
+		"react": ">=18 <20",
+		"nextjs": ">=15 <17",
+		"tailwind": ">=4 <5",
+		"ui": "shadcn/ui"
+	},
+	"provenance": [
+		{
+			"work": "prose, semantic token selections, examples, and evaluation materials",
+			"origin": "original",
+			"author": "AgentKogei",
+			"license": "CC-BY-4.0",
+			"attribution": "Foundation Interface System by AgentKogei, licensed under CC BY 4.0."
+		}
+	],
+	"evaluation": {
+		"status": "passed",
+		"standard": "WCAG 2.2 Level AA",
+		"screens": [
+			"marketing",
+			"authentication",
+			"onboarding",
+			"dashboard",
+			"table",
+			"form",
+			"settings",
+			"states"
+		],
+		"viewports": ["1440x900", "390x844"],
+		"colorSchemes": ["light", "dark"],
+		"reducedMotion": true,
+		"agentGenerationRuns": 3,
+		"automatedChecks": [
+			"structure",
+			"accessibility",
+			"responsive overflow",
+			"color contrast"
+		],
+		"humanReview": {
+			"status": "passed",
+			"reviewedAt": "2026-07-18",
+			"rightsReview": "passed"
+		},
+		"evidence": ["evaluation/report.json"]
+	},
+	"preview": {
+		"summary": "Neutral, crisp, and highly legible B2B SaaS.",
+		"surfaces": [
+			"marketing",
+			"authentication",
+			"onboarding",
+			"dashboard",
+			"table",
+			"form",
+			"settings",
+			"states"
+		],
+		"route": "/catalog/foundation"
+	},
+	"changelog": {
+		"summary": "Initial Published Pack with complete cross-surface guidance, implementation direction, provenance, and Pack Evaluation evidence.",
+		"breaking": false,
+		"migrationNotes": null
+	}
+}

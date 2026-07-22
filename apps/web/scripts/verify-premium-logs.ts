@@ -3,21 +3,21 @@ import path from "node:path";
 
 import {
 	buildTestCommandPackRelease,
-	buildTestPremiumDeliveryFixture,
 	buildTestSignalPackRelease,
 } from "../tests/support/premium-delivery-fixture";
 
-function releaseMarkers(serialized: string) {
-	const release = JSON.parse(serialized) as {
-		files: Array<{ content?: string }>;
-	};
-	return release.files.flatMap((file) => (file.content ? [file.content] : []));
+/**
+ * A protected Pack Release is the raw Markdown a Project installs, so the whole
+ * Design Contract is the marker that must never appear in an application log.
+ */
+function designContractMarker(serialized: string) {
+	const { markdown } = JSON.parse(serialized) as { markdown: string };
+	return markdown;
 }
 
 const protectedMarkers = [
-	...releaseMarkers(buildTestPremiumDeliveryFixture()),
-	...releaseMarkers(buildTestCommandPackRelease()),
-	...releaseMarkers(buildTestSignalPackRelease()),
+	designContractMarker(buildTestCommandPackRelease()),
+	designContractMarker(buildTestSignalPackRelease()),
 ];
 const logPath = path.resolve(".black-box/application.log");
 const applicationLog = await readFile(logPath, "utf8");
@@ -30,5 +30,5 @@ if (leakedMarker) {
 }
 
 console.log(
-	"Verified: application logs contain no gated premium fixture bytes.",
+	"Verified: application logs contain no gated Design Contract bytes.",
 );

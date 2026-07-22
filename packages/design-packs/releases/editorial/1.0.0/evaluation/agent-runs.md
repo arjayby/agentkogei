@@ -1,6 +1,6 @@
 # Editorial agent-generation evidence
 
-Three independent generation runs applied the released Design Contract and React / Next.js, Tailwind CSS v4, and shadcn/ui Stack Adapter to an AgentKogei-owned reference Project. Review used the release resources exactly as transported; no unlisted prompt, remote font, or executable setup was supplied.
+Three independent generation runs applied the released Design Contract and React / Next.js, Tailwind CSS v4, and shadcn/ui implementation direction to an AgentKogei-owned reference Project. Review used the release resources exactly as transported; no unlisted prompt, remote font, or executable setup was supplied.
 
 ## Run 1 — public and authentication surfaces
 

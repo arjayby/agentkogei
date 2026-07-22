@@ -2,8 +2,7 @@ import {
 	authorizePremiumRetrieval,
 	recordPremiumEntitlementEvent,
 } from "@agentkogei/auth/lib/premium-delivery";
-import { buildDesignContractFromResources } from "agentkogei/src/design-contract";
-import { z } from "zod";
+import { designContractSchema } from "agentkogei/src/design-contract";
 
 import openDesignContracts from "@/generated/open-design-contracts.json";
 import { catalogSelector } from "@/lib/catalog-selector";
@@ -46,46 +45,21 @@ export function findOpenDesignContract(identity: string, version?: string) {
 }
 
 /**
- * A protected Pack Release travels as the resources of one release rather than
- * as a Design Contract, so the gated document is compiled from the same
- * declared manifest an Open Pack Release publishes from.
- */
-const protectedReleaseSchema = z.object({
-	files: z
-		.array(z.object({ path: z.string().min(1), content: z.string() }))
-		.min(1),
-});
-
-const compiledPremiumContracts = new Map<string, DeliveredDesignContract>();
-
-/**
  * Resolves a Premium selector to the Design Contract the Official Catalog can
- * deliver for it. A Pack Release that is provisioned but does not consolidate
- * into one document has no Design Contract to deliver yet, so it reads as
- * absent rather than failing the request.
+ * deliver for it. A protected Pack Release is provisioned as the same raw
+ * Design Contract an Open Pack Release publishes, so a payload that is not one
+ * reads as absent rather than failing the request.
  */
-async function findPremiumDesignContract(identity: string, version?: string) {
+function findPremiumDesignContract(identity: string, version?: string) {
 	if (!isOfficialPremiumPackIdentity(identity)) return null;
 	const selected = version ?? currentOfficialPremiumRelease(identity);
 	if (!selected) return null;
-	const selector = `${identity}@${selected}`;
-	const cached = compiledPremiumContracts.get(selector);
-	if (cached) return cached;
 
-	const release = protectedReleaseSchema.safeParse(
+	const release = designContractSchema.safeParse(
 		getProtectedPremiumRelease(identity, selected),
 	);
 	if (!release.success) return null;
-	let contract: Awaited<ReturnType<typeof buildDesignContractFromResources>>;
-	try {
-		contract = await buildDesignContractFromResources(
-			Object.fromEntries(
-				release.data.files.map((file) => [file.path, file.content]),
-			),
-		);
-	} catch {
-		return null;
-	}
+	const contract = release.data;
 	if (
 		contract.identity !== identity ||
 		contract.packRelease !== selected ||
@@ -93,14 +67,12 @@ async function findPremiumDesignContract(identity: string, version?: string) {
 	) {
 		return null;
 	}
-	const delivered: DeliveredDesignContract = {
+	return {
 		designPack: contract.designPack,
 		packRelease: contract.packRelease,
 		packLicense: contract.packLicense,
 		markdown: contract.markdown,
-	};
-	compiledPremiumContracts.set(selector, delivered);
-	return delivered;
+	} satisfies DeliveredDesignContract;
 }
 
 export function designContractResponse(
@@ -183,7 +155,7 @@ export async function deliverDesignContract(
 		});
 	}
 
-	const premiumContract = await findPremiumDesignContract(identity, version);
+	const premiumContract = findPremiumDesignContract(identity, version);
 	if (!premiumContract) return unknownDesignContractResponse(selector);
 
 	observeTestPremiumRetrieval(request);
