@@ -24,8 +24,48 @@ export type DesignContract = {
  */
 const publicationEvidenceDirectory = "evaluation/";
 
-const consolidatedCode: Record<string, { title: string; language: string }> = {
-	"text/css": { title: "Token definitions", language: "css" },
+/**
+ * The accessible name of a graphic is the title its root element opens with. A
+ * title on some inner shape names that shape instead, so only the first child
+ * of `<svg>` counts.
+ */
+const graphicAccessibleName = /<svg\b[^>]*>\s*<title[^>]*>([^<]*)<\/title>/;
+const xmlEntities: Record<string, string> = {
+	"&amp;": "&",
+	"&lt;": "<",
+	"&gt;": ">",
+	"&quot;": '"',
+	"&apos;": "'",
+};
+
+/**
+ * A meaningful graphic already carries its own accessible name, so that name is
+ * what a Builder and an AI coding agent look for once the graphic lives inside
+ * the document rather than beside it. It reads as a heading rather than as
+ * markup, so the escaping the graphic needed does not survive into one.
+ */
+function graphicName(contents: string) {
+	const name = graphicAccessibleName
+		.exec(contents)?.[1]
+		?.replaceAll(
+			/&(?:amp|lt|gt|quot|apos);/g,
+			(entity) => xmlEntities[entity] as string,
+		)
+		.trim();
+	return name || undefined;
+}
+
+/**
+ * How a resource that is not Markdown becomes one titled section. A media type
+ * a release declares once carries a fixed title; one it may declare many times
+ * takes each title from the resource, so two sections never claim one name.
+ */
+const consolidatedCode: Record<
+	string,
+	{ language: string; title: (contents: string) => string | undefined }
+> = {
+	"text/css": { language: "css", title: () => "Token definitions" },
+	"image/svg+xml": { language: "svg", title: graphicName },
 };
 
 function headingLevel(line: string) {
@@ -67,17 +107,29 @@ function consolidatedSection(
 
 /**
  * Rewrites a non-Markdown resource as one fenced section, so direction a
- * Builder used to receive as a separate file still arrives verbatim. Returns
- * nothing for a media type consolidation cannot represent as text.
+ * Builder used to receive as a separate file still arrives verbatim. Refuses a
+ * media type consolidation cannot represent as text, and a resource that
+ * supplies no name for the section that would hold it.
  */
 function consolidatedCodeSection(
-	mediaType: string,
+	identity: string,
+	file: { path: string; mediaType: string },
 	contents: string,
-): ConsolidatedSection | undefined {
-	const code = consolidatedCode[mediaType];
-	if (!code) return undefined;
+): ConsolidatedSection {
+	const code = consolidatedCode[file.mediaType];
+	if (!code) {
+		throw new Error(
+			`${identity} cannot consolidate ${file.path} as ${file.mediaType}`,
+		);
+	}
+	const title = code.title(contents);
+	if (!title) {
+		throw new Error(
+			`${identity} cannot title a section for ${file.path}, which carries no name`,
+		);
+	}
 	return {
-		title: code.title,
+		title,
 		body: `\`\`\`${code.language}\n${contents.trimEnd()}\n\`\`\``,
 	};
 }
@@ -159,12 +211,7 @@ async function compileDesignContract(
 		const section =
 			file.mediaType === "text/markdown"
 				? consolidatedSection(file.path, contents)
-				: consolidatedCodeSection(file.mediaType, contents);
-		if (!section) {
-			throw new Error(
-				`${manifest.id} declares ${file.path} as unconsolidatable ${file.mediaType}`,
-			);
-		}
+				: consolidatedCodeSection(manifest.id, file, contents);
 		// One title must name one section, or a resolved cross-reference would
 		// point at two places at once.
 		if (claimedTitles.has(section.title)) {

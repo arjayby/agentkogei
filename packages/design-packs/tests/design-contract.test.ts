@@ -19,6 +19,59 @@ const publishedReleases = publishedPacks.flatMap((pack) =>
 	),
 );
 
+/** Every resource a Pack Release declares, as the compiler receives them. */
+async function releaseResources(directory: string) {
+	const manifest = JSON.parse(
+		await readFile(path.join(directory, "agentkogei.manifest.json"), "utf8"),
+	) as { files: Array<{ path: string }> };
+	return Object.fromEntries(
+		await Promise.all(
+			[
+				"agentkogei.manifest.json",
+				...manifest.files.map((file) => file.path),
+			].map(
+				async (resource) =>
+					[
+						resource,
+						await readFile(path.join(directory, resource), "utf8"),
+					] as const,
+			),
+		),
+	);
+}
+
+const graphicPath = "resources/momentum-grid.svg";
+
+/**
+ * A Pack Release carrying one meaningful graphic, which a Premium Design Pack
+ * publishes as part of its direction rather than as publication evidence.
+ */
+async function releaseWithGraphic(graphic: string) {
+	const resources = await releaseResources(
+		foundationReleaseDirectoryFor("1.1.0"),
+	);
+	const manifest = JSON.parse(
+		resources["agentkogei.manifest.json"] as string,
+	) as {
+		files: Array<Record<string, string>>;
+		provenance: Array<{ paths: string[] }>;
+	};
+	manifest.files.push({
+		path: graphicPath,
+		target: `.agentkogei/foundation/${graphicPath}`,
+		sha256: "0".repeat(64),
+		mediaType: "image/svg+xml",
+		mode: "0644",
+	});
+	(manifest.provenance[0] as { paths: string[] }).paths.push(graphicPath);
+	return {
+		...resources,
+		"agentkogei.manifest.json": JSON.stringify(manifest),
+		"DESIGN.md": `${resources["DESIGN.md"]}\nCompose the hero from \`${graphicPath}\`.\n`,
+		[graphicPath]: graphic,
+	};
+}
+
 describe("Design Contract compilation", () => {
 	test("reports the Design Pack, Pack Release, Pack License, and access of the release", async () => {
 		const contract = await foundation();
@@ -91,31 +144,74 @@ describe("Design Contract compilation", () => {
 	});
 
 	test("refuses a release whose direction still points outside the document", async () => {
-		const directory = foundationReleaseDirectoryFor("1.1.0");
-		const manifest = JSON.parse(
-			await readFile(path.join(directory, "agentkogei.manifest.json"), "utf8"),
-		) as { files: Array<{ path: string }> };
-		const resources = Object.fromEntries(
-			await Promise.all(
-				["agentkogei.manifest.json", ...manifest.files.map((file) => file.path)]
-					.filter((resource) => !resource.startsWith("evaluation/"))
-					.map(
-						async (resource) =>
-							[
-								resource,
-								await readFile(path.join(directory, resource), "utf8"),
-							] as const,
-					),
-			),
-		);
-
 		await expect(
 			buildDesignContractFromResources({
-				...resources,
+				...(await releaseResources(foundationReleaseDirectoryFor("1.1.0"))),
 				"components.md":
 					"# Foundation component guidance\n\nSee validation.md.\n",
 			}),
 		).rejects.toThrow("foundation 1.1.0 still depends on validation.md");
+	});
+
+	test("carries a meaningful graphic verbatim in the section its own name titles", async () => {
+		const { markdown } = await buildDesignContractFromResources(
+			await releaseWithGraphic(
+				'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img"><title>Momentum grid</title>\n<path d="M20 145h45V95h45" fill="none" stroke="currentColor" />\n</svg>\n',
+			),
+		);
+
+		expect(markdown).toContain("\n## Momentum grid\n");
+		expect(markdown).toContain("```svg\n");
+		expect(markdown).toContain(
+			'<path d="M20 145h45V95h45" fill="none" stroke="currentColor" />',
+		);
+		expect(markdown).toContain(
+			"Compose the hero from the Momentum grid section.",
+		);
+		expect(markdown).not.toContain("resources/momentum-grid.svg");
+	});
+
+	test("titles a graphic's section as the name reads rather than as it is escaped", async () => {
+		const { markdown } = await buildDesignContractFromResources(
+			await releaseWithGraphic(
+				'<svg xmlns="http://www.w3.org/2000/svg" role="img"><title>Signal &amp; noise</title><path d="M20 145h45" /></svg>\n',
+			),
+		);
+
+		expect(markdown).toContain("\n## Signal & noise\n");
+		expect(markdown).toContain(
+			"Compose the hero from the Signal & noise section.",
+		);
+	});
+
+	test("refuses a graphic named only on a shape inside it", async () => {
+		await expect(
+			buildDesignContractFromResources(
+				await releaseWithGraphic(
+					'<svg xmlns="http://www.w3.org/2000/svg" role="img"><g><title>Third bar</title><path d="M20 145h45" /></g></svg>\n',
+				),
+			),
+		).rejects.toThrow(
+			"foundation cannot title a section for resources/momentum-grid.svg, which carries no name",
+		);
+	});
+
+	test("refuses a resource whose media type has no consolidated form", async () => {
+		const resources = await releaseResources(
+			foundationReleaseDirectoryFor("1.1.0"),
+		);
+		const manifest = JSON.parse(
+			resources["agentkogei.manifest.json"] as string,
+		) as { files: Array<{ path: string; mediaType: string }> };
+		const tokens = manifest.files.find((file) => file.path === "tokens.css");
+		(tokens as { mediaType: string }).mediaType = "font/woff2";
+
+		await expect(
+			buildDesignContractFromResources({
+				...resources,
+				"agentkogei.manifest.json": JSON.stringify(manifest),
+			}),
+		).rejects.toThrow("foundation cannot consolidate tokens.css as font/woff2");
 	});
 
 	test("ends with human-readable provenance and no machine metadata", async () => {
@@ -135,28 +231,11 @@ describe("Design Contract compilation", () => {
 	});
 
 	test("compiles a release held in memory into the same document as its directory", async () => {
-		const directory = foundationReleaseDirectoryFor("1.1.0");
-		const manifest = JSON.parse(
-			await readFile(path.join(directory, "agentkogei.manifest.json"), "utf8"),
-		) as { files: Array<{ path: string }> };
-		const resources = Object.fromEntries(
-			await Promise.all(
-				[
-					"agentkogei.manifest.json",
-					...manifest.files.map((file) => file.path),
-				].map(
-					async (resource) =>
-						[
-							resource,
-							await readFile(path.join(directory, resource), "utf8"),
-						] as const,
-				),
+		expect(
+			await buildDesignContractFromResources(
+				await releaseResources(foundationReleaseDirectoryFor("1.1.0")),
 			),
-		);
-
-		expect(await buildDesignContractFromResources(resources)).toEqual(
-			await foundation(),
-		);
+		).toEqual(await foundation());
 	});
 
 	test("refuses a release whose declared resources are not all present", async () => {
