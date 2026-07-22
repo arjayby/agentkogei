@@ -11,7 +11,7 @@ bun install --frozen-lockfile
 bun run launch:verify
 ```
 
-`launch:verify` checks formatting, TypeScript, committed migrations, production builds, premium-resource artifact isolation, and the full test suite. The Playwright suite builds the Next.js web/API product, starts that production build, packs the publishable `agentkogei` tarball, and runs both together against deterministic GitHub and Polar substitutes, controlled Pack Sources, an isolated Postgres-compatible database, and temporary Projects. Every CLI journey launches the built `agentkogei` executable on Node.js, and the runner matrix installs the tarball itself to complete an Open Installation through `npx`, `pnpm dlx`, modern `yarn dlx`, and `bunx`.
+`launch:verify` checks formatting, TypeScript, committed migrations, production builds, premium-resource artifact isolation, and the full test suite. The Playwright suite builds the Next.js web/API product, starts that production build, packs the publishable `agentkogei` tarball, and runs both together against deterministic GitHub and Polar substitutes, a controlled Official Catalog, an isolated Postgres-compatible database, and temporary Projects. Every CLI journey launches the built `agentkogei` executable on Node.js, and the runner matrix installs the tarball itself to complete an Open Installation through `npx`, `pnpm dlx`, modern `yarn dlx`, and `bunx`.
 
 Before deploying against a new database, execute the committed migrations against an isolated preview database and retain the command output with the release evidence:
 
@@ -28,7 +28,7 @@ The black-box suite observes only browser-visible state, HTTP responses, CLI out
 - discovery, Pack Previews, access class, React/Next.js–Tailwind CSS v4–shadcn/ui compatibility, licensing, Pack Evaluation, retrieval, and Installation across Foundation, Editorial, Command, and Signal;
 - complete Open Design Packs and the greater distinctiveness and supporting depth of Premium Design Packs without reserving baseline safety, completeness, or accessibility for Premium;
 - deterministic GitHub authorization and Polar Premium Access transitions without live third-party accounts;
-- controlled Pack Sources serving Open, Premium, and third-party Design Packs, plus disposable Projects;
+- a controlled Official Catalog serving Open and Premium Design Contracts, plus disposable Projects;
 - artifact, cache, source-map, unauthenticated-response, and CLI-output checks for raw Premium Design Pack resources; and
 - default-off diagnostics and the disclosed opt-in payload.
 
@@ -50,7 +50,6 @@ The tarball carries one `agentkogei` executable, declares Node.js 20 or newer, a
 | Web application, API, CLI, Design Pack specification, validators | MIT | Root `LICENSE`; the packed CLI also carries `packages/design-packs/LICENSE` |
 | AgentKogei-authored Open Design Pack prose and original resources | CC BY 4.0 | Each Open Design Pack Release contains `LICENSE.md` and `ATTRIBUTION.md` |
 | Premium Design Pack resources | Commercial Pack License granting a Project License | Terms travel inside the authenticated Pack Release; raw resources do not enter this public source distribution or public build output |
-| Third-party Design Packs | Publisher-selected Pack License | Declared by that Pack Source and validated before Installation |
 
 Self-hosting the MIT software does not grant Premium Design Pack resources, Premium Access, Pack Credentials, or permission to reproduce the Official Catalog. A genuine public end-product Project may contain its lawfully Installed Pack snapshot without relicensing or authorizing extraction.
 

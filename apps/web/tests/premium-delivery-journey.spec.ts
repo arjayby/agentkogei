@@ -1,5 +1,5 @@
 import { spawn } from "node:child_process";
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import {
 	mkdir,
 	mkdtemp,
@@ -12,15 +12,11 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, type Page, test } from "@playwright/test";
 
-import { cliPath } from "./support/cli";
+import { cliPath, runCli as runPackagedCli } from "./support/cli";
 
 const webOrigin = "http://localhost:3011";
 const contractCatalogUrl = `${webOrigin}/contracts/`;
 const fixtureSource = `${webOrigin}/api/premium-source/delivery-fixture/1.0.0`;
-const commandSource = `${webOrigin}/api/premium-source/command/1.0.0`;
-const signalSource = `${webOrigin}/api/premium-source/signal/1.0.0`;
-const premiumReleaseUnavailable =
-	"Pack Release for the Premium Design Pack is invalid or unavailable";
 
 test.describe.configure({ mode: "serial" });
 test.setTimeout(60_000);
@@ -31,48 +27,19 @@ async function signIn(page: Page) {
 	await expect(page).toHaveURL("/dashboard", { timeout: 20_000 });
 }
 
-function runCli(
+async function runCli(
 	arguments_: string[],
-	options: {
-		configDirectory: string;
-		projectDirectory: string;
-		officialCatalogUrl?: string;
-		contractCatalogUrl?: string;
-	},
+	options: { configDirectory: string; projectDirectory: string },
 ) {
-	return new Promise<{ code: number | null; stdout: string; stderr: string }>(
-		(resolve) => {
-			const child = spawn("node", [cliPath, ...arguments_], {
-				cwd: options.projectDirectory,
-				env: {
-					...process.env,
-					AGENTKOGEI_CONFIG_DIR: options.configDirectory,
-					AGENTKOGEI_NO_BROWSER: "1",
-					...(options.officialCatalogUrl
-						? {
-								AGENTKOGEI_OFFICIAL_CATALOG_URL: options.officialCatalogUrl,
-							}
-						: {}),
-					...(options.contractCatalogUrl
-						? {
-								AGENTKOGEI_CONTRACT_CATALOG_URL: options.contractCatalogUrl,
-							}
-						: {}),
-				},
-			});
-			let stdout = "";
-			let stderr = "";
-			child.stdout.setEncoding("utf8");
-			child.stderr.setEncoding("utf8");
-			child.stdout.on("data", (chunk: string) => {
-				stdout += chunk;
-			});
-			child.stderr.on("data", (chunk: string) => {
-				stderr += chunk;
-			});
-			child.on("exit", (code) => resolve({ code, stdout, stderr }));
+	const { exitCode, stdout, stderr } = await runPackagedCli(arguments_, {
+		cwd: options.projectDirectory,
+		environment: {
+			AGENTKOGEI_CONFIG_DIR: options.configDirectory,
+			AGENTKOGEI_NO_BROWSER: "1",
+			AGENTKOGEI_CONTRACT_CATALOG_URL: contractCatalogUrl,
 		},
-	);
+	});
+	return { code: exitCode, stdout, stderr };
 }
 
 async function authorizeCli(
@@ -133,404 +100,9 @@ async function authorizeCli(
 	) as { server: string; credential: string };
 }
 
-async function runOfflineStatus(
-	configDirectory: string,
-	projectDirectory: string,
-) {
-	const storedCredential = await readFile(
-		path.join(configDirectory, "credentials.json"),
-		"utf8",
-	);
-	await rm(configDirectory, { recursive: true, force: true });
-	const status = await runCli(["status"], {
-		configDirectory,
-		projectDirectory,
-	});
-	await mkdir(configDirectory, { recursive: true });
-	await writeFile(
-		path.join(configDirectory, "credentials.json"),
-		storedCredential,
-	);
-	return status;
-}
-
 test.beforeEach(async ({ request }) => {
 	const response = await request.delete("/api/test/polar/events");
 	expect(response.ok()).toBe(true);
-});
-
-test("an actively subscribed Builder installs the exact protected Command Pack Release under a lasting Project License", async ({
-	page,
-}) => {
-	const temporaryRoot = await mkdtemp(
-		path.join(tmpdir(), "agentkogei-command-installation-"),
-	);
-	const configDirectory = path.join(temporaryRoot, "configuration");
-	const projectDirectory = path.join(temporaryRoot, "project");
-	try {
-		await mkdir(projectDirectory);
-		const anonymous = await page.request.get(commandSource);
-		expect(anonymous.status()).toBe(404);
-		expect(await anonymous.text()).toBe(
-			'{"error":"premium_release_unavailable"}',
-		);
-		for (const protectedSourcePath of [
-			"/r/command.json",
-			"/r/command/1.0.0.json",
-		]) {
-			const response = await page.request.get(protectedSourcePath);
-			expect(response.status()).toBe(404);
-			expect(await response.text()).not.toContain("Command Interface System");
-		}
-		await signIn(page);
-		expect(
-			(
-				await page.request.post("/api/test/polar/events", {
-					data: { eventId: "command-access-active", state: "active" },
-				})
-			).ok(),
-		).toBe(true);
-		await authorizeCli(page, configDirectory, "Command installation terminal");
-
-		const installed = await runCli(["install", "command@1.0.0", "--yes"], {
-			configDirectory,
-			projectDirectory,
-			officialCatalogUrl: `${webOrigin}/r/`,
-		});
-		expect(installed.code, installed.stderr).toBe(0);
-		expect(installed.stdout).toContain("Command 1.0.0");
-		expect(installed.stdout).toContain("AgentKogei Commercial Pack License");
-		expect(installed.stdout).not.toContain("not a Published Pack");
-
-		const record = JSON.parse(
-			await readFile(
-				path.join(projectDirectory, ".agentkogei/installed-pack.json"),
-				"utf8",
-			),
-		) as {
-			pack: { id: string; version: string };
-			projectLicense: string;
-			source: string;
-			targets: Array<{ target: string; sha256: string }>;
-		};
-		expect(record.pack).toEqual({ id: "command", version: "1.0.0" });
-		expect(record.source).toBe(`${webOrigin}/r/command/1.0.0.json`);
-		expect(record.projectLicense).toMatch(/^[0-9a-f-]{36}$/);
-		expect(record.targets.length).toBeGreaterThan(9);
-		for (const target of record.targets) {
-			const contents = await readFile(
-				path.join(projectDirectory, target.target),
-			);
-			expect(createHash("sha256").update(contents).digest("hex")).toBe(
-				target.sha256,
-			);
-		}
-
-		expect(
-			await readFile(
-				path.join(projectDirectory, ".agentkogei/command/DESIGN.md"),
-				"utf8",
-			),
-		).toContain("# Command Interface System");
-		expect(
-			await readFile(
-				path.join(
-					projectDirectory,
-					".agentkogei/command/evaluation/report.json",
-				),
-				"utf8",
-			),
-		).toContain('"standard": "WCAG 2.2 Level AA"');
-
-		const storedLicense = await page.request.get(
-			`/api/test/premium-delivery/licenses/${record.projectLicense}`,
-		);
-		expect(storedLicense.status()).toBe(200);
-		expect(await storedLicense.json()).toEqual({
-			id: record.projectLicense,
-			packId: "command",
-			packRelease: "1.0.0",
-			status: "active",
-			terminationReason: null,
-			terminatedAt: null,
-		});
-
-		await rm(configDirectory, { recursive: true, force: true });
-		const status = await runCli(["status"], {
-			configDirectory,
-			projectDirectory,
-		});
-		expect(status.code, status.stderr).toBe(0);
-		expect(status.stdout).toContain(
-			`Project License: ${record.projectLicense}`,
-		);
-	} finally {
-		await rm(temporaryRoot, { recursive: true, force: true });
-	}
-});
-
-test("an actively subscribed Builder discovers and installs the exact protected Signal Pack Release under a lasting Project License", async ({
-	page,
-}) => {
-	const temporaryRoot = await mkdtemp(
-		path.join(tmpdir(), "agentkogei-signal-installation-"),
-	);
-	const configDirectory = path.join(temporaryRoot, "configuration");
-	const projectDirectory = path.join(temporaryRoot, "project");
-	try {
-		await mkdir(projectDirectory);
-		for (const source of [signalSource, `${webOrigin}/r/signal/1.0.0.json`]) {
-			const anonymous = await page.request.get(source);
-			expect(anonymous.status()).toBe(404);
-			expect(await anonymous.text()).not.toContain("# Signal Interface System");
-		}
-
-		await signIn(page);
-		expect(
-			(
-				await page.request.post("/api/test/polar/events", {
-					data: { eventId: "signal-access-active", state: "active" },
-				})
-			).ok(),
-		).toBe(true);
-		const { credential } = await authorizeCli(
-			page,
-			configDirectory,
-			"Signal installation terminal",
-		);
-		expect(
-			(
-				await page.request.post("/api/test/polar/events", {
-					data: { eventId: "signal-access-expired", state: "expired" },
-				})
-			).ok(),
-		).toBe(true);
-		const inactive = await page.request.get(signalSource, {
-			headers: {
-				authorization: `Bearer ${credential}`,
-				"x-agentkogei-project-license": randomUUID(),
-				"x-agentkogei-action": "install",
-			},
-		});
-		expect(inactive.status()).toBe(404);
-		expect(await inactive.text()).toBe(
-			'{"error":"premium_release_unavailable"}',
-		);
-		expect(
-			(
-				await page.request.post("/api/test/polar/events", {
-					data: { eventId: "signal-access-renewed", state: "active" },
-				})
-			).ok(),
-		).toBe(true);
-
-		const installed = await runCli(["install", "signal@1.0.0", "--yes"], {
-			configDirectory,
-			projectDirectory,
-			officialCatalogUrl: `${webOrigin}/r/`,
-		});
-		expect(installed.code, installed.stderr).toBe(0);
-		expect(installed.stdout).toContain("Signal 1.0.0");
-		expect(installed.stdout).toContain("AgentKogei Commercial Pack License");
-
-		const record = JSON.parse(
-			await readFile(
-				path.join(projectDirectory, ".agentkogei/installed-pack.json"),
-				"utf8",
-			),
-		) as {
-			pack: { id: string; version: string };
-			projectLicense: string;
-			source: string;
-			targets: Array<{ target: string; sha256: string }>;
-		};
-		expect(record.pack).toEqual({ id: "signal", version: "1.0.0" });
-		expect(record.source).toBe(`${webOrigin}/r/signal/1.0.0.json`);
-		expect(record.projectLicense).toMatch(/^[0-9a-f-]{36}$/);
-		expect(record.targets.length).toBeGreaterThan(11);
-		for (const target of record.targets) {
-			const contents = await readFile(
-				path.join(projectDirectory, target.target),
-			);
-			expect(createHash("sha256").update(contents).digest("hex")).toBe(
-				target.sha256,
-			);
-		}
-		expect(
-			await readFile(
-				path.join(projectDirectory, ".agentkogei/signal/DESIGN.md"),
-				"utf8",
-			),
-		).toContain("# Signal Interface System");
-		const mvpStackDirection = await readFile(
-			path.join(
-				projectDirectory,
-				".agentkogei/signal/adapters/react-tailwind-shadcn/README.md",
-			),
-			"utf8",
-		);
-		expect(mvpStackDirection).toContain(
-			"# Signal on React / Next.js, Tailwind CSS v4, and shadcn/ui",
-		);
-		expect(mvpStackDirection).not.toContain("Foundation");
-		expect(
-			await readFile(
-				path.join(
-					projectDirectory,
-					".agentkogei/signal/resources/orbit-field.svg",
-				),
-				"utf8",
-			),
-		).toContain("Signal orbit field");
-
-		const storedLicense = await page.request.get(
-			`/api/test/premium-delivery/licenses/${record.projectLicense}`,
-		);
-		expect(storedLicense.status()).toBe(200);
-		expect(await storedLicense.json()).toMatchObject({
-			id: record.projectLicense,
-			packId: "signal",
-			packRelease: "1.0.0",
-			status: "active",
-		});
-
-		await rm(configDirectory, { recursive: true, force: true });
-		const status = await runCli(["status"], {
-			configDirectory,
-			projectDirectory,
-		});
-		expect(status.code, status.stderr).toBe(0);
-		expect(status.stdout).toContain(
-			`Project License: ${record.projectLicense}`,
-		);
-	} finally {
-		await rm(temporaryRoot, { recursive: true, force: true });
-	}
-});
-
-test("an actively subscribed Builder installs a licensed premium snapshot for offline use", async ({
-	page,
-}) => {
-	const temporaryRoot = await mkdtemp(
-		path.join(tmpdir(), "agentkogei-premium-delivery-"),
-	);
-	const configDirectory = path.join(temporaryRoot, "configuration");
-	const projectDirectory = path.join(temporaryRoot, "project");
-	try {
-		await mkdir(projectDirectory);
-		await mkdir(path.join(projectDirectory, ".git"));
-		await writeFile(
-			path.join(projectDirectory, ".git/config"),
-			'[remote "origin"]\nurl = git@example.com:private/secret-project.git\n',
-		);
-		await writeFile(
-			path.join(projectDirectory, "private-project-content.txt"),
-			"generated-ui-marker dependency-inventory-marker prompt-marker\n",
-		);
-		await signIn(page);
-		expect(
-			(
-				await page.request.post("/api/test/polar/events", {
-					data: { eventId: "premium-delivery-active", state: "active" },
-				})
-			).ok(),
-		).toBe(true);
-		await authorizeCli(page, configDirectory);
-
-		const declined = await runCli(
-			["install", "delivery-fixture@1.0.0", "--source", fixtureSource],
-			{ configDirectory, projectDirectory },
-		);
-		expect(declined.code).toBe(2);
-		expect(declined.stderr).toContain("Installation not confirmed");
-		const declinedObservation = (await (
-			await page.request.get("/api/test/premium-delivery/observation")
-		).json()) as { headers: Record<string, string> };
-		const declinedLicense =
-			declinedObservation.headers["x-agentkogei-project-license"];
-		expect(declinedLicense).toMatch(/^[0-9a-f-]{36}$/);
-		expect(
-			(
-				await page.request.get(
-					`/api/test/premium-delivery/licenses/${declinedLicense}`,
-				)
-			).status(),
-		).toBe(404);
-
-		const installed = await runCli(
-			["install", "delivery-fixture@1.0.0", "--source", fixtureSource, "--yes"],
-			{ configDirectory, projectDirectory },
-		);
-		expect(installed.code, installed.stderr).toBe(0);
-		expect(installed.stdout).toContain("Delivery Fixture 1.0.0");
-		expect(installed.stdout).toContain("not a Published Pack");
-		const observationResponse = await page.request.get(
-			"/api/test/premium-delivery/observation",
-		);
-		expect(observationResponse.ok()).toBe(true);
-		const observation = (await observationResponse.json()) as {
-			method: string;
-			pathname: string;
-			search: string;
-			headers: Record<string, string>;
-			hasBody: boolean;
-		};
-		expect(observation).toMatchObject({
-			method: "GET",
-			pathname: "/api/premium-source/delivery-fixture/1.0.0",
-			search: "",
-			hasBody: false,
-		});
-		const outbound = JSON.stringify(observation);
-		for (const privateValue of [
-			projectDirectory,
-			"secret-project",
-			"generated-ui-marker",
-			"dependency-inventory-marker",
-			"prompt-marker",
-		]) {
-			expect(outbound).not.toContain(privateValue);
-		}
-
-		const record = JSON.parse(
-			await readFile(
-				path.join(projectDirectory, ".agentkogei/installed-pack.json"),
-				"utf8",
-			),
-		) as { pack: { version: string }; projectLicense: string };
-		expect(record.pack.version).toBe("1.0.0");
-		expect(record.projectLicense).toMatch(/^[0-9a-f-]{36}$/);
-		const storedLicense = await page.request.get(
-			`/api/test/premium-delivery/licenses/${record.projectLicense}`,
-		);
-		expect(storedLicense.status()).toBe(200);
-		expect(await storedLicense.json()).toEqual({
-			id: record.projectLicense,
-			packId: "delivery-fixture",
-			packRelease: "1.0.0",
-			status: "active",
-			terminationReason: null,
-			terminatedAt: null,
-		});
-
-		await rm(configDirectory, { recursive: true, force: true });
-		const status = await runCli(["status"], {
-			configDirectory,
-			projectDirectory,
-		});
-		expect(status.code, status.stderr).toBe(0);
-		expect(status.stdout).toContain(
-			`Project License: ${record.projectLicense}`,
-		);
-		expect(
-			await readFile(
-				path.join(projectDirectory, ".agentkogei/delivery-fixture/DESIGN.md"),
-				"utf8",
-			),
-		).toContain("Controlled Premium Delivery Fixture");
-	} finally {
-		await rm(temporaryRoot, { recursive: true, force: true });
-	}
 });
 
 test("premium delivery is idempotent and denies every unauthorized state without gated bytes", async ({
@@ -689,417 +261,155 @@ test("premium delivery is idempotent and denies every unauthorized state without
 	}
 });
 
-test("cancelation preserves premium updates until expiration and renewal restores them", async ({
-	page,
-}) => {
-	const temporaryRoot = await mkdtemp(
-		path.join(tmpdir(), "agentkogei-premium-update-lifecycle-"),
-	);
-	const configDirectory = path.join(temporaryRoot, "configuration");
-	const projectDirectory = path.join(temporaryRoot, "project");
-	const reinstallationDirectory = path.join(temporaryRoot, "reinstallation");
-	const newInstallationDirectory = path.join(temporaryRoot, "new-installation");
-	try {
-		await mkdir(projectDirectory);
-		await mkdir(reinstallationDirectory);
-		await mkdir(newInstallationDirectory);
-		await signIn(page);
-		expect(
-			(
-				await page.request.post("/api/test/polar/events", {
-					data: { eventId: "update-lifecycle-active", state: "active" },
-				})
-			).ok(),
-		).toBe(true);
-		await authorizeCli(page, configDirectory, "Update lifecycle terminal");
-		const installed = await runCli(["install", "command@1.0.0", "--yes"], {
-			configDirectory,
-			projectDirectory,
-			officialCatalogUrl: `${webOrigin}/r/`,
-		});
-		expect(installed.code, installed.stderr).toBe(0);
-
-		expect(
-			(
-				await page.request.post("/api/test/polar/events", {
-					data: { eventId: "update-lifecycle-canceling", state: "canceling" },
-				})
-			).ok(),
-		).toBe(true);
-		await page.goto("/catalog/command");
-		await expect(
-			page.getByRole("heading", { level: 1, name: "Command" }),
-		).toBeVisible();
-		const offlineDuringPaidTerm = await runOfflineStatus(
-			configDirectory,
-			projectDirectory,
-		);
-		expect(offlineDuringPaidTerm.code, offlineDuringPaidTerm.stderr).toBe(0);
-		const duringPaidTerm = await runCli(["update"], {
-			configDirectory,
-			projectDirectory,
-		});
-		expect(duringPaidTerm.code, duringPaidTerm.stderr).toBe(0);
-		expect(duringPaidTerm.stdout).toContain("Command 1.0.0 is already current");
-		const installedDuringPaidTerm = await runCli(
-			["install", "command@1.0.0", "--yes"],
-			{
-				configDirectory,
-				projectDirectory: reinstallationDirectory,
-				officialCatalogUrl: `${webOrigin}/r/`,
-			},
-		);
-		expect(installedDuringPaidTerm.code, installedDuringPaidTerm.stderr).toBe(
-			0,
-		);
-
-		expect(
-			(
-				await page.request.post("/api/test/polar/events", {
-					data: { eventId: "update-lifecycle-expired", state: "expired" },
-				})
-			).ok(),
-		).toBe(true);
-		const afterExpiration = await runCli(["update"], {
-			configDirectory,
-			projectDirectory,
-		});
-		expect(afterExpiration.code).toBe(1);
-		expect(afterExpiration.stderr).toContain(premiumReleaseUnavailable);
-		const deniedNewInstallation = await runCli(
-			["install", "command@1.0.0", "--yes"],
-			{
-				configDirectory,
-				projectDirectory: newInstallationDirectory,
-				officialCatalogUrl: `${webOrigin}/r/`,
-			},
-		);
-		expect(deniedNewInstallation.code).toBe(1);
-		expect(deniedNewInstallation.stderr).toContain(premiumReleaseUnavailable);
-		await rm(path.join(reinstallationDirectory, ".agentkogei"), {
-			recursive: true,
-			force: true,
-		});
-		await rm(path.join(reinstallationDirectory, "AGENTS.md"), { force: true });
-		const deniedReinstallation = await runCli(
-			["install", "command@1.0.0", "--yes"],
-			{
-				configDirectory,
-				projectDirectory: reinstallationDirectory,
-				officialCatalogUrl: `${webOrigin}/r/`,
-			},
-		);
-		expect(deniedReinstallation.code).toBe(1);
-		expect(deniedReinstallation.stderr).toContain(premiumReleaseUnavailable);
-		const offlineAfterExpiration = await runOfflineStatus(
-			configDirectory,
-			projectDirectory,
-		);
-		expect(offlineAfterExpiration.code, offlineAfterExpiration.stderr).toBe(0);
-		expect(offlineAfterExpiration.stdout).toContain("Resource integrity:");
-		await page.goto("/catalog/command");
-		await expect(
-			page.getByRole("heading", { level: 1, name: "Command" }),
-		).toBeVisible();
-
-		expect(
-			(
-				await page.request.post("/api/test/polar/events", {
-					data: { eventId: "update-lifecycle-renewed", state: "active" },
-				})
-			).ok(),
-		).toBe(true);
-		const afterRenewal = await runCli(["update"], {
-			configDirectory,
-			projectDirectory,
-		});
-		expect(afterRenewal.code, afterRenewal.stderr).toBe(0);
-		expect(afterRenewal.stdout).toContain("Command 1.0.0 is already current");
-		const reinstalledAfterRenewal = await runCli(
-			["install", "command@1.0.0", "--yes"],
-			{
-				configDirectory,
-				projectDirectory: reinstallationDirectory,
-				officialCatalogUrl: `${webOrigin}/r/`,
-			},
-		);
-		expect(reinstalledAfterRenewal.code, reinstalledAfterRenewal.stderr).toBe(
-			0,
-		);
-		const installedAfterRenewal = await runCli(
-			["install", "command@1.0.0", "--yes"],
-			{
-				configDirectory,
-				projectDirectory: newInstallationDirectory,
-				officialCatalogUrl: `${webOrigin}/r/`,
-			},
-		);
-		expect(installedAfterRenewal.code, installedAfterRenewal.stderr).toBe(0);
-	} finally {
-		await rm(temporaryRoot, { recursive: true, force: true });
-	}
-});
-
-test("a refund terminates only Project Licenses from its affected paid term", async ({
-	page,
-}) => {
-	const temporaryRoot = await mkdtemp(
-		path.join(tmpdir(), "agentkogei-affected-paid-term-"),
-	);
-	const configDirectory = path.join(temporaryRoot, "configuration");
-	const firstTermProject = path.join(temporaryRoot, "first-term-project");
-	const renewedTermProject = path.join(temporaryRoot, "renewed-term-project");
-	const currentTermProject = path.join(temporaryRoot, "current-term-project");
-	const firstPeriodStart = "2030-01-01T00:00:00.000Z";
-	const firstPeriodEnd = "2030-12-31T23:59:59.000Z";
-	const renewedPeriodStart = "2031-01-01T00:00:00.000Z";
-	const renewedPeriodEnd = "2031-12-31T23:59:59.000Z";
-	try {
-		await mkdir(firstTermProject);
-		await mkdir(renewedTermProject);
-		await mkdir(currentTermProject);
-		await signIn(page);
-		expect(
-			(
-				await page.request.post("/api/test/polar/events", {
-					data: {
-						eventId: "affected-term-first-active",
-						state: "active",
-						periodStart: firstPeriodStart,
-						periodEnd: firstPeriodEnd,
-					},
-				})
-			).ok(),
-		).toBe(true);
-		await authorizeCli(page, configDirectory, "Affected term terminal");
-		const firstInstall = await runCli(["install", "command@1.0.0", "--yes"], {
-			configDirectory,
-			projectDirectory: firstTermProject,
-			officialCatalogUrl: `${webOrigin}/r/`,
-		});
-		expect(firstInstall.code, firstInstall.stderr).toBe(0);
-		const firstRecord = JSON.parse(
-			await readFile(
-				path.join(firstTermProject, ".agentkogei/installed-pack.json"),
-				"utf8",
-			),
-		) as { projectLicense: string };
-
-		expect(
-			(
-				await page.request.post("/api/test/polar/events", {
-					data: {
-						eventId: "affected-term-renewed-active",
-						state: "active",
-						periodStart: renewedPeriodStart,
-						periodEnd: renewedPeriodEnd,
-					},
-				})
-			).ok(),
-		).toBe(true);
-		const renewedInstall = await runCli(["install", "command@1.0.0", "--yes"], {
-			configDirectory,
-			projectDirectory: renewedTermProject,
-			officialCatalogUrl: `${webOrigin}/r/`,
-		});
-		expect(renewedInstall.code, renewedInstall.stderr).toBe(0);
-		const renewedRecord = JSON.parse(
-			await readFile(
-				path.join(renewedTermProject, ".agentkogei/installed-pack.json"),
-				"utf8",
-			),
-		) as { projectLicense: string };
-		expect(
-			(
-				await page.request.post("/api/test/polar/events", {
-					data: {
-						eventId: "affected-term-unrelated-refund",
-						state: "refunded",
-						periodStart: renewedPeriodStart,
-						periodEnd: renewedPeriodEnd,
-						productId: "polar-unrelated-product",
-					},
-				})
-			).ok(),
-		).toBe(true);
-		expect(
-			await (
-				await page.request.get(
-					`/api/test/premium-delivery/licenses/${renewedRecord.projectLicense}`,
-				)
-			).json(),
-		).toMatchObject({ status: "active", terminationReason: null });
-
-		expect(
-			(
-				await page.request.post("/api/test/polar/events", {
-					data: {
-						eventId: "affected-term-first-refunded",
-						state: "refunded",
-						periodStart: firstPeriodStart,
-						periodEnd: firstPeriodEnd,
-					},
-				})
-			).ok(),
-		).toBe(true);
-		expect(
-			await (
-				await page.request.get(
-					`/api/test/premium-delivery/licenses/${firstRecord.projectLicense}`,
-				)
-			).json(),
-		).toMatchObject({ status: "terminated", terminationReason: "refunded" });
-		expect(
-			await (
-				await page.request.get(
-					`/api/test/premium-delivery/licenses/${renewedRecord.projectLicense}`,
-				)
-			).json(),
-		).toMatchObject({ status: "active", terminationReason: null });
-
-		const currentTermInstall = await runCli(
-			["install", "command@1.0.0", "--yes"],
-			{
-				configDirectory,
-				projectDirectory: currentTermProject,
-				officialCatalogUrl: `${webOrigin}/r/`,
-			},
-		);
-		expect(currentTermInstall.code, currentTermInstall.stderr).toBe(0);
-	} finally {
-		await rm(temporaryRoot, { recursive: true, force: true });
-	}
-});
-
 for (const terminalState of ["refunded", "reversed"] as const) {
-	test(`${terminalState} access terminates the Project License without modifying the Installed Pack`, async ({
+	test(`a ${terminalState} paid term terminates only the Project Licenses it paid for`, async ({
 		page,
 	}) => {
 		const temporaryRoot = await mkdtemp(
-			path.join(tmpdir(), `agentkogei-${terminalState}-lifecycle-`),
+			path.join(tmpdir(), `agentkogei-${terminalState}-term-`),
 		);
 		const configDirectory = path.join(temporaryRoot, "configuration");
-		const projectDirectory = path.join(temporaryRoot, "project");
-		const reinstallationDirectory = path.join(temporaryRoot, "reinstallation");
-		const deniedProjectDirectory = path.join(temporaryRoot, "denied-project");
-		try {
-			await mkdir(projectDirectory);
-			await mkdir(reinstallationDirectory);
-			await mkdir(deniedProjectDirectory);
-			await signIn(page);
+		const firstTermLicense = randomUUID();
+		const renewedTermLicense = randomUUID();
+		const firstTerm = {
+			periodStart: "2030-01-01T00:00:00.000Z",
+			periodEnd: "2030-12-31T23:59:59.000Z",
+		};
+		const renewedTerm = {
+			periodStart: "2031-01-01T00:00:00.000Z",
+			periodEnd: "2031-12-31T23:59:59.000Z",
+		};
+		const premiumAccess = async (data: Record<string, string>) =>
 			expect(
-				(
-					await page.request.post("/api/test/polar/events", {
-						data: {
-							eventId: `${terminalState}-lifecycle-active`,
-							state: "active",
-						},
-					})
-				).ok(),
+				(await page.request.post("/api/test/polar/events", { data })).ok(),
 			).toBe(true);
-			await authorizeCli(page, configDirectory, `${terminalState} terminal`);
-			const installed = await runCli(["install", "command@1.0.0", "--yes"], {
-				configDirectory,
-				projectDirectory,
-				officialCatalogUrl: `${webOrigin}/r/`,
-			});
-			expect(installed.code, installed.stderr).toBe(0);
-			const installedForReinstallation = await runCli(
-				["install", "command@1.0.0", "--yes"],
-				{
-					configDirectory,
-					projectDirectory: reinstallationDirectory,
-					officialCatalogUrl: `${webOrigin}/r/`,
-				},
-			);
-			expect(
-				installedForReinstallation.code,
-				installedForReinstallation.stderr,
-			).toBe(0);
-			const record = JSON.parse(
-				await readFile(
-					path.join(projectDirectory, ".agentkogei/installed-pack.json"),
-					"utf8",
-				),
-			) as { projectLicense: string };
-			const designContractPath = path.join(
-				projectDirectory,
-				".agentkogei/command/DESIGN.md",
-			);
-			const installedDesignContract = await readFile(
-				designContractPath,
-				"utf8",
-			);
+		const storedLicense = async (id: string) =>
+			(
+				await page.request.get(`/api/test/premium-delivery/licenses/${id}`)
+			).json() as Promise<Record<string, string | null>>;
 
-			expect(
-				(
-					await page.request.post("/api/test/polar/events", {
-						data: {
-							eventId: `${terminalState}-lifecycle-terminal`,
-							state: terminalState,
-						},
-					})
-				).ok(),
-			).toBe(true);
-			const terminatedLicense = await page.request.get(
-				`/api/test/premium-delivery/licenses/${record.projectLicense}`,
+		try {
+			await signIn(page);
+			await premiumAccess({
+				eventId: `${terminalState}-term-first-active`,
+				state: "active",
+				...firstTerm,
+			});
+			const { credential } = await authorizeCli(
+				page,
+				configDirectory,
+				`${terminalState} term terminal`,
 			);
-			expect(terminatedLicense.status()).toBe(200);
-			expect(await terminatedLicense.json()).toMatchObject({
-				id: record.projectLicense,
+			const recordLicense = async (projectLicense: string) =>
+				expect(
+					(
+						await page.request.post(fixtureSource, {
+							headers: {
+								authorization: `Bearer ${credential}`,
+								"x-agentkogei-project-license": projectLicense,
+								"x-agentkogei-action": "install",
+							},
+						})
+					).status(),
+				).toBe(204);
+
+			await recordLicense(firstTermLicense);
+			await premiumAccess({
+				eventId: `${terminalState}-term-renewed-active`,
+				state: "active",
+				...renewedTerm,
+			});
+			await recordLicense(renewedTermLicense);
+
+			// Another product's reversal is not this subscription's paid term.
+			await premiumAccess({
+				eventId: `${terminalState}-term-unrelated`,
+				state: terminalState,
+				...renewedTerm,
+				productId: "polar-unrelated-product",
+			});
+			expect(await storedLicense(renewedTermLicense)).toMatchObject({
+				status: "active",
+				terminationReason: null,
+			});
+
+			await premiumAccess({
+				eventId: `${terminalState}-term-first-terminal`,
+				state: terminalState,
+				...firstTerm,
+			});
+			expect(await storedLicense(firstTermLicense)).toMatchObject({
 				status: "terminated",
 				terminationReason: terminalState,
 			});
-			const deniedUpdate = await runCli(["update"], {
-				configDirectory,
-				projectDirectory,
+			expect(await storedLicense(renewedTermLicense)).toMatchObject({
+				status: "active",
+				terminationReason: null,
 			});
-			expect(deniedUpdate.code).toBe(1);
-			expect(deniedUpdate.stderr).toContain(premiumReleaseUnavailable);
-			await rm(path.join(reinstallationDirectory, ".agentkogei"), {
-				recursive: true,
-				force: true,
-			});
-			await rm(path.join(reinstallationDirectory, "AGENTS.md"), {
-				force: true,
-			});
-			const deniedReinstallation = await runCli(
-				["install", "command@1.0.0", "--yes"],
-				{
-					configDirectory,
-					projectDirectory: reinstallationDirectory,
-					officialCatalogUrl: `${webOrigin}/r/`,
-				},
-			);
-			expect(deniedReinstallation.code).toBe(1);
-			expect(deniedReinstallation.stderr).toContain(premiumReleaseUnavailable);
-
-			const deniedInstallation = await runCli(
-				["install", "command@1.0.0", "--yes"],
-				{
-					configDirectory,
-					projectDirectory: deniedProjectDirectory,
-					officialCatalogUrl: `${webOrigin}/r/`,
-				},
-			);
-			expect(deniedInstallation.code).toBe(1);
-			expect(deniedInstallation.stderr).toContain(premiumReleaseUnavailable);
-
-			await rm(configDirectory, { recursive: true, force: true });
-			const offlineStatus = await runCli(["status"], {
-				configDirectory,
-				projectDirectory,
-			});
-			expect(offlineStatus.code, offlineStatus.stderr).toBe(0);
-			expect(offlineStatus.stdout).toContain("Resource integrity:");
-			expect(await readFile(designContractPath, "utf8")).toBe(
-				installedDesignContract,
-			);
 		} finally {
 			await rm(temporaryRoot, { recursive: true, force: true });
 		}
 	});
 }
+
+test("a canceled subscription keeps delivering until its paid term ends", async ({
+	page,
+}) => {
+	const temporaryRoot = await mkdtemp(
+		path.join(tmpdir(), "agentkogei-canceling-term-"),
+	);
+	const configDirectory = path.join(temporaryRoot, "configuration");
+	try {
+		await signIn(page);
+		expect(
+			(
+				await page.request.post("/api/test/polar/events", {
+					data: { eventId: "canceling-term-active", state: "active" },
+				})
+			).ok(),
+		).toBe(true);
+		const { credential } = await authorizeCli(
+			page,
+			configDirectory,
+			"Canceling term terminal",
+		);
+		const authorized = { authorization: `Bearer ${credential}` };
+
+		expect(
+			(
+				await page.request.post("/api/test/polar/events", {
+					data: {
+						eventId: "canceling-term-canceling",
+						state: "canceling",
+						periodEnd: "2031-12-31T23:59:59.000Z",
+					},
+				})
+			).ok(),
+		).toBe(true);
+		const duringPaidTerm = await page.request.get("/contracts/command", {
+			headers: authorized,
+		});
+		expect(duringPaidTerm.status()).toBe(200);
+		expect(await duringPaidTerm.text()).toContain("# Command Interface System");
+
+		expect(
+			(
+				await page.request.post("/api/test/polar/events", {
+					data: { eventId: "canceling-term-expired", state: "expired" },
+				})
+			).ok(),
+		).toBe(true);
+		const afterExpiration = await page.request.get("/contracts/command", {
+			headers: authorized,
+		});
+		expect(afterExpiration.status()).toBe(403);
+		expect(await afterExpiration.text()).not.toContain(
+			"# Command Interface System",
+		);
+	} finally {
+		await rm(temporaryRoot, { recursive: true, force: true });
+	}
+});
 
 /**
  * The Premium Design Packs the Official Catalog gates, with the direction each
@@ -1155,7 +465,6 @@ for (const pack of premiumDesignPacks) {
 			runCli(["add", selector, ...options], {
 				configDirectory,
 				projectDirectory,
-				contractCatalogUrl,
 			});
 		const premiumAccess = async (eventId: string, state: string) =>
 			expect(
@@ -1337,7 +646,6 @@ for (const pack of premiumDesignPacks) {
 			const afterRevocation = await runCli(["add", identity, "--yes"], {
 				configDirectory,
 				projectDirectory: revokedProjectDirectory,
-				contractCatalogUrl,
 			});
 			expect(afterRevocation.code).toBe(2);
 			expect(afterRevocation.stdout).not.toContain(heading);
@@ -1366,7 +674,6 @@ test("replacing one Premium Design Contract with another needs explicit force", 
 		runCli(["add", selector, ...options], {
 			configDirectory,
 			projectDirectory,
-			contractCatalogUrl,
 		});
 	try {
 		await mkdir(projectDirectory);
