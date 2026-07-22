@@ -27,6 +27,13 @@ absolute files it will write, then asks before changing anything. Pass `--yes`
 to consent without a prompt, and `--yes --force` to replace an existing
 `DESIGN.md` unattended.
 
+## Open and Premium Design Packs
+
+Both use the same `add` command; only the access requirement differs. An Open
+Design Pack installs without an AgentKogei account. A Premium Design Pack needs
+active Premium Access, and `add` starts browser authorization automatically when
+the CLI holds no Pack Credential, then resumes the same Installation.
+
 ## Requirements
 
 Node.js 20 or newer. Bun is not required to run the CLI.

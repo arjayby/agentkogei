@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 
 const benefits = [
 	"Every Premium Design Pack in the Official Catalog",
-	"Installation and updates across unlimited Projects",
+	"Installation across unlimited Projects with one add command",
 	"At least one Material Release per quarter",
 	"Lasting Project Licenses for eligible installed snapshots",
 ] as const;
@@ -165,8 +165,8 @@ export default async function PricingPage() {
 					<p className="max-w-2xl text-foreground leading-7">
 						Open and Premium Published Packs meet the same completeness,
 						accessibility, and Pack Evaluation bar. Premium value comes from
-						creative distinctiveness, deeper resources, and the maintained
-						release cadence—not withheld baseline quality.
+						creative distinctiveness, production depth, and breadth of
+						direction—not withheld baseline quality.
 					</p>
 				</div>
 			</section>

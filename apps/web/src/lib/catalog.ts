@@ -12,14 +12,14 @@ export type DesignPack = {
 	access: PackAccess;
 	direction: string;
 	bestFor: string;
-	release: PackRelease;
+	/** Published Pack Releases, newest first. The first is what a bare identity selects. */
+	releases: readonly [PackRelease, ...PackRelease[]];
 	license: "CC BY 4.0" | "Commercial Pack License";
 	licenseSummary: string;
 	compatibility: string;
 	evaluation: string;
 	evaluationEvidence: readonly string[];
 	coverage: readonly string[];
-	resources: readonly string[];
 };
 
 const coverage = [
@@ -30,6 +30,28 @@ const coverage = [
 	"Loading, empty, error, and success states",
 	"Responsive, dark mode, and reduced motion",
 ] as const;
+
+/**
+ * The sections every Published Pack consolidates into its Design Contract.
+ * Installation writes one root `DESIGN.md`, so this describes that document's
+ * own content rather than a set of files a Builder receives. Open and Premium
+ * Design Packs meet the same publication standard, so the list does not vary
+ * by pack.
+ */
+export const contractSections = [
+	"Interface principles, layout, and product surfaces",
+	"Semantic tokens and their definitions",
+	"Components, interaction states, and feedback",
+	"Motion and accessibility direction",
+	"Agent instructions and worked examples",
+	"A final validation checklist",
+	"React or Next.js, Tailwind CSS v4, and shadcn/ui implementation direction",
+	"Attribution, Pack License, and Pack Release provenance",
+] as const;
+
+/** What Premium Access buys, stated without promising anything beside the document. */
+export const premiumValueStatement =
+	"Premium value comes from creative distinctiveness, production depth, and breadth of direction inside that same single document.";
 
 const compatibility = "React / Next.js · Tailwind CSS v4 · shadcn/ui";
 const evaluation =
@@ -47,12 +69,20 @@ export const designPacks: readonly DesignPack[] = [
 		access: "Open",
 		direction: "Neutral, crisp, and highly legible B2B SaaS.",
 		bestFor: "Versatile product foundations",
-		release: {
-			version: "1.0.0",
-			publishedAt: "July 18, 2026",
-			changelog:
-				"Initial Published Pack with complete cross-surface coverage and evaluation evidence.",
-		},
+		releases: [
+			{
+				version: "1.1.0",
+				publishedAt: "July 19, 2026",
+				changelog:
+					"Adds semantic informational-state tokens and detailed responsive pagination direction.",
+			},
+			{
+				version: "1.0.0",
+				publishedAt: "July 18, 2026",
+				changelog:
+					"Initial Published Pack with complete cross-surface coverage and evaluation evidence.",
+			},
+		],
 		license: "CC BY 4.0",
 		licenseSummary:
 			"Complete Open Design Pack content, reusable with attribution.",
@@ -60,12 +90,6 @@ export const designPacks: readonly DesignPack[] = [
 		evaluation,
 		evaluationEvidence,
 		coverage,
-		resources: [
-			"Design Contract (DESIGN.md)",
-			"Semantic token definitions",
-			"Component and state guidance",
-			"React and Next.js Stack Adapter",
-		],
 	},
 	{
 		slug: "editorial",
@@ -73,12 +97,14 @@ export const designPacks: readonly DesignPack[] = [
 		access: "Open",
 		direction: "Warm, spacious, and content-forward SaaS.",
 		bestFor: "Knowledge and content products",
-		release: {
-			version: "1.0.0",
-			publishedAt: "July 19, 2026",
-			changelog:
-				"Initial Published Pack with complete cross-surface coverage and evaluation evidence.",
-		},
+		releases: [
+			{
+				version: "1.0.0",
+				publishedAt: "July 19, 2026",
+				changelog:
+					"Initial Published Pack with complete cross-surface coverage and evaluation evidence.",
+			},
+		],
 		license: "CC BY 4.0",
 		licenseSummary:
 			"Complete Open Design Pack content, reusable with attribution.",
@@ -86,12 +112,6 @@ export const designPacks: readonly DesignPack[] = [
 		evaluation,
 		evaluationEvidence,
 		coverage,
-		resources: [
-			"Design Contract (DESIGN.md)",
-			"Editorial typography tokens",
-			"Content and component guidance",
-			"React and Next.js Stack Adapter",
-		],
 	},
 	{
 		slug: "command",
@@ -99,12 +119,14 @@ export const designPacks: readonly DesignPack[] = [
 		access: "Premium",
 		direction: "Dark-first, dense, and technical.",
 		bestFor: "Developer and operations products",
-		release: {
-			version: "1.0.0",
-			publishedAt: "July 18, 2026",
-			changelog:
-				"Initial Published Pack with dense technical patterns and complete state coverage.",
-		},
+		releases: [
+			{
+				version: "1.0.0",
+				publishedAt: "July 18, 2026",
+				changelog:
+					"Initial Published Pack with dense technical patterns and complete state coverage.",
+			},
+		],
 		license: "Commercial Pack License",
 		licenseSummary:
 			"A snapshot installed while access is active remains licensed in that Project after Premium Access expires; extraction and reuse elsewhere are not included.",
@@ -112,12 +134,6 @@ export const designPacks: readonly DesignPack[] = [
 		evaluation,
 		evaluationEvidence,
 		coverage,
-		resources: [
-			"Core interface direction",
-			"Dense semantic token system",
-			"Technical component and state recipes",
-			"Operations-focused supporting resources",
-		],
 	},
 	{
 		slug: "signal",
@@ -125,12 +141,14 @@ export const designPacks: readonly DesignPack[] = [
 		access: "Premium",
 		direction: "Bold geometry, expressive color, and richer motion.",
 		bestFor: "AI and creative products",
-		release: {
-			version: "1.0.0",
-			publishedAt: "July 20, 2026",
-			changelog:
-				"Initial Published Pack with expressive motion, graphic resources, and full surface coverage.",
-		},
+		releases: [
+			{
+				version: "1.0.0",
+				publishedAt: "July 20, 2026",
+				changelog:
+					"Initial Published Pack with expressive motion direction and full surface coverage.",
+			},
+		],
 		license: "Commercial Pack License",
 		licenseSummary:
 			"A snapshot installed while access is active remains licensed in that Project after Premium Access expires; extraction and reuse elsewhere are not included.",
@@ -138,15 +156,14 @@ export const designPacks: readonly DesignPack[] = [
 		evaluation,
 		evaluationEvidence,
 		coverage,
-		resources: [
-			"Core interface direction",
-			"Expressive semantic token system",
-			"Motion and component recipes",
-			"Original graphic resource kit",
-		],
 	},
 ] as const;
 
 export function getDesignPack(slug: string) {
 	return designPacks.find((pack) => pack.slug === slug);
+}
+
+/** The Pack Release a bare Design Pack identity selects. */
+export function currentRelease(pack: DesignPack) {
+	return pack.releases[0];
 }
