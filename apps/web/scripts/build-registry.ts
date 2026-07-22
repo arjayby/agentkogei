@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { publishedPacks } from "@agentkogei/design-packs";
+import { publishedPacks } from "agentkogei/src/index";
 
 const outputDirectory = path.resolve(import.meta.dirname, "../public/r");
 const emittedPacks = await Promise.all(

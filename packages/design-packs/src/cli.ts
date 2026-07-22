@@ -1,5 +1,11 @@
 #!/usr/bin/env bun
 
+/**
+ * Official Catalog publication validation. It stays repository tooling rather
+ * than a published executable, because AgentKogei validates its own packs and
+ * offers no author SDK.
+ */
+
 import { validatePackRelease } from "./validator";
 
 const arguments_ = process.argv.slice(2);
@@ -15,7 +21,7 @@ if (
 	(publishedOptionIndex !== -1 && !publishedReleaseDirectory)
 ) {
 	console.error(
-		"Usage: agentkogei-validate-pack <release-directory> [--published <release-directory>]",
+		"Usage: bun run validate <release-directory> [--published <release-directory>]",
 	);
 	process.exit(2);
 }

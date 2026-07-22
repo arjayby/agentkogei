@@ -14,7 +14,7 @@ import {
 	foundationReleaseDirectory,
 	type PackValidationResult,
 	publishedPacks,
-} from "@agentkogei/design-packs";
+} from "../src/index";
 
 const validatorCommand = new URL("../src/cli.ts", import.meta.url).pathname;
 

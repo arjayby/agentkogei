@@ -12,15 +12,16 @@
 		"registry:build": "bun run scripts/build-registry.ts",
 		"artifacts:verify": "bun run scripts/verify-premium-artifacts.ts",
 		"logs:verify": "bun run scripts/verify-premium-logs.ts",
-		"test": "bun run --cwd ../../packages/design-packs build && AGENTKOGEI_CLI_PATH=../../packages/design-packs/dist/agentkogei.js playwright test && bun run logs:verify",
-		"test:public": "bun run --cwd ../../packages/design-packs build && AGENTKOGEI_CLI_PATH=../../packages/design-packs/dist/agentkogei.js playwright test tests/public-journey.spec.ts",
+		"cli:pack": "bun run --cwd ../../packages/design-packs distribution:pack",
+		"test": "bun run cli:pack && playwright test && bun run logs:verify",
+		"test:public": "bun run cli:pack && playwright test tests/public-journey.spec.ts",
 		"start": "next start",
 		"start:test": "next start --port 3011"
 	},
 	"dependencies": {
 		"@agentkogei/api": "workspace:*",
 		"@agentkogei/auth": "workspace:*",
-		"@agentkogei/design-packs": "workspace:*",
+		"agentkogei": "workspace:*",
 		"@agentkogei/env": "workspace:*",
 		"@agentkogei/ui": "workspace:*",
 		"@orpc/client": "catalog:",
@@ -39,7 +40,8 @@
 		"next-themes": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:",
-		"sonner": "catalog:"
+		"sonner": "catalog:",
+		"zod": "catalog:"
 	},
 	"devDependencies": {
 		"@agentkogei/config": "workspace:*",
@@ -50,6 +52,8 @@
 		"@types/node": "^20",
 		"@types/react": "catalog:",
 		"@types/react-dom": "catalog:",
+		"@yarnpkg/cli-dist": "^4.17.1",
+		"pnpm": "^10.28.0",
 		"tailwindcss": "catalog:",
 		"typescript": "catalog:"
 	}

@@ -296,7 +296,7 @@ describe("CLI privacy boundary", () => {
 				command: "install",
 				outcome: "success",
 				platform: process.platform,
-				runtime: "bun",
+				runtime: "node",
 			});
 			const refused = await runCli(
 				["install", "foundation@1.0.0", "--yes"],
@@ -308,7 +308,7 @@ describe("CLI privacy boundary", () => {
 				command: "install",
 				outcome: "error",
 				platform: process.platform,
-				runtime: "bun",
+				runtime: "node",
 			});
 			const invalid = await runCli(
 				["private-project-name-must-not-be-diagnostic-data"],
@@ -466,7 +466,7 @@ describe("CLI privacy boundary", () => {
 				command: "update",
 				outcome: "error",
 				platform: process.platform,
-				runtime: "bun",
+				runtime: "node",
 			});
 		} finally {
 			source.server.stop(true);

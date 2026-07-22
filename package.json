@@ -1,5 +1,5 @@
 {
-	"name": "agentkogei",
+	"name": "agentkogei-monorepo",
 	"private": true,
 	"workspaces": {
 		"packages": [
@@ -35,7 +35,7 @@
 		"check-types": "turbo run check-types",
 		"test": "turbo run test",
 		"format:check": "files=$(printf '%s\\n%s' \"$(git diff --name-only --diff-filter=ACMR main --)\" \"$(git ls-files --others --exclude-standard)\" | sed '/^$/d' | sort -u); if test -z \"$files\"; then exit 0; else biome check $files; fi",
-		"launch:verify": "bun run format:check && bun run check-types && bun run db:check && bun run db:migrate:test && bun run build && bun run --cwd packages/design-packs distribution:verify && bun run test",
+		"launch:verify": "bun run format:check && bun run check-types && bun run db:check && bun run db:migrate:test && bun run build && bun run test",
 		"dev:web": "turbo run dev -F web",
 		"db:check": "bun run --cwd packages/db drizzle-kit check",
 		"db:migrate:test": "AGENTKOGEI_TEST_DATABASE_PATH=../../apps/web/.black-box/postgres bun run --cwd packages/db db:prepare:black-box",

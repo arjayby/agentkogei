@@ -103,7 +103,7 @@ export async function sendDiagnostic(
 			command,
 			outcome,
 			platform: platform(),
-			runtime: "bun",
+			runtime: "node",
 		});
 		await fetch(config.destination, {
 			method: "POST",

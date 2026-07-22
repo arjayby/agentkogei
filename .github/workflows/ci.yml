@@ -38,6 +38,13 @@ jobs:
       - name: Set up Bun
         uses: oven-sh/setup-bun@v2
 
+      # The published CLI targets Node.js 20+, so the runner matrix runs on the
+      # oldest runtime AgentKogei advertises rather than the runner's default.
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 

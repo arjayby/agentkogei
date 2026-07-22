@@ -1,7 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { buildDesignContract, publishedPacks } from "@agentkogei/design-packs";
+import { buildDesignContract, publishedPacks } from "agentkogei/src/index";
 
 const outputFile = path.resolve(
 	import.meta.dirname,

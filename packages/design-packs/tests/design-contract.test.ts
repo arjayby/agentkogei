@@ -8,7 +8,7 @@ import {
 	editorialReleaseDirectoryFor,
 	foundationReleaseDirectoryFor,
 	publishedPacks,
-} from "@agentkogei/design-packs";
+} from "../src/index";
 
 const foundation = () =>
 	buildDesignContract(foundationReleaseDirectoryFor("1.1.0"));
