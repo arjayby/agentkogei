@@ -493,7 +493,7 @@ test("the diagnostics endpoint accepts only the disclosed non-Project fields", a
 		command: "install",
 		outcome: "success",
 		platform: "darwin",
-		runtime: "bun",
+		runtime: "node",
 	};
 	const accepted = await request.post("/api/cli-diagnostics", {
 		data: diagnostic,

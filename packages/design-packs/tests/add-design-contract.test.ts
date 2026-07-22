@@ -15,7 +15,7 @@ import {
 	buildDesignContract,
 	foundationReleaseDirectoryFor,
 	planDesignContractInstallation,
-} from "@agentkogei/design-packs";
+} from "../src/index";
 
 const cliCommand = new URL("../src/install-cli.ts", import.meta.url).pathname;
 const temporaryDirectories: string[] = [];

@@ -15,7 +15,7 @@ export const diagnosticPayloadSchema = z
 		command: z.enum(diagnosticCommands),
 		outcome: z.enum(["success", "error"]),
 		platform: z.string().min(1).max(32),
-		runtime: z.literal("bun"),
+		runtime: z.literal("node"),
 	})
 	.strict();
 
@@ -25,7 +25,7 @@ const diagnosticFieldDescriptions = {
 	command: "CLI command name",
 	outcome: "success or error",
 	platform: "operating-system family",
-	runtime: '"bun"',
+	runtime: '"node"',
 } satisfies Record<keyof DiagnosticPayload, string>;
 
 export const diagnosticFieldDisclosure = Object.entries(

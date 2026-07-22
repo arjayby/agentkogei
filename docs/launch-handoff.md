@@ -11,7 +11,7 @@ bun install --frozen-lockfile
 bun run launch:verify
 ```
 
-`launch:verify` checks formatting, TypeScript, committed migrations, production builds, the independently invocable CLI distribution, premium-resource artifact isolation, and the full test suite. The Playwright suite builds the Next.js web/API product, starts that production build, bundles the CLI, and runs both together against deterministic GitHub and Polar substitutes, controlled Pack Sources, an isolated Postgres-compatible database, and temporary Projects.
+`launch:verify` checks formatting, TypeScript, committed migrations, production builds, premium-resource artifact isolation, and the full test suite. The Playwright suite builds the Next.js web/API product, starts that production build, packs the publishable `agentkogei` tarball, and runs both together against deterministic GitHub and Polar substitutes, controlled Pack Sources, an isolated Postgres-compatible database, and temporary Projects. Every CLI journey launches the built `agentkogei` executable on Node.js, and the runner matrix installs the tarball itself to complete an Open Installation through `npx`, `pnpm dlx`, modern `yarn dlx`, and `bunx`.
 
 Before deploying against a new database, execute the committed migrations against an isolated preview database and retain the command output with the release evidence:
 
@@ -31,6 +31,17 @@ The black-box suite observes only browser-visible state, HTTP responses, CLI out
 - controlled Pack Sources serving Open, Premium, and third-party Design Packs, plus disposable Projects;
 - artifact, cache, source-map, unauthenticated-response, and CLI-output checks for raw Premium Design Pack resources; and
 - default-off diagnostics and the disclosed opt-in payload.
+
+## Publishing the CLI
+
+The repository leaves a verified publishable artifact; uploading it is a separate release operation that needs npm publishing authority for the unclaimed `agentkogei` name.
+
+```bash
+bun run --cwd packages/design-packs distribution:pack
+npm publish packages/design-packs/.distribution/agentkogei.tgz
+```
+
+The tarball carries one `agentkogei` executable, declares Node.js 20 or newer, and contains no validator executable, library entry point, runtime dependency, or Design Pack Release. Publish only from a `launch:verify` run whose runner matrix passed, and tag the released commit.
 
 ## License and distribution boundary
 

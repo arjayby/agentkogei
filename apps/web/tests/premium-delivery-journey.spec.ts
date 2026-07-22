@@ -42,7 +42,7 @@ function runCli(
 ) {
 	return new Promise<{ code: number | null; stdout: string; stderr: string }>(
 		(resolve) => {
-			const child = spawn("bun", [cliPath, ...arguments_], {
+			const child = spawn("node", [cliPath, ...arguments_], {
 				cwd: options.projectDirectory,
 				env: {
 					...process.env,

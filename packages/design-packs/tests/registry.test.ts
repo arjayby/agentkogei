@@ -3,7 +3,7 @@ import { describe, expect, test } from "bun:test";
 import {
 	buildEditorialRegistryItem,
 	buildFoundationRegistryItem,
-} from "@agentkogei/design-packs";
+} from "../src/index";
 
 describe("Foundation shadcn-compatible transport", () => {
 	test("serializes the immutable Open Pack Release as one complete registry item", async () => {

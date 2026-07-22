@@ -2,7 +2,7 @@ import {
 	authorizePremiumRetrieval,
 	recordPremiumEntitlementEvent,
 } from "@agentkogei/auth/lib/premium-delivery";
-import { buildDesignContractFromResources } from "@agentkogei/design-packs/design-contract";
+import { buildDesignContractFromResources } from "agentkogei/src/design-contract";
 import { z } from "zod";
 
 import openDesignContracts from "@/generated/open-design-contracts.json";

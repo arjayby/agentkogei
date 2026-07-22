@@ -1,34 +1,33 @@
 {
-	"name": "@agentkogei/design-packs",
+	"name": "agentkogei",
 	"version": "0.1.0",
+	"description": "Give your AI coding agents one durable Design Contract.",
 	"license": "MIT",
 	"type": "module",
+	"engines": {
+		"node": ">=20"
+	},
 	"bin": {
-		"agentkogei": "./dist/agentkogei.js",
-		"agentkogei-validate-pack": "./dist/agentkogei-validate-pack.js"
+		"agentkogei": "./dist/agentkogei.js"
 	},
 	"files": [
 		"dist",
-		"LICENSE"
+		"LICENSE",
+		"README.md"
 	],
-	"exports": {
-		".": "./src/index.ts",
-		"./design-contract": "./src/design-contract.ts",
-		"./diagnostic-contract": "./src/diagnostic-contract.ts",
-		"./release-version": "./src/release-version.ts"
+	"publishConfig": {
+		"access": "public"
 	},
 	"scripts": {
-		"build": "bun build ./src/install-cli.ts --target=bun --outfile=./dist/agentkogei.js && bun build ./src/cli.ts --target=bun --outfile=./dist/agentkogei-validate-pack.js",
+		"build": "rm -rf dist && bun build ./src/install-cli.ts --target=node --outfile=./dist/agentkogei.js",
 		"check-types": "tsc --noEmit",
-		"distribution:verify": "bun run build && bun run scripts/verify-packed-cli.ts",
+		"distribution:pack": "bun run build && bun run scripts/pack-cli.ts",
 		"test": "bun test --timeout 30000",
 		"validate": "bun run src/cli.ts"
 	},
-	"dependencies": {
-		"zod": "catalog:"
-	},
 	"devDependencies": {
 		"@agentkogei/config": "workspace:*",
-		"typescript": "catalog:"
+		"typescript": "catalog:",
+		"zod": "catalog:"
 	}
 }

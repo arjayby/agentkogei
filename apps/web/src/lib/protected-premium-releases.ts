@@ -1,11 +1,11 @@
 import "server-only";
 
 import { createHash } from "node:crypto";
+import { env } from "@agentkogei/env/server";
 import {
 	comparePackReleaseVersions,
 	type PackReleaseVersion,
-} from "@agentkogei/design-packs/release-version";
-import { env } from "@agentkogei/env/server";
+} from "agentkogei/src/release-version";
 
 /**
  * How each protected Pack Release is provisioned: the release payload itself

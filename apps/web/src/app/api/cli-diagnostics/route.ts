@@ -1,4 +1,4 @@
-import { diagnosticPayloadSchema } from "@agentkogei/design-packs/diagnostic-contract";
+import { diagnosticPayloadSchema } from "agentkogei/src/diagnostic-contract";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {

@@ -1,4 +1,4 @@
-#!/usr/bin/env bun
+#!/usr/bin/env node
 
 import { randomUUID } from "node:crypto";
 import { addDesignContract } from "./add-design-contract";
