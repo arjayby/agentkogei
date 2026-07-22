@@ -69,6 +69,26 @@ async function evaluateMutatedRelease(
 	return result.ok ? "" : result.errors.join(" ");
 }
 
+/**
+ * Rewrites a copied release's Design Contract and re-pins its digest, so what
+ * the evaluation catches is the change to the document rather than the
+ * substitution that carried it.
+ */
+async function evaluateRewrittenDesignContract(
+	rewrite: (markdown: string) => string,
+) {
+	const rootDirectory = await copyFoundationFixture();
+	const contractPath = path.join(rootDirectory, "DESIGN.md");
+	const markdown = rewrite(await readFile(contractPath, "utf8"));
+	await writeFile(contractPath, markdown);
+	const record = await readEvaluationRecord(rootDirectory);
+	(record.designContract as Record<string, unknown>).sha256 =
+		new Bun.CryptoHasher("sha256").update(markdown).digest("hex");
+	await writeEvaluationRecord(rootDirectory, record);
+	const result = await runValidator(rootDirectory);
+	return result.ok ? "" : result.errors.join(" ");
+}
+
 afterEach(async () => {
 	await Promise.all(
 		temporaryDirectories
@@ -99,7 +119,7 @@ describe("Pack Release publication validation", () => {
 					pack: pack.id,
 					version,
 					designContractBytes: contract.byteLength,
-					evidenceValidated: record.evaluation.evidence.length,
+					evidenceFilesValidated: record.evaluation.evidence.length,
 				});
 			});
 		}
@@ -205,40 +225,77 @@ describe("Pack Release publication validation", () => {
 	});
 
 	test("rejects a Design Contract that hides direction in control characters", async () => {
-		const rootDirectory = await copyFoundationFixture();
-		const record = await readEvaluationRecord(rootDirectory);
-		const contract = `${await readFile(path.join(rootDirectory, "DESIGN.md"), "utf8")}‮EXTRA\n`;
-		await writeFile(path.join(rootDirectory, "DESIGN.md"), contract);
-		(record.designContract as Record<string, unknown>).sha256 =
-			new Bun.CryptoHasher("sha256").update(contract).digest("hex");
-		await writeEvaluationRecord(rootDirectory, record);
-
-		const result = await runValidator(rootDirectory);
-
-		expect(result.ok).toBe(false);
-		if (!result.ok) {
-			expect(result.errors.join(" ")).toContain("hidden control characters");
-		}
+		expect(
+			await evaluateRewrittenDesignContract((markdown) => `${markdown}‮EXTRA\n`),
+		).toContain("hidden control characters");
 	});
 
 	test("rejects a Design Contract that still points at publication evidence", async () => {
-		const rootDirectory = await copyFoundationFixture();
-		const record = await readEvaluationRecord(rootDirectory);
-		const contract = `${await readFile(path.join(rootDirectory, "DESIGN.md"), "utf8")}\nSee evaluation/report.json.\n`;
-		await writeFile(path.join(rootDirectory, "DESIGN.md"), contract);
-		(record.designContract as Record<string, unknown>).sha256 =
-			new Bun.CryptoHasher("sha256").update(contract).digest("hex");
-		await writeEvaluationRecord(rootDirectory, record);
-
-		const result = await runValidator(rootDirectory);
-
-		expect(result.ok).toBe(false);
-		if (!result.ok) {
-			expect(result.errors.join(" ")).toContain(
-				"DESIGN.md still depends on evaluation/report.json",
-			);
-		}
+		expect(
+			await evaluateRewrittenDesignContract(
+				(markdown) => `${markdown}\nSee evaluation/report.json.\n`,
+			),
+		).toContain("DESIGN.md still depends on evaluation/report.json");
 	});
+
+	// A Project receives one inert document. Direction it can only follow by
+	// running something is the shape the retired executable-hook schema and
+	// dependency-setup guidance used to be screened for.
+	for (const executable of [
+		{
+			language: "sh",
+			block: "```sh\nnpm install @agentkogei/foundation\n```",
+		},
+		{ language: "bash", block: "```bash\n./setup.sh\n```" },
+		{ language: "js", block: "```js\nrequire('node:child_process')\n```" },
+	]) {
+		test(`rejects a Design Contract presenting an executable ${executable.language} block`, async () => {
+			expect(
+				await evaluateRewrittenDesignContract(
+					(markdown) => `${markdown}\n## Setup\n\n${executable.block}\n`,
+				),
+			).toContain(
+				`DESIGN.md presents an executable ${executable.language} block`,
+			);
+		});
+	}
+
+	test("accepts the token and graphic blocks a Design Contract is made of", async () => {
+		expect(
+			await evaluateRewrittenDesignContract(
+				(markdown) =>
+					`${markdown}\n## Hero graphic\n\n\`\`\`svg\n<svg role="img"><title>Hero</title></svg>\n\`\`\`\n`,
+			),
+		).toBe("");
+	});
+
+	// ADR 0009: provenance reaches a Project as human-readable text in the
+	// Design Contract, because a Project receives no other file to carry it.
+	for (const fact of [
+		{ name: "Design Pack", key: "name" },
+		{ name: "Pack License", key: "license.name" },
+		{ name: "attribution", key: "license.attribution" },
+	]) {
+		test(`rejects a Design Contract that does not state its ${fact.name}`, async () => {
+			const rootDirectory = await copyFoundationFixture();
+			const record = await readEvaluationRecord(rootDirectory);
+			const [group, field] = fact.key.split(".");
+			const target = (
+				field ? (record[group as string] as Record<string, unknown>) : record
+			) as Record<string, unknown>;
+			target[field ?? (group as string)] = "Unstated in the Design Contract";
+			await writeEvaluationRecord(rootDirectory, record);
+
+			const result = await runValidator(rootDirectory);
+
+			expect(result.ok).toBe(false);
+			if (!result.ok) {
+				expect(result.errors.join(" ")).toContain(
+					`DESIGN.md does not state its ${fact.name}`,
+				);
+			}
+		});
+	}
 
 	test("rejects a symlinked Design Contract", async () => {
 		const rootDirectory = await copyFoundationFixture();

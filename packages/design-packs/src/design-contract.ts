@@ -3,12 +3,15 @@ import path from "node:path";
 import { z } from "zod";
 
 import {
-	designContractFileName,
+	packAccessSchema,
 	packEvaluationFileName,
 	packEvaluationRecordSchema,
 } from "./pack-evaluation";
 import { packIdentitySchema } from "./pack-identity";
 import { packReleaseVersionSchema } from "./release-version";
+
+/** The one document a Pack Release publishes, by its fixed name. */
+export const designContractFileName = "DESIGN.md";
 
 /**
  * One Pack Release as the Official Catalog delivers it: the raw Markdown a
@@ -23,7 +26,7 @@ export const designContractSchema = z
 		designPack: z.string().min(1),
 		packRelease: packReleaseVersionSchema,
 		packLicense: z.string().min(1),
-		access: z.enum(["open", "premium"]),
+		access: packAccessSchema,
 		markdown: z.string().min(1),
 	})
 	.strict();

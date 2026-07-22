@@ -2,8 +2,8 @@ import { createHash } from "node:crypto";
 import { lstat, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 
+import { designContractFileName } from "./design-contract";
 import {
-	designContractFileName,
 	type PackEvaluationRecord,
 	packEvaluationFileName,
 	packEvaluationRecordSchema,
@@ -16,7 +16,7 @@ export type PackValidationResult =
 			pack: string;
 			version: string;
 			designContractBytes: number;
-			evidenceValidated: number;
+			evidenceFilesValidated: number;
 	  }
 	| { ok: false; errors: string[] };
 
@@ -162,9 +162,35 @@ async function validateReleaseContents(
 }
 
 /**
+ * What a Design Contract may present as a fenced block. Everything a Pack
+ * Release declares is a definition an implementation reads — semantic tokens
+ * and meaningful graphics — so a block in any other language would be something
+ * the document is asking to have run.
+ */
+const inertFenceLanguages = new Set(["", "css", "svg"]);
+
+function executableFenceLanguages(markdown: string) {
+	const languages = new Set<string>();
+	let open = false;
+	for (const line of markdown.split("\n")) {
+		if (!line.startsWith("```")) continue;
+		// Only the fence that opens a block names its language; the one that
+		// closes it is bare, and would otherwise read as an unlabelled block.
+		open = !open;
+		if (!open) continue;
+		const language = line.slice(3).trim().toLowerCase();
+		if (!inertFenceLanguages.has(language)) {
+			languages.add(language);
+		}
+	}
+	return [...languages];
+}
+
+/**
  * A Project receives the Design Contract and nothing else, so the document must
- * read as inert prose and must not send an AI coding agent looking for a
- * release resource that was never installed.
+ * carry its own provenance, must read as inert direction rather than as
+ * something to run, and must not send an AI coding agent looking for a release
+ * resource that was never installed.
  */
 function validateDesignContract(
 	record: PackEvaluationRecord,
@@ -188,6 +214,23 @@ function validateDesignContract(
 	}
 	if (hasHiddenDocumentControl(markdown)) {
 		errors.push(`${designContractFileName} contains hidden control characters`);
+	}
+	for (const language of executableFenceLanguages(markdown)) {
+		errors.push(
+			`${designContractFileName} presents an executable ${language} block`,
+		);
+	}
+	// ADR 0009: provenance reaches a Project as human-readable text in the
+	// Design Contract, because a Project receives no other file to carry it.
+	for (const [fact, value] of [
+		["Design Pack", record.name],
+		["Pack Release", record.release.version],
+		["Pack License", record.license.name],
+		["attribution", record.license.attribution],
+	] as const) {
+		if (!markdown.includes(value)) {
+			errors.push(`${designContractFileName} does not state its ${fact}`);
+		}
 	}
 	for (const withheld of [
 		packEvaluationFileName,
@@ -304,6 +347,6 @@ export async function validatePackRelease(
 		pack: record.id,
 		version: record.release.version,
 		designContractBytes: contract.byteLength,
-		evidenceValidated: record.evaluation.evidence.length,
+		evidenceFilesValidated: record.evaluation.evidence.length,
 	};
 }

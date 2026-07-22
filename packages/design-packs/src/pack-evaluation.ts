@@ -34,6 +34,9 @@ const relativePathSchema = z
 		{ message: "must be a safe relative path inside the Pack Release" },
 	);
 
+/** Whether a Design Pack is an Open or a Premium one. */
+export const packAccessSchema = z.enum(["open", "premium"]);
+
 /**
  * The file every Pack Release keeps beside its Design Contract, recording what
  * Pack Evaluation examined before the release became a Published Pack. It is
@@ -53,7 +56,7 @@ export const packEvaluationRecordSchema = z
 				immutable: z.literal(true),
 			})
 			.strict(),
-		access: z.enum(["open", "premium"]),
+		access: packAccessSchema,
 		license: z
 			.object({
 				spdx: terminalTextSchema,
@@ -129,8 +132,5 @@ export const packEvaluationRecordSchema = z
 
 export type PackEvaluationRecord = z.infer<typeof packEvaluationRecordSchema>;
 
-/** The Design Contract a Pack Release publishes, by its fixed name. */
-export const designContractFileName = "DESIGN.md";
-
-/** The Pack Evaluation record beside it, by its fixed name. */
+/** The Pack Evaluation record of a Pack Release, by its fixed name. */
 export const packEvaluationFileName = "pack-evaluation.json";

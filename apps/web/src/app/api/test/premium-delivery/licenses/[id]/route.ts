@@ -3,6 +3,7 @@ import {
 	recordTestPremiumProjectLicense,
 } from "@agentkogei/auth/lib/premium-delivery";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 
 export async function GET(
 	_request: Request,
@@ -15,6 +16,12 @@ export async function GET(
 	});
 }
 
+const recordedLicenseSchema = z.object({
+	credential: z.string().min(1),
+	packId: z.string().min(1),
+	packRelease: z.string().min(1),
+});
+
 export async function POST(
 	request: Request,
 	context: { params: Promise<{ id: string }> },
@@ -25,20 +32,13 @@ export async function POST(
 	} catch {
 		return new NextResponse(null, { status: 404 });
 	}
+	const recorded = recordedLicenseSchema.safeParse(body);
 	if (
-		!body ||
-		typeof body !== "object" ||
-		!("credential" in body) ||
-		typeof body.credential !== "string" ||
-		!("packId" in body) ||
-		typeof body.packId !== "string" ||
-		!("packRelease" in body) ||
-		typeof body.packRelease !== "string" ||
+		!recorded.success ||
+		!z.uuid().safeParse((await context.params).id).success ||
 		!(await recordTestPremiumProjectLicense({
-			credential: body.credential,
+			...recorded.data,
 			projectLicenseId: (await context.params).id,
-			packId: body.packId,
-			packRelease: body.packRelease,
 		}))
 	) {
 		return new NextResponse(null, { status: 404 });
