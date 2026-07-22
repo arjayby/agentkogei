@@ -54,8 +54,6 @@ Bold geometry, expressive color, and richer motion for the whole product.
 
 type PremiumIdentity = keyof typeof premiumDesignContracts;
 
-const commandContract = premiumDesignContracts.command.markdown;
-
 type ServerState = {
 	premiumAccess: "active" | "inactive";
 	credentials: Set<string>;
@@ -281,7 +279,9 @@ describe("Premium Installation with inline authorization", () => {
 
 		expect(result).toBe(0);
 		expect(state.polls).toBe(0);
-		expect(await projectFile("DESIGN.md")).toBe(commandContract);
+		expect(await projectFile("DESIGN.md")).toBe(
+			premiumDesignContracts.command.markdown,
+		);
 	});
 
 	test("leaves the Project unchanged when authorization is denied", async () => {

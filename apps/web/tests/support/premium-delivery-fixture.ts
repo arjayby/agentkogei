@@ -139,9 +139,38 @@ type PremiumPackSpec = {
 	publishedAt: string;
 	summary: string;
 	changelog: string;
-	/** Every resource the release publishes, in the order it presents them. */
+	/** What this pack's original work consists of, for its attribution. */
+	originalWork: string;
+	/**
+	 * The resources whose direction is this pack's own, in the order it presents
+	 * them. Licensing, attribution, and agent-run evidence read the same for
+	 * every Premium Design Pack, so the builder supplies those.
+	 */
 	resources: ReadonlyArray<{ path: string; content: string }>;
 };
+
+/**
+ * The resources every Premium Pack Release closes with: one commercial Pack
+ * License, the provenance of its original work, and the evidence its Pack
+ * Evaluation rests on.
+ */
+function premiumPackClosingResources(spec: PremiumPackSpec) {
+	return [
+		{
+			path: "LICENSE.md",
+			content:
+				"# AgentKogei Commercial Pack License\n\nThis synthetic test snapshot may be used only to verify protected Installation and Project License behavior.\n",
+		},
+		{
+			path: "ATTRIBUTION.md",
+			content: `# Attribution and provenance\n\nAll ${spec.name} ${spec.originalWork} are original AgentKogei work. The test release contains no third-party assets or remote resources. Human rights review passed.\n`,
+		},
+		{
+			path: "evaluation/agent-runs.md",
+			content: `# ${spec.name} agent validation\n\nFour independent generation runs covered marketing, authentication, onboarding, application surfaces, every required state, responsive layouts, dark mode, keyboard use, and reduced motion. Human review passed visual distinctiveness, WCAG 2.2 AA, provenance, and commercial-rights checks.\n`,
+		},
+	];
+}
 
 /**
  * Builds the protected registry payload the Official Catalog holds for one
@@ -169,6 +198,7 @@ function buildPremiumPackRelease(spec: PremiumPackSpec) {
 	report.agentRunEvidence = "evaluation/agent-runs.md";
 	const published = [
 		...spec.resources,
+		...premiumPackClosingResources(spec),
 		{
 			path: "evaluation/report.json",
 			content: `${JSON.stringify(report, null, "\t")}\n`,
@@ -256,6 +286,7 @@ const commandRelease: PremiumPackSpec = {
 	publishedAt: "2026-07-19",
 	summary: "Dark-first, dense, and technical.",
 	changelog: "Initial immutable Command Pack Release.",
+	originalWork: "prose, tokens, patterns, and evaluation materials",
 	resources: [
 		{
 			path: "DESIGN.md",
@@ -359,21 +390,6 @@ Test-only guidance for dense tables, command palettes, logs, and monitoring stat
 Test-only anatomy for selectable output, status annotations, and keyboard workflows. Terminal output stays selectable text, annotations carry accessible names, and every shortcut has a visible equivalent.
 `,
 		},
-		{
-			path: "LICENSE.md",
-			content:
-				"# AgentKogei Commercial Pack License\n\nThis synthetic test snapshot may be used only to verify protected Installation and Project License behavior.\n",
-		},
-		{
-			path: "ATTRIBUTION.md",
-			content:
-				"# Attribution and provenance\n\nAll Command prose, tokens, patterns, and evaluation materials are original AgentKogei work. The test release contains no third-party assets or remote resources. Human rights review passed.\n",
-		},
-		{
-			path: "evaluation/agent-runs.md",
-			content:
-				"# Command agent validation\n\nFour independent generation runs covered marketing, authentication, onboarding, application surfaces, every required state, responsive layouts, dark mode, keyboard use, and reduced motion. Human review passed visual distinctiveness, WCAG 2.2 AA, provenance, and commercial-rights checks.\n",
-		},
 	],
 };
 
@@ -385,6 +401,8 @@ const signalRelease: PremiumPackSpec = {
 	publishedAt: "2026-07-20",
 	summary: "Bold geometry, expressive color, and richer motion.",
 	changelog: "Initial immutable Signal Pack Release.",
+	originalWork:
+		"prose, tokens, motion guidance, evaluation evidence, and graphic resources",
 	resources: [
 		{
 			path: "DESIGN.md",
@@ -500,21 +518,6 @@ Build bold hierarchy from circles, offset rectangles, heavy rules, and deliberat
 			path: "resources/momentum-grid.svg",
 			content:
 				'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180" role="img"><title>Signal momentum grid</title><path d="M20 145h45V95h45v20h45V65h45v25h45V30h55" fill="none" stroke="currentColor" stroke-width="16"/></svg>\n',
-		},
-		{
-			path: "LICENSE.md",
-			content:
-				"# AgentKogei Commercial Pack License\n\nThis synthetic test snapshot may be used only to verify protected Installation and Project License behavior.\n",
-		},
-		{
-			path: "ATTRIBUTION.md",
-			content:
-				"# Attribution and provenance\n\nAll Signal prose, tokens, motion guidance, evaluation evidence, and graphic resources are original AgentKogei work. The test release contains no third-party assets or remote resources. Human rights review passed.\n",
-		},
-		{
-			path: "evaluation/agent-runs.md",
-			content:
-				"# Signal agent validation\n\nFour independent generation runs covered marketing, authentication, onboarding, application surfaces, every required state, responsive layouts, dark mode, keyboard use, and reduced motion. Human review passed visual distinctiveness, WCAG 2.2 AA, provenance, and commercial-rights checks.\n",
 		},
 	],
 };

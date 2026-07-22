@@ -40,14 +40,13 @@ async function releaseResources(directory: string) {
 	);
 }
 
+const graphicPath = "resources/momentum-grid.svg";
+
 /**
  * A Pack Release carrying one meaningful graphic, which a Premium Design Pack
  * publishes as part of its direction rather than as publication evidence.
  */
-async function releaseWithGraphic(
-	graphic: string,
-	resourcePath = "resources/momentum-grid.svg",
-) {
+async function releaseWithGraphic(graphic: string) {
 	const resources = await releaseResources(
 		foundationReleaseDirectoryFor("1.1.0"),
 	);
@@ -58,18 +57,18 @@ async function releaseWithGraphic(
 		provenance: Array<{ paths: string[] }>;
 	};
 	manifest.files.push({
-		path: resourcePath,
-		target: `.agentkogei/foundation/${resourcePath}`,
+		path: graphicPath,
+		target: `.agentkogei/foundation/${graphicPath}`,
 		sha256: "0".repeat(64),
 		mediaType: "image/svg+xml",
 		mode: "0644",
 	});
-	(manifest.provenance[0] as { paths: string[] }).paths.push(resourcePath);
+	(manifest.provenance[0] as { paths: string[] }).paths.push(graphicPath);
 	return {
 		...resources,
 		"agentkogei.manifest.json": JSON.stringify(manifest),
-		"DESIGN.md": `${resources["DESIGN.md"]}\nCompose the hero from \`${resourcePath}\`.\n`,
-		[resourcePath]: graphic,
+		"DESIGN.md": `${resources["DESIGN.md"]}\nCompose the hero from \`${graphicPath}\`.\n`,
+		[graphicPath]: graphic,
 	};
 }
 
@@ -172,16 +171,47 @@ describe("Design Contract compilation", () => {
 		expect(markdown).not.toContain("resources/momentum-grid.svg");
 	});
 
-	test("refuses a graphic with no accessible name to title its section", async () => {
+	test("titles a graphic's section as the name reads rather than as it is escaped", async () => {
+		const { markdown } = await buildDesignContractFromResources(
+			await releaseWithGraphic(
+				'<svg xmlns="http://www.w3.org/2000/svg" role="img"><title>Signal &amp; noise</title><path d="M20 145h45" /></svg>\n',
+			),
+		);
+
+		expect(markdown).toContain("\n## Signal & noise\n");
+		expect(markdown).toContain(
+			"Compose the hero from the Signal & noise section.",
+		);
+	});
+
+	test("refuses a graphic named only on a shape inside it", async () => {
 		await expect(
 			buildDesignContractFromResources(
 				await releaseWithGraphic(
-					'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 180"><path d="M20 145h45V95h45" /></svg>\n',
+					'<svg xmlns="http://www.w3.org/2000/svg" role="img"><g><title>Third bar</title><path d="M20 145h45" /></g></svg>\n',
 				),
 			),
 		).rejects.toThrow(
-			"foundation cannot consolidate resources/momentum-grid.svg as image/svg+xml",
+			"foundation cannot title a section for resources/momentum-grid.svg, which carries no name",
 		);
+	});
+
+	test("refuses a resource whose media type has no consolidated form", async () => {
+		const resources = await releaseResources(
+			foundationReleaseDirectoryFor("1.1.0"),
+		);
+		const manifest = JSON.parse(
+			resources["agentkogei.manifest.json"] as string,
+		) as { files: Array<{ path: string; mediaType: string }> };
+		const tokens = manifest.files.find((file) => file.path === "tokens.css");
+		(tokens as { mediaType: string }).mediaType = "font/woff2";
+
+		await expect(
+			buildDesignContractFromResources({
+				...resources,
+				"agentkogei.manifest.json": JSON.stringify(manifest),
+			}),
+		).rejects.toThrow("foundation cannot consolidate tokens.css as font/woff2");
 	});
 
 	test("ends with human-readable provenance and no machine metadata", async () => {
