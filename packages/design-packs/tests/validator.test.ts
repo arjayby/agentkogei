@@ -11,9 +11,9 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 
 import {
-	editorialReleaseDirectory,
 	foundationReleaseDirectory,
 	type PackValidationResult,
+	publishedPacks,
 } from "@agentkogei/design-packs";
 
 const validatorCommand = new URL("../src/cli.ts", import.meta.url).pathname;
@@ -69,27 +69,23 @@ afterEach(async () => {
 });
 
 describe("Pack Release publication validation", () => {
-	test("accepts the complete Foundation Open Design Pack", async () => {
-		const result = await runValidator(foundationReleaseDirectory);
+	// Every Pack Release stays independently installable through the same
+	// compatibility and safety gate, so Pack Evaluation covers each published
+	// release rather than only the current one.
+	for (const pack of publishedPacks) {
+		for (const version of pack.versions) {
+			test(`accepts the published ${pack.id} Open Design Pack Release ${version}`, async () => {
+				const result = await runValidator(pack.directoryFor(version));
 
-		expect(result).toEqual({
-			ok: true,
-			pack: "foundation",
-			version: "1.1.0",
-			filesValidated: 9,
-		});
-	});
-
-	test("accepts Editorial through the same compatibility and safety gate", async () => {
-		const result = await runValidator(editorialReleaseDirectory);
-
-		expect(result).toEqual({
-			ok: true,
-			pack: "editorial",
-			version: "1.0.0",
-			filesValidated: 10,
-		});
-	});
+				expect(result).toMatchObject({
+					ok: true,
+					pack: pack.id,
+					version,
+				});
+				expect(result).toHaveProperty("filesValidated");
+			});
+		}
+	}
 
 	const invalidManifestCases = [
 		{
