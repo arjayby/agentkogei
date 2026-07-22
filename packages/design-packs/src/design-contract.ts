@@ -75,23 +75,23 @@ function provenanceSection(manifest: PackManifest) {
 }
 
 /**
- * Compiles a published Pack Release directory into its Design Contract. Every
- * resource that carries design direction is consolidated into one document, so
- * an Installed Pack never depends on a separate file.
+ * Reads one resource of a Pack Release by its manifest path. A Published Pack
+ * reads them from its catalog directory and a protected Premium Pack Release
+ * from the payload the Official Catalog holds, so both compile into the same
+ * Design Contract.
  */
-export async function buildDesignContract(
-	releaseDirectory: string,
+type ReadPackReleaseResource = (resourcePath: string) => Promise<string>;
+
+/**
+ * Consolidates every resource that carries design direction into one document,
+ * so an Installed Pack never depends on a separate file.
+ */
+async function compileDesignContract(
+	read: ReadPackReleaseResource,
 ): Promise<DesignContract> {
 	const manifest = packManifestSchema.parse(
-		JSON.parse(
-			await readFile(
-				path.join(releaseDirectory, "agentkogei.manifest.json"),
-				"utf8",
-			),
-		),
+		JSON.parse(await read("agentkogei.manifest.json")),
 	);
-	const read = (resourcePath: string) =>
-		readFile(path.join(releaseDirectory, resourcePath), "utf8");
 	const contractResource = manifest.files.find(
 		(file) => file.path === manifest.designContract,
 	);
@@ -133,4 +133,26 @@ export async function buildDesignContract(
 		access: manifest.access,
 		markdown: `${sections.join("\n\n")}\n`,
 	};
+}
+
+/** Compiles a published Pack Release directory into its Design Contract. */
+export async function buildDesignContract(releaseDirectory: string) {
+	return compileDesignContract((resourcePath) =>
+		readFile(path.join(releaseDirectory, resourcePath), "utf8"),
+	);
+}
+
+/**
+ * Compiles a Pack Release whose resources are already in memory, so a protected
+ * Premium Pack Release never has to be unpacked to disk to be delivered.
+ */
+export async function buildDesignContractFromResources(
+	resources: Readonly<Record<string, string>>,
+) {
+	return compileDesignContract(async (resourcePath) => {
+		if (!Object.hasOwn(resources, resourcePath)) {
+			throw new Error(`Pack Release is missing ${resourcePath}`);
+		}
+		return resources[resourcePath] as string;
+	});
 }

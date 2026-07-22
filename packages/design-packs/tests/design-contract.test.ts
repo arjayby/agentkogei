@@ -1,7 +1,10 @@
 import { describe, expect, test } from "bun:test";
+import { readFile } from "node:fs/promises";
+import path from "node:path";
 
 import {
 	buildDesignContract,
+	buildDesignContractFromResources,
 	editorialReleaseDirectoryFor,
 	foundationReleaseDirectoryFor,
 } from "@agentkogei/design-packs";
@@ -80,6 +83,44 @@ describe("Design Contract compilation", () => {
 		expect(markdown).not.toContain("sha256");
 		expect(markdown).not.toContain(".agentkogei/");
 		expect(markdown).not.toContain("---\n---");
+	});
+
+	test("compiles a release held in memory into the same document as its directory", async () => {
+		const directory = foundationReleaseDirectoryFor("1.1.0");
+		const manifest = JSON.parse(
+			await readFile(path.join(directory, "agentkogei.manifest.json"), "utf8"),
+		) as { files: Array<{ path: string }> };
+		const resources = Object.fromEntries(
+			await Promise.all(
+				[
+					"agentkogei.manifest.json",
+					...manifest.files.map((file) => file.path),
+				].map(
+					async (resource) =>
+						[
+							resource,
+							await readFile(path.join(directory, resource), "utf8"),
+						] as const,
+				),
+			),
+		);
+
+		expect(await buildDesignContractFromResources(resources)).toEqual(
+			await foundation(),
+		);
+	});
+
+	test("refuses a release whose declared resources are not all present", async () => {
+		const directory = foundationReleaseDirectoryFor("1.1.0");
+
+		await expect(
+			buildDesignContractFromResources({
+				"agentkogei.manifest.json": await readFile(
+					path.join(directory, "agentkogei.manifest.json"),
+					"utf8",
+				),
+			}),
+		).rejects.toThrow("missing DESIGN.md");
 	});
 
 	test("compiles each Pack Release to its own immutable document", async () => {

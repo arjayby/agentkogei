@@ -13,7 +13,9 @@
 	],
 	"exports": {
 		".": "./src/index.ts",
-		"./diagnostic-contract": "./src/diagnostic-contract.ts"
+		"./design-contract": "./src/design-contract.ts",
+		"./diagnostic-contract": "./src/diagnostic-contract.ts",
+		"./release-version": "./src/release-version.ts"
 	},
 	"scripts": {
 		"build": "bun build ./src/install-cli.ts --target=bun --outfile=./dist/agentkogei.js && bun build ./src/cli.ts --target=bun --outfile=./dist/agentkogei-validate-pack.js",

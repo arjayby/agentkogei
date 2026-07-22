@@ -1,12 +1,7 @@
 #!/usr/bin/env bun
 
 import { randomUUID } from "node:crypto";
-import { createInterface } from "node:readline/promises";
-import {
-	applyDesignContractInstallation,
-	formatDesignContractPreview,
-	planDesignContractInstallation,
-} from "./design-contract-installation";
+import { addDesignContract } from "./add-design-contract";
 import {
 	type DiagnosticCommand,
 	diagnosticCommands,
@@ -40,6 +35,10 @@ import {
 	logoutPackCredential,
 	readPackCredential,
 } from "./pack-credential-cli";
+import {
+	requestTerminalConsent,
+	terminalIsInteractive,
+} from "./terminal-consent";
 
 function usage() {
 	console.error(
@@ -70,114 +69,21 @@ async function requestActionConfirmation(
 	arguments_: string[],
 	question: string,
 ) {
-	if (arguments_.includes("--yes")) {
-		return true;
-	}
-	if (!process.stdin.isTTY || !process.stdout.isTTY) {
-		return false;
-	}
-	const prompt = createInterface({
-		input: process.stdin,
-		output: process.stdout,
+	return requestTerminalConsent(question, {
+		consented: arguments_.includes("--yes"),
+		interactive: terminalIsInteractive(),
 	});
-	try {
-		const answer = await prompt.question(question);
-		return answer.trim().toLowerCase() === "y";
-	} finally {
-		prompt.close();
-	}
-}
-
-/**
- * Raw Design Contract delivery has its own setting because the legacy registry
- * transport still reads `AGENTKOGEI_OFFICIAL_CATALOG_URL`; one variable cannot
- * name two incompatible endpoints.
- */
-function designContractCatalogUrl() {
-	return (
-		process.env.AGENTKOGEI_CONTRACT_CATALOG_URL ??
-		"https://agentkogei.com/contracts/"
-	);
-}
-
-/**
- * `add` retrieves one Design Contract from the Official Catalog and applies it
- * to the current directory as a root `DESIGN.md` and one marked `AGENTS.md`
- * reference, after showing the Builder exactly what will change.
- */
-async function addDesignContract(arguments_: string[]) {
-	const [selector, ...options] = arguments_;
-	if (!selector || selector.startsWith("-")) {
-		usage();
-		return 2;
-	}
-	if (options.some((option) => option !== "--yes" && option !== "--force")) {
-		usage();
-		return 2;
-	}
-	const [identity, version, extra] = selector.split("@");
-	if (!identity || extra !== undefined) {
-		usage();
-		return 2;
-	}
-
-	const plan = await planDesignContractInstallation({
-		identity,
-		version,
-		projectDirectory: process.cwd(),
-		officialCatalogUrl: designContractCatalogUrl(),
-	});
-	console.log(formatDesignContractPreview(plan));
-	if (plan.conflicts.length > 0) {
-		console.error(
-			"Installation refused because conflicts must be resolved first.",
-		);
-		return 1;
-	}
-	if (
-		plan.designContractChange === "unchanged" &&
-		plan.agentsChange === "unchanged"
-	) {
-		console.log(
-			`\n${plan.designPack} ${plan.packRelease} is already this Project's Design Contract.`,
-		);
-		return 0;
-	}
-	if (
-		plan.designContractChange === "replace" &&
-		options.includes("--yes") &&
-		!options.includes("--force")
-	) {
-		console.error(
-			"Replacement refused. Replacing an existing DESIGN.md non-interactively requires --yes --force.",
-		);
-		return 2;
-	}
-
-	const confirmed = await requestActionConfirmation(
-		options,
-		plan.designContractChange === "replace"
-			? "Replace this DESIGN.md? [y/N] "
-			: "Write this Design Contract? [y/N] ",
-	);
-	if (!confirmed) {
-		console.error(
-			"Installation not confirmed. Non-interactive use requires explicit --yes consent.",
-		);
-		return 2;
-	}
-
-	await applyDesignContractInstallation(plan);
-	console.log(
-		`\nAdded ${plan.designPack} ${plan.packRelease} to ${plan.designContractPath}.`,
-	);
-	return 0;
 }
 
 async function main() {
 	const arguments_ = process.argv.slice(2);
 	if (arguments_[0] === "add") {
-		return addDesignContract(arguments_.slice(1));
+		const result = await addDesignContract(arguments_.slice(1), {
+			interactive: terminalIsInteractive(),
+		});
+		if (result !== "usage") return result;
+		usage();
+		return 2;
 	}
 	if (arguments_[0] === "diagnostics") {
 		if (arguments_[1] === "status") {

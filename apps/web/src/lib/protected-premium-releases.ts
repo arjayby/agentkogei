@@ -1,6 +1,10 @@
 import "server-only";
 
 import { createHash } from "node:crypto";
+import {
+	comparePackReleaseVersions,
+	type PackReleaseVersion,
+} from "@agentkogei/design-packs/release-version";
 import { blackBoxTestBoundaryEnabled, env } from "@agentkogei/env/server";
 
 const commandReleaseSha256 =
@@ -30,6 +34,20 @@ export function isOfficialPremiumPackIdentity(
 	return officialPremiumPackIdentities.has(
 		identity as OfficialPremiumPackIdentity,
 	);
+}
+
+/**
+ * The Pack Release a bare Premium identity selects, resolved the same way an
+ * Open pack's current release is: the highest semantic version published.
+ */
+export function currentOfficialPremiumRelease(
+	identity: OfficialPremiumPackIdentity,
+) {
+	return (
+		Object.keys(protectedReleaseLoaders[identity]) as PackReleaseVersion[]
+	)
+		.toSorted(comparePackReleaseVersions)
+		.at(-1);
 }
 
 export function getProtectedPremiumRelease(identity: string, version: string) {
