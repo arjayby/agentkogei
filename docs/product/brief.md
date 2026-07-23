@@ -20,10 +20,10 @@ The MVP is not designed for enterprise design-system teams, agencies managing ca
 ## Product model
 
 - A **Design Pack** is a fixed, semantically versioned interface system.
-- Its required entry point is a **Design Contract** named `DESIGN.md`.
-- It may also contain tokens, assets, examples, component guidance, and a Stack Adapter.
+- Each Pack Release is delivered as a single **Design Contract** named `DESIGN.md`.
+- The Design Contract is self-contained Markdown: token definitions, component guidance, examples, and human-readable provenance all live inside the one file.
 - A Project can have at most one Installed Pack.
-- There is no Project Profile or pack customizer. Manual pack edits explicitly Detach the pack from managed updates.
+- There is no Project Profile, pack customizer, manifest, hidden directory, or machine state. A Builder edits the installed `DESIGN.md` directly.
 - Installation governs future agent work. It does not promise to redesign an existing interface.
 
 ## Interface boundary
@@ -54,24 +54,24 @@ The Official Catalog launches with four first-party packs:
 | Premium | Command | Dark-first, dense, technical interfaces for developer and operations products |
 | Premium | Signal | Bold geometry, expressive color, richer motion, and graphic resources for AI and creative products |
 
-Open and Premium packs meet the same completeness, accessibility, and evaluation standard. Premium value comes from greater creative distinctiveness, production depth, and supporting resources.
+Open and Premium packs meet the same completeness, accessibility, and evaluation standard. Premium value comes from greater creative distinctiveness, production depth, and breadth of direction rather than withholding baseline quality.
 
-The Official Catalog is first-party only in the MVP. Third-party packs remain installable from compatible Pack Sources but are not submitted to or sold through the catalog.
+The Official Catalog is first-party only and contains only AgentKogei-published packs. There are no third-party Pack Sources in the MVP.
 
 ## Publication standard
 
 Every Pack Release must:
 
-- Pass schema, file-safety, compatibility, and provenance validation
-- Include original or compatibly licensed resources with attribution metadata
-- Provide a React/Next.js, Tailwind CSS v4, and shadcn/ui Stack Adapter
+- Pass Design Contract structure, text-safety, and provenance validation
+- Carry original or compatibly licensed direction with attribution recorded inside the contract
+- Directly target the React/Next.js, Tailwind CSS v4, and shadcn/ui stack
 - Produce representative marketing, authentication, dashboard, table, form, settings, and state screens
 - Be evaluated across desktop and mobile, light and dark modes
 - Demonstrate WCAG 2.2 Level AA in its reference implementation
 - Pass repeated agent-generation tasks, automated checks, and human visual review
 - Publish a visual Pack Preview and changelog
 
-Patch releases clarify or correct without materially changing output. Minor releases add compatible guidance and resources. Major releases may intentionally alter a Project's interface and require migration notes.
+Patch releases clarify or correct without materially changing output. Minor releases add compatible direction. Major releases may intentionally alter a Project's interface and require migration notes. Each release is an immutable Design Contract at its own catalog route.
 
 ## Web product
 
@@ -84,33 +84,31 @@ The web application provides:
 - Polar checkout and billing portal access
 - An account dashboard showing Premium Access and authorized CLI credentials
 - Browser approval for CLI device authorization
-- Public and authenticated shadcn-compatible registry endpoints
+- Raw Design Contract routes: Open contracts served publicly, Premium contracts only to an authorized CLI
 
-Premium previews expose rendered evidence, direction, coverage, compatibility, evaluation status, included resources, and changelog. They do not expose raw premium contracts, tokens, assets, or registry payloads.
+Premium previews expose rendered evidence, direction, coverage, compatibility, evaluation status, and changelog. They do not expose the raw premium Design Contract.
 
 ## CLI product
 
-The MIT-licensed AgentKogei CLI:
+The MIT-licensed AgentKogei CLI has one Design Pack lifecycle command, `agentkogei add <pack[@version]>`:
 
 - Installs Open packs without an AgentKogei account
-- Uses browser device authorization and a revocable Pack Credential for Premium packs
-- Retrieves packs from public or authenticated shadcn-compatible Pack Sources
-- Applies a local, exact-version snapshot and records file checksums
-- Adds a managed `AGENTS.md` reference to the installed `DESIGN.md` without replacing existing instructions
-- Detects an existing pack and refuses silent merging or replacement
-- Previews all writes and conflicts before applying them
+- Uses browser device authorization and a revocable Pack Credential for Premium packs, starting authorization inline and resuming the same Installation
+- Resolves only Official Catalog identities: a bare identity selects the current Pack Release; `pack@1.1.0` selects that exact release
+- Writes one root `DESIGN.md` and one clearly marked `AGENTS.md` reference, preserving existing instructions
+- Previews the Pack Release, Pack License, and the absolute files it will write, then asks before changing anything; `--yes` consents without a prompt
+- Refuses to replace an existing `DESIGN.md` unless the Builder passes `--yes --force`
+- Leaves the Project unchanged on any fetch, validation, authorization, entitlement, confirmation, or write failure
 - Never executes pack-supplied code, scripts, dependency installation, or package-manager commands
-- Detects local pack changes and requires explicit Detachment before managed updates
-- Shows release diffs and requires explicit confirmation for updates, especially major releases
+- Installs no hidden directory, manifest, checksum record, or machine state; removal is deleting `DESIGN.md` and its `AGENTS.md` reference
 
-The CLI never sends repository names, Git remotes, file contents, prompts, generated UI, or dependency lists. Premium operations send only the Builder identity, Pack Release, action type, and a random Project License identifier. Diagnostics are opt-in.
+The CLI never sends Project names, paths, Git remotes, file contents, prompts, generated UI, or dependency lists. Premium operations send only the Builder identity, Pack Release, and action type; no Project identifier is created or retained. Diagnostics are opt-in.
 
 ## Access and licensing
 
 - Web application, CLI, pack specification, and validators: MIT
 - AgentKogei-authored Open Design Pack prose and original visual resources: CC BY 4.0
 - Premium Design Packs: commercial Pack License
-- Third-party Design Packs: publisher-selected Pack License declared in the pack manifest
 
 Public visibility of a Premium Design Pack inside a genuine end-product Project does not convert it into an Open Design Pack. Extraction, resale, republishing, and reuse in another Project remain prohibited.
 
@@ -125,14 +123,14 @@ Public visibility of a Premium Design Pack inside a genuine end-product Project 
 - Voluntary refunds: none; mandatory or Polar-issued refunds terminate affected access and licenses
 - Content commitment: at least one Material Release per quarter
 
-When Premium Access expires, the Builder cannot preview gated source, install, reinstall, or update any Premium Design Pack. A premium snapshot already installed while access was active remains licensed in that Project and usable by all Project collaborators. It continues to work offline without runtime checks or DRM.
+When Premium Access expires, the Builder cannot preview gated source, install, or reinstall any Premium Design Pack. A premium Design Contract already installed while access was active remains licensed in that Project and usable by all Project collaborators. It continues to work offline without runtime checks or DRM.
 
 ## Billing and authentication
 
 - Better Auth owns application sessions and GitHub OAuth.
 - Better Auth device authorization supports the browser-approved CLI flow.
 - Polar is the Merchant of Record and billing source of truth.
-- AgentKogei owns Pack Credentials, Project License records, and registry authorization.
+- AgentKogei owns Pack Credentials and premium delivery authorization. It records the Builder, Pack Release, and Installation event for entitlement and audit, but retains no Project identifier.
 - Open catalog usage remains account-free.
 
 ## MVP exclusions
