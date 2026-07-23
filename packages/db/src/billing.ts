@@ -70,17 +70,6 @@ export async function applyBillingProjection(
 					)
 				)
 			RETURNING builder_id
-		), terminated_licenses AS (
-			UPDATE project_license SET
-				terminated_at = ${projection.sourceEventAt},
-				termination_reason = ${projection.status}
-			WHERE builder_id = ${projection.builderId}
-				AND ${projection.status} IN ('refunded', 'reversed')
-				AND polar_subscription_id = ${projection.polarSubscriptionId}
-				AND premium_access_period_start = ${projection.affectedPeriodStart}
-				AND terminated_at IS NULL
-				AND EXISTS (SELECT 1 FROM inserted_event)
-			RETURNING id
 		)
 		SELECT CASE
 			WHEN NOT EXISTS (SELECT 1 FROM inserted_event) THEN 'duplicate'

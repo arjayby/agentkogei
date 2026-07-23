@@ -7,13 +7,11 @@ import {
 	packCredential,
 	premiumAccess,
 	premiumEntitlementEvent,
-	projectLicense,
 } from "./schema/auth";
 
 export async function resetBlackBoxProductState() {
 	const database = createDb();
 	await database.delete(premiumEntitlementEvent);
-	await database.delete(projectLicense);
 	await database.delete(packCredential);
 	await database.delete(deviceAuthorizationRequest);
 	await database.delete(premiumAccess);
