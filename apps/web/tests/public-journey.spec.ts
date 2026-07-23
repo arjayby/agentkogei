@@ -47,7 +47,115 @@ test("a prospective Builder can understand what a Design Pack changes", async ({
 	).toBeVisible();
 	await expect(page.getByText("design drift", { exact: false })).toBeVisible();
 	await expect(
-		page.getByText("not a theme or application template", { exact: false }),
+		page.getByRole("link", { name: "Browse the Catalog" }),
+	).toHaveAttribute("href", "/catalog");
+	await expect(
+		page.getByRole("link", { name: "Read the Docs" }),
+	).toHaveAttribute("href", "/docs");
+});
+
+test("the landing page composes one add command from a package manager and a Design Pack", async ({
+	context,
+	page,
+}) => {
+	await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+	await page.goto("/");
+	const installation = page.getByRole("region", {
+		name: "Installation command",
+	});
+	const command = installation.getByLabel("Generated command");
+
+	await expect(command).toHaveText("npx agentkogei@latest add foundation");
+
+	await installation.getByLabel("Package manager").click();
+	await page.getByRole("option", { name: /bunx/ }).click();
+	await installation.getByLabel("Design Pack").click();
+	await page.getByRole("option", { name: /signal.*Premium/ }).click();
+	await expect(command).toHaveText("bunx agentkogei@latest add signal");
+
+	await installation.getByRole("button", { name: "Copy command" }).click();
+	await expect(
+		installation.getByRole("button", { name: "Copied" }),
+	).toBeVisible();
+	expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+		"bunx agentkogei@latest add signal",
+	);
+});
+
+test("the landing page surfaces the newest Pack Releases, the full catalog, and the Premium offer", async ({
+	page,
+}) => {
+	await page.goto("/");
+
+	const recent = page.getByRole("region", {
+		name: "The newest Pack Releases.",
+	});
+	await expect(
+		recent.getByRole("link", { name: /Signal 1\.0\.0/ }),
+	).toHaveAttribute("href", "/catalog/signal");
+	await expect(
+		recent.getByRole("link", { name: /Foundation 1\.1\.0/ }),
+	).toHaveAttribute("href", "/catalog/foundation");
+
+	const catalog = page.getByRole("region", {
+		name: "One catalog. Four directions.",
+	});
+	await expect(
+		catalog.getByRole("link", { name: /Foundation.*Open/i }),
+	).toBeVisible();
+	await expect(
+		catalog.getByRole("link", { name: /Editorial.*Open/i }),
+	).toBeVisible();
+	await expect(
+		catalog.getByRole("link", { name: /Command.*Premium/i }),
+	).toBeVisible();
+	await expect(
+		catalog.getByRole("link", { name: /Signal.*Premium/i }),
+	).toBeVisible();
+
+	await expect(
+		page.getByRole("link", { name: "Explore Premium Access" }),
+	).toHaveAttribute("href", "/premium");
+});
+
+test("the retired pricing route permanently redirects to Premium", async ({
+	request,
+}) => {
+	const response = await request.get("/pricing", { maxRedirects: 0 });
+
+	expect(response.status()).toBe(308);
+	expect(response.headers().location).toBe("/premium");
+});
+
+test("every page carries a footer naming the catalog, the product surfaces, and the license boundary", async ({
+	page,
+}) => {
+	await page.goto("/docs");
+	const footer = page.getByRole("contentinfo");
+
+	for (const pack of ["Foundation", "Editorial", "Command", "Signal"]) {
+		await expect(
+			footer.getByRole("link", { name: pack, exact: true }),
+		).toHaveAttribute("href", `/catalog/${pack.toLowerCase()}`);
+	}
+	await expect(
+		footer.getByRole("link", { name: "Catalog", exact: true }),
+	).toHaveAttribute("href", "/catalog");
+	await expect(
+		footer.getByRole("link", { name: "Docs", exact: true }),
+	).toHaveAttribute("href", "/docs");
+	await expect(
+		footer.getByRole("link", { name: "Premium", exact: true }),
+	).toHaveAttribute("href", "/premium");
+	await expect(
+		footer.getByRole("link", { name: "GitHub", exact: true }),
+	).toHaveAttribute("href", "https://github.com/arjayby/agentkogei");
+	await expect(
+		footer.getByText("MIT licensed", { exact: false }),
+	).toBeVisible();
+	await expect(footer.getByText("CC BY 4.0", { exact: false })).toBeVisible();
+	await expect(
+		footer.getByText("commercial Pack License", { exact: false }),
 	).toBeVisible();
 });
 
@@ -289,7 +397,9 @@ test("a premium Pack Preview shows complete evidence without exposing gated reso
 	await expect(
 		page.getByText("React / Next.js · Tailwind CSS v4 · shadcn/ui"),
 	).toBeVisible();
-	await expect(page.getByText("Commercial Pack License")).toBeVisible();
+	await expect(
+		page.getByRole("main").getByText("Commercial Pack License"),
+	).toBeVisible();
 	await expect(
 		page.getByText(
 			"remains licensed in that Project after Premium Access expires",
@@ -354,7 +464,9 @@ test("Signal publicly demonstrates its distinct evaluated Interface System witho
 	await expect(
 		page.getByText("WCAG 2.2 Level AA", { exact: false }),
 	).toBeVisible();
-	await expect(page.getByText("Commercial Pack License")).toBeVisible();
+	await expect(
+		page.getByRole("main").getByText("Commercial Pack License"),
+	).toBeVisible();
 	await expect(
 		page.getByText("registry payload", { exact: false }),
 	).toHaveCount(0);
@@ -755,10 +867,10 @@ for (const evaluatedPack of [
 	});
 }
 
-test("pricing discloses the complete Premium Access offer", async ({
+test("the Premium page discloses the complete Premium Access offer", async ({
 	page,
 }) => {
-	await page.goto("/pricing");
+	await page.goto("/premium");
 
 	await expect(page.getByText("$99", { exact: true })).toBeVisible();
 	await expect(
@@ -812,7 +924,9 @@ test("public documentation explains Installation and remains usable on mobile", 
 	await expect(
 		page.getByText("never executes pack-supplied code", { exact: false }),
 	).toBeVisible();
-	await expect(page.getByText("CC BY 4.0", { exact: false })).toBeVisible();
+	await expect(
+		page.getByRole("main").getByText("CC BY 4.0", { exact: false }),
+	).toBeVisible();
 
 	const hasHorizontalOverflow = await page.evaluate(
 		() =>
@@ -951,7 +1065,9 @@ test("public documentation distinguishes software, Open Design Packs, Premium De
 		page.getByText("self-hosting does not grant", { exact: false }),
 	).toBeVisible();
 	await expect(
-		page.getByText("commercial Pack License", { exact: false }),
+		page.getByRole("main").getByText("commercial Pack License", {
+			exact: false,
+		}),
 	).toBeVisible();
 });
 
@@ -960,7 +1076,7 @@ const responsiveRoutes = [
 	"/catalog",
 	"/catalog/command",
 	"/catalog/signal",
-	"/pricing",
+	"/premium",
 	"/docs",
 ] as const;
 
@@ -978,7 +1094,7 @@ for (const route of responsiveRoutes) {
 			navigation.getByRole("link", { name: "Catalog", exact: true }),
 		).toBeVisible();
 		await expect(
-			navigation.getByRole("link", { name: "Pricing", exact: true }),
+			navigation.getByRole("link", { name: "Premium", exact: true }),
 		).toBeVisible();
 		await expect(
 			navigation.getByRole("link", { name: "Docs", exact: true }),

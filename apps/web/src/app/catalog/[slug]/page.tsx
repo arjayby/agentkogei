@@ -42,7 +42,7 @@ export async function generateMetadata({
 	}
 
 	return {
-		title: `${pack.name} Pack Preview — AgentKogei`,
+		title: `${pack.name} Pack Preview | AgentKogei`,
 		description: pack.direction,
 	};
 }
@@ -62,7 +62,7 @@ export default async function PackPage({ params }: PackPageProps) {
 	// Design Contract is the subscription's value, so its Pack Preview offers
 	// Premium Access instead.
 	const actionHref = (
-		isOpen ? `/contracts/${pack.slug}/${release.version}` : "/pricing"
+		isOpen ? `/contracts/${pack.slug}/${release.version}` : "/premium"
 	) as Route;
 	const actionLabel = isOpen
 		? `Read the ${pack.name} ${release.version} Design Contract`

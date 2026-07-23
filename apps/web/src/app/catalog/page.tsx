@@ -1,22 +1,10 @@
-import { Badge } from "@agentkogei/ui/components/badge";
-import {
-	Card,
-	CardAction,
-	CardContent,
-	CardDescription,
-	CardFooter,
-	CardHeader,
-	CardTitle,
-} from "@agentkogei/ui/components/card";
-import { ArrowUpRight } from "lucide-react";
-import type { Metadata, Route } from "next";
-import Link from "next/link";
+import type { Metadata } from "next";
 
-import { PackArtwork } from "@/components/pack-artwork";
+import { PackCard } from "@/components/pack-card";
 import { designPacks } from "@/lib/catalog";
 
 export const metadata: Metadata = {
-	title: "Official Catalog — AgentKogei",
+	title: "Official Catalog | AgentKogei",
 	description: "Browse AgentKogei's four launch Design Packs.",
 };
 
@@ -47,30 +35,7 @@ export default function CatalogPage() {
 			>
 				<div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-2">
 					{designPacks.map((pack, index) => (
-						<Link
-							key={pack.slug}
-							href={`/catalog/${pack.slug}` as Route}
-							className="group outline-none focus-visible:ring-2 focus-visible:ring-ring"
-						>
-							<Card className="h-full transition-transform group-hover:-translate-y-1">
-								<CardContent className="-mt-(--card-spacing)">
-									<PackArtwork pack={pack} />
-								</CardContent>
-								<CardHeader>
-									<CardTitle>{pack.name}</CardTitle>
-									<CardAction>
-										<Badge variant="outline">{pack.access}</Badge>
-									</CardAction>
-									<CardDescription>{pack.direction}</CardDescription>
-								</CardHeader>
-								<CardFooter className="justify-between">
-									<span className="font-mono text-muted-foreground text-xs">
-										0{index + 1} / {pack.bestFor}
-									</span>
-									<ArrowUpRight aria-hidden="true" />
-								</CardFooter>
-							</Card>
-						</Link>
+						<PackCard key={pack.slug} pack={pack} index={index} />
 					))}
 				</div>
 			</section>

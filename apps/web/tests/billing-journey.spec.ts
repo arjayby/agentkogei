@@ -47,17 +47,17 @@ test("checkout presents and completes the one annual Premium Access offer", asyn
 	).toBeVisible();
 	await expect(page.getByText("No Premium Access")).toBeVisible();
 	await page.getByRole("link", { name: "Review terms to subscribe" }).click();
-	await expect(page).toHaveURL("/pricing");
+	await expect(page).toHaveURL("/premium");
 	await expect(
 		page.getByText("No voluntary refunds", { exact: true }),
 	).toBeVisible();
 	await page
-		.getByRole("button", { name: "Continue to Polar — $99/year" })
+		.getByRole("button", { name: "Continue to Polar at $99/year" })
 		.click();
 
 	await expect(page).toHaveURL(/\/test\/polar\/checkout/, { timeout: 20_000 });
 	await expect(
-		page.getByRole("heading", { name: "Premium Access — annual" }),
+		page.getByRole("heading", { name: "Premium Access Annual" }),
 	).toBeVisible();
 	await expect(
 		page.getByText("One named Builder · Unlimited Projects"),
@@ -170,7 +170,7 @@ test("checkout rejects a Builder without a GitHub session", async ({
 test("pre-checkout terms and the production legal gate are disclosed", async ({
 	page,
 }) => {
-	await page.goto("/pricing");
+	await page.goto("/premium");
 
 	await expect(page.getByText("No trial", { exact: true })).toBeVisible();
 	await expect(

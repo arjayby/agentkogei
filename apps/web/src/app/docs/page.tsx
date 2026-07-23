@@ -18,7 +18,7 @@ import Link from "next/link";
 import { InstallationCommand } from "@/components/installation-command";
 
 export const metadata: Metadata = {
-	title: "Documentation — AgentKogei",
+	title: "Documentation | AgentKogei",
 	description: "Install and use AgentKogei Design Packs safely in a Project.",
 };
 

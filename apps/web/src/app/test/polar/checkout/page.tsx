@@ -28,7 +28,7 @@ export default async function TestPolarCheckoutPage({
 			<Card className="w-full">
 				<CardHeader>
 					<CardTitle>
-						<h1>Premium Access — annual</h1>
+						<h1>Premium Access Annual</h1>
 					</CardTitle>
 					<CardDescription>
 						Deterministic Polar checkout substitute
