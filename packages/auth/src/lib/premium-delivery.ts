@@ -4,10 +4,6 @@ import {
 	recordPremiumEntitlementEvent as persistPremiumEntitlementEvent,
 } from "@agentkogei/db/entitlement-events";
 import {
-	type NewProjectLicense,
-	recordProjectLicense,
-} from "@agentkogei/db/project-licenses";
-import {
 	blackBoxDatabaseEnabled,
 	blackBoxTestBoundaryEnabled,
 	inMemoryBlackBoxBoundaryEnabled,
@@ -19,10 +15,6 @@ import {
 	listTestPremiumEntitlementEvents,
 	recordTestPremiumEntitlementEvent,
 } from "./test-entitlement-events";
-import {
-	findTestProjectLicense,
-	recordTestProjectLicense,
-} from "./test-project-licenses";
 
 function hasActivePremiumAccess(
 	access: Awaited<ReturnType<typeof getPremiumAccess>>,
@@ -33,22 +25,6 @@ function hasActivePremiumAccess(
 		access.status === "canceling" &&
 		Boolean(access.currentPeriodEnd && access.currentPeriodEnd > new Date())
 	);
-}
-
-async function persistProjectLicense(license: NewProjectLicense) {
-	if (inMemoryBlackBoxBoundaryEnabled) {
-		return recordTestProjectLicense(license);
-	}
-	return recordProjectLicense(license);
-}
-
-async function authorizedPremiumCredential(secret: string) {
-	const credential = await verifyPackCredential(secret);
-	if (!credential) return null;
-	const access = await getPremiumAccess(credential.builderId);
-	return hasActivePremiumAccess(access) && access
-		? { credential, access }
-		: null;
 }
 
 /**
@@ -117,71 +93,4 @@ export async function inspectTestPremiumEntitlementEvents() {
 		action: event.action,
 		occurredAt: event.occurredAt.toISOString(),
 	}));
-}
-
-async function recordPremiumProjectLicense(input: {
-	credential: string;
-	projectLicenseId: string;
-	packId: string;
-	packRelease: string;
-}) {
-	const authorization = await authorizedPremiumCredential(input.credential);
-	if (
-		!authorization?.access.polarSubscriptionId ||
-		!authorization.access.currentPeriodStart ||
-		!authorization.access.currentPeriodEnd
-	) {
-		return false;
-	}
-
-	const recorded = await persistProjectLicense({
-		id: input.projectLicenseId,
-		builderId: authorization.credential.builderId,
-		packId: input.packId,
-		packRelease: input.packRelease,
-		polarSubscriptionId: authorization.access.polarSubscriptionId,
-		premiumAccessPeriodStart: authorization.access.currentPeriodStart,
-		premiumAccessPeriodEnd: authorization.access.currentPeriodEnd,
-		createdAt: new Date(),
-	});
-	return Boolean(
-		recorded &&
-			!recorded.terminatedAt &&
-			recorded.builderId === authorization.credential.builderId &&
-			recorded.packId === input.packId &&
-			recorded.packRelease === input.packRelease,
-	);
-}
-
-/**
- * Records one Project License at the black-box test boundary. Premium delivery
- * is raw Markdown and carries no Project identifier, so a journey that exercises
- * refund and reversal behavior has to provision the license it then observes.
- */
-export async function recordTestPremiumProjectLicense(input: {
-	credential: string;
-	projectLicenseId: string;
-	packId: string;
-	packRelease: string;
-}) {
-	if (!blackBoxTestBoundaryEnabled) return false;
-	return recordPremiumProjectLicense(input);
-}
-
-export async function inspectTestProjectLicense(id: string) {
-	if (!blackBoxTestBoundaryEnabled) return null;
-	const license = blackBoxDatabaseEnabled
-		? await import("@agentkogei/db/project-licenses").then(
-				({ findProjectLicense }) => findProjectLicense(id),
-			)
-		: findTestProjectLicense(id);
-	if (!license) return null;
-	return {
-		id: license.id,
-		packId: license.packId,
-		packRelease: license.packRelease,
-		status: license.terminatedAt ? "terminated" : "active",
-		terminationReason: license.terminationReason,
-		terminatedAt: license.terminatedAt?.toISOString() ?? null,
-	};
 }

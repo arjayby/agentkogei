@@ -1,5 +1,4 @@
 import { spawn } from "node:child_process";
-import { randomUUID } from "node:crypto";
 import {
 	mkdir,
 	mkdtemp,
@@ -222,15 +221,15 @@ test("premium delivery is idempotent and denies every unauthorized state without
 });
 
 for (const terminalState of ["refunded", "reversed"] as const) {
-	test(`a ${terminalState} paid term terminates only the Project Licenses it paid for`, async ({
+	test(`a ${terminalState} paid term denies only the retrievals from that period`, async ({
 		page,
 	}) => {
 		const temporaryRoot = await mkdtemp(
 			path.join(tmpdir(), `agentkogei-${terminalState}-term-`),
 		);
 		const configDirectory = path.join(temporaryRoot, "configuration");
-		const firstTermLicense = randomUUID();
-		const renewedTermLicense = randomUUID();
+		const gatedSource = "/contracts/command/1.0.0";
+		const marker = "# Command Interface System";
 		const firstTerm = {
 			periodStart: "2030-01-01T00:00:00.000Z",
 			periodEnd: "2030-12-31T23:59:59.000Z",
@@ -243,10 +242,6 @@ for (const terminalState of ["refunded", "reversed"] as const) {
 			expect(
 				(await page.request.post("/api/test/polar/events", { data })).ok(),
 			).toBe(true);
-		const storedLicense = async (id: string) =>
-			(
-				await page.request.get(`/api/test/premium-delivery/licenses/${id}`)
-			).json() as Promise<Record<string, string | null>>;
 
 		try {
 			await signIn(page);
@@ -260,55 +255,56 @@ for (const terminalState of ["refunded", "reversed"] as const) {
 				configDirectory,
 				`${terminalState} term terminal`,
 			);
-			const recordLicense = async (projectLicense: string) =>
-				expect(
-					(
-						await page.request.post(
-							`/api/test/premium-delivery/licenses/${projectLicense}`,
-							{
-								data: {
-									credential,
-									packId: "command",
-									packRelease: "1.0.0",
-								},
-							},
-						)
-					).status(),
-				).toBe(204);
+			const authorized = { authorization: `Bearer ${credential}` };
 
-			await recordLicense(firstTermLicense);
+			// The Builder renews into a second paid term and keeps retrieving.
 			await premiumAccess({
 				eventId: `${terminalState}-term-renewed-active`,
 				state: "active",
 				...renewedTerm,
 			});
-			await recordLicense(renewedTermLicense);
+			const duringRenewal = await page.request.get(gatedSource, {
+				headers: authorized,
+			});
+			expect(duringRenewal.status()).toBe(200);
+			expect(await duringRenewal.text()).toContain(marker);
 
-			// Another product's reversal is not this subscription's paid term.
+			// Another product's terminal event is not this subscription's paid term,
+			// and the reversal of the already-superseded first term touches only the
+			// legal grant from that period. Neither denies the current retrieval, and
+			// there is no per-Project license record to terminate.
 			await premiumAccess({
 				eventId: `${terminalState}-term-unrelated`,
 				state: terminalState,
 				...renewedTerm,
 				productId: "polar-unrelated-product",
 			});
-			expect(await storedLicense(renewedTermLicense)).toMatchObject({
-				status: "active",
-				terminationReason: null,
-			});
-
 			await premiumAccess({
 				eventId: `${terminalState}-term-first-terminal`,
 				state: terminalState,
 				...firstTerm,
 			});
-			expect(await storedLicense(firstTermLicense)).toMatchObject({
-				status: "terminated",
-				terminationReason: terminalState,
+			const afterPastTermTerminal = await page.request.get(gatedSource, {
+				headers: authorized,
 			});
-			expect(await storedLicense(renewedTermLicense)).toMatchObject({
-				status: "active",
-				terminationReason: null,
+			expect(afterPastTermTerminal.status()).toBe(200);
+			expect(await afterPastTermTerminal.text()).toContain(marker);
+
+			// Terminating the current paid term denies every future retrieval,
+			// without a Project identifier ever recorded or removed.
+			await premiumAccess({
+				eventId: `${terminalState}-term-renewed-terminal`,
+				state: terminalState,
+				...renewedTerm,
 			});
+			const afterCurrentTermTerminal = await page.request.get(gatedSource, {
+				headers: authorized,
+			});
+			expect(afterCurrentTermTerminal.status()).toBe(403);
+			expect(afterCurrentTermTerminal.headers()["cache-control"]).toContain(
+				"no-store",
+			);
+			expect(await afterCurrentTermTerminal.text()).not.toContain(marker);
 		} finally {
 			await rm(temporaryRoot, { recursive: true, force: true });
 		}

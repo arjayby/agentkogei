@@ -9,10 +9,6 @@ import {
 } from "@agentkogei/env/server";
 
 import { resetTestPremiumEntitlementEvents } from "./test-entitlement-events";
-import {
-	resetTestProjectLicenses,
-	terminateTestProjectLicenses,
-} from "./test-project-licenses";
 
 export const premiumAccessStates = premiumAccessStateValues;
 
@@ -85,13 +81,6 @@ export async function recordBillingEvent(
 
 		const current = state.entitlements.get(projection.builderId);
 		if (projection.status === "refunded" || projection.status === "reversed") {
-			terminateTestProjectLicenses(
-				projection.builderId,
-				projection.status,
-				projection.sourceEventAt,
-				projection.polarSubscriptionId,
-				projection.affectedPeriodStart,
-			);
 			if (
 				current?.currentPeriodStart &&
 				projection.affectedPeriodStart &&
@@ -131,6 +120,5 @@ export async function resetTestBillingState() {
 	const state = getTestState();
 	state.events.clear();
 	state.entitlements.clear();
-	resetTestProjectLicenses();
 	resetTestPremiumEntitlementEvents();
 }
