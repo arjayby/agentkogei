@@ -167,22 +167,18 @@ test("checkout rejects a Builder without a GitHub session", async ({
 	expect(response.status()).toBe(401);
 });
 
-test("pre-checkout terms and the production legal gate are disclosed", async ({
-	page,
-}) => {
+test("pre-checkout terms are disclosed", async ({ page }) => {
 	await page.goto("/premium");
 
 	await expect(page.getByText("No trial", { exact: true })).toBeVisible();
 	await expect(
-		page.getByText("No voluntary refunds", { exact: true }),
+		page.getByText("Billing and refunds", { exact: true }),
 	).toBeVisible();
 	await expect(
 		page.getByText(/at least one Material Release per quarter/i),
 	).toBeVisible();
-	await expect(page.getByText(/lasting Project Licenses/i)).toBeVisible();
 	await expect(
-		page.getByText(
-			/production payments remain disabled until professional legal review/i,
-		),
+		page.getByText(/installed packs keep working in your Projects/i),
 	).toBeVisible();
+	await expect(page.getByRole("link", { name: "Terms" })).toBeVisible();
 });

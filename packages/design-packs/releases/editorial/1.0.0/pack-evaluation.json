@@ -9,14 +9,8 @@
 		"immutable": true
 	},
 	"access": "open",
-	"license": {
-		"spdx": "CC-BY-4.0",
-		"name": "Creative Commons Attribution 4.0 International",
-		"url": "https://creativecommons.org/licenses/by/4.0/",
-		"attribution": "Editorial Interface System by AgentKogei, licensed under CC BY 4.0."
-	},
 	"designContract": {
-		"sha256": "a7c362271f02920127918b055aefdca100d2f4df1c5e07210d75dfcf9be251c3"
+		"sha256": "aef2ecbf70a03ac73ae88d18af63dbf70102703205d7d6179231a5bc4462aa2f"
 	},
 	"compatibility": {
 		"frameworks": ["react", "nextjs"],
@@ -25,15 +19,6 @@
 		"tailwind": ">=4 <5",
 		"ui": "shadcn/ui"
 	},
-	"provenance": [
-		{
-			"work": "prose, semantic token selections, examples, and evaluation materials",
-			"origin": "original",
-			"author": "AgentKogei",
-			"license": "CC-BY-4.0",
-			"attribution": "Editorial Interface System by AgentKogei, licensed under CC BY 4.0."
-		}
-	],
 	"evaluation": {
 		"status": "passed",
 		"standard": "WCAG 2.2 Level AA",

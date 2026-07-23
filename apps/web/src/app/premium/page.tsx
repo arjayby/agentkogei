@@ -1,9 +1,4 @@
 import { auth } from "@agentkogei/auth";
-import {
-	Alert,
-	AlertDescription,
-	AlertTitle,
-} from "@agentkogei/ui/components/alert";
 import { Button, buttonVariants } from "@agentkogei/ui/components/button";
 import {
 	Card,
@@ -28,7 +23,7 @@ const benefits = [
 	"Every Premium Design Pack in the Official Catalog",
 	"Installation across unlimited Projects with one add command",
 	"At least one Material Release per quarter",
-	"Lasting Project Licenses for eligible installed snapshots",
+	"Installed packs keep working in your Projects after access ends",
 ] as const;
 
 export default async function PremiumPage() {
@@ -124,12 +119,18 @@ export default async function PremiumPage() {
 						</div>
 						<div className="flex flex-col gap-3 bg-background p-6">
 							<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.16em]">
-								No voluntary refunds
+								Billing and refunds
 							</p>
 							<p className="leading-7">
-								Refunds required by law, card-network rules, or issued by the
-								Merchant of Record remain exceptions and terminate the affected
-								Premium Access and Project Licenses.
+								Billing period, renewal, cancellation, and refund terms are set
+								out on the{" "}
+								<Link
+									href={"/terms" as Route}
+									className="underline underline-offset-4 hover:text-foreground"
+								>
+									Terms
+								</Link>{" "}
+								page. Review them before you subscribe.
 							</p>
 						</div>
 						<div className="flex flex-col gap-3 bg-background p-6 sm:col-span-2 lg:col-span-1">
@@ -139,21 +140,11 @@ export default async function PremiumPage() {
 							<p className="leading-7">
 								When Premium Access expires, retrieval, new Installation,
 								reinstallation, and access to new Pack Releases stop. A Premium
-								Design Pack snapshot already installed while access was active
-								remains licensed in that Project and works offline without DRM.
-								The Project may be a genuine public end product, but that does
-								not make the Premium Design Pack open or permit extracting or
-								reusing it in another Project.
+								Design Pack already installed while access was active keeps
+								working in that Project, offline, with no runtime checks or DRM.
 							</p>
 						</div>
 					</div>
-					<Alert className="lg:col-span-2">
-						<AlertTitle>Commercial launch gate</AlertTitle>
-						<AlertDescription>
-							Production payments remain disabled until professional legal
-							review is recorded for the Pack License and checkout disclosures.
-						</AlertDescription>
-					</Alert>
 				</div>
 			</section>
 

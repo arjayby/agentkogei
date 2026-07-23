@@ -22,8 +22,8 @@ bunx agentkogei@latest add foundation
 identity such as `foundation` selects the Design Pack's current Pack Release;
 `foundation@1.1.0` selects that exact release forever.
 
-The CLI previews the Design Pack, its Pack Release, its Pack License, and the
-absolute files it will write, then asks before changing anything. Pass `--yes`
+The CLI previews the Design Pack, its Pack Release, and the absolute files it
+will write, then asks before changing anything. Pass `--yes`
 to consent without a prompt, and `--yes --force` to replace an existing
 `DESIGN.md` unattended.
 
@@ -46,5 +46,5 @@ edited.
 
 ## License
 
-MIT. Each Design Pack carries its own Pack License inside the Design Contract
-it installs.
+MIT. Installed Design Packs are bare design direction and carry no license text;
+how Open and Premium packs may be used is set out in the AgentKogei website Terms.

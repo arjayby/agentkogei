@@ -38,7 +38,6 @@ export const env = createEnv({
 		POLAR_SERVER: z.enum(["sandbox", "production"]).default("sandbox"),
 		POLAR_SUCCESS_URL: z.url(),
 		POLAR_WEBHOOK_SECRET: z.string().min(1).optional(),
-		POLAR_LEGAL_REVIEW_REFERENCE: z.string().min(1).optional(),
 		COMMAND_PREMIUM_RELEASE: z.string().min(1).optional(),
 		COMMAND_PREMIUM_RELEASE_SHA256: z
 			.string()

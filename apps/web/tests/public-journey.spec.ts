@@ -151,12 +151,11 @@ test("every page carries a footer naming the catalog, the product surfaces, and 
 		footer.getByRole("link", { name: "GitHub", exact: true }),
 	).toHaveAttribute("href", "https://github.com/arjayby/agentkogei");
 	await expect(
-		footer.getByText("MIT licensed", { exact: false }),
-	).toBeVisible();
-	await expect(footer.getByText("CC BY 4.0", { exact: false })).toBeVisible();
+		footer.getByRole("link", { name: "Terms", exact: true }),
+	).toHaveAttribute("href", "/terms");
 	await expect(
-		footer.getByText("commercial Pack License", { exact: false }),
-	).toBeVisible();
+		footer.getByRole("link", { name: "Privacy", exact: true }),
+	).toHaveAttribute("href", "/privacy");
 });
 
 test("the Official Catalog presents every launch pack with its access class", async ({
@@ -184,28 +183,24 @@ for (const pack of [
 		slug: "foundation",
 		name: "Foundation",
 		access: "Open",
-		license: "CC BY 4.0",
 	},
 	{
 		slug: "editorial",
 		name: "Editorial",
 		access: "Open",
-		license: "CC BY 4.0",
 	},
 	{
 		slug: "command",
 		name: "Command",
 		access: "Premium",
-		license: "Commercial Pack License",
 	},
 	{
 		slug: "signal",
 		name: "Signal",
 		access: "Premium",
-		license: "Commercial Pack License",
 	},
 ] as const) {
-	test(`${pack.name} launch smoke exposes Pack Preview, access, compatibility, license, and evaluation evidence`, async ({
+	test(`${pack.name} launch smoke exposes Pack Preview, access, compatibility, and evaluation evidence`, async ({
 		page,
 	}) => {
 		await page.goto(`/catalog/${pack.slug}`);
@@ -215,9 +210,6 @@ for (const pack of [
 			product.getByRole("heading", { name: pack.name, exact: true }),
 		).toBeVisible();
 		await expect(product.getByText(pack.access, { exact: true })).toBeVisible();
-		await expect(
-			product.getByText(pack.license, { exact: true }),
-		).toBeVisible();
 		await expect(
 			product.getByText("React / Next.js · Tailwind CSS v4 · shadcn/ui", {
 				exact: true,
@@ -397,15 +389,6 @@ test("a premium Pack Preview shows complete evidence without exposing gated reso
 	await expect(
 		page.getByText("React / Next.js · Tailwind CSS v4 · shadcn/ui"),
 	).toBeVisible();
-	await expect(
-		page.getByRole("main").getByText("Commercial Pack License"),
-	).toBeVisible();
-	await expect(
-		page.getByText(
-			"remains licensed in that Project after Premium Access expires",
-			{ exact: false },
-		),
-	).toBeVisible();
 	await expect(page.getByLabel("Command rendered Pack Preview")).toBeVisible();
 	for (const surfaceEvidence of [
 		"Ship with operational confidence.",
@@ -463,9 +446,6 @@ test("Signal publicly demonstrates its distinct evaluated Interface System witho
 	}
 	await expect(
 		page.getByText("WCAG 2.2 Level AA", { exact: false }),
-	).toBeVisible();
-	await expect(
-		page.getByRole("main").getByText("Commercial Pack License"),
 	).toBeVisible();
 	await expect(
 		page.getByText("registry payload", { exact: false }),
@@ -598,16 +578,10 @@ for (const openPack of openDesignPacks) {
 		);
 		expect(current.headers()["x-agentkogei-design-pack"]).toBe(designPack);
 		expect(current.headers()["x-agentkogei-pack-release"]).toBe(currentRelease);
-		expect(current.headers()["x-agentkogei-pack-license"]).toBe(
-			"Creative Commons Attribution 4.0 International (CC-BY-4.0)",
-		);
 		const contract = await current.text();
 		expect(contract).toContain(`# ${designPack} Interface System`);
 		expect(contract).toContain("\n## Token definitions\n");
 		expect(contract).toContain("shadcn/ui");
-		expect(contract).toContain(
-			`- Design Pack: ${designPack} (\`${identity}\`)`,
-		);
 		// The Official Catalog serves a document a Project can read on its own,
 		// so nothing a Builder never receives may reach it.
 		for (const machineMetadata of [
@@ -881,19 +855,16 @@ test("the Premium page discloses the complete Premium Access offer", async ({
 	).toBeVisible();
 	await expect(page.getByText("No trial", { exact: false })).toBeVisible();
 	await expect(
-		page.getByText("No voluntary refunds", { exact: false }),
+		page.getByText("Billing and refunds", { exact: false }),
 	).toBeVisible();
 	await expect(
 		page.getByText("one Material Release per quarter", { exact: false }),
 	).toBeVisible();
 	await expect(
-		page.getByText("remains licensed in that Project", { exact: false }),
+		page.getByText("No runtime lock-in", { exact: false }),
 	).toBeVisible();
 	await expect(
-		page.getByText("genuine public end product", { exact: false }),
-	).toBeVisible();
-	await expect(
-		page.getByText("reusing it in another Project", { exact: false }),
+		page.getByText("keeps working in that Project, offline", { exact: false }),
 	).toBeVisible();
 	await expect(
 		page.getByText("unlimited Projects with one add command", { exact: false }),
@@ -923,9 +894,6 @@ test("public documentation explains Installation and remains usable on mobile", 
 	).toBeVisible();
 	await expect(
 		page.getByText("never executes pack-supplied code", { exact: false }),
-	).toBeVisible();
-	await expect(
-		page.getByRole("main").getByText("CC BY 4.0", { exact: false }),
 	).toBeVisible();
 
 	const hasHorizontalOverflow = await page.evaluate(
@@ -990,85 +958,6 @@ test("public documentation retrieves Design Contracts as raw Markdown rather tha
 	expect(delivered.headers()["content-type"]).toBe(
 		"text/markdown; charset=utf-8",
 	);
-});
-
-test("public documentation separates open software from third-party pack distribution", async ({
-	page,
-}) => {
-	await page.goto("/docs");
-	const documentation = page.getByRole("main");
-
-	await expect(
-		documentation.getByText("Open source under the MIT License.", {
-			exact: true,
-		}),
-	).toBeVisible();
-	await expect(
-		documentation.getByText("contains only first-party Design Packs", {
-			exact: false,
-		}),
-	).toBeVisible();
-	await expect(
-		documentation.getByText(
-			"does not support installing a Design Pack from a third-party source",
-			{ exact: false },
-		),
-	).toBeVisible();
-});
-
-test("public documentation states the complete Project License boundary", async ({
-	page,
-}) => {
-	await page.goto("/docs");
-	await expect(
-		page.getByText("including a genuine public end-product Project", {
-			exact: false,
-		}),
-	).toBeVisible();
-	await expect(
-		page.getByText("without credentials, runtime checks, or DRM", {
-			exact: false,
-		}),
-	).toBeVisible();
-	await expect(
-		page.getByText(
-			"extraction, resale, republishing, credential sharing, or cross-Project reuse",
-			{ exact: false },
-		),
-	).toBeVisible();
-	await expect(
-		page.getByText("A refund or payment reversal terminates", {
-			exact: false,
-		}),
-	).toBeVisible();
-});
-
-test("public documentation distinguishes software, Open Design Packs, Premium Design Packs, and self-hosting rights", async ({
-	page,
-}) => {
-	await page.goto("/docs");
-	await expect(
-		page.getByText(
-			"application, CLI, Design Pack specification, and validators",
-			{
-				exact: false,
-			},
-		),
-	).toBeVisible();
-	await expect(
-		page.getByText("Open source under the MIT License.", { exact: true }),
-	).toBeVisible();
-	await expect(
-		page.getByText("retain required attribution", { exact: false }),
-	).toBeVisible();
-	await expect(
-		page.getByText("self-hosting does not grant", { exact: false }),
-	).toBeVisible();
-	await expect(
-		page.getByRole("main").getByText("commercial Pack License", {
-			exact: false,
-		}),
-	).toBeVisible();
 });
 
 const responsiveRoutes = [

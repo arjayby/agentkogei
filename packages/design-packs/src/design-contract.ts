@@ -25,7 +25,6 @@ export const designContractSchema = z
 		identity: packIdentitySchema,
 		designPack: z.string().min(1),
 		packRelease: packReleaseVersionSchema,
-		packLicense: z.string().min(1),
 		access: packAccessSchema,
 		markdown: z.string().min(1),
 	})
@@ -50,7 +49,6 @@ export async function readDesignContract(
 		identity: record.id,
 		designPack: record.name,
 		packRelease: record.release.version,
-		packLicense: `${record.license.name} (${record.license.spdx})`,
 		access: record.access,
 		markdown,
 	};

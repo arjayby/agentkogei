@@ -21,7 +21,7 @@ The MVP is not designed for enterprise design-system teams, agencies managing ca
 
 - A **Design Pack** is a fixed, semantically versioned interface system.
 - Each Pack Release is delivered as a single **Design Contract** named `DESIGN.md`.
-- The Design Contract is self-contained Markdown: token definitions, component guidance, examples, and human-readable provenance all live inside the one file.
+- The Design Contract is self-contained Markdown: token definitions, component guidance, and examples all live inside the one file. It carries no license, attribution, or provenance text.
 - A Project can have at most one Installed Pack.
 - There is no Project Profile, pack customizer, manifest, hidden directory, or machine state. A Builder edits the installed `DESIGN.md` directly.
 - Installation governs future agent work. It does not promise to redesign an existing interface.
@@ -62,8 +62,8 @@ The Official Catalog is first-party only and contains only AgentKogei-published 
 
 Every Pack Release must:
 
-- Pass Design Contract structure, text-safety, and provenance validation
-- Carry original or compatibly licensed direction with attribution recorded inside the contract
+- Pass Design Contract structure and text-safety validation
+- Carry original or rightfully used direction, verified by human review at publication
 - Directly target the React/Next.js, Tailwind CSS v4, and shadcn/ui stack
 - Produce representative marketing, authentication, dashboard, table, form, settings, and state screens
 - Be evaluated across desktop and mobile, light and dark modes
@@ -96,7 +96,7 @@ The MIT-licensed AgentKogei CLI has one Design Pack lifecycle command, `agentkog
 - Uses browser device authorization and a revocable Pack Credential for Premium packs, starting authorization inline and resuming the same Installation
 - Resolves only Official Catalog identities: a bare identity selects the current Pack Release; `pack@1.1.0` selects that exact release
 - Writes one root `DESIGN.md` and one clearly marked `AGENTS.md` reference, preserving existing instructions
-- Previews the Pack Release, Pack License, and the absolute files it will write, then asks before changing anything; `--yes` consents without a prompt
+- Previews the Pack Release and the absolute files it will write, then asks before changing anything; `--yes` consents without a prompt
 - Refuses to replace an existing `DESIGN.md` unless the Builder passes `--yes --force`
 - Leaves the Project unchanged on any fetch, validation, authorization, entitlement, confirmation, or write failure
 - Never executes pack-supplied code, scripts, dependency installation, or package-manager commands
@@ -104,13 +104,13 @@ The MIT-licensed AgentKogei CLI has one Design Pack lifecycle command, `agentkog
 
 The CLI never sends Project names, paths, Git remotes, file contents, prompts, generated UI, or dependency lists. Premium operations send only the Builder identity, Pack Release, and action type; no Project identifier is created or retained. Diagnostics are opt-in.
 
-## Access and licensing
+## Access
 
 - Web application, CLI, pack specification, and validators: MIT
-- AgentKogei-authored Open Design Pack prose and original visual resources: CC BY 4.0
-- Premium Design Packs: commercial Pack License
+- Open Design Packs: free to install and use in any Project; the use grant is stated on the website Terms page
+- Premium Design Packs: private and access-gated; redistribution limits are stated on the website Terms page
 
-Public visibility of a Premium Design Pack inside a genuine end-product Project does not convert it into an Open Design Pack. Extraction, resale, republishing, and reuse in another Project remain prohibited.
+Public visibility of a Premium Design Pack inside a genuine end-product Project does not make it freely reusable elsewhere. Extraction, resale, republishing, and reuse in another Project remain prohibited under the Terms.
 
 ## Subscription
 
@@ -120,10 +120,10 @@ Public visibility of a Premium Design Pack inside a genuine end-product Project 
 - Project scope: unlimited Projects while Premium Access is active
 - Team plan: deferred
 - Trial: none; complete Open packs demonstrate the workflow
-- Voluntary refunds: none; mandatory or Polar-issued refunds terminate affected access and licenses
+- Voluntary refunds: none; mandatory or Polar-issued refunds terminate affected access
 - Content commitment: at least one Material Release per quarter
 
-When Premium Access expires, the Builder cannot preview gated source, install, or reinstall any Premium Design Pack. A premium Design Contract already installed while access was active remains licensed in that Project and usable by all Project collaborators. It continues to work offline without runtime checks or DRM.
+When Premium Access expires, the Builder cannot preview gated source, install, or reinstall any Premium Design Pack. A premium Design Contract already installed while access was active keeps working in that Project and is usable by all Project collaborators. It continues to work offline without runtime checks or DRM.
 
 ## Billing and authentication
 
@@ -149,6 +149,6 @@ Before expanding the product, acquire 10 paid annual subscribers. Review real Pr
 
 GitHub stars, site traffic, and Open Pack downloads are supporting signals rather than proof of the paid outcome.
 
-## Required pre-launch review
+## Commercial terms
 
-The commercial Premium Design Pack License, subscription disclosures, public-Project permissions, third-party attribution, and no-voluntary-refund language require professional legal review before accepting production payments.
+The website Terms and Privacy pages publish the commercial terms for the Service: the open-pack use grant and premium redistribution limits, subscription disclosures, public-Project permissions, and the no-voluntary-refund policy.

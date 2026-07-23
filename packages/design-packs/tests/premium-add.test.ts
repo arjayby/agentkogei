@@ -20,20 +20,13 @@ import path from "node:path";
 import { addDesignContract } from "../src/add-design-contract";
 
 /** One Design Contract per Premium catalog identity, as the Official Catalog
- * delivers it: complete direction followed by human-readable provenance. */
+ * delivers it: complete direction as one bare, self-contained document. */
 const premiumDesignContracts = {
 	command: {
 		designPack: "Command",
 		markdown: `# Command Interface System
 
 Dark-first, dense, and technical direction for the whole product.
-
----
-
-## Provenance
-
-- Design Pack: Command (\`command\`)
-- Pack License: AgentKogei Commercial Pack License (LicenseRef-AgentKogei-Commercial)
 `,
 	},
 	signal: {
@@ -41,13 +34,6 @@ Dark-first, dense, and technical direction for the whole product.
 		markdown: `# Signal Interface System
 
 Bold geometry, expressive color, and richer motion for the whole product.
-
----
-
-## Provenance
-
-- Design Pack: Signal (\`signal\`)
-- Pack License: AgentKogei Commercial Pack License (LicenseRef-AgentKogei-Commercial)
 `,
 	},
 } as const;
@@ -88,8 +74,6 @@ function markdownResponse(identity: PremiumIdentity) {
 			"cache-control": "private, no-store",
 			"x-agentkogei-design-pack": contract.designPack,
 			"x-agentkogei-pack-release": "1.0.0",
-			"x-agentkogei-pack-license":
-				"AgentKogei Commercial Pack License (LicenseRef-AgentKogei-Commercial)",
 		},
 	});
 }

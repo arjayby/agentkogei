@@ -1,0 +1,3 @@
+# Design Pack content must be original
+
+Every Published Pack must contain only original direction or material the publisher has the right to use. AI may assist pack production, but human review must verify originality and accessibility before Pack Evaluation; packs may reference broad art movements but cannot be marketed as replicas of a living designer, company, or recognizable commercial product. This originality and rights review happens at publication and is recorded in the internal Pack Evaluation record. It is not represented inside the delivered Design Contract, which a Project installs as bare direction carrying no license or provenance text. See [0011](0011-retire-licensing-as-a-product-concept.md).

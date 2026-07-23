@@ -26,7 +26,6 @@ type CatalogResponse = {
 	contentType?: string;
 	designPack?: string;
 	packRelease?: string;
-	packLicense?: string;
 };
 
 const contracts = {
@@ -53,9 +52,6 @@ const catalog = Bun.serve({
 					...(override.packRelease
 						? { "x-agentkogei-pack-release": override.packRelease }
 						: {}),
-					...(override.packLicense
-						? { "x-agentkogei-pack-license": override.packLicense }
-						: {}),
 				},
 			});
 		}
@@ -78,7 +74,6 @@ const catalog = Bun.serve({
 				"content-type": "text/markdown; charset=utf-8",
 				"x-agentkogei-design-pack": release.designPack,
 				"x-agentkogei-pack-release": release.packRelease,
-				"x-agentkogei-pack-license": release.packLicense,
 			},
 		});
 	},
@@ -151,9 +146,6 @@ describe("agentkogei add", () => {
 		expect(result.exitCode).toBe(2);
 		expect(result.stdout).toContain("Foundation 1.1.0 (foundation)");
 		expect(result.stdout).toContain(
-			"Pack License: Creative Commons Attribution 4.0 International (CC-BY-4.0)",
-		);
-		expect(result.stdout).toContain(
 			`Create ${path.join(project, "DESIGN.md")}`,
 		);
 		expect(result.stdout).toContain(
@@ -173,7 +165,9 @@ describe("agentkogei add", () => {
 		expect(await projectFile(project, "DESIGN.md")).toBe(
 			contracts["1.1.0"].markdown,
 		);
-		expect(await projectFile(project, "DESIGN.md")).toContain("## Provenance");
+		expect(await projectFile(project, "DESIGN.md")).not.toContain(
+			"## Provenance",
+		);
 		expect(await projectEntries(project)).toEqual(["AGENTS.md", "DESIGN.md"]);
 	});
 
@@ -281,7 +275,6 @@ describe("agentkogei add", () => {
 			body: new Uint8Array([0x23, 0x20, 0xff, 0xfe, 0x0a]),
 			designPack: "Foundation",
 			packRelease: "1.1.0",
-			packLicense: "Creative Commons Attribution 4.0 International (CC-BY-4.0)",
 		});
 
 		const result = await runAdd(project, ["add", "foundation", "--yes"]);
@@ -298,7 +291,6 @@ describe("agentkogei add", () => {
 			contentType: "application/json",
 			designPack: "Foundation",
 			packRelease: "1.1.0",
-			packLicense: "Creative Commons Attribution 4.0 International (CC-BY-4.0)",
 		});
 
 		const result = await runAdd(project, ["add", "foundation", "--yes"]);
@@ -314,7 +306,6 @@ describe("agentkogei add", () => {
 			body: contracts["1.1.0"].markdown,
 			designPack: "Foundation",
 			packRelease: "1.1.0",
-			packLicense: "Creative Commons Attribution 4.0 International (CC-BY-4.0)",
 		});
 
 		const result = await runAdd(project, ["add", "foundation@1.0.0", "--yes"]);

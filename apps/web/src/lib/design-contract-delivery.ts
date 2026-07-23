@@ -22,7 +22,6 @@ import { observeTestPremiumRetrieval } from "@/lib/test-premium-delivery";
 export type DeliveredDesignContract = {
 	designPack: string;
 	packRelease: string;
-	packLicense: string;
 	markdown: string;
 };
 
@@ -70,7 +69,6 @@ function findPremiumDesignContract(identity: string, version?: string) {
 	return {
 		designPack: contract.designPack,
 		packRelease: contract.packRelease,
-		packLicense: contract.packLicense,
 		markdown: contract.markdown,
 	} satisfies DeliveredDesignContract;
 }
@@ -91,7 +89,6 @@ export function designContractResponse(
 			...(gated ? { "x-content-type-options": "nosniff" } : {}),
 			"x-agentkogei-design-pack": contract.designPack,
 			"x-agentkogei-pack-release": contract.packRelease,
-			"x-agentkogei-pack-license": contract.packLicense,
 		},
 	});
 }

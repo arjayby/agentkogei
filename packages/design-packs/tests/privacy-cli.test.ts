@@ -10,13 +10,6 @@ const temporaryDirectories: string[] = [];
 const designContract = `# Foundation Interface System
 
 Neutral, crisp, highly legible direction for the whole product.
-
----
-
-## Provenance
-
-- Design Pack: Foundation (\`foundation\`)
-- Pack License: Creative Commons Attribution 4.0 International (CC-BY-4.0)
 `;
 
 type CapturedRequest = {
@@ -59,8 +52,6 @@ const catalog = captureServer(() =>
 					"content-type": "text/markdown; charset=utf-8",
 					"x-agentkogei-design-pack": "Foundation",
 					"x-agentkogei-pack-release": "1.1.0",
-					"x-agentkogei-pack-license":
-						"Creative Commons Attribution 4.0 International (CC-BY-4.0)",
 				},
 			}),
 );

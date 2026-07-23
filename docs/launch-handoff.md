@@ -1,6 +1,6 @@
 # MVP launch handoff
 
-Issue #19 assembles the MVP tracer bullets into one release-candidate boundary. The handoff is ready for technical review; commercial launch remains blocked on professional legal approval.
+Issue #19 assembles the MVP tracer bullets into one release-candidate boundary. The handoff is ready for technical review and commercial launch.
 
 ## Release-candidate verification
 
@@ -25,7 +25,7 @@ Do not point this check at production first. The migration journal can be checke
 
 The black-box suite observes only browser-visible state, HTTP responses, CLI output and exit status, resulting Project files, and persisted effects exposed by product operations. It covers:
 
-- discovery, Pack Previews, access class, React/Next.js–Tailwind CSS v4–shadcn/ui compatibility, licensing, Pack Evaluation, retrieval, and Installation across Foundation, Editorial, Command, and Signal;
+- discovery, Pack Previews, access class, React/Next.js–Tailwind CSS v4–shadcn/ui compatibility, Pack Evaluation, retrieval, and Installation across Foundation, Editorial, Command, and Signal;
 - complete Open Design Packs and the greater distinctiveness and supporting depth of Premium Design Packs without reserving baseline safety, completeness, or accessibility for Premium;
 - deterministic GitHub authorization and Polar Premium Access transitions without live third-party accounts;
 - a controlled Official Catalog serving Open and Premium Design Contracts, plus disposable Projects;
@@ -43,15 +43,15 @@ npm publish packages/design-packs/.distribution/agentkogei.tgz
 
 The tarball carries one `agentkogei` executable, declares Node.js 20 or newer, and contains no validator executable, library entry point, runtime dependency, or Design Pack Release. Publish only from a `launch:verify` run whose runner matrix passed, and tag the released commit.
 
-## License and distribution boundary
+## Software license and distribution boundary
 
 | Artifact | Terms | Distribution |
 | --- | --- | --- |
 | Web application, API, CLI, Design Pack specification, validators | MIT | Root `LICENSE`; the packed CLI also carries `packages/design-packs/LICENSE` |
-| AgentKogei-authored Open Design Pack prose and original resources | CC BY 4.0 | Each Open Design Pack Release contains `LICENSE.md` and `ATTRIBUTION.md` |
-| Premium Design Pack resources | Commercial Pack License granting a Project License | Terms travel inside the authenticated Pack Release; raw resources do not enter this public source distribution or public build output |
+| Open Design Pack content | Free to install and use in any Project | Delivered as bare `DESIGN.md`; the use grant is stated on the website Terms page |
+| Premium Design Pack content | Private and access-gated | Redistribution limits are stated on the website Terms page; raw resources do not enter this public source distribution or public build output |
 
-Self-hosting the MIT software does not grant Premium Design Pack resources, Premium Access, Pack Credentials, or permission to reproduce the Official Catalog. A genuine public end-product Project may contain its lawfully Installed Pack snapshot without relicensing or authorizing extraction.
+Self-hosting the MIT software does not grant Premium Design Pack resources, Premium Access, Pack Credentials, or permission to reproduce the Official Catalog. A genuine public end-product Project may contain its lawfully Installed Pack snapshot without authorizing extraction.
 
 ## Commercial validation checklist
 
@@ -64,23 +64,22 @@ Keep this validation manual. Do not add mandatory telemetry, inspect a Project w
 - [ ] Continue investment only if at least four of the five reviewed Projects meet that improvement bar.
 - [ ] Treat stars, traffic, retrievals, and Pack Preview engagement as supporting signals, not substitutes for the paid outcome.
 
-## Required legal approval
+## Commercial terms
 
-Production checkout must remain disabled until professional counsel approves all of the following and a non-secret approval record is configured as `POLAR_LEGAL_REVIEW_REFERENCE`:
+The website Terms (`/terms`) and Privacy (`/privacy`) pages publish the commercial terms for the Service:
 
-- [ ] the commercial Pack License and lasting Project License terms;
-- [ ] USD $99 annual price, one named Builder, every Premium Design Pack in the Official Catalog, unlimited Projects, no trial, and at least one Material Release per quarter;
-- [ ] no-voluntary-refund wording and mandatory, card-network, Polar-issued, refund, and reversal consequences;
-- [ ] expiration, renewal, reinstallation, update, offline-use, and no-runtime-DRM boundaries;
-- [ ] genuine public end-product Project permission and the extraction, resale, republishing, credential-sharing, and cross-Project restrictions;
-- [ ] Open Design Pack attribution and third-party provenance obligations; and
-- [ ] the self-hosting boundary between MIT software and Premium Design Pack resources.
+- the open-pack use grant and premium redistribution limits;
+- USD $99 annual price, one named Builder, every Premium Design Pack in the Official Catalog, unlimited Projects, no trial, and at least one Material Release per quarter;
+- no-voluntary-refund wording and mandatory, card-network, Polar-issued, refund, and reversal consequences;
+- expiration, renewal, reinstallation, update, offline-use, and no-runtime-DRM boundaries;
+- genuine public end-product Project permission and the extraction, resale, republishing, credential-sharing, and cross-Project restrictions;
+- the self-hosting boundary between MIT software and Premium Design Pack content.
 
-With `POLAR_SERVER=production` and no `POLAR_LEGAL_REVIEW_REFERENCE`, the production auth boundary registers no Premium Access checkout product. Sandbox checkout remains available for deterministic validation.
+Production checkout runs whenever `POLAR_SERVER=production` and a `POLAR_PREMIUM_ACCESS_PRODUCT_ID` are configured; sandbox checkout remains available for deterministic validation.
 
 ## Handoff status
 
 - Technical release candidate: verify with `bun run launch:verify`.
 - Preview database migrations: run and retain `bun run db:migrate` output against the deployment candidate.
 - Human Pack Evaluation and rights review: retain the four Pack Release reports and approval records.
-- Commercial launch: **blocked pending the legal checklist above**.
+- Commercial launch: **ready** — Terms and Privacy published; production checkout enabled once Polar production credentials are configured.

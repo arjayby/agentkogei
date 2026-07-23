@@ -62,13 +62,22 @@ export default function Footer() {
 						</a>
 					</nav>
 				</div>
-				<div className="flex flex-col gap-2 border-t pt-6 text-muted-foreground text-xs leading-5">
-					<p>
-						The AgentKogei application, API, CLI, Design Pack specification, and
-						validators are MIT licensed. Open Design Packs are CC BY 4.0;
-						Premium Design Pack resources use a commercial Pack License.
-					</p>
+				<div className="flex flex-col gap-3 border-t pt-6 text-muted-foreground text-xs leading-5 sm:flex-row sm:items-center sm:justify-between">
 					<p>© {new Date().getFullYear()} AgentKogei</p>
+					<nav aria-label="Legal" className="flex gap-5">
+						<Link
+							href={"/terms" as Route}
+							className="transition-colors hover:text-foreground"
+						>
+							Terms
+						</Link>
+						<Link
+							href={"/privacy" as Route}
+							className="transition-colors hover:text-foreground"
+						>
+							Privacy
+						</Link>
+					</nav>
 				</div>
 			</div>
 		</footer>

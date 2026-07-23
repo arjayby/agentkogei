@@ -27,7 +27,6 @@ export type DesignContractInstallationPlan = {
 	identity: string;
 	designPack: string;
 	packRelease: string;
-	packLicense: string;
 	source: string;
 	markdown: string;
 	projectDirectory: string;
@@ -45,7 +44,6 @@ export type RetrievedDesignContract = {
 	identity: string;
 	designPack: string;
 	packRelease: string;
-	packLicense: string;
 	markdown: string;
 	source: string;
 };
@@ -190,7 +188,6 @@ export async function retrieveDesignContract(input: {
 		identity: input.identity,
 		designPack: catalogHeader(response, "design-pack", selector),
 		packRelease,
-		packLicense: catalogHeader(response, "pack-license", selector),
 		markdown,
 		source: source.href,
 	};
@@ -393,7 +390,6 @@ export function formatDesignContractPreview(
 		`${plan.designPack} ${plan.packRelease} (${plan.identity})`,
 		[
 			`Official Catalog: ${plan.source}`,
-			`Pack License: ${plan.packLicense}`,
 			`Project: ${plan.projectDirectory}`,
 		].join("\n"),
 	];
