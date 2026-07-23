@@ -19,7 +19,7 @@ import { headers } from "next/headers";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-	title: "Premium Access Pricing — AgentKogei",
+	title: "Premium Access | AgentKogei",
 	description:
 		"One annual plan for AgentKogei's complete Premium Design Pack catalog.",
 };
@@ -31,7 +31,7 @@ const benefits = [
 	"Lasting Project Licenses for eligible installed snapshots",
 ] as const;
 
-export default async function PricingPage() {
+export default async function PremiumPage() {
 	const session = await auth.api.getSession({ headers: await headers() });
 
 	return (
@@ -48,8 +48,8 @@ export default async function PricingPage() {
 					</div>
 					<p className="max-w-xl text-lg text-muted-foreground leading-8">
 						Open packs prove the complete workflow. Premium Access adds the most
-						distinctive, production-deep Interface Systems and their ongoing
-						releases.
+						distinctive, production-deep Interface Systems and every release
+						they publish.
 					</p>
 				</div>
 			</header>
@@ -89,13 +89,13 @@ export default async function PricingPage() {
 							{session?.user ? (
 								<form action="/api/billing/checkout" method="post">
 									<Button size="lg" type="submit">
-										Continue to Polar — $99/year
+										Continue to Polar at $99/year
 										<ArrowUpRight data-icon="inline-end" aria-hidden="true" />
 									</Button>
 								</form>
 							) : (
 								<Link
-									href={"/login?callbackURL=%2Fpricing" as Route}
+									href={"/login?callbackURL=%2Fpremium" as Route}
 									className={buttonVariants({ size: "lg" })}
 								>
 									Sign in with GitHub to subscribe
@@ -166,7 +166,7 @@ export default async function PricingPage() {
 						Open and Premium Published Packs meet the same completeness,
 						accessibility, and Pack Evaluation bar. Premium value comes from
 						creative distinctiveness, production depth, and breadth of
-						direction—not withheld baseline quality.
+						direction, not withheld baseline quality.
 					</p>
 				</div>
 			</section>

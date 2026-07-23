@@ -118,7 +118,7 @@ export default function Dashboard({
 							<Button type="submit">Manage billing with Polar</Button>
 						</form>
 					) : (
-						<Link href="/pricing" className={buttonVariants()}>
+						<Link href="/premium" className={buttonVariants()}>
 							{checkoutLabel}
 						</Link>
 					)}

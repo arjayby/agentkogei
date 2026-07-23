@@ -167,3 +167,17 @@ export function getDesignPack(slug: string) {
 export function currentRelease(pack: DesignPack) {
 	return pack.releases[0];
 }
+
+/**
+ * The newest Pack Releases across the catalog, newest first. Only each pack's
+ * current release can qualify, and catalog order breaks publication-date ties.
+ */
+export function recentPackReleases(count: number) {
+	return designPacks
+		.map((pack) => ({ pack, release: currentRelease(pack) }))
+		.sort(
+			(a, b) =>
+				Date.parse(b.release.publishedAt) - Date.parse(a.release.publishedAt),
+		)
+		.slice(0, count);
+}

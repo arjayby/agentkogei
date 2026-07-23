@@ -6,7 +6,7 @@ import { ModeToggle } from "./mode-toggle";
 
 const navigation = [
 	{ href: "/catalog" as Route, label: "Catalog" },
-	{ href: "/pricing" as Route, label: "Pricing" },
+	{ href: "/premium" as Route, label: "Premium" },
 	{ href: "/docs" as Route, label: "Docs" },
 ] as const;
 

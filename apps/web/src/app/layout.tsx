@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import "../index.css";
+import Footer from "@/components/footer";
 import Header from "@/components/header";
 import Providers from "@/components/providers";
 
@@ -17,7 +18,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "AgentKogei — Durable design direction for coding agents",
+	title: "AgentKogei | Durable design direction for coding agents",
 	description:
 		"Versioned Design Packs that keep agent-built product interfaces coherent across every screen.",
 };
@@ -33,9 +34,10 @@ export default function RootLayout({
 				className={cn(geistSans.variable, geistMono.variable, "antialiased")}
 			>
 				<Providers>
-					<div className="min-h-svh">
+					<div className="flex min-h-svh flex-col">
 						<Header />
-						{children}
+						<div className="flex-1">{children}</div>
+						<Footer />
 					</div>
 				</Providers>
 			</body>
