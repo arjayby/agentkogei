@@ -34,7 +34,7 @@
 		"build": "turbo run build",
 		"check-types": "turbo run check-types",
 		"test": "turbo run test",
-		"format:check": "files=$(printf '%s\\n%s' \"$(git diff --name-only --diff-filter=ACMR main --)\" \"$(git ls-files --others --exclude-standard)\" | sed '/^$/d' | sort -u); if test -z \"$files\"; then exit 0; else biome check $files; fi",
+		"format:check": "files=$(printf '%s\\n%s' \"$(git diff --name-only --diff-filter=ACMR main --)\" \"$(git ls-files --others --exclude-standard)\" | sed '/^$/d' | sort -u); if test -z \"$files\"; then exit 0; else biome check --no-errors-on-unmatched $files; fi",
 		"launch:verify": "bun run format:check && bun run check-types && bun run db:check && bun run db:migrate:test && bun run build && bun run test",
 		"dev:web": "turbo run dev -F web",
 		"db:check": "bun run --cwd packages/db drizzle-kit check",
