@@ -134,20 +134,6 @@ describe("Pack Release publication validation", () => {
 			error: "evaluation",
 		},
 		{
-			name: "unlicensed",
-			mutate(record: Record<string, unknown>) {
-				Reflect.deleteProperty(record, "license");
-			},
-			error: "license",
-		},
-		{
-			name: "unprovenanced",
-			mutate(record: Record<string, unknown>) {
-				record.provenance = [];
-			},
-			error: "provenance",
-		},
-		{
 			name: "executable",
 			mutate(record: Record<string, unknown>) {
 				record.hooks = { postinstall: "node install.js" };
@@ -163,17 +149,6 @@ describe("Pack Release publication validation", () => {
 			);
 		});
 	}
-
-	test("rejects a Pack License no provenance entry accounts for", async () => {
-		const errors = await evaluateMutatedRelease((record) => {
-			const license = record.license as Record<string, unknown>;
-			license.spdx = "MIT";
-		});
-
-		expect(errors).toContain(
-			"provenance does not account for the Pack License",
-		);
-	});
 
 	test("rejects an evaluation evidence path that escapes the Pack Release", async () => {
 		const errors = await evaluateMutatedRelease((record) => {
@@ -268,34 +243,6 @@ describe("Pack Release publication validation", () => {
 			),
 		).toBe("");
 	});
-
-	// ADR 0009: provenance reaches a Project as human-readable text in the
-	// Design Contract, because a Project receives no other file to carry it.
-	for (const fact of [
-		{ name: "Design Pack", key: "name" },
-		{ name: "Pack License", key: "license.name" },
-		{ name: "attribution", key: "license.attribution" },
-	]) {
-		test(`rejects a Design Contract that does not state its ${fact.name}`, async () => {
-			const rootDirectory = await copyFoundationFixture();
-			const record = await readEvaluationRecord(rootDirectory);
-			const [group, field] = fact.key.split(".");
-			const target = (
-				field ? (record[group as string] as Record<string, unknown>) : record
-			) as Record<string, unknown>;
-			target[field ?? (group as string)] = "Unstated in the Design Contract";
-			await writeEvaluationRecord(rootDirectory, record);
-
-			const result = await runValidator(rootDirectory);
-
-			expect(result.ok).toBe(false);
-			if (!result.ok) {
-				expect(result.errors.join(" ")).toContain(
-					`DESIGN.md does not state its ${fact.name}`,
-				);
-			}
-		});
-	}
 
 	test("rejects a symlinked Design Contract", async () => {
 		const rootDirectory = await copyFoundationFixture();

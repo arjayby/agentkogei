@@ -21,20 +21,16 @@ The root `DESIGN.md` document through which an Installed Pack tells a Project's 
 _Avoid_: prompt, style guide, rules file
 
 **Open Design Pack**:
-A complete Design Pack that anyone may discover and install without an AgentKogei account and whose contents may be freely used, modified, and shared under its open license.
+A complete Design Pack that anyone may discover and install without an AgentKogei account and whose contents may be freely used, modified, and shared.
 _Avoid_: free pack, public pack
 
 **Premium Design Pack**:
-A commercially licensed Design Pack available only to Builders with Premium Access. Its paid value comes from greater creative distinctiveness, production depth, and breadth of direction rather than withholding baseline quality.
+A private Design Pack available only to Builders with Premium Access. Its paid value comes from greater creative distinctiveness, production depth, and breadth of direction rather than withholding baseline quality.
 _Avoid_: paid pack, private pack
 
 **Premium Access**:
 The annual subscription entitlement that allows one named Builder to retrieve every Premium Design Pack and its Pack Releases from the Official Catalog for unlimited Projects while the subscription is active. Open Design Packs never require Premium Access.
 _Avoid_: all access, purchase, ownership
-
-**Project License**:
-The lasting right for all collaborators to use a specific Premium Design Pack snapshot within the Project where it was installed while Premium Access was active, unless the underlying payment is refunded or reversed. It arises from Installation rather than a per-Project identifier. The Project may be public without converting the pack into an Open Design Pack; the license does not include catalog access, later Pack Releases, extraction for another Project, or reuse of the subscriber's credentials.
-_Avoid_: ownership, permanent access, download license
 
 **Official Catalog**:
 The curated collection of Open and Premium Design Packs published and maintained by AgentKogei. It contains only first-party packs.
@@ -67,10 +63,6 @@ _Avoid_: download, copy
 **Installed Pack**:
 A Design Pack applied to a Project as its root Design Contract and agent-instruction reference. It remains usable without AgentKogei authentication or network access; a Project can have at most one Installed Pack at a time.
 _Avoid_: hosted pack, linked pack
-
-**Pack License**:
-The terms declared by a Design Pack that govern how its contents may be used, modified, and shared. Access to a pack and permission to use it are separate concerns.
-_Avoid_: access level, price, entitlement
 
 **Pack Credential**:
 A revocable authorization that lets one CLI installation retrieve Premium Design Packs on behalf of a Builder with Premium Access. It grants no billing or account-management authority.

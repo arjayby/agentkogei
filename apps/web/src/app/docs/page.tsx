@@ -4,13 +4,6 @@ import {
 	AlertTitle,
 } from "@agentkogei/ui/components/alert";
 import { buttonVariants } from "@agentkogei/ui/components/button";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@agentkogei/ui/components/card";
 import { ArrowUpRight } from "lucide-react";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
@@ -27,7 +20,6 @@ const sections = [
 	{ href: "#retrieval", label: "Design Contract retrieval" },
 	{ href: "#one-pack", label: "One-pack constraint" },
 	{ href: "#supported-stack", label: "Supported stack" },
-	{ href: "#licensing", label: "Licensing" },
 	{ href: "#safety", label: "Safety boundary" },
 ] as const;
 
@@ -94,8 +86,8 @@ export default function DocsPage() {
 								through the Official Catalog, and{" "}
 								<code className="font-mono">foundation@1.1.0</code> selects that
 								immutable release. Before writing, the CLI shows the Design
-								Pack, Pack Release, Pack License, absolute target, and the exact
-								change, then waits for your confirmation.
+								Pack, Pack Release, absolute target, and the exact change, then
+								waits for your confirmation.
 							</p>
 						</div>
 						<div className="mt-8 max-w-3xl">
@@ -201,114 +193,12 @@ export default function DocsPage() {
 					</section>
 
 					<section
-						id="licensing"
-						className="scroll-mt-24 border-b py-12"
-						aria-labelledby="licensing-heading"
-					>
-						<p className="mb-4 font-mono text-muted-foreground text-xs uppercase tracking-[0.18em]">
-							05 / Permission
-						</p>
-						<h2
-							id="licensing-heading"
-							className="mb-6 font-medium text-3xl tracking-tight"
-						>
-							Licensing
-						</h2>
-						<div className="grid gap-5 md:grid-cols-2">
-							<Card>
-								<CardHeader>
-									<CardTitle>AgentKogei software</CardTitle>
-									<CardDescription>
-										Open source under the MIT License.
-									</CardDescription>
-								</CardHeader>
-								<CardContent>
-									<p className="leading-7">
-										The web application, CLI, Design Pack specification, and
-										validators may be inspected, modified, distributed, and
-										self-hosted under the MIT License.
-									</p>
-								</CardContent>
-							</Card>
-							<Card>
-								<CardHeader>
-									<CardTitle>Open Design Packs</CardTitle>
-									<CardDescription>Complete and account-free.</CardDescription>
-								</CardHeader>
-								<CardContent>
-									<p className="leading-7">
-										AgentKogei-authored Design Contract prose uses CC BY 4.0,
-										allowing reuse and adaptation when Builders retain required
-										attribution from the Pack Release.
-									</p>
-								</CardContent>
-							</Card>
-							<Card>
-								<CardHeader>
-									<CardTitle>Premium Design Packs</CardTitle>
-									<CardDescription>
-										Commercial Project Licenses.
-									</CardDescription>
-								</CardHeader>
-								<CardContent>
-									<div className="flex flex-col gap-3 leading-7">
-										<p>
-											A Premium Design Contract is distributed under the
-											commercial Pack License. An eligible installed snapshot
-											may be used by Builders and collaborators in that Project,
-											including a genuine public end-product Project, without
-											opening the Pack License.
-										</p>
-										<p>
-											The local snapshot remains usable offline without
-											credentials, runtime checks, or DRM. The Project License
-											does not permit extraction, resale, republishing,
-											credential sharing, or cross-Project reuse.
-										</p>
-										<p>
-											A refund or payment reversal terminates the affected
-											Project License and future Official Catalog access, but
-											AgentKogei never remotely modifies Project files.
-										</p>
-									</div>
-								</CardContent>
-							</Card>
-							<Card>
-								<CardHeader>
-									<CardTitle>Open software, first-party catalog</CardTitle>
-									<CardDescription>
-										Open software is not catalog access.
-									</CardDescription>
-								</CardHeader>
-								<CardContent>
-									<div className="flex flex-col gap-3 leading-7">
-										<p>
-											Self-hosting does not grant Premium Design Pack content,
-											Pack Credentials, Premium Access, or permission to
-											reproduce the Official Catalog. Access and permission
-											remain separate.
-										</p>
-										<p>
-											The Official Catalog contains only first-party Design
-											Packs, and AgentKogei does not support installing a Design
-											Pack from a third-party source. Opening the repository,
-											the CLI, and the Design Contract format is a software
-											decision, not a commitment to distribute anyone else's
-											packs.
-										</p>
-									</div>
-								</CardContent>
-							</Card>
-						</div>
-					</section>
-
-					<section
 						id="safety"
 						className="scroll-mt-24 pt-12"
 						aria-labelledby="safety-heading"
 					>
 						<p className="mb-4 font-mono text-muted-foreground text-xs uppercase tracking-[0.18em]">
-							06 / Trust boundary
+							05 / Trust boundary
 						</p>
 						<h2
 							id="safety-heading"

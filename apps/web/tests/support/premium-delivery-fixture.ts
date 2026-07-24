@@ -8,38 +8,12 @@ type PremiumPackSpec = {
 	identity: "command" | "signal";
 	name: string;
 	publishedAt: string;
-	/** What this pack's original work consists of, for its attribution. */
-	originalWork: string;
 	/**
 	 * The Design Contract's direction, in the order the pack presents it. Each
 	 * entry is one `##` section of the single document a Project installs.
 	 */
 	sections: ReadonlyArray<{ title: string; body: string }>;
 };
-
-const premiumPackLicense =
-	"AgentKogei Commercial Pack License (LicenseRef-AgentKogei-Commercial)";
-
-/**
- * The provenance every Premium Design Contract closes with. A Project receives
- * this document and nothing else, so its licensing and attribution have to read
- * from the document itself.
- */
-function provenanceSection(spec: PremiumPackSpec) {
-	const attribution = `${spec.name} by AgentKogei.`;
-	return [
-		"---",
-		"",
-		"## Provenance",
-		"",
-		`- Design Pack: ${spec.name} (\`${spec.identity}\`)`,
-		`- Pack Release: 1.0.0, published ${spec.publishedAt} by AgentKogei`,
-		`- Pack License: ${premiumPackLicense}, https://agentkogei.com/docs/premium-pack-license`,
-		`- Attribution: ${attribution}`,
-		`- All ${spec.name} ${spec.originalWork} are original AgentKogei work; this test release contains no third-party assets or remote resources.`,
-		"- Delivered by the AgentKogei Official Catalog as a single Design Contract.",
-	].join("\n");
-}
 
 /**
  * Serializes one Premium Design Contract exactly as the Official Catalog holds
@@ -52,14 +26,12 @@ function buildPremiumDesignContract(spec: PremiumPackSpec) {
 		`This is a synthetic test release, not the commercial ${spec.name} Design Contract.`,
 		"",
 		...spec.sections.map((section) => `## ${section.title}\n\n${section.body}`),
-		provenanceSection(spec),
 	].join("\n\n")}\n`;
 
 	return JSON.stringify({
 		identity: spec.identity,
 		designPack: spec.name,
 		packRelease: "1.0.0",
-		packLicense: premiumPackLicense,
 		access: "premium",
 		markdown,
 	});
@@ -69,7 +41,6 @@ const commandRelease: PremiumPackSpec = {
 	identity: "command",
 	name: "Command",
 	publishedAt: "2026-07-19",
-	originalWork: "prose, tokens, patterns, and evaluation materials",
 	sections: [
 		{
 			title: "Command principles",
@@ -133,7 +104,7 @@ Motion reports progress and state change only. Under prefers-reduced-motion, rem
 		},
 		{
 			title: "Command validation",
-			body: "Evaluate marketing, authentication, onboarding, dashboard, table, form, settings, and all state surfaces at 1440x900, 390x844, and 320px reflow. Cover light, dark, reduced-motion, keyboard-only, forced-colors, and 200% zoom modes. Run structural checks, WCAG 2.2 Level AA automation, contrast checks, overflow checks, and four independent agent generations. Human review must confirm visual distinctiveness, semantic correctness, provenance, attribution, and commercial rights before publication.",
+			body: "Evaluate marketing, authentication, onboarding, dashboard, table, form, settings, and all state surfaces at 1440x900, 390x844, and 320px reflow. Cover light, dark, reduced-motion, keyboard-only, forced-colors, and 200% zoom modes. Run structural checks, WCAG 2.2 Level AA automation, contrast checks, overflow checks, and four independent agent generations. Human review must confirm visual distinctiveness, semantic correctness, and originality before publication.",
 		},
 	],
 };
@@ -142,8 +113,6 @@ const signalRelease: PremiumPackSpec = {
 	identity: "signal",
 	name: "Signal",
 	publishedAt: "2026-07-20",
-	originalWork:
-		"prose, tokens, motion guidance, evaluation evidence, and graphic resources",
 	sections: [
 		{
 			title: "Signal principles",
@@ -221,7 +190,7 @@ Use short spatial transitions to explain entry, progress, and relationships. Und
 		},
 		{
 			title: "Signal validation",
-			body: "Evaluate marketing, authentication, onboarding, dashboard, table, form, settings, and all state surfaces at 1440x900, 390x844, and 320px reflow. Cover light, dark, reduced-motion, keyboard-only, forced-colors, and 200% zoom modes. Run structural checks, WCAG 2.2 Level AA automation, contrast checks, overflow checks, and four independent agent generations. Human review must confirm visual distinctiveness, semantic correctness, motion restraint, provenance, attribution, and commercial rights before publication.",
+			body: "Evaluate marketing, authentication, onboarding, dashboard, table, form, settings, and all state surfaces at 1440x900, 390x844, and 320px reflow. Cover light, dark, reduced-motion, keyboard-only, forced-colors, and 200% zoom modes. Run structural checks, WCAG 2.2 Level AA automation, contrast checks, overflow checks, and four independent agent generations. Human review must confirm visual distinctiveness, semantic correctness, motion restraint, and originality before publication.",
 		},
 	],
 };

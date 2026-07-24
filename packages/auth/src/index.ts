@@ -13,11 +13,7 @@ import { memoryAdapter } from "better-auth/adapters/memory";
 import { nextCookies } from "better-auth/next-js";
 import { genericOAuth } from "better-auth/plugins/generic-oauth";
 
-import {
-	polarClient,
-	premiumAccessProductId,
-	productionPaymentsEnabled,
-} from "./lib/payments";
+import { polarClient, premiumAccessProductId } from "./lib/payments";
 
 const githubClientCredentials = {
 	clientId: env.GITHUB_CLIENT_ID,
@@ -58,15 +54,14 @@ function createProductionIdentityBoundary() {
 				enableCustomerPortal: true,
 				use: [
 					checkout({
-						products:
-							productionPaymentsEnabled && premiumAccessProductId
-								? [
-										{
-											productId: premiumAccessProductId,
-											slug: "premium-access",
-										},
-									]
-								: [],
+						products: premiumAccessProductId
+							? [
+									{
+										productId: premiumAccessProductId,
+										slug: "premium-access",
+									},
+								]
+							: [],
 						successUrl: env.POLAR_SUCCESS_URL,
 						authenticatedUsersOnly: true,
 					}),
@@ -168,4 +163,3 @@ export function createAuth() {
 }
 
 export const auth = createAuth();
-export { productionPaymentsEnabled };

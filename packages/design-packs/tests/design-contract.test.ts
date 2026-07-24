@@ -20,14 +20,13 @@ const publishedReleases = publishedPacks.flatMap((pack) =>
 );
 
 describe("Design Contract delivery", () => {
-	test("reports the Design Pack, Pack Release, Pack License, and access of the release", async () => {
+	test("reports the Design Pack, Pack Release, and access of the release", async () => {
 		const contract = await foundation();
 
 		expect(contract).toMatchObject({
 			identity: "foundation",
 			designPack: "Foundation",
 			packRelease: "1.1.0",
-			packLicense: "Creative Commons Attribution 4.0 International (CC-BY-4.0)",
 			access: "open",
 		});
 	});
@@ -51,8 +50,6 @@ describe("Design Contract delivery", () => {
 			"Good dashboard request",
 			"Measure text, control, focus, and meaningful-graphic contrast",
 			"Compose existing shadcn/ui primitives before adding custom components.",
-			"Creative Commons Attribution 4.0 International",
-			"All prose, semantic token selections, examples, and evaluation materials",
 		]) {
 			expect(markdown).toContain(direction);
 		}
@@ -116,7 +113,6 @@ describe("Design Contract delivery", () => {
 				identity: "foundation",
 				designPack: "Foundation",
 				packRelease: "1.1.0",
-				packLicense: "Creative Commons Attribution 4.0 International",
 				access: "open",
 				markdown: "",
 			}).success,
@@ -159,19 +155,20 @@ describe.each(publishedReleases)(
 			}
 		});
 
-		test("ends with human-readable provenance for this exact Pack Release", async () => {
+		test("installs as bare direction with no license or provenance footer", async () => {
 			const contract = await readDesignContract(directory);
-			const provenance = contract.markdown.slice(
-				contract.markdown.lastIndexOf("\n## Provenance\n"),
-			);
 
 			expect(contract.packRelease).toBe(version);
-			expect(provenance).toContain(
-				`- Design Pack: ${contract.designPack} (\`${contract.identity}\`)`,
-			);
-			expect(provenance).toContain(`- Pack Release: ${version}, published `);
-			expect(provenance).toContain(`- Pack License: ${contract.packLicense}`);
-			expect(provenance).toContain("AgentKogei Official Catalog");
+			for (const stamp of [
+				"## Provenance",
+				"## Attribution and provenance",
+				"Pack License",
+				"Creative Commons",
+				"CC BY",
+				"licensed under",
+			]) {
+				expect(contract.markdown).not.toContain(stamp);
+			}
 			expect(contract.markdown).toEndWith("\n");
 		});
 	},

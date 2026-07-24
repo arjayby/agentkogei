@@ -14,8 +14,6 @@ export type DesignPack = {
 	bestFor: string;
 	/** Published Pack Releases, newest first. The first is what a bare identity selects. */
 	releases: readonly [PackRelease, ...PackRelease[]];
-	license: "CC BY 4.0" | "Commercial Pack License";
-	licenseSummary: string;
 	compatibility: string;
 	evaluation: string;
 	evaluationEvidence: readonly string[];
@@ -46,7 +44,6 @@ export const contractSections = [
 	"Agent instructions and worked examples",
 	"A final validation checklist",
 	"React or Next.js, Tailwind CSS v4, and shadcn/ui implementation direction",
-	"Attribution, Pack License, and Pack Release provenance",
 ] as const;
 
 /** What Premium Access buys, stated without promising anything beside the document. */
@@ -59,7 +56,7 @@ const evaluation =
 const evaluationEvidence = [
 	"Desktop 1440×900 and mobile 390×844",
 	"Light, dark, and reduced motion",
-	"Human visual, accessibility, and rights review passed",
+	"Human visual and accessibility review passed",
 ] as const;
 
 export const designPacks: readonly DesignPack[] = [
@@ -83,9 +80,6 @@ export const designPacks: readonly DesignPack[] = [
 					"Initial Published Pack with complete cross-surface coverage and evaluation evidence.",
 			},
 		],
-		license: "CC BY 4.0",
-		licenseSummary:
-			"Complete Open Design Pack content, reusable with attribution.",
 		compatibility,
 		evaluation,
 		evaluationEvidence,
@@ -105,9 +99,6 @@ export const designPacks: readonly DesignPack[] = [
 					"Initial Published Pack with complete cross-surface coverage and evaluation evidence.",
 			},
 		],
-		license: "CC BY 4.0",
-		licenseSummary:
-			"Complete Open Design Pack content, reusable with attribution.",
 		compatibility,
 		evaluation,
 		evaluationEvidence,
@@ -127,9 +118,6 @@ export const designPacks: readonly DesignPack[] = [
 					"Initial Published Pack with dense technical patterns and complete state coverage.",
 			},
 		],
-		license: "Commercial Pack License",
-		licenseSummary:
-			"A snapshot installed while access is active remains licensed in that Project after Premium Access expires; extraction and reuse elsewhere are not included.",
 		compatibility,
 		evaluation,
 		evaluationEvidence,
@@ -149,9 +137,6 @@ export const designPacks: readonly DesignPack[] = [
 					"Initial Published Pack with expressive motion direction and full surface coverage.",
 			},
 		],
-		license: "Commercial Pack License",
-		licenseSummary:
-			"A snapshot installed while access is active remains licensed in that Project after Premium Access expires; extraction and reuse elsewhere are not included.",
 		compatibility,
 		evaluation,
 		evaluationEvidence,

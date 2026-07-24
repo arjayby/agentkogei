@@ -154,9 +154,9 @@ export default function Home() {
 					<div className="flex flex-col gap-6">
 						<p className="max-w-xl text-pretty text-lg text-muted-foreground leading-8">
 							Command and Signal carry the most distinctive directions in the
-							Official Catalog. Premium Access unlocks both, and a snapshot
-							installed while access is active remains licensed in that Project
-							after access expires.
+							Official Catalog. Premium Access unlocks both, and a pack you
+							install while access is active keeps working in that Project after
+							access expires.
 						</p>
 						<div>
 							<Link

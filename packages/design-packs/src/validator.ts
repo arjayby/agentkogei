@@ -90,14 +90,6 @@ function validateReleaseRules(record: PackEvaluationRecord) {
 		errors.push("major or breaking releases require migration notes");
 	}
 
-	if (
-		!record.provenance.some((entry) => entry.license === record.license.spdx)
-	) {
-		errors.push(
-			`provenance does not account for the Pack License: ${record.license.spdx}`,
-		);
-	}
-
 	for (const screen of requiredScreens) {
 		if (!record.evaluation.screens.includes(screen)) {
 			errors.push(`evaluation is missing required screen: ${screen}`);
@@ -188,9 +180,8 @@ function executableFenceLanguages(markdown: string) {
 
 /**
  * A Project receives the Design Contract and nothing else, so the document must
- * carry its own provenance, must read as inert direction rather than as
- * something to run, and must not send an AI coding agent looking for a release
- * resource that was never installed.
+ * read as inert direction rather than as something to run, and must not send an
+ * AI coding agent looking for a release resource that was never installed.
  */
 function validateDesignContract(
 	record: PackEvaluationRecord,
@@ -219,18 +210,6 @@ function validateDesignContract(
 		errors.push(
 			`${designContractFileName} presents an executable ${language} block`,
 		);
-	}
-	// ADR 0009: provenance reaches a Project as human-readable text in the
-	// Design Contract, because a Project receives no other file to carry it.
-	for (const [fact, value] of [
-		["Design Pack", record.name],
-		["Pack Release", record.release.version],
-		["Pack License", record.license.name],
-		["attribution", record.license.attribution],
-	] as const) {
-		if (!markdown.includes(value)) {
-			errors.push(`${designContractFileName} does not state its ${fact}`);
-		}
 	}
 	for (const withheld of [
 		packEvaluationFileName,

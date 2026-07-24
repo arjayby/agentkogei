@@ -38,17 +38,15 @@ const statusCopy = {
 	expired: {
 		label: "Expired",
 		description:
-			"Premium Design Pack retrieval and Installation have ended. Existing eligible Project Licenses remain usable.",
+			"Premium Design Pack retrieval and Installation have ended. Packs already installed keep working in your Projects.",
 	},
 	refunded: {
 		label: "Refunded",
-		description:
-			"Premium Access and Project Licenses from the refunded period have ended.",
+		description: "Premium Access from the refunded period has ended.",
 	},
 	reversed: {
 		label: "Payment reversed",
-		description:
-			"Premium Access and Project Licenses from the reversed payment period have ended.",
+		description: "Premium Access from the reversed payment period has ended.",
 	},
 } as const;
 
@@ -78,8 +76,8 @@ export default function Dashboard({
 	const canManageBilling =
 		premiumAccess?.status === "active" || premiumAccess?.status === "canceling";
 	const checkoutLabel = premiumAccess
-		? "Review terms to renew"
-		: "Review terms to subscribe";
+		? "Renew Premium Access"
+		: "Get Premium Access";
 
 	return (
 		<div className="flex flex-col gap-6">

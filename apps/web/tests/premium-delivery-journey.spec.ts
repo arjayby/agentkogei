@@ -489,18 +489,13 @@ for (const pack of premiumDesignPacks) {
 			const added = await addPack(identity);
 			expect(added.code, added.stderr).toBe(0);
 			expect(added.stdout).toContain(`${designPack} 1.0.0 (${identity})`);
-			expect(added.stdout).toContain("AgentKogei Commercial Pack License");
 			const designContract = await readFile(designContractPath, "utf8");
 			expect(designContract.startsWith(`${heading}\n`)).toBe(true);
 			for (const line of direction) {
 				expect(designContract).toContain(line);
 			}
-			expect(designContract).toContain("## Provenance");
-			expect(designContract).toContain(
-				`- Design Pack: ${designPack} (\`${identity}\`)`,
-			);
 			// One self-contained document: no other pack's direction, no resource
-			// a Project never receives, and no machine metadata.
+			// a Project never receives, no machine metadata, and no license text.
 			for (const absent of [
 				otherPack,
 				"Foundation",
@@ -509,6 +504,9 @@ for (const pack of premiumDesignPacks) {
 				"agentkogei.manifest.json",
 				".agentkogei/",
 				"evaluation/",
+				"Pack License",
+				"## Provenance",
+				"Creative Commons",
 			]) {
 				expect(designContract).not.toContain(absent);
 			}

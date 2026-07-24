@@ -10,11 +10,6 @@ const terminalTextSchema = z
 	.refine((value) => !hasTerminalControl(value), {
 		message: "must not contain terminal control characters",
 	});
-const terminalUrlSchema = z
-	.url()
-	.refine((value) => !hasTerminalControl(value), {
-		message: "must not contain terminal control characters",
-	});
 const relativePathSchema = z
 	.string()
 	.min(1)
@@ -57,14 +52,6 @@ export const packEvaluationRecordSchema = z
 			})
 			.strict(),
 		access: packAccessSchema,
-		license: z
-			.object({
-				spdx: terminalTextSchema,
-				name: terminalTextSchema,
-				url: terminalUrlSchema,
-				attribution: terminalTextSchema,
-			})
-			.strict(),
 		/**
 		 * The one document the release publishes, pinned by digest so an
 		 * already-published release cannot be edited under its own version.
@@ -80,19 +67,6 @@ export const packEvaluationRecordSchema = z
 				ui: z.literal("shadcn/ui"),
 			})
 			.strict(),
-		provenance: z
-			.array(
-				z
-					.object({
-						work: terminalTextSchema,
-						origin: z.enum(["original", "third-party"]),
-						author: z.string().min(1),
-						license: z.string().min(1),
-						attribution: z.string().min(1),
-					})
-					.strict(),
-			)
-			.min(1),
 		evaluation: z
 			.object({
 				status: z.literal("passed"),

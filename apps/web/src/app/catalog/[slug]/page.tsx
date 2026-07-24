@@ -183,17 +183,6 @@ export default async function PackPage({ params }: PackPageProps) {
 										</ul>
 									</dd>
 								</div>
-								<div className="grid gap-2 bg-background p-4 sm:grid-cols-[10rem_1fr]">
-									<dt className="font-mono text-muted-foreground text-xs uppercase">
-										Pack License
-									</dt>
-									<dd>
-										<strong className="font-medium">{pack.license}</strong>
-										<span className="mt-1 block text-muted-foreground">
-											{pack.licenseSummary}
-										</span>
-									</dd>
-								</div>
 							</dl>
 						</CardContent>
 					</Card>
