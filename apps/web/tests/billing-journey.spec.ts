@@ -46,10 +46,10 @@ test("checkout presents and completes the one annual Premium Access offer", asyn
 		page.getByRole("heading", { name: "Premium Access" }),
 	).toBeVisible();
 	await expect(page.getByText("No Premium Access")).toBeVisible();
-	await page.getByRole("link", { name: "Review terms to subscribe" }).click();
+	await page.getByRole("link", { name: "Get Premium Access" }).click();
 	await expect(page).toHaveURL("/premium");
 	await expect(
-		page.getByText("No voluntary refunds", { exact: true }),
+		page.getByText("Billing and refunds", { exact: true }),
 	).toBeVisible();
 	await page
 		.getByRole("button", { name: "Continue to Polar at $99/year" })
@@ -104,7 +104,7 @@ test("verified idempotent Polar events drive every account access state", async 
 	await page.reload();
 	await expect(page.getByText("Expired", { exact: true })).toBeVisible();
 	await expect(
-		page.getByRole("link", { name: "Review terms to renew" }),
+		page.getByRole("link", { name: "Renew Premium Access" }),
 	).toBeVisible();
 
 	await publishPolarState(page, "active", "event-renewed");
@@ -180,5 +180,9 @@ test("pre-checkout terms are disclosed", async ({ page }) => {
 	await expect(
 		page.getByText(/installed packs keep working in your Projects/i),
 	).toBeVisible();
-	await expect(page.getByRole("link", { name: "Terms" })).toBeVisible();
+	await expect(
+		page
+			.getByLabel("Premium Access offer")
+			.getByRole("link", { name: "Terms" }),
+	).toBeVisible();
 });

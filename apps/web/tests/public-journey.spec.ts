@@ -475,7 +475,7 @@ test("a Builder can anonymously retrieve the complete Foundation Pack Release", 
 	).toBeVisible();
 	await expect(page.getByText("Light, dark, and reduced motion")).toBeVisible();
 	await expect(
-		page.getByText("Human visual, accessibility, and rights review passed"),
+		page.getByText("Human visual and accessibility review passed"),
 	).toBeVisible();
 });
 
