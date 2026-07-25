@@ -113,8 +113,9 @@ export default async function PremiumPage() {
 								No trial
 							</p>
 							<p className="leading-7">
-								Foundation and Editorial are complete Open Design Packs, so you
-								can evaluate the real Installation workflow before subscribing.
+								Foundation, Editorial, and Mono are complete Open Design Packs,
+								so you can evaluate the real Installation workflow before
+								subscribing.
 							</p>
 						</div>
 						<div className="flex flex-col gap-3 bg-background p-6">

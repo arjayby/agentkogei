@@ -116,7 +116,7 @@ export default function Home() {
 								id="catalog-heading"
 								className="text-balance font-medium text-3xl tracking-tight sm:text-5xl"
 							>
-								One catalog. Four directions.
+								One catalog. Five directions.
 							</h2>
 						</div>
 						<Link

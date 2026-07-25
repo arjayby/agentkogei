@@ -1,8 +1,8 @@
 /*
- * Semantic tokens for the Official Catalog's own Editorial Pack Preview.
- * A Pack Release publishes one Design Contract and nothing else, so this
- * reference implementation owns its stylesheet the way any Project that
- * follows the Editorial Design Contract would.
+ * Semantic tokens for the Official Catalog's own Editorial and Mono Pack
+ * Previews. A Pack Release publishes one Design Contract and nothing else, so
+ * these reference implementations own their stylesheet the way any Project
+ * that follows those Design Contracts would.
  */
 :root {
 	--editorial-background: oklch(0.975 0.014 82);
@@ -27,6 +27,26 @@
 	--editorial-radius-lg: 0.375rem;
 	--editorial-duration-fast: 140ms;
 	--editorial-duration-default: 220ms;
+
+	--mono-background: oklch(1 0 0);
+	--mono-foreground: oklch(0.145 0 0);
+	--mono-card: oklch(1 0 0);
+	--mono-muted: oklch(0.97 0 0);
+	--mono-muted-foreground: oklch(0.5 0 0);
+	--mono-border: oklch(0.922 0 0);
+	--mono-primary: oklch(0.205 0 0);
+	--mono-primary-foreground: oklch(0.985 0 0);
+	--mono-destructive: oklch(0.55 0.21 27);
+	--mono-success: oklch(0.5 0.13 155);
+	--mono-warning: oklch(0.6 0.13 75);
+	--mono-info: oklch(0.55 0.12 230);
+	--mono-ring: oklch(0.44 0 0);
+	--mono-radius-sm: 0.5rem;
+	--mono-radius-md: 0.625rem;
+	--mono-radius-lg: 1.125rem;
+	--mono-radius-full: 9999px;
+	--mono-duration-fast: 120ms;
+	--mono-duration-default: 200ms;
 }
 
 .dark {
@@ -43,11 +63,27 @@
 	--editorial-warning: oklch(0.76 0.1 72);
 	--editorial-info: oklch(0.72 0.08 245);
 	--editorial-ring: oklch(0.76 0.09 335);
+
+	--mono-background: oklch(0.145 0 0);
+	--mono-foreground: oklch(0.985 0 0);
+	--mono-card: oklch(0.205 0 0);
+	--mono-muted: oklch(0.269 0 0);
+	--mono-muted-foreground: oklch(0.708 0 0);
+	--mono-border: oklch(0.31 0 0);
+	--mono-primary: oklch(0.985 0 0);
+	--mono-primary-foreground: oklch(0.145 0 0);
+	--mono-destructive: oklch(0.7 0.19 22);
+	--mono-success: oklch(0.7 0.12 155);
+	--mono-warning: oklch(0.78 0.12 75);
+	--mono-info: oklch(0.74 0.1 230);
+	--mono-ring: oklch(0.72 0 0);
 }
 
 @media (prefers-reduced-motion: reduce) {
 	:root {
 		--editorial-duration-fast: 0ms;
 		--editorial-duration-default: 0ms;
+		--mono-duration-fast: 0ms;
+		--mono-duration-default: 0ms;
 	}
 }
