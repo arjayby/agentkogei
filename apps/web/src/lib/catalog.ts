@@ -7,7 +7,7 @@ export type PackRelease = {
 };
 
 export type DesignPack = {
-	slug: "foundation" | "editorial" | "command" | "signal";
+	slug: "foundation" | "editorial" | "mono" | "command" | "signal";
 	name: string;
 	access: PackAccess;
 	direction: string;
@@ -95,6 +95,25 @@ export const designPacks: readonly DesignPack[] = [
 			{
 				version: "1.0.0",
 				publishedAt: "July 19, 2026",
+				changelog:
+					"Initial Published Pack with complete cross-surface coverage and evaluation evidence.",
+			},
+		],
+		compatibility,
+		evaluation,
+		evaluationEvidence,
+		coverage,
+	},
+	{
+		slug: "mono",
+		name: "Mono",
+		access: "Open",
+		direction: "Monochrome, high-contrast, and content-forward.",
+		bestFor: "Media and creative tooling",
+		releases: [
+			{
+				version: "1.0.0",
+				publishedAt: "July 25, 2026",
 				changelog:
 					"Initial Published Pack with complete cross-surface coverage and evaluation evidence.",
 			},

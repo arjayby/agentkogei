@@ -32,6 +32,31 @@ export function PackArtwork({ pack }: { pack: DesignPack }) {
 		);
 	}
 
+	if (pack.slug === "mono") {
+		return (
+			<div
+				className="flex h-64 flex-col justify-between bg-[var(--mono-background)] p-6 text-[var(--mono-foreground)]"
+				aria-hidden="true"
+			>
+				<div className="flex items-center justify-between font-mono text-[0.65rem] text-[var(--mono-muted-foreground)] uppercase tracking-[0.2em]">
+					<span>Open pack</span>
+					<span>01</span>
+				</div>
+				<p className="max-w-56 font-medium text-5xl leading-[0.92] tracking-[-0.055em]">
+					Ink and paper.
+				</p>
+				<div className="flex items-center gap-2">
+					<span className="rounded-full bg-[var(--mono-primary)] px-4 py-1.5 font-medium text-[var(--mono-primary-foreground)] text-xs">
+						Get the pack
+					</span>
+					<span className="rounded-full border border-[var(--mono-border)] px-4 py-1.5 text-xs">
+						Tokens
+					</span>
+				</div>
+			</div>
+		);
+	}
+
 	if (pack.slug === "command") {
 		return (
 			<div

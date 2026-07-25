@@ -58,12 +58,13 @@ Installation governs *future* agent work. It does not migrate or redesign an exi
 
 📖 See [`CONTEXT.md`](CONTEXT.md) for the full domain vocabulary and [`docs/product/brief.md`](docs/product/brief.md) for the product brief.
 
-## 🗂️ Launch catalog
+## 🗂️ Official Catalog
 
 | Access | Pack | Direction |
 | --- | --- | --- |
 | Open | **Foundation** | Neutral, crisp, highly legible B2B SaaS |
 | Open | **Editorial** | Warm, spacious, content-forward SaaS |
+| Open | **Mono** | Monochrome, high-contrast, content-forward interfaces for media & creative tooling |
 | Premium | **Command** | Dark-first, dense, technical interfaces for developer & ops products |
 | Premium | **Signal** | Bold geometry, expressive color, richer motion for AI & creative products |
 
