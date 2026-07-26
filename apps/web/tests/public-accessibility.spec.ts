@@ -6,6 +6,7 @@ const publicRoutes = [
 	"/catalog",
 	"/catalog/foundation",
 	"/catalog/editorial",
+	"/catalog/mono",
 	"/catalog/command",
 	"/catalog/signal",
 	"/premium",

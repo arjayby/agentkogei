@@ -20,6 +20,7 @@ const openDesignPacks = [
 		releases: ["1.0.0", "1.1.0"],
 	},
 	{ identity: "editorial", designPack: "Editorial", releases: ["1.0.0"] },
+	{ identity: "mono", designPack: "Mono", releases: ["1.0.0"] },
 ] as const;
 
 function runDesignContractInstallation(
@@ -91,20 +92,23 @@ test("the landing page surfaces the newest Pack Releases, the full catalog, and 
 		name: "The newest Pack Releases.",
 	});
 	await expect(
+		recent.getByRole("link", { name: /Mono 1\.0\.0/ }),
+	).toHaveAttribute("href", "/catalog/mono");
+	await expect(
 		recent.getByRole("link", { name: /Signal 1\.0\.0/ }),
 	).toHaveAttribute("href", "/catalog/signal");
-	await expect(
-		recent.getByRole("link", { name: /Foundation 1\.1\.0/ }),
-	).toHaveAttribute("href", "/catalog/foundation");
 
 	const catalog = page.getByRole("region", {
-		name: "One catalog. Four directions.",
+		name: "One catalog. Five directions.",
 	});
 	await expect(
 		catalog.getByRole("link", { name: /Foundation.*Open/i }),
 	).toBeVisible();
 	await expect(
 		catalog.getByRole("link", { name: /Editorial.*Open/i }),
+	).toBeVisible();
+	await expect(
+		catalog.getByRole("link", { name: /Mono.*Open/i }),
 	).toBeVisible();
 	await expect(
 		catalog.getByRole("link", { name: /Command.*Premium/i }),
@@ -133,7 +137,7 @@ test("every page carries a footer naming the catalog, the product surfaces, and 
 	await page.goto("/docs");
 	const footer = page.getByRole("contentinfo");
 
-	for (const pack of ["Foundation", "Editorial", "Command", "Signal"]) {
+	for (const pack of ["Foundation", "Editorial", "Mono", "Command", "Signal"]) {
 		await expect(
 			footer.getByRole("link", { name: pack, exact: true }),
 		).toHaveAttribute("href", `/catalog/${pack.toLowerCase()}`);
@@ -171,6 +175,9 @@ test("the Official Catalog presents every launch pack with its access class", as
 		catalog.getByRole("link", { name: /Editorial.*Open/i }),
 	).toBeVisible();
 	await expect(
+		catalog.getByRole("link", { name: /Mono.*Open/i }),
+	).toBeVisible();
+	await expect(
 		catalog.getByRole("link", { name: /Command.*Premium/i }),
 	).toBeVisible();
 	await expect(
@@ -187,6 +194,11 @@ for (const pack of [
 	{
 		slug: "editorial",
 		name: "Editorial",
+		access: "Open",
+	},
+	{
+		slug: "mono",
+		name: "Mono",
 		access: "Open",
 	},
 	{
@@ -263,6 +275,7 @@ const launchPacks = [
 		release: "1.1.0",
 	},
 	{ slug: "editorial", name: "Editorial", access: "Open", release: "1.0.0" },
+	{ slug: "mono", name: "Mono", access: "Open", release: "1.0.0" },
 	{ slug: "command", name: "Command", access: "Premium", release: "1.0.0" },
 	{ slug: "signal", name: "Signal", access: "Premium", release: "1.0.0" },
 ] as const;

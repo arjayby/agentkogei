@@ -256,6 +256,150 @@ function EditorialSurface({
 	);
 }
 
+function MonoSurface({
+	index,
+	surface,
+}: {
+	index: number;
+	surface: PackSurface;
+}) {
+	const referenceScreen = (() => {
+		switch (surface) {
+			case "Marketing":
+				return (
+					<div className="flex flex-col gap-3">
+						<p className="max-w-56 font-medium text-3xl leading-[0.95] tracking-[-0.045em]">
+							Your content in color.
+						</p>
+						<div className="flex items-center gap-2">
+							<span className="rounded-full bg-[var(--mono-primary)] px-4 py-1.5 text-[var(--mono-primary-foreground)] text-xs">
+								Get the pack
+							</span>
+							<span className="rounded-full border border-[var(--mono-border)] px-4 py-1.5 text-xs">
+								Tokens
+							</span>
+						</div>
+					</div>
+				);
+			case "Authentication":
+				return (
+					<div className="max-w-56 space-y-2">
+						<p className="font-medium text-2xl tracking-[-0.03em]">
+							Welcome back.
+						</p>
+						<div className="h-9 rounded-[var(--mono-radius-md)] border border-[var(--mono-border)] bg-[var(--mono-card)]" />
+						<div className="h-9 rounded-full bg-[var(--mono-primary)]" />
+					</div>
+				);
+			case "Onboarding":
+				return (
+					<div className="space-y-3">
+						<p className="font-mono text-[0.65rem] text-[var(--mono-muted-foreground)] uppercase tracking-[0.16em]">
+							Step 0{index + 1} of 04
+						</p>
+						<div className="grid grid-cols-4 gap-1.5">
+							{[0, 1, 2, 3].map((step) => (
+								<div
+									key={step}
+									className={`h-1 rounded-full ${step <= 1 ? "bg-[var(--mono-foreground)]" : "bg-[var(--mono-border)]"}`}
+								/>
+							))}
+						</div>
+						<p className="font-medium">Connect the supplied Project</p>
+					</div>
+				);
+			case "Dashboard":
+				return (
+					<div className="grid grid-cols-2 gap-2">
+						{["24", "98%"].map((figure, figureIndex) => (
+							<div
+								key={figure}
+								className="rounded-[var(--mono-radius-lg)] border border-[var(--mono-border)] bg-[var(--mono-card)] p-3"
+							>
+								<p className="font-medium text-3xl tabular-nums tracking-[-0.03em]">
+									{figure}
+								</p>
+								<p className="font-mono text-[0.6rem] text-[var(--mono-muted-foreground)] uppercase tracking-[0.14em]">
+									{figureIndex === 0 ? "Active" : "Healthy"}
+								</p>
+							</div>
+						))}
+					</div>
+				);
+			case "Table":
+				return (
+					<div className="space-y-px text-xs">
+						{[
+							"Release · Status · Date",
+							"1.0.0 · Published · Jul 25",
+							"0.9.0 · Archived · Jun 10",
+						].map((row) => (
+							<div
+								key={row}
+								className="border-[var(--mono-border)] border-t py-2 tabular-nums"
+							>
+								{row}
+							</div>
+						))}
+					</div>
+				);
+			case "Form":
+				return (
+					<div className="max-w-60 space-y-2 text-xs">
+						<p>Visible field label</p>
+						<div className="h-9 rounded-[var(--mono-radius-md)] border border-[var(--mono-border)] bg-[var(--mono-card)]" />
+						<p className="text-[var(--mono-muted-foreground)]">
+							Persistent help and error area
+						</p>
+					</div>
+				);
+			case "Settings":
+				return (
+					<div className="space-y-2 text-xs">
+						{[
+							"Appearance · System",
+							"Notifications · On",
+							"Delete Project · Review",
+						].map((row) => (
+							<p
+								key={row}
+								className="border-[var(--mono-border)] border-t pt-2"
+							>
+								{row}
+							</p>
+						))}
+					</div>
+				);
+			case "States":
+				return (
+					<div className="grid grid-cols-2 gap-2 text-xs">
+						{["Loading", "Empty", "Error", "Success"].map((state) => (
+							<div
+								key={state}
+								className="rounded-[var(--mono-radius-md)] border border-[var(--mono-border)] bg-[var(--mono-card)] p-2"
+							>
+								{state}
+							</div>
+						))}
+					</div>
+				);
+		}
+	})();
+
+	return (
+		<div className="flex min-h-64 flex-col justify-between bg-[var(--mono-background)] p-5 text-[var(--mono-foreground)]">
+			<div className="flex items-center justify-between font-mono text-[0.65rem] text-[var(--mono-muted-foreground)] uppercase tracking-[0.16em]">
+				<span>{surface}</span>
+				<span>Mono / 0{index + 1}</span>
+			</div>
+			<div className="flex flex-col gap-4">
+				<div className="h-px bg-[var(--mono-border)]" />
+				{referenceScreen}
+			</div>
+		</div>
+	);
+}
+
 function CommandSurface({
 	index,
 	surface,
@@ -608,6 +752,10 @@ export function PackPreviewEvidence({ pack }: { pack: DesignPack }) {
 					return (
 						<EditorialSurface key={surface} index={index} surface={surface} />
 					);
+				}
+
+				if (pack.slug === "mono") {
+					return <MonoSurface key={surface} index={index} surface={surface} />;
 				}
 
 				if (pack.slug === "command") {
