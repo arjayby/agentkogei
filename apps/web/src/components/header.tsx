@@ -1,12 +1,10 @@
 import type { Route } from "next";
 import Link from "next/link";
 
-import BuilderAccountMenu from "./builder-account-menu";
 import { ModeToggle } from "./mode-toggle";
 
 const navigation = [
 	{ href: "/catalog" as Route, label: "Catalog" },
-	{ href: "/premium" as Route, label: "Premium" },
 	{ href: "/docs" as Route, label: "Docs" },
 ] as const;
 
@@ -38,7 +36,6 @@ export default function Header() {
 				</nav>
 				<div className="flex items-center gap-2">
 					<ModeToggle />
-					<BuilderAccountMenu />
 				</div>
 			</div>
 		</header>

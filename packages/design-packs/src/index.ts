@@ -18,8 +18,6 @@ export {
 	type DesignContractInstallationPlan,
 	formatDesignContractDiff,
 	formatDesignContractPreview,
-	PackCredentialRequiredError,
-	PremiumAccessRequiredError,
 	planDesignContractInstallation,
 	retrieveDesignContract,
 } from "./design-contract-installation";

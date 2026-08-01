@@ -8,13 +8,6 @@ const nextConfig: NextConfig = {
 	experimental: {
 		serverSourceMaps: false,
 	},
-	redirects: async () => [
-		{
-			source: "/pricing",
-			destination: "/premium",
-			permanent: true,
-		},
-	],
 };
 
 export default nextConfig;

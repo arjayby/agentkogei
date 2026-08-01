@@ -24,6 +24,15 @@ const openDesignPacks = [
 	{ identity: "command", designPack: "Command", releases: ["1.0.0"] },
 ] as const;
 
+const removedNavigationDestinations = [
+	"/pricing",
+	"/premium",
+	"/login",
+	"/dashboard",
+	"/terms",
+	"/privacy",
+] as const;
+
 function runDesignContractInstallation(
 	project: string,
 	selector: string,
@@ -117,16 +126,45 @@ test("the landing page surfaces the newest Pack Releases and the four-system cat
 	await expect(catalog.getByRole("link", { name: /Signal/i })).toHaveCount(0);
 });
 
-test("the retired pricing route permanently redirects to Premium", async ({
+test("removed commercial, account, authorization, and telemetry routes are absent", async ({
 	request,
 }) => {
-	const response = await request.get("/pricing", { maxRedirects: 0 });
+	const removedRoutes = [
+		...removedNavigationDestinations,
+		"/success",
+		"/device",
+		"/device/result",
+		"/test/polar/checkout",
+		"/test/polar/portal",
+		"/api/auth/session",
+		"/api/rpc/privateData",
+		"/api/billing/checkout",
+		"/api/billing/portal",
+		"/api/billing/polar/webhooks",
+		"/api/device/code",
+		"/api/device/token",
+		"/api/device/decision",
+		"/api/pack-credentials/verify",
+		"/api/pack-credentials/example/revoke",
+		"/api/cli-diagnostics",
+		"/api/test/github/authorize",
+		"/api/test/device/pending",
+		"/api/test/device/expire",
+		"/api/test/pack-credentials/scope",
+		"/api/test/polar/complete",
+		"/api/test/polar/events",
+		"/api/test/premium-delivery/observation",
+		"/api/test/premium-delivery/entitlement-events",
+	] as const;
 
-	expect(response.status()).toBe(308);
-	expect(response.headers().location).toBe("/premium");
+	for (const route of removedRoutes) {
+		const response = await request.get(route, { maxRedirects: 0 });
+		expect(response.status(), route).toBe(404);
+		expect(response.headers().location, route).toBeUndefined();
+	}
 });
 
-test("every page carries a footer naming the catalog, the product surfaces, and the license boundary", async ({
+test("every page carries a footer naming the catalog and public product surfaces", async ({
 	page,
 }) => {
 	await page.goto("/docs");
@@ -144,17 +182,25 @@ test("every page carries a footer naming the catalog, the product surfaces, and 
 		footer.getByRole("link", { name: "Docs", exact: true }),
 	).toHaveAttribute("href", "/docs");
 	await expect(
-		footer.getByRole("link", { name: "Premium", exact: true }),
-	).toHaveAttribute("href", "/premium");
-	await expect(
 		footer.getByRole("link", { name: "GitHub", exact: true }),
 	).toHaveAttribute("href", "https://github.com/arjayby/agentkogei");
-	await expect(
-		footer.getByRole("link", { name: "Terms", exact: true }),
-	).toHaveAttribute("href", "/terms");
-	await expect(
-		footer.getByRole("link", { name: "Privacy", exact: true }),
-	).toHaveAttribute("href", "/privacy");
+});
+
+test("public navigation and calls to action expose no commercial or account journeys", async ({
+	page,
+}) => {
+	for (const route of ["/", "/catalog", "/catalog/foundation", "/docs"]) {
+		await page.goto(route);
+		const actionText = (await page.locator("a, button").allInnerTexts()).join(
+			" ",
+		);
+		expect(actionText).not.toMatch(
+			/pricing|premium|subscription|sign in|account|billing|checkout/i,
+		);
+		for (const destination of removedNavigationDestinations) {
+			await expect(page.locator(`a[href="${destination}"]`)).toHaveCount(0);
+		}
+	}
 });
 
 test("the Official Catalog presents exactly Foundation, Editorial, Mono, and public Command", async ({
@@ -300,7 +346,7 @@ for (const pack of launchPacks) {
 }
 
 for (const openPack of openLaunchPacks) {
-	test(`the ${openPack.name} Pack Preview offers its raw Design Contract and account-free access`, async ({
+	test(`the ${openPack.name} Pack Preview offers its raw Design Contract anonymously`, async ({
 		page,
 		request,
 	}) => {
@@ -319,7 +365,7 @@ for (const openPack of openLaunchPacks) {
 			`/contracts/${openPack.slug}/${openPack.release}`,
 		);
 		await expect(
-			installation.getByText("without an AgentKogei account", { exact: false }),
+			installation.getByText("retrieved anonymously", { exact: false }),
 		).toBeVisible();
 		await expect(preview.locator('a[href*="/r/"]')).toHaveCount(0);
 
@@ -680,27 +726,6 @@ for (const openPack of openDesignPacks) {
 	}
 }
 
-test("the diagnostics endpoint accepts only the disclosed non-Project fields", async ({
-	request,
-}) => {
-	const diagnostic = {
-		schema_version: "1.0",
-		command: "add",
-		outcome: "success",
-		platform: "darwin",
-		runtime: "node",
-	};
-	const accepted = await request.post("/api/cli-diagnostics", {
-		data: diagnostic,
-	});
-	expect(accepted.status()).toBe(204);
-
-	const rejected = await request.post("/api/cli-diagnostics", {
-		data: { ...diagnostic, project_name: "private-project" },
-	});
-	expect(rejected.status()).toBe(400);
-});
-
 for (const evaluatedPack of [
 	"Foundation",
 	"Editorial",
@@ -820,42 +845,6 @@ for (const evaluatedPack of [
 	});
 }
 
-test("the Premium page discloses the complete Premium Access offer", async ({
-	page,
-}) => {
-	await page.goto("/premium");
-
-	await expect(page.getByText("$99", { exact: true })).toBeVisible();
-	await expect(
-		page.getByText("one named Builder", { exact: false }),
-	).toBeVisible();
-	await expect(
-		page.getByText("unlimited Projects", { exact: false }),
-	).toBeVisible();
-	await expect(page.getByText("No trial", { exact: false })).toBeVisible();
-	await expect(
-		page.getByText("Billing and refunds", { exact: false }),
-	).toBeVisible();
-	await expect(
-		page.getByText("one Material Release per quarter", { exact: false }),
-	).toBeVisible();
-	await expect(
-		page.getByText("No runtime lock-in", { exact: false }),
-	).toBeVisible();
-	await expect(
-		page.getByText("keeps working in that Project, offline", { exact: false }),
-	).toBeVisible();
-	await expect(
-		page.getByText("unlimited Projects with one add command", { exact: false }),
-	).toBeVisible();
-	await expect(
-		page.getByText(
-			"creative distinctiveness, production depth, and breadth of direction",
-			{ exact: false },
-		),
-	).toBeVisible();
-});
-
 test("public documentation explains Installation and remains usable on mobile", async ({
 	page,
 }) => {
@@ -943,7 +932,6 @@ const responsiveRoutes = [
 	"/",
 	"/catalog",
 	"/catalog/command",
-	"/premium",
 	"/docs",
 ] as const;
 
@@ -959,9 +947,6 @@ for (const route of responsiveRoutes) {
 		});
 		await expect(
 			navigation.getByRole("link", { name: "Catalog", exact: true }),
-		).toBeVisible();
-		await expect(
-			navigation.getByRole("link", { name: "Premium", exact: true }),
 		).toBeVisible();
 		await expect(
 			navigation.getByRole("link", { name: "Docs", exact: true }),

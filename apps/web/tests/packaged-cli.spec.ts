@@ -106,6 +106,41 @@ test("the packed CLI installs current and exact Command releases anonymously", a
 	}
 });
 
+test("the packed CLI exposes no account, credential, authorization, or diagnostics commands", async () => {
+	const runner = packageRunners.find(({ name }) => name === "npx");
+	if (!runner) throw new Error("The npx package runner is unavailable");
+	const project = await mkdtemp(path.join(tmpdir(), "agentkogei-public-cli-"));
+	const configDirectory = path.join(project, ".agentkogei-config");
+
+	try {
+		const { command, arguments: runnerArguments } = runner.command(runTarball);
+		for (const retiredCommand of ["login", "logout", "diagnostics"]) {
+			const result = await runProcess(
+				command,
+				[...runnerArguments, retiredCommand],
+				{
+					cwd: project,
+					environment: {
+						AGENTKOGEI_CONFIG_DIR: configDirectory,
+					},
+				},
+			);
+
+			expect(result.exitCode, retiredCommand).toBe(2);
+			expect(result.stdout, retiredCommand).toBe("");
+			expect(result.stderr, retiredCommand).toContain(
+				"Usage:\n  agentkogei add <pack[@version]> [--yes] [--force]",
+			);
+			expect(result.stderr, retiredCommand).not.toMatch(
+				/login|logout|credential|authorization|diagnostic/i,
+			);
+			expect(existsSync(configDirectory), retiredCommand).toBe(false);
+		}
+	} finally {
+		await rm(project, { recursive: true, force: true });
+	}
+});
+
 test("the published package offers one Node executable and no library entry", async () => {
 	const consumer = await mkdtemp(path.join(tmpdir(), "agentkogei-consumer-"));
 	try {

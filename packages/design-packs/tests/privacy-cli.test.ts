@@ -1,4 +1,5 @@
 import { afterAll, afterEach, describe, expect, test } from "bun:test";
+import { existsSync } from "node:fs";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -19,11 +20,7 @@ type CapturedRequest = {
 	body: string;
 };
 
-/**
- * A server that records every byte it is sent. Privacy is only observable from
- * the outside, so these journeys inspect what left the CLI rather than what it
- * intended to send.
- */
+/** Records every byte sent across the CLI network boundary. */
 function captureServer(
 	respond: (request: Request) => Response | Promise<Response>,
 ) {
@@ -43,17 +40,15 @@ function captureServer(
 	return { requests, server };
 }
 
-const catalogFailure = { current: false };
-const catalog = captureServer(() =>
-	catalogFailure.current
-		? new Response("unavailable", { status: 503 })
-		: new Response(designContract, {
-				headers: {
-					"content-type": "text/markdown; charset=utf-8",
-					"x-agentkogei-design-pack": "Foundation",
-					"x-agentkogei-pack-release": "1.1.0",
-				},
-			}),
+const catalog = captureServer(
+	() =>
+		new Response(designContract, {
+			headers: {
+				"content-type": "text/markdown; charset=utf-8",
+				"x-agentkogei-design-pack": "Foundation",
+				"x-agentkogei-pack-release": "1.1.0",
+			},
+		}),
 );
 
 async function temporaryDirectory(label: string) {
@@ -91,11 +86,7 @@ async function runCli(
 	return { stdout, stderr, exitCode };
 }
 
-/**
- * A Project full of exactly the things a Builder never wants disclosed: its
- * name, its contents, its prompts, its generated interface, its dependencies,
- * and its Git remote.
- */
+/** Sensitive Project data that must never cross the Installation boundary. */
 const projectCanaries = [
 	"private-file-contents-canary",
 	"private-prompt-canary",
@@ -126,7 +117,6 @@ async function privateProject() {
 }
 
 afterEach(async () => {
-	catalogFailure.current = false;
 	catalog.requests.length = 0;
 	await Promise.all(
 		temporaryDirectories
@@ -140,9 +130,9 @@ afterAll(() => {
 });
 
 describe("CLI privacy boundary", () => {
-	test("adding a Design Contract contacts only the Official Catalog and sends nothing about the Project", async () => {
+	test("Installation sends only one anonymous Design Contract request", async () => {
 		const projectDirectory = await privateProject();
-		const configDirectory = await temporaryDirectory("agentkogei-config-");
+		const configDirectory = path.join(projectDirectory, ".agentkogei-config");
 		const diagnostics = captureServer(
 			() => new Response(null, { status: 204 }),
 		);
@@ -160,7 +150,9 @@ describe("CLI privacy boundary", () => {
 			expect(catalog.requests).toHaveLength(1);
 			expect(catalog.requests[0]?.method).toBe("GET");
 			expect(catalog.requests[0]?.body).toBe("");
+			expect(catalog.requests[0]?.headers.authorization).toBeUndefined();
 			expect(diagnostics.requests).toEqual([]);
+			expect(existsSync(configDirectory)).toBe(false);
 
 			const outbound = JSON.stringify(catalog.requests);
 			expect(outbound).not.toContain(path.basename(projectDirectory));
@@ -172,126 +164,30 @@ describe("CLI privacy boundary", () => {
 		}
 	});
 
-	test("discloses the exact diagnostics destination and fields before separate opt-in", async () => {
+	test("account, credential, browser authorization, and diagnostics commands are absent", async () => {
 		const projectDirectory = await temporaryDirectory("agentkogei-project-");
-		const configDirectory = await temporaryDirectory("agentkogei-config-");
-		const diagnostics = captureServer(
-			() => new Response(null, { status: 204 }),
-		);
-		const options = {
-			projectDirectory,
-			configDirectory,
-			environment: {
-				AGENTKOGEI_DIAGNOSTICS_URL: diagnostics.server.url.href,
-			},
-		};
+		const configDirectory = path.join(projectDirectory, ".agentkogei-config");
+		const retiredCommands = [
+			["login", "--server", catalog.server.url.origin],
+			["logout"],
+			["diagnostics", "status"],
+		] as const;
 
-		try {
-			const preview = await runCli(["diagnostics", "enable"], options);
-			expect(preview.exitCode).toBe(2);
-			expect(preview.stdout).toContain(
-				`Destination: ${diagnostics.server.url.href}`,
-			);
-			for (const field of [
-				"schema_version",
-				"command",
-				"outcome",
-				"platform",
-				"runtime",
-			]) {
-				expect(preview.stdout).toContain(field);
-			}
-			expect(preview.stdout).toContain("No Project names, paths, Git remotes");
-			expect(preview.stderr).toContain("--yes");
-			expect(diagnostics.requests).toEqual([]);
-
-			const disabled = await runCli(["diagnostics", "status"], options);
-			expect(disabled.stdout).toContain("Diagnostics: disabled");
-
-			const enabled = await runCli(["diagnostics", "enable", "--yes"], options);
-			expect(enabled.exitCode).toBe(0);
-			expect(enabled.stdout).toContain("Diagnostics enabled");
-			const status = await runCli(["diagnostics", "status"], options);
-			expect(status.stdout).toContain("Diagnostics: enabled");
-			expect(diagnostics.requests).toEqual([]);
-		} finally {
-			diagnostics.server.stop(true);
-		}
-	});
-
-	test("sends only the disclosed diagnostics fields and explicit opt-out stops delivery", async () => {
-		const projectDirectory = await privateProject();
-		const configDirectory = await temporaryDirectory("agentkogei-config-");
-		const diagnostics = captureServer(
-			() => new Response(null, { status: 204 }),
-		);
-		const options = {
-			projectDirectory,
-			configDirectory,
-			environment: {
-				AGENTKOGEI_DIAGNOSTICS_URL: diagnostics.server.url.href,
-			},
-		};
-		const reported = () =>
-			diagnostics.requests.map((request) => {
-				const payload = JSON.parse(request.body) as Record<string, string>;
-				return [payload.command, payload.outcome];
+		for (const arguments_ of retiredCommands) {
+			const result = await runCli([...arguments_], {
+				projectDirectory,
+				configDirectory,
 			});
-
-		try {
-			expect(
-				(await runCli(["diagnostics", "enable", "--yes"], options)).exitCode,
-			).toBe(0);
-
-			const added = await runCli(["add", "foundation", "--yes"], options);
-			expect(added.exitCode, added.stderr).toBe(0);
-			expect(diagnostics.requests).toHaveLength(1);
-			expect(JSON.parse(diagnostics.requests[0]?.body ?? "")).toEqual({
-				schema_version: "1.0",
-				command: "add",
-				outcome: "success",
-				platform: process.platform,
-				runtime: "node",
-			});
-
-			catalogFailure.current = true;
-			const refused = await runCli(["add", "foundation", "--yes"], options);
-			expect(refused.exitCode).toBe(1);
-			const loggedOut = await runCli(["logout"], options);
-			expect(loggedOut.exitCode, loggedOut.stderr).toBe(0);
-			expect(reported()).toEqual([
-				["add", "success"],
-				["add", "error"],
-				["logout", "success"],
-			]);
-
-			// An unknown command is never itself reported, because the word a
-			// Builder typed could be anything about their Project.
-			const unknown = await runCli(
-				["private-project-name-must-not-be-diagnostic-data"],
-				options,
+			expect(result.exitCode, arguments_[0]).toBe(2);
+			expect(result.stdout).toBe("");
+			expect(result.stderr).toContain(
+				"Usage:\n  agentkogei add <pack[@version]> [--yes] [--force]",
 			);
-			expect(unknown.exitCode).toBe(2);
-			expect(diagnostics.requests).toHaveLength(3);
-
-			const disabled = await runCli(["diagnostics", "disable"], options);
-			expect(disabled.exitCode).toBe(0);
-			expect(disabled.stdout).toContain("Diagnostics disabled");
-			catalogFailure.current = false;
-			const afterOptOut = await runCli(
-				["add", "foundation", "--yes", "--force"],
-				options,
+			expect(result.stderr).not.toMatch(
+				/login|logout|credential|authorization|diagnostic/i,
 			);
-			expect(afterOptOut.exitCode, afterOptOut.stderr).toBe(0);
-			expect(diagnostics.requests).toHaveLength(3);
-
-			const outbound = JSON.stringify(diagnostics.requests);
-			expect(outbound).not.toContain(path.basename(projectDirectory));
-			for (const canary of projectCanaries) {
-				expect(outbound).not.toContain(canary);
-			}
-		} finally {
-			diagnostics.server.stop(true);
+			expect(catalog.requests, arguments_[0]).toEqual([]);
+			expect(existsSync(configDirectory), arguments_[0]).toBe(false);
 		}
 	});
 });
