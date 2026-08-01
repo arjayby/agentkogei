@@ -213,6 +213,9 @@ test("public pages use Design System vocabulary without retired product claims",
 		expect(visibleCopy, route).not.toMatch(
 			/\b(?:pack|packs|premium|pricing|subscription|signal)\b/i,
 		);
+		expect(visibleCopy, route).not.toMatch(
+			/(^|\n)Access(?:\s*·[^\n]*)?(?=\n|$)/i,
+		);
 		await expect(page.getByText("Open", { exact: true })).toHaveCount(0);
 	}
 });

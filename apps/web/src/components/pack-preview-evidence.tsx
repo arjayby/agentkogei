@@ -215,7 +215,7 @@ function EditorialSurface({
 						{[
 							"Reading preferences · System",
 							"Notifications · On",
-							"Access · Review",
+							"Sharing · Review",
 						].map((row) => (
 							<p
 								key={row}
@@ -522,7 +522,7 @@ function CommandSurface({
 						{[
 							["Runtime", "Production"],
 							["Notifications", "3 routes"],
-							["Access", "12 members"],
+							["Reviewers", "12 members"],
 							["Danger zone", "Review"],
 						].map(([label, value]) => (
 							<div

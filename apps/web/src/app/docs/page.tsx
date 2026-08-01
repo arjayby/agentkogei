@@ -101,11 +101,11 @@ export default function DocsPage() {
 						</div>
 						<div className="mt-8 flex max-w-3xl flex-col gap-5 text-base text-muted-foreground leading-8">
 							<p>
-								Re-running add is the only way to move to another Design System
-								Release. Replacing an existing DESIGN.md shows the diff and asks
-								directly; unattended replacement requires both --yes and
-								--force. Removing a Design System is an ordinary Project edit:
-								delete DESIGN.md and the marked AGENTS.md block.
+								Running add again is the only way to move to another Design
+								System Release. Replacing an existing DESIGN.md shows the diff
+								and asks directly; unattended replacement requires both --yes
+								and --force. Removing a Design System is an ordinary Project
+								edit: delete DESIGN.md and the marked AGENTS.md block.
 							</p>
 						</div>
 					</section>
