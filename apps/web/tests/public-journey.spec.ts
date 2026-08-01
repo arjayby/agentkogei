@@ -163,10 +163,10 @@ test("every page carries a footer naming the catalog and public product surfaces
 	await page.goto("/docs");
 	const footer = page.getByRole("contentinfo");
 
-	for (const pack of ["Foundation", "Editorial", "Mono", "Command"]) {
+	for (const designSystem of ["Foundation", "Editorial", "Mono", "Command"]) {
 		await expect(
-			footer.getByRole("link", { name: pack, exact: true }),
-		).toHaveAttribute("href", `/catalog/${pack.toLowerCase()}`);
+			footer.getByRole("link", { name: designSystem, exact: true }),
+		).toHaveAttribute("href", `/catalog/${designSystem.toLowerCase()}`);
 	}
 	await expect(
 		footer.getByRole("link", { name: "Catalog", exact: true }),
@@ -255,7 +255,7 @@ test("the Official Catalog presents exactly Foundation, Editorial, Mono, and Com
 	await expect(catalog.getByRole("link", { name: /Signal/i })).toHaveCount(0);
 });
 
-for (const pack of [
+for (const designSystem of [
 	{
 		slug: "foundation",
 		name: "Foundation",
@@ -273,14 +273,14 @@ for (const pack of [
 		name: "Command",
 	},
 ] as const) {
-	test(`${pack.name} launch smoke exposes its Design System Preview, compatibility, and evaluation evidence`, async ({
+	test(`${designSystem.name} launch smoke exposes its Design System Preview, compatibility, and evaluation evidence`, async ({
 		page,
 	}) => {
-		await page.goto(`/catalog/${pack.slug}`);
+		await page.goto(`/catalog/${designSystem.slug}`);
 		const product = page.getByRole("main");
 
 		await expect(
-			product.getByRole("heading", { name: pack.name, exact: true }),
+			product.getByRole("heading", { name: designSystem.name, exact: true }),
 		).toBeVisible();
 		await expect(
 			product.getByText("React / Next.js · Tailwind CSS v4 · shadcn/ui", {
@@ -294,7 +294,7 @@ for (const pack of [
 			),
 		).toBeVisible();
 		await expect(
-			product.getByLabel(`${pack.name} rendered Design System Preview`),
+			product.getByLabel(`${designSystem.name} rendered Design System Preview`),
 		).toBeVisible();
 	});
 }
@@ -476,10 +476,12 @@ test("a Builder can anonymously retrieve the complete Foundation Design System R
 	expect(response.headers()["x-agentkogei-design-system-release"]).toBe(
 		"1.0.0",
 	);
+	expect(response.headers()["x-agentkogei-design-pack"]).toBeUndefined();
+	expect(response.headers()["x-agentkogei-pack-release"]).toBeUndefined();
 	// An exact Design System Release is immutable, so it may be cached forever.
 	expect(response.headers()["cache-control"]).toContain("immutable");
 	const contract = await response.text();
-	expect(contract).toContain("# Foundation Interface System");
+	expect(contract).toContain("# Foundation Design System");
 	expect(contract).toContain("## Final validation checklist");
 
 	await page.goto("/catalog/foundation");
@@ -501,7 +503,7 @@ test("a Builder can preview, retrieve, and distinguish the Editorial Design Syst
 	expect(response.status()).toBe(200);
 	expect(response.headers()["x-agentkogei-design-system"]).toBe("Editorial");
 	const contract = await response.text();
-	expect(contract).toContain("# Editorial Interface System");
+	expect(contract).toContain("# Editorial Design System");
 	expect(contract).toContain("Warmth comes from restraint");
 
 	await page.goto("/catalog/editorial");
@@ -595,7 +597,7 @@ test("Command is public while current and exact Signal selectors are ordinarily 
 		);
 		expect(response.headers()["cache-control"]).toContain("public");
 		expect(response.headers()["www-authenticate"]).toBeUndefined();
-		expect(await response.text()).toContain("# Command Interface System");
+		expect(await response.text()).toContain("# Command Design System");
 	}
 	expect(currentCommand.headers()["cache-control"]).not.toContain("immutable");
 	expect(exactCommand.headers()["cache-control"]).toContain("immutable");
@@ -643,12 +645,12 @@ for (const publishedDesignSystem of publicDesignSystems) {
 			currentRelease,
 		);
 		const contract = await current.text();
-		expect(contract).toContain(`# ${designSystem} Interface System`);
+		expect(contract).toContain(`# ${designSystem} Design System`);
 		expect(contract).toContain("\n## Final validation checklist\n");
 		// The Official Catalog serves a document a Project can read on its own,
 		// so nothing a Builder never receives may reach it.
 		for (const machineMetadata of [
-			"pack-evaluation.json",
+			"design-system-evaluation.json",
 			"agentkogei.manifest.json",
 			".agentkogei/",
 			"registry:item",
@@ -670,7 +672,7 @@ for (const publishedDesignSystem of publicDesignSystems) {
 			const response = await request.get(retiredPath);
 			expect(response.status(), retiredPath).toBe(404);
 			expect(await response.text()).not.toContain(
-				`# ${designSystem} Interface System`,
+				`# ${designSystem} Design System`,
 			);
 		}
 	});
@@ -734,8 +736,8 @@ for (const publishedDesignSystem of publicDesignSystems) {
 			);
 			const agents = await readFile(path.join(project, "AGENTS.md"), "utf8");
 			expect(agents).toContain(existingInstructions);
-			expect(agents).toContain("<!-- agentkogei:design-pack:start -->");
-			expect(agents.match(/agentkogei:design-pack:start/g)).toHaveLength(1);
+			expect(agents).toContain("<!-- agentkogei:design-system:start -->");
+			expect(agents.match(/agentkogei:design-system:start/g)).toHaveLength(1);
 			expect(agents).toContain("`DESIGN.md`");
 			expect(existsSync(path.join(project, ".agentkogei"))).toBe(false);
 		} finally {
@@ -776,13 +778,13 @@ for (const publishedDesignSystem of publicDesignSystems) {
 	}
 }
 
-for (const evaluatedPack of [
+for (const evaluatedDesignSystem of [
 	"Foundation",
 	"Editorial",
 	"Mono",
 	"Command",
 ] as const) {
-	test(`${evaluatedPack} evaluation renders every required screen across evaluated modes`, async ({
+	test(`${evaluatedDesignSystem} evaluation renders every required screen across evaluated modes`, async ({
 		page,
 	}) => {
 		const screens = [
@@ -847,9 +849,9 @@ for (const evaluatedPack of [
 				reducedMotion: mode.reducedMotion,
 				forcedColors: mode.forcedColors,
 			});
-			await page.goto(`/catalog/${evaluatedPack.toLowerCase()}`);
+			await page.goto(`/catalog/${evaluatedDesignSystem.toLowerCase()}`);
 			const preview = page.getByLabel(
-				`${evaluatedPack} rendered Design System Preview`,
+				`${evaluatedDesignSystem} rendered Design System Preview`,
 			);
 			for (const screen of screens) {
 				await expect(preview.getByText(screen, { exact: true })).toBeVisible();

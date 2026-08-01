@@ -66,7 +66,7 @@ try {
 		await page.locator("body > header").evaluate((header) => {
 			header.style.display = "none";
 		});
-		await page.getByLabel("Command rendered Pack Preview").screenshot({
+		await page.getByLabel("Command rendered Design System Preview").screenshot({
 			path: path.join(outputArgument, `${mode.name}-preview.png`),
 		});
 		await context.close();

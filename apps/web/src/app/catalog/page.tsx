@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 
-import { PackCard } from "@/components/pack-card";
+import { DesignSystemCard } from "@/components/design-system-card";
 import { designSystems } from "@/lib/catalog";
 
 export const metadata: Metadata = {
@@ -35,7 +35,7 @@ export default function CatalogPage() {
 			>
 				<div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-2">
 					{designSystems.map((designSystem, index) => (
-						<PackCard
+						<DesignSystemCard
 							key={designSystem.slug}
 							designSystem={designSystem}
 							index={index}

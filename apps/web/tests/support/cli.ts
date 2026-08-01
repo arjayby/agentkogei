@@ -8,7 +8,7 @@ import path from "node:path";
 export const cliPath = path.resolve(
 	process.cwd(),
 	process.env.AGENTKOGEI_CLI_PATH ??
-		"../../packages/design-packs/dist/agentkogei.js",
+		"../../packages/design-systems/dist/agentkogei.js",
 );
 
 /**

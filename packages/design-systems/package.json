@@ -1,0 +1,33 @@
+{
+	"name": "agentkogei",
+	"version": "0.1.0",
+	"description": "Give your AI coding agents one durable Design Contract.",
+	"license": "MIT",
+	"type": "module",
+	"engines": {
+		"node": ">=20"
+	},
+	"bin": {
+		"agentkogei": "./dist/agentkogei.js"
+	},
+	"files": [
+		"dist",
+		"LICENSE",
+		"README.md"
+	],
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"build": "rm -rf dist && bun build ./src/install-cli.ts --target=node --outfile=./dist/agentkogei.js",
+		"check-types": "tsc --noEmit",
+		"distribution:package": "bun run build && bun run scripts/build-package-archive.ts",
+		"test": "bun test --timeout 30000",
+		"validate": "bun run src/cli.ts"
+	},
+	"devDependencies": {
+		"@agentkogei/config": "workspace:*",
+		"typescript": "catalog:",
+		"zod": "catalog:"
+	}
+}

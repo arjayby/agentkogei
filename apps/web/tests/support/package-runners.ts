@@ -3,13 +3,13 @@ import path from "node:path";
 
 /**
  * The publishable `agentkogei` tarball, written here by the harness's
- * `cli:pack` step so every runner exercises the artifact that would be
+ * `cli:package` step so every runner exercises the artifact that would be
  * published rather than the TypeScript sources.
  */
 export const cliTarball = path.resolve(
 	process.cwd(),
 	process.env.AGENTKOGEI_CLI_TARBALL ??
-		"../../packages/design-packs/.distribution/agentkogei.tgz",
+		"../../packages/design-systems/.distribution/agentkogei.tgz",
 );
 
 /**

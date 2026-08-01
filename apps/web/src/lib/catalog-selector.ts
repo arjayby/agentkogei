@@ -1,5 +1,5 @@
 /**
- * Renders the Design Pack selector a caller asked for so an unresolved request
+ * Renders the Design System selector a caller asked for so an unresolved request
  * can name it without echoing arbitrary request text back to the caller.
  */
 export function catalogSelector(identity: string, version?: string) {

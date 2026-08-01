@@ -10,10 +10,9 @@ import { ArrowLeft, ArrowUpRight, Check } from "lucide-react";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-
+import { DesignSystemArtwork } from "@/components/design-system-artwork";
+import { DesignSystemPreviewEvidence } from "@/components/design-system-preview-evidence";
 import { InstallationCommand } from "@/components/installation-command";
-import { PackArtwork } from "@/components/pack-artwork";
-import { PackPreviewEvidence } from "@/components/pack-preview-evidence";
 import {
 	contractSections,
 	currentRelease,
@@ -98,7 +97,7 @@ export default async function DesignSystemPage({
 							</Link>
 						</div>
 					</div>
-					<PackArtwork pack={designSystem} />
+					<DesignSystemArtwork designSystem={designSystem} />
 				</div>
 			</section>
 
@@ -131,7 +130,7 @@ export default async function DesignSystemPage({
 							public, so you can read every word before you add it.
 						</p>
 					</div>
-					<PackPreviewEvidence pack={designSystem} />
+					<DesignSystemPreviewEvidence designSystem={designSystem} />
 				</div>
 			</section>
 

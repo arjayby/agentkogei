@@ -1,8 +1,8 @@
-import openDesignContracts from "@/generated/open-design-contracts.json";
+import designContracts from "@/generated/design-contracts.json";
 import { catalogSelector } from "@/lib/catalog-selector";
 
 /**
- * The Official Catalog delivers a Pack Release as the exact raw Markdown bytes
+ * The Official Catalog delivers a Design System Release as the exact raw Markdown bytes
  * a Project installs as `DESIGN.md`. Catalog facts a Builder must see before
  * consenting travel as response headers so the installed document stays free of
  * machine metadata.
@@ -13,22 +13,24 @@ export type DeliveredDesignContract = {
 	markdown: string;
 };
 
-type OpenDesignPackCatalog = Record<
+type DesignContractCatalog = Record<
 	string,
 	{ currentRelease: string; releases: Record<string, DeliveredDesignContract> }
 >;
 
-const catalog: OpenDesignPackCatalog = openDesignContracts;
+const catalog: DesignContractCatalog = designContracts;
 
 /**
  * Resolves an Official Catalog identity to its Design Contract. Omitting the
- * version selects the current Pack Release; an explicit version selects that
+ * version selects the current Design System Release; an explicit version selects that
  * immutable release only.
  */
-export function findOpenDesignContract(identity: string, version?: string) {
-	const pack = Object.hasOwn(catalog, identity) ? catalog[identity] : undefined;
-	if (!pack) return null;
-	return pack.releases[version ?? pack.currentRelease] ?? null;
+export function findDesignContract(identity: string, version?: string) {
+	const designSystem = Object.hasOwn(catalog, identity)
+		? catalog[identity]
+		: undefined;
+	if (!designSystem) return null;
+	return designSystem.releases[version ?? designSystem.currentRelease] ?? null;
 }
 
 export function designContractResponse(
@@ -44,9 +46,6 @@ export function designContractResponse(
 				: "public, max-age=300",
 			"x-agentkogei-design-system": contract.designSystem,
 			"x-agentkogei-design-system-release": contract.designSystemRelease,
-			// TODO(#73): remove legacy response aliases after consumer migration.
-			"x-agentkogei-design-pack": contract.designSystem,
-			"x-agentkogei-pack-release": contract.designSystemRelease,
 		},
 	});
 }
@@ -73,9 +72,9 @@ export async function deliverDesignContract(
 ) {
 	const { identity, version } = selection;
 	const selector = catalogSelector(identity, version);
-	const openContract = findOpenDesignContract(identity, version);
-	if (openContract) {
-		return designContractResponse(openContract, {
+	const contract = findDesignContract(identity, version);
+	if (contract) {
+		return designContractResponse(contract, {
 			immutable: version !== undefined,
 		});
 	}

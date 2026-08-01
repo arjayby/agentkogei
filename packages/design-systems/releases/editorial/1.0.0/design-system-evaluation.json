@@ -1,0 +1,71 @@
+{
+	"schemaVersion": "2.0",
+	"id": "editorial",
+	"designSystem": "Editorial",
+	"designSystemRelease": {
+		"version": "1.0.0",
+		"publishedAt": "2026-07-19",
+		"immutable": true
+	},
+	"publisher": "AgentKogei",
+	"designContract": {
+		"sha256": "8979f6e09ca397429fa0612d6b5f184c67aed6c5edf8184f26a6082f05d2bf67"
+	},
+	"compatibility": {
+		"frameworks": ["react", "nextjs"],
+		"react": ">=18 <20",
+		"nextjs": ">=15 <17",
+		"tailwind": ">=4 <5",
+		"ui": "shadcn/ui"
+	},
+	"evaluation": {
+		"status": "passed",
+		"standard": "WCAG 2.2 Level AA",
+		"screens": [
+			"marketing",
+			"authentication",
+			"onboarding",
+			"dashboard",
+			"table",
+			"form",
+			"settings",
+			"states"
+		],
+		"viewports": ["1440x900", "390x844", "320x844"],
+		"colorSchemes": ["light", "dark"],
+		"reducedMotion": true,
+		"agentGenerationRuns": 3,
+		"automatedChecks": [
+			"structure",
+			"accessibility",
+			"responsive overflow",
+			"text reflow and source order",
+			"color contrast"
+		],
+		"humanReview": {
+			"status": "passed",
+			"reviewedAt": "2026-07-19",
+			"rightsReview": "passed"
+		},
+		"evidence": ["evaluation/report.json", "evaluation/agent-runs.md"]
+	},
+	"preview": {
+		"summary": "Warm, spacious, and content-forward SaaS.",
+		"surfaces": [
+			"marketing",
+			"authentication",
+			"onboarding",
+			"dashboard",
+			"table",
+			"form",
+			"settings",
+			"states"
+		],
+		"route": "/catalog/editorial"
+	},
+	"changelog": {
+		"summary": "Initial Published Design System with complete cross-surface guidance, evaluated implementation direction, and WCAG 2.2 AA evidence.",
+		"breaking": false,
+		"migrationNotes": null
+	}
+}
