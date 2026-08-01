@@ -12,62 +12,38 @@ _Avoid_: user, developer, customer
 The software repository in which a Builder and their AI coding agents create a product.
 _Avoid_: repo, codebase, workspace
 
-**Design Pack**:
-A versioned, self-contained body of agent-readable design direction that defines an Interface System. Each Design Pack is delivered to a Project as a single Design Contract.
-_Avoid_: design.md, template, theme
+**Design System**:
+A versioned, self-contained body of agent-readable visual and behavioral direction for a product. Each Design System Release is delivered to a Project as a single Design Contract.
+_Avoid_: design pack, interface system, design.md, template, theme
 
 **Design Contract**:
-The root `DESIGN.md` document through which an Installed Pack tells a Project's AI coding agents which Interface System to follow. It contains the complete Pack Release as a single, inspectable artifact.
+The root `DESIGN.md` document through which an Installed Design System directs a Project's AI coding agents. It contains the complete Design System Release as a single, inspectable artifact.
 _Avoid_: prompt, style guide, rules file
 
-**Open Design Pack**:
-A complete Design Pack that anyone may discover and install without an AgentKogei account and whose contents may be freely used, modified, and shared.
-_Avoid_: free pack, public pack
-
-**Premium Design Pack**:
-A private Design Pack available only to Builders with Premium Access. Its paid value comes from greater creative distinctiveness, production depth, and breadth of direction rather than withholding baseline quality.
-_Avoid_: paid pack, private pack
-
-**Premium Access**:
-The annual subscription entitlement that allows one named Builder to retrieve every Premium Design Pack and its Pack Releases from the Official Catalog for unlimited Projects while the subscription is active. Open Design Packs never require Premium Access.
-_Avoid_: all access, purchase, ownership
-
 **Official Catalog**:
-The curated collection of Open and Premium Design Packs published and maintained by AgentKogei. It contains only first-party packs.
+The curated collection of MIT-licensed Design Systems published and maintained by AgentKogei. It contains only first-party systems.
 _Avoid_: marketplace, store, registry
 
-**Published Pack**:
-A Design Pack admitted to the Official Catalog after meeting its completeness and quality requirements. Open and Premium Design Packs must meet the same publication standard.
-_Avoid_: listing, teaser pack
+**Published Design System**:
+A Design System admitted to the Official Catalog after meeting its completeness and quality requirements.
+_Avoid_: listing, pack
 
-**Pack Evaluation**:
-The standardized generation, automated validation, and human review process that a Design Pack release must pass before it can become a Published Pack, including evidence that its reference implementation meets WCAG 2.2 Level AA.
+**Design System Evaluation**:
+The standardized generation, automated validation, and human review process that a Design System Release must pass before its Design System can be published, including evidence that its reference implementation meets WCAG 2.2 Level AA.
 _Avoid_: demo, preview, test
 
-**Pack Preview**:
-The public visual and descriptive evidence showing a Design Pack's Interface System, coverage, compatibility, and evaluation status without exposing its gated Design Contract.
-_Avoid_: demo, sample pack, source
+**Design System Preview**:
+The public visual and descriptive evidence showing a Design System's direction, coverage, compatibility, and evaluation status.
+_Avoid_: demo, sample, source
 
-**Material Release**:
-A new Published Pack or a substantial expansion of an existing pack with additional patterns, deeper direction, and Pack Evaluation coverage. Compatibility fixes and minor refinements are not Material Releases.
-_Avoid_: update, patch, content drop
-
-**Pack Release**:
-An immutable, semantically versioned edition of a Design Pack. Patch releases preserve generated output, minor releases add compatible direction, and major releases may intentionally change a Project's interface.
+**Design System Release**:
+An immutable, semantically versioned edition of a Design System. Patch releases preserve generated output, minor releases add compatible direction, and major releases may intentionally change a Project's interface.
 _Avoid_: latest, update, revision
 
 **Installation**:
-The declarative, non-executable application of a Design Pack to a Project through the AgentKogei CLI. It places the Design Contract at the Project root and makes it discoverable through the Project's agent instructions, but does not migrate an existing interface.
+The declarative, non-executable application of a Design System to a Project through the AgentKogei CLI. It places the Design Contract at the Project root and makes it discoverable through the Project's agent instructions, but does not migrate an existing interface.
 _Avoid_: download, copy
 
-**Installed Pack**:
-A Design Pack applied to a Project as its root Design Contract and agent-instruction reference. It remains usable without AgentKogei authentication or network access; a Project can have at most one Installed Pack at a time.
-_Avoid_: hosted pack, linked pack
-
-**Pack Credential**:
-A revocable authorization that lets one CLI installation retrieve Premium Design Packs on behalf of a Builder with Premium Access. It grants no billing or account-management authority.
-_Avoid_: password, API key, session
-
-**Interface System**:
-The visual and behavioral rules spanning a product's marketing, authentication and onboarding, and application surfaces, including layout, components, interaction states, responsiveness, motion, and accessibility. It excludes product-specific workflows, information architecture, business logic, and copy.
-_Avoid_: visual style, brand, app template
+**Installed Design System**:
+A Design System applied to a Project as its root Design Contract and agent-instruction reference. It remains usable without AgentKogei or network access; a Project can have at most one Installed Design System at a time.
+_Avoid_: installed pack, hosted system, linked system
