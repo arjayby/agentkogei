@@ -1,4 +1,3 @@
-import { Badge } from "@agentkogei/ui/components/badge";
 import { buttonVariants } from "@agentkogei/ui/components/button";
 import {
 	Card,
@@ -18,46 +17,49 @@ import { PackPreviewEvidence } from "@/components/pack-preview-evidence";
 import {
 	contractSections,
 	currentRelease,
-	designPacks,
-	getDesignPack,
+	designSystems,
+	getDesignSystem,
 } from "@/lib/catalog";
 
-type PackPageProps = {
+type DesignSystemPageProps = {
 	params: Promise<{ slug: string }>;
 };
 
 export function generateStaticParams() {
-	return designPacks.map(({ slug }) => ({ slug }));
+	return designSystems.map(({ slug }) => ({ slug }));
 }
 
 export async function generateMetadata({
 	params,
-}: PackPageProps): Promise<Metadata> {
+}: DesignSystemPageProps): Promise<Metadata> {
 	const { slug } = await params;
-	const pack = getDesignPack(slug);
+	const designSystem = getDesignSystem(slug);
 
-	if (!pack) {
+	if (!designSystem) {
 		return {};
 	}
 
 	return {
-		title: `${pack.name} Pack Preview | AgentKogei`,
-		description: pack.direction,
+		title: `${designSystem.name} Design System Preview | AgentKogei`,
+		description: `${designSystem.name} Design System: ${designSystem.direction}`,
 	};
 }
 
-export default async function PackPage({ params }: PackPageProps) {
+export default async function DesignSystemPage({
+	params,
+}: DesignSystemPageProps) {
 	const { slug } = await params;
-	const pack = getDesignPack(slug);
+	const designSystem = getDesignSystem(slug);
 
-	if (!pack) {
+	if (!designSystem) {
 		notFound();
 	}
 
-	const release = currentRelease(pack);
-	const actionHref = `/contracts/${pack.slug}/${release.version}` as Route;
-	const actionLabel = `Read the ${pack.name} ${release.version} Design Contract`;
-	const accessNote = `${pack.name} is retrieved anonymously from the public Official Catalog. The CLI shows the absolute target and the exact change before it writes anything.`;
+	const release = currentRelease(designSystem);
+	const actionHref =
+		`/contracts/${designSystem.slug}/${release.version}` as Route;
+	const actionLabel = `Read the ${designSystem.name} ${release.version} Design Contract`;
+	const retrievalNote = `${designSystem.name} is retrieved anonymously from the public Official Catalog. The CLI shows the absolute target and the exact change before it writes anything.`;
 
 	return (
 		<main>
@@ -76,16 +78,15 @@ export default async function PackPage({ params }: PackPageProps) {
 			<section className="border-b px-5 py-12 sm:px-8 lg:px-12 lg:py-20">
 				<div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.7fr)] lg:items-end">
 					<div className="flex flex-col gap-8">
-						<div className="flex flex-wrap items-center gap-3 font-mono text-muted-foreground text-xs uppercase tracking-[0.2em]">
-							<Badge variant="outline">{pack.access}</Badge>
-							<span aria-hidden="true">/</span>
-							<span>Release {release.version}</span>
+						<div className="font-mono text-muted-foreground text-xs uppercase tracking-[0.2em]">
+							Design System Release {release.version}
 						</div>
 						<h1 className="font-medium text-6xl tracking-[-0.065em] sm:text-8xl">
-							{pack.name}
+							{designSystem.name}
 						</h1>
 						<p className="max-w-2xl text-pretty text-2xl text-muted-foreground leading-9">
-							{pack.direction} Built for {pack.bestFor.toLowerCase()}.
+							{designSystem.direction} Built for{" "}
+							{designSystem.bestFor.toLowerCase()}.
 						</p>
 						<div>
 							<Link
@@ -97,14 +98,14 @@ export default async function PackPage({ params }: PackPageProps) {
 							</Link>
 						</div>
 					</div>
-					<PackArtwork pack={pack} />
+					<PackArtwork pack={designSystem} />
 				</div>
 			</section>
 
 			<section className="border-b px-5 py-12 sm:px-8 lg:px-12">
 				<div className="mx-auto max-w-7xl">
-					<InstallationCommand identity={pack.slug}>
-						{accessNote}
+					<InstallationCommand identity={designSystem.slug}>
+						{retrievalNote}
 					</InstallationCommand>
 				</div>
 			</section>
@@ -116,7 +117,7 @@ export default async function PackPage({ params }: PackPageProps) {
 				<div className="mx-auto max-w-7xl">
 					<div className="mb-10 flex flex-col gap-3">
 						<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.2em]">
-							Pack Preview / Rendered evidence
+							Design System Preview / Rendered evidence
 						</p>
 						<h2
 							id="preview-heading"
@@ -130,7 +131,7 @@ export default async function PackPage({ params }: PackPageProps) {
 							public, so you can read every word before you add it.
 						</p>
 					</div>
-					<PackPreviewEvidence pack={pack} />
+					<PackPreviewEvidence pack={designSystem} />
 				</div>
 			</section>
 
@@ -151,13 +152,13 @@ export default async function PackPage({ params }: PackPageProps) {
 									<dt className="font-mono text-muted-foreground text-xs uppercase">
 										Compatibility
 									</dt>
-									<dd>{pack.compatibility}</dd>
+									<dd>{designSystem.compatibility}</dd>
 								</div>
 								<div className="grid gap-2 bg-background p-4 sm:grid-cols-[10rem_1fr]">
 									<dt className="font-mono text-muted-foreground text-xs uppercase">
 										Evaluation
 									</dt>
-									<dd>{pack.evaluation}</dd>
+									<dd>{designSystem.evaluation}</dd>
 								</div>
 								<div className="grid gap-2 bg-background p-4 sm:grid-cols-[10rem_1fr]">
 									<dt className="font-mono text-muted-foreground text-xs uppercase">
@@ -165,7 +166,7 @@ export default async function PackPage({ params }: PackPageProps) {
 									</dt>
 									<dd>
 										<ul className="flex flex-col gap-1">
-											{pack.evaluationEvidence.map((evidence) => (
+											{designSystem.evaluationEvidence.map((evidence) => (
 												<li key={evidence}>{evidence}</li>
 											))}
 										</ul>
@@ -186,7 +187,7 @@ export default async function PackPage({ params }: PackPageProps) {
 						</CardHeader>
 						<CardContent>
 							<ul className="grid gap-3 sm:grid-cols-2">
-								{pack.coverage.map((item) => (
+								{designSystem.coverage.map((item) => (
 									<li key={item} className="flex gap-3 text-sm leading-6">
 										<Check aria-hidden="true" className="mt-1 shrink-0" />
 										{item}
@@ -225,11 +226,11 @@ export default async function PackPage({ params }: PackPageProps) {
 								<h2>Release history</h2>
 							</CardTitle>
 							<CardDescription>
-								Immutable semantic Pack Releases, newest first.
+								Immutable semantic Design System Releases, newest first.
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="flex flex-col gap-8">
-							{pack.releases.map((published) => (
+							{designSystem.releases.map((published) => (
 								<div key={published.version} className="flex flex-col gap-2">
 									<div className="grid gap-2 sm:grid-cols-[8rem_1fr]">
 										<span className="font-mono">v{published.version}</span>

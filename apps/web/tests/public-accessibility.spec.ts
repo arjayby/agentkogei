@@ -11,16 +11,24 @@ const publicRoutes = [
 	"/docs",
 ] as const;
 
+const viewports = [
+	{ name: "desktop", width: 1440, height: 900 },
+	{ name: "mobile", width: 390, height: 844 },
+] as const;
+
 for (const route of publicRoutes) {
-	test(`${route} has no detectable WCAG A or AA violations`, async ({
-		page,
-	}) => {
-		await page.goto(route);
+	for (const viewport of viewports) {
+		test(`${route} has no detectable WCAG A or AA violations at the ${viewport.name} viewport`, async ({
+			page,
+		}) => {
+			await page.setViewportSize(viewport);
+			await page.goto(route);
 
-		const results = await new AxeBuilder({ page })
-			.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
-			.analyze();
+			const results = await new AxeBuilder({ page })
+				.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+				.analyze();
 
-		expect(results.violations).toEqual([]);
-	});
+			expect(results.violations).toEqual([]);
+		});
+	}
 }

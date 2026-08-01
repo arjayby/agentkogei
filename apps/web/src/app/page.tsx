@@ -4,18 +4,17 @@ import type { Route } from "next";
 import Link from "next/link";
 
 import {
-	type InstallablePack,
+	type InstallableDesignSystem,
 	InstallationCommand,
 } from "@/components/installation-command";
 import { PackCard } from "@/components/pack-card";
-import { designPacks, recentPackReleases } from "@/lib/catalog";
+import { designSystems, recentDesignSystemReleases } from "@/lib/catalog";
 
-const installablePacks: readonly InstallablePack[] = designPacks.map(
-	({ slug, name, access }) => ({ slug, name, access }),
-);
+const installableDesignSystems: readonly InstallableDesignSystem[] =
+	designSystems.map(({ slug, name }) => ({ slug, name }));
 
 export default function Home() {
-	const recent = recentPackReleases(2);
+	const recent = recentDesignSystemReleases(2);
 
 	return (
 		<main>
@@ -26,7 +25,7 @@ export default function Home() {
 							Design direction for agent-built products
 						</p>
 						<h1 className="max-w-5xl text-balance font-medium text-5xl tracking-[-0.055em] sm:text-7xl lg:text-[6.5rem] lg:leading-[0.92]">
-							One interface system. Every agent. Every screen.
+							One Design System. Every agent. Every screen.
 						</h1>
 					</div>
 					<div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(26rem,30rem)] lg:items-end lg:gap-16">
@@ -52,7 +51,7 @@ export default function Home() {
 									Read the Docs
 								</Link>
 							</div>
-							<InstallationCommand packs={installablePacks} />
+							<InstallationCommand designSystems={installableDesignSystems} />
 						</div>
 					</div>
 				</div>
@@ -71,19 +70,19 @@ export default function Home() {
 							id="recent-heading"
 							className="text-balance font-medium text-3xl tracking-tight sm:text-5xl"
 						>
-							The newest Pack Releases.
+							The newest Design System Releases.
 						</h2>
 					</div>
 					<div className="grid gap-px border bg-border sm:grid-cols-2">
-						{recent.map(({ pack, release }) => (
+						{recent.map(({ designSystem, release }) => (
 							<Link
-								key={pack.slug}
-								href={`/catalog/${pack.slug}` as Route}
+								key={designSystem.slug}
+								href={`/catalog/${designSystem.slug}` as Route}
 								className="group flex min-h-56 flex-col justify-between gap-6 bg-background p-6 outline-none transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring"
 							>
 								<div className="flex items-baseline justify-between gap-4 font-mono text-xs">
 									<span>
-										{pack.name} {release.version}
+										{designSystem.name} {release.version}
 									</span>
 									<span className="text-muted-foreground">
 										{release.publishedAt}
@@ -93,7 +92,7 @@ export default function Home() {
 									{release.changelog}
 								</p>
 								<span className="inline-flex items-center gap-1 font-mono text-muted-foreground text-xs uppercase tracking-[0.14em]">
-									View pack
+									View Design System
 									<ArrowUpRight className="size-3.5" aria-hidden="true" />
 								</span>
 							</Link>
@@ -128,8 +127,12 @@ export default function Home() {
 						</Link>
 					</div>
 					<div className="grid gap-5 md:grid-cols-2">
-						{designPacks.map((pack, index) => (
-							<PackCard key={pack.slug} pack={pack} index={index} />
+						{designSystems.map((designSystem, index) => (
+							<PackCard
+								key={designSystem.slug}
+								designSystem={designSystem}
+								index={index}
+							/>
 						))}
 					</div>
 				</div>

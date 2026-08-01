@@ -10,10 +10,6 @@ import { catalogSelector } from "@/lib/catalog-selector";
 export type DeliveredDesignContract = {
 	designSystem: string;
 	designSystemRelease: string;
-	/** @deprecated Remove in issue #73. */
-	designPack: string;
-	/** @deprecated Remove in issue #73. */
-	packRelease: string;
 	markdown: string;
 };
 
@@ -48,9 +44,9 @@ export function designContractResponse(
 				: "public, max-age=300",
 			"x-agentkogei-design-system": contract.designSystem,
 			"x-agentkogei-design-system-release": contract.designSystemRelease,
-			// TODO(#73): remove legacy headers once issues #71 and #72 migrate.
-			"x-agentkogei-design-pack": contract.designPack,
-			"x-agentkogei-pack-release": contract.packRelease,
+			// TODO(#73): remove legacy response aliases after consumer migration.
+			"x-agentkogei-design-pack": contract.designSystem,
+			"x-agentkogei-pack-release": contract.designSystemRelease,
 		},
 	});
 }
