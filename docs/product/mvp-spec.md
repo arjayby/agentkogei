@@ -16,7 +16,7 @@ Each Design System Release is one inert Markdown Design Contract named `DESIGN.m
 
 The CLI retrieves a current or exact release, validates it, previews the change, and installs it after explicit consent. Installation writes one root `DESIGN.md` and one marked `AGENTS.md` reference. It preserves unrelated files, never executes supplied code, and leaves the Project unchanged on failure.
 
-## User stories
+## Builder stories
 
 1. As a Builder, I want to compare four complete Design Systems so that I can choose a coherent direction for my Project.
 2. As a Builder, I want to inspect each Design System Preview and its evaluation evidence so that I can assess direction, coverage, compatibility, and quality.
