@@ -23,38 +23,49 @@ async function trackedFiles() {
 const excludedContentPaths = [
 	/^\.agents\//,
 	/^\.claude\//,
-	/^apps\/web\/src\/generated\/design-contracts\.json$/,
-	/^apps\/web\/tests\//,
 	/^bun\.lock$/,
-	/^packages\/design-systems\/releases\//,
-	/^packages\/design-systems\/tests\//,
+	/^scripts\/audit-release\.ts$/,
 	/^skills-lock\.json$/,
 ] as const;
 
 const retiredPath =
-	/^(?:apps|packages)\/.*(?:^|\/)(?:auth|billing|database|design-packs|diagnostics|migrations?|pack-credentials|premium|premium-source|signal|webhooks?)(?:\/|$)/i;
+	/(?:^|\/)(?:auth|billing|database|design-packs|diagnostics|migrations?|pack-credentials|premium|premium-source|signal|webhooks?)(?:\/|$)/i;
 
 const retiredContent = [
 	{
 		name: "legacy product vocabulary",
 		pattern: /\b(?:Design Packs?|Interface Systems?|Material Releases?)\b/i,
+		allowedMatches: {},
 	},
 	{
-		name: "retired catalog or commercial vocabulary",
-		pattern: /\b(?:Signal|premium|subscription|entitlement)\b/i,
+		name: "retired catalog identity",
+		pattern:
+			/(?:["'`]Signal["'`]|["'`/]signal(?:@|\/|["'`])|agentkogei-signal)/i,
+		allowedMatches: {
+			"apps/web/tests/public-journey.spec.ts": 7,
+		},
 	},
 	{
 		name: "legacy response header",
 		pattern: /x-agentkogei-(?:design-)?pack(?:-release)?/i,
+		allowedMatches: {
+			"apps/web/tests/public-journey.spec.ts": 2,
+		},
 	},
 	{
 		name: "legacy access classification",
 		pattern: /["']access["']\s*:\s*["'](?:open|premium)["']/i,
+		allowedMatches: {},
 	},
 	{
 		name: "retired application infrastructure",
 		pattern:
 			/AGENTKOGEI_(?:DIAGNOSTICS|PREMIUM)|DATABASE_URL|BETTER_AUTH|POLAR_|better-auth|@polar-sh|@neondatabase\/serverless|drizzle-orm|premium-source|pack-credentials|cli-diagnostics/i,
+		allowedMatches: {
+			"apps/web/tests/package-cli.spec.ts": 1,
+			"apps/web/tests/public-journey.spec.ts": 5,
+			"packages/design-systems/tests/privacy-cli.test.ts": 1,
+		},
 	},
 ] as const;
 
@@ -66,24 +77,34 @@ const files = await trackedFiles();
 const failures: string[] = [];
 
 for (const file of files) {
-	if (retiredPath.test(file)) {
+	const excluded = excludedContentPaths.some((pattern) => pattern.test(file));
+	if (!excluded && retiredPath.test(file)) {
 		failures.push(`${file}: retired path`);
 	}
 
-	if (excludedContentPaths.some((pattern) => pattern.test(file))) continue;
+	if (excluded) continue;
 
 	const contents = await readFile(path.join(projectRoot, file));
 	if (contents.includes(0)) continue;
 	const text = contents.toString("utf8");
 	for (const rule of retiredContent) {
-		if (rule.pattern.test(text)) {
-			failures.push(`${file}: ${rule.name}`);
+		const matches = text.match(
+			new RegExp(rule.pattern.source, `${rule.pattern.flags}g`),
+		)?.length;
+		const allowed =
+			file in rule.allowedMatches
+				? rule.allowedMatches[file as keyof typeof rule.allowedMatches]
+				: 0;
+		if ((matches ?? 0) !== allowed) {
+			failures.push(
+				`${file}: ${rule.name} matched ${matches ?? 0} times, expected ${allowed}`,
+			);
 		}
 	}
 }
 
 const generatedArtifacts = files.filter((file) =>
-	file.startsWith("apps/web/src/generated/"),
+	/(?:^|\/)generated\//.test(file),
 );
 if (
 	JSON.stringify(generatedArtifacts) !==

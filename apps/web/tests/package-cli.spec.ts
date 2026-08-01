@@ -62,6 +62,7 @@ async function requestInspectionCatalog() {
 	return {
 		requests,
 		url: `http://127.0.0.1:${address.port}/contracts/`,
+		port: address.port,
 		close: () => new Promise<void>((resolve) => server.close(() => resolve())),
 	};
 }
@@ -174,11 +175,78 @@ test("the packed CLI installs every current and exact Design System Release anon
 	}
 });
 
-test("the packed CLI sends only the anonymous Design Contract request", async () => {
+test("the packed CLI preserves consent, replacement, and failure rollback", async ({
+	request,
+}) => {
 	const runner = packageRunners.find(({ name }) => name === "npx");
 	if (!runner) throw new Error("The npx package runner is unavailable");
+	const packedRunner = runner;
+	const project = await mkdtemp(
+		path.join(tmpdir(), "agentkogei-packed-safety-"),
+	);
+	const existingInstructions =
+		"# Project agents\n\nKeep the Makefile current.\n";
+	const unrelatedContents = "Project data that Installation must preserve.\n";
+	const handWrittenContract = "# Hand written direction\n";
+	const agentsPath = path.join(project, "AGENTS.md");
+	const contractPath = path.join(project, "DESIGN.md");
+	const unrelatedPath = path.join(project, "UNRELATED.txt");
+
+	async function runPackedAdd(arguments_: string[]) {
+		const { command, arguments: runnerArguments } =
+			packedRunner.command(runTarball);
+		return runProcess(command, [...runnerArguments, "add", ...arguments_], {
+			cwd: project,
+			environment: {
+				AGENTKOGEI_CONTRACT_CATALOG_URL: contractCatalogUrl,
+			},
+		});
+	}
+
+	try {
+		await Promise.all([
+			writeFile(agentsPath, existingInstructions),
+			writeFile(unrelatedPath, unrelatedContents),
+		]);
+
+		const unconfirmed = await runPackedAdd(["foundation"]);
+		expect(unconfirmed.exitCode).toBe(2);
+		expect(unconfirmed.stdout).toContain("Create");
+		expect(existsSync(contractPath)).toBe(false);
+		expect(await readFile(agentsPath, "utf8")).toBe(existingInstructions);
+
+		await writeFile(contractPath, handWrittenContract);
+		const unforced = await runPackedAdd(["foundation", "--yes"]);
+		expect(unforced.exitCode).toBe(2);
+		expect(unforced.stderr).toContain("--yes --force");
+		expect(await readFile(contractPath, "utf8")).toBe(handWrittenContract);
+		expect(await readFile(agentsPath, "utf8")).toBe(existingInstructions);
+
+		const failed = await runPackedAdd(["foundation@9.9.9", "--yes", "--force"]);
+		expect(failed.exitCode).toBe(1);
+		expect(await readFile(contractPath, "utf8")).toBe(handWrittenContract);
+		expect(await readFile(agentsPath, "utf8")).toBe(existingInstructions);
+		expect(await readFile(unrelatedPath, "utf8")).toBe(unrelatedContents);
+
+		const replaced = await runPackedAdd(["foundation", "--yes", "--force"]);
+		expect(replaced.exitCode, replaced.stderr).toBe(0);
+		expect(replaced.stdout).toContain("Replace");
+		const delivered = await request.get("/contracts/foundation");
+		expect(await readFile(contractPath, "utf8")).toBe(await delivered.text());
+		const agents = await readFile(agentsPath, "utf8");
+		expect(agents.startsWith(existingInstructions)).toBe(true);
+		expect(agents.match(/agentkogei:design-system:start/g)).toHaveLength(1);
+		expect(await readFile(unrelatedPath, "utf8")).toBe(unrelatedContents);
+	} finally {
+		await rm(project, { recursive: true, force: true });
+	}
+});
+
+test("the packed CLI sends only the anonymous Design Contract request", async () => {
 	const project = await mkdtemp(path.join(tmpdir(), "private-project-canary-"));
 	const catalog = await requestInspectionCatalog();
+	const networkLog = path.join(project, "network.log");
+	const networkMonitor = path.join(project, "network-monitor.cjs");
 	const projectCanaries = [
 		"private-file-contents-canary",
 		"private-prompt-canary",
@@ -195,26 +263,54 @@ test("the packed CLI sends only the anonymous Design Contract request", async ()
 			writeFile(path.join(project, "GENERATED.tsx"), projectCanaries[2]),
 			writeFile(
 				path.join(project, "package.json"),
-				JSON.stringify({ dependencies: { [projectCanaries[3]]: "1.0.0" } }),
+				JSON.stringify({ private: true }),
 			),
 			mkdir(path.join(project, ".git")),
 		]);
+		const installed = await runProcess("npm", ["install", runTarball], {
+			cwd: project,
+		});
+		expect(installed.exitCode, installed.stderr).toBe(0);
+		await writeFile(
+			path.join(project, "package.json"),
+			JSON.stringify({ dependencies: { [projectCanaries[3]]: "1.0.0" } }),
+		);
 		await writeFile(
 			path.join(project, ".git/config"),
 			`[remote "origin"]\nurl = https://example.test/${projectCanaries[4]}\n`,
 		);
+		await writeFile(
+			networkMonitor,
+			`const fs = require("node:fs");
+const net = require("node:net");
+const originalConnect = net.Socket.prototype.connect;
+net.Socket.prototype.connect = function (...args) {
+	const target = args[0];
+	fs.appendFileSync(
+		process.env.AGENTKOGEI_NETWORK_LOG,
+		JSON.stringify(typeof target === "object" ? target : args.slice(0, 2)) + "\\n",
+	);
+	return originalConnect.apply(this, args);
+};
+`,
+		);
 
-		const { command, arguments: runnerArguments } = runner.command(runTarball);
+		const executable = path.join(
+			project,
+			"node_modules/agentkogei/dist/agentkogei.js",
+		);
 		const added = await runProcess(
-			command,
-			[...runnerArguments, "add", "foundation", "--yes"],
+			"node",
+			[executable, "add", "foundation", "--yes"],
 			{
 				cwd: project,
 				environment: {
 					AGENTKOGEI_CONTRACT_CATALOG_URL: catalog.url,
 					AGENTKOGEI_DIAGNOSTICS_URL: new URL("../diagnostics", catalog.url)
 						.href,
+					AGENTKOGEI_NETWORK_LOG: networkLog,
 					AGENTKOGEI_PACK_CREDENTIAL: projectCanaries[5],
+					NODE_OPTIONS: `--require=${networkMonitor}`,
 				},
 			},
 		);
@@ -227,6 +323,13 @@ test("the packed CLI sends only the anonymous Design Contract request", async ()
 			body: "",
 		});
 		expect(catalog.requests[0]?.headers.authorization).toBeUndefined();
+		const connections = (await readFile(networkLog, "utf8"))
+			.trim()
+			.split("\n")
+			.map((line) => JSON.parse(line) as Record<string, unknown>);
+		expect(connections).toHaveLength(1);
+		expect(JSON.stringify(connections[0])).toContain("127.0.0.1");
+		expect(JSON.stringify(connections[0])).toContain(String(catalog.port));
 
 		const outbound = JSON.stringify(catalog.requests);
 		expect(outbound).not.toContain(path.basename(project));
