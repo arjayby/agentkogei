@@ -18,33 +18,8 @@ const retiredTransportMarkers = [
 	"ui.shadcn.com/schema/registry",
 ];
 
-/**
- * Every byte of every gated Design Contract the build has been provisioned
- * with. A protected Pack Release is the raw Markdown a Project installs, so the
- * whole document is the marker that must not reach a build artifact. A build
- * provisioned with no protected release simply has none to look for.
- */
-function gatedDesignContracts() {
-	const contracts: string[] = [];
-	for (const variable of [
-		"COMMAND_PREMIUM_RELEASE",
-		"SIGNAL_PREMIUM_RELEASE",
-	] as const) {
-		const serialized = process.env[variable];
-		if (!serialized) continue;
-		try {
-			const release = JSON.parse(serialized) as { markdown?: string };
-			if (release.markdown) contracts.push(release.markdown);
-		} catch {
-			throw new Error(`${variable} is not valid JSON`);
-		}
-	}
-	return contracts;
-}
-
-const gatedContracts = gatedDesignContracts();
-const forbiddenBytes = [...retiredTransportMarkers, ...gatedContracts].map(
-	(marker) => Buffer.from(marker),
+const forbiddenBytes = retiredTransportMarkers.map((marker) =>
+	Buffer.from(marker),
 );
 
 async function filesBelow(directory: string): Promise<string[]> {
@@ -73,10 +48,10 @@ for (const file of await filesBelow(buildRoot)) {
 
 if (leakedFiles.length > 0) {
 	throw new Error(
-		`Retired registry payloads or gated Design Contract bytes appeared in build artifacts:\n${leakedFiles.join("\n")}`,
+		`Retired registry payloads appeared in build artifacts:\n${leakedFiles.join("\n")}`,
 	);
 }
 
 console.log(
-	`Verified: no retired registry payload and none of ${gatedContracts.length} gated Design Contracts appear in build artifacts.`,
+	"Verified: no retired registry payload appears in build artifacts.",
 );

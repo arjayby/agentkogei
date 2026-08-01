@@ -65,8 +65,7 @@ Installation governs *future* agent work. It does not migrate or redesign an exi
 | Open | **Foundation** | Neutral, crisp, highly legible B2B SaaS |
 | Open | **Editorial** | Warm, spacious, content-forward SaaS |
 | Open | **Mono** | Monochrome, high-contrast, content-forward interfaces for media & creative tooling |
-| Premium | **Command** | Dark-first, dense, technical interfaces for developer & ops products |
-| Premium | **Signal** | Bold geometry, expressive color, richer motion for AI & creative products |
+| Open | **Command** | Dark-first, dense, technical interfaces for developer & ops products |
 
 Open and Premium packs meet the same completeness, accessibility, and evaluation standard. Premium value comes from greater creative distinctiveness and depth — never from withholding baseline quality.
 

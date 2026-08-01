@@ -1,0 +1,71 @@
+{
+	"schemaVersion": "2.0",
+	"id": "command",
+	"name": "Command",
+	"publisher": "AgentKogei",
+	"release": {
+		"version": "1.0.0",
+		"publishedAt": "2026-07-18",
+		"immutable": true
+	},
+	"access": "open",
+	"designContract": {
+		"sha256": "efa7d710d7494edd1ada72b2020664d71c842869399d0b8a4a5a2957eb43d6eb"
+	},
+	"compatibility": {
+		"frameworks": ["react", "nextjs"],
+		"react": ">=18 <20",
+		"nextjs": ">=15 <17",
+		"tailwind": ">=4 <5",
+		"ui": "shadcn/ui"
+	},
+	"evaluation": {
+		"status": "passed",
+		"standard": "WCAG 2.2 Level AA",
+		"screens": [
+			"marketing",
+			"authentication",
+			"onboarding",
+			"dashboard",
+			"table",
+			"form",
+			"settings",
+			"states"
+		],
+		"viewports": ["1440x900", "390x844"],
+		"colorSchemes": ["light", "dark"],
+		"reducedMotion": true,
+		"agentGenerationRuns": 4,
+		"automatedChecks": [
+			"structure",
+			"accessibility",
+			"responsive overflow",
+			"color contrast"
+		],
+		"humanReview": {
+			"status": "passed",
+			"reviewedAt": "2026-07-18",
+			"rightsReview": "passed"
+		},
+		"evidence": ["evaluation/report.json"]
+	},
+	"preview": {
+		"summary": "Dark-first, dense, and technical.",
+		"surfaces": [
+			"marketing",
+			"authentication",
+			"onboarding",
+			"dashboard",
+			"table",
+			"form",
+			"settings",
+			"states"
+		],
+		"route": "/catalog/command"
+	},
+	"changelog": {
+		"summary": "Initial Published Pack with dense technical patterns and complete state coverage.",
+		"breaking": false,
+		"migrationNotes": null
+	}
+}

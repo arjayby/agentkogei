@@ -7,7 +7,7 @@ export type PackRelease = {
 };
 
 export type DesignPack = {
-	slug: "foundation" | "editorial" | "mono" | "command" | "signal";
+	slug: "foundation" | "editorial" | "mono" | "command";
 	name: string;
 	access: PackAccess;
 	direction: string;
@@ -126,7 +126,7 @@ export const designPacks: readonly DesignPack[] = [
 	{
 		slug: "command",
 		name: "Command",
-		access: "Premium",
+		access: "Open",
 		direction: "Dark-first, dense, and technical.",
 		bestFor: "Developer and operations products",
 		releases: [
@@ -135,25 +135,6 @@ export const designPacks: readonly DesignPack[] = [
 				publishedAt: "July 18, 2026",
 				changelog:
 					"Initial Published Pack with dense technical patterns and complete state coverage.",
-			},
-		],
-		compatibility,
-		evaluation,
-		evaluationEvidence,
-		coverage,
-	},
-	{
-		slug: "signal",
-		name: "Signal",
-		access: "Premium",
-		direction: "Bold geometry, expressive color, and richer motion.",
-		bestFor: "AI and creative products",
-		releases: [
-			{
-				version: "1.0.0",
-				publishedAt: "July 20, 2026",
-				changelog:
-					"Initial Published Pack with expressive motion direction and full surface coverage.",
 			},
 		],
 		compatibility,

@@ -25,7 +25,7 @@ Do not point this check at production first. The migration journal can be checke
 
 The black-box suite observes only browser-visible state, HTTP responses, CLI output and exit status, resulting Project files, and persisted effects exposed by product operations. It covers:
 
-- discovery, Pack Previews, access class, React/Next.js–Tailwind CSS v4–shadcn/ui compatibility, Pack Evaluation, retrieval, and Installation across Foundation, Editorial, Command, and Signal;
+- discovery, Pack Previews, access class, React/Next.js–Tailwind CSS v4–shadcn/ui compatibility, Pack Evaluation, retrieval, and Installation across Foundation, Editorial, Mono, and Command;
 - complete Open Design Packs and the greater distinctiveness and supporting depth of Premium Design Packs without reserving baseline safety, completeness, or accessibility for Premium;
 - deterministic GitHub authorization and Polar Premium Access transitions without live third-party accounts;
 - a controlled Official Catalog serving Open and Premium Design Contracts, plus disposable Projects;

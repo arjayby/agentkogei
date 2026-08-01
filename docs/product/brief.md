@@ -51,8 +51,8 @@ The Official Catalog launches with four first-party packs:
 | --- | --- | --- |
 | Open | Foundation | Neutral, crisp, and highly legible B2B SaaS |
 | Open | Editorial | Warm, spacious, and content-forward SaaS |
-| Premium | Command | Dark-first, dense, technical interfaces for developer and operations products |
-| Premium | Signal | Bold geometry, expressive color, richer motion, and graphic resources for AI and creative products |
+| Open | Mono | Monochrome, high-contrast, content-forward interfaces for media and creative tooling |
+| Open | Command | Dark-first, dense, technical interfaces for developer and operations products |
 
 Open and Premium packs meet the same completeness, accessibility, and evaluation standard. Premium value comes from greater creative distinctiveness, production depth, and breadth of direction rather than withholding baseline quality.
 

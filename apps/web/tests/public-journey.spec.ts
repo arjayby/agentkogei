@@ -21,6 +21,7 @@ const openDesignPacks = [
 	},
 	{ identity: "editorial", designPack: "Editorial", releases: ["1.0.0"] },
 	{ identity: "mono", designPack: "Mono", releases: ["1.0.0"] },
+	{ identity: "command", designPack: "Command", releases: ["1.0.0"] },
 ] as const;
 
 function runDesignContractInstallation(
@@ -71,19 +72,19 @@ test("the landing page composes one add command from a package manager and a Des
 	await installation.getByLabel("Package manager").click();
 	await page.getByRole("option", { name: /bunx/ }).click();
 	await installation.getByLabel("Design Pack").click();
-	await page.getByRole("option", { name: /signal.*Premium/ }).click();
-	await expect(command).toHaveText("bunx agentkogei@latest add signal");
+	await page.getByRole("option", { name: /command.*Open/i }).click();
+	await expect(command).toHaveText("bunx agentkogei@latest add command");
 
 	await installation.getByRole("button", { name: "Copy command" }).click();
 	await expect(
 		installation.getByRole("button", { name: "Copied" }),
 	).toBeVisible();
 	expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
-		"bunx agentkogei@latest add signal",
+		"bunx agentkogei@latest add command",
 	);
 });
 
-test("the landing page surfaces the newest Pack Releases, the full catalog, and the Premium offer", async ({
+test("the landing page surfaces the newest Pack Releases and the four-system catalog", async ({
 	page,
 }) => {
 	await page.goto("/");
@@ -95,11 +96,11 @@ test("the landing page surfaces the newest Pack Releases, the full catalog, and 
 		recent.getByRole("link", { name: /Mono 1\.0\.0/ }),
 	).toHaveAttribute("href", "/catalog/mono");
 	await expect(
-		recent.getByRole("link", { name: /Signal 1\.0\.0/ }),
-	).toHaveAttribute("href", "/catalog/signal");
+		recent.getByRole("link", { name: /Foundation 1\.1\.0/ }),
+	).toHaveAttribute("href", "/catalog/foundation");
 
 	const catalog = page.getByRole("region", {
-		name: "One catalog. Five directions.",
+		name: "One catalog. Four directions.",
 	});
 	await expect(
 		catalog.getByRole("link", { name: /Foundation.*Open/i }),
@@ -111,15 +112,9 @@ test("the landing page surfaces the newest Pack Releases, the full catalog, and 
 		catalog.getByRole("link", { name: /Mono.*Open/i }),
 	).toBeVisible();
 	await expect(
-		catalog.getByRole("link", { name: /Command.*Premium/i }),
+		catalog.getByRole("link", { name: /Command.*Open/i }),
 	).toBeVisible();
-	await expect(
-		catalog.getByRole("link", { name: /Signal.*Premium/i }),
-	).toBeVisible();
-
-	await expect(
-		page.getByRole("link", { name: "Explore Premium Access" }),
-	).toHaveAttribute("href", "/premium");
+	await expect(catalog.getByRole("link", { name: /Signal/i })).toHaveCount(0);
 });
 
 test("the retired pricing route permanently redirects to Premium", async ({
@@ -137,7 +132,7 @@ test("every page carries a footer naming the catalog, the product surfaces, and 
 	await page.goto("/docs");
 	const footer = page.getByRole("contentinfo");
 
-	for (const pack of ["Foundation", "Editorial", "Mono", "Command", "Signal"]) {
+	for (const pack of ["Foundation", "Editorial", "Mono", "Command"]) {
 		await expect(
 			footer.getByRole("link", { name: pack, exact: true }),
 		).toHaveAttribute("href", `/catalog/${pack.toLowerCase()}`);
@@ -162,27 +157,20 @@ test("every page carries a footer naming the catalog, the product surfaces, and 
 	).toHaveAttribute("href", "/privacy");
 });
 
-test("the Official Catalog presents every launch pack with its access class", async ({
+test("the Official Catalog presents exactly Foundation, Editorial, Mono, and public Command", async ({
 	page,
 }) => {
 	await page.goto("/catalog");
-
 	const catalog = page.getByRole("main");
-	await expect(
-		catalog.getByRole("link", { name: /Foundation.*Open/i }),
-	).toBeVisible();
-	await expect(
-		catalog.getByRole("link", { name: /Editorial.*Open/i }),
-	).toBeVisible();
-	await expect(
-		catalog.getByRole("link", { name: /Mono.*Open/i }),
-	).toBeVisible();
-	await expect(
-		catalog.getByRole("link", { name: /Command.*Premium/i }),
-	).toBeVisible();
-	await expect(
-		catalog.getByRole("link", { name: /Signal.*Premium/i }),
-	).toBeVisible();
+
+	for (const designPack of ["Foundation", "Editorial", "Mono", "Command"]) {
+		await expect(
+			catalog.getByRole("link", {
+				name: new RegExp(`${designPack}.*Open`, "i"),
+			}),
+		).toHaveCount(1);
+	}
+	await expect(catalog.getByRole("link", { name: /Signal/i })).toHaveCount(0);
 });
 
 for (const pack of [
@@ -204,12 +192,7 @@ for (const pack of [
 	{
 		slug: "command",
 		name: "Command",
-		access: "Premium",
-	},
-	{
-		slug: "signal",
-		name: "Signal",
-		access: "Premium",
+		access: "Open",
 	},
 ] as const) {
 	test(`${pack.name} launch smoke exposes Pack Preview, access, compatibility, and evaluation evidence`, async ({
@@ -276,14 +259,10 @@ const launchPacks = [
 	},
 	{ slug: "editorial", name: "Editorial", access: "Open", release: "1.0.0" },
 	{ slug: "mono", name: "Mono", access: "Open", release: "1.0.0" },
-	{ slug: "command", name: "Command", access: "Premium", release: "1.0.0" },
-	{ slug: "signal", name: "Signal", access: "Premium", release: "1.0.0" },
+	{ slug: "command", name: "Command", access: "Open", release: "1.0.0" },
 ] as const;
 
 const openLaunchPacks = launchPacks.filter(({ access }) => access === "Open");
-const premiumLaunchPacks = launchPacks.filter(
-	({ access }) => access === "Premium",
-);
 
 for (const pack of launchPacks) {
 	test(`the ${pack.name} Pack Preview shows one add command for every supported package runner`, async ({
@@ -361,36 +340,7 @@ for (const openPack of openLaunchPacks) {
 	});
 }
 
-for (const premiumPack of premiumLaunchPacks) {
-	test(`the ${premiumPack.name} Pack Preview justifies Premium Access without exposing its Design Contract`, async ({
-		page,
-	}) => {
-		await page.goto(`/catalog/${premiumPack.slug}`);
-		const preview = page.getByRole("main");
-		const installation = preview.getByRole("region", {
-			name: "Installation command",
-		});
-
-		for (const premiumValue of [
-			"creative distinctiveness",
-			"production depth",
-			"breadth of direction",
-		]) {
-			await expect(
-				preview.getByText(premiumValue, { exact: false }),
-			).toBeVisible();
-		}
-		await expect(
-			installation.getByText("active Premium Access", { exact: false }),
-		).toBeVisible();
-		await expect(
-			installation.getByText("browser authorization", { exact: false }),
-		).toBeVisible();
-		await expect(preview.locator('a[href^="/contracts/"]')).toHaveCount(0);
-	});
-}
-
-test("a premium Pack Preview shows complete evidence without exposing gated resources", async ({
+test("the public Command Pack Preview shows complete evidence and its raw Design Contract", async ({
 	page,
 }) => {
 	await page.goto("/catalog/command");
@@ -420,10 +370,10 @@ test("a premium Pack Preview shows complete evidence without exposing gated reso
 		).toBeVisible();
 	}
 	await expect(
-		page.getByText(
-			"The Official Catalog delivers the complete Pack Release only to a CLI authorized by a Builder with active Premium Access.",
-		),
-	).toBeVisible();
+		page.getByRole("link", {
+			name: "Read the Command 1.0.0 Design Contract",
+		}),
+	).toHaveAttribute("href", "/contracts/command/1.0.0");
 	await expect(page.getByRole("heading", { name: "Coverage" })).toBeVisible();
 	await expect(
 		page.getByRole("heading", { name: "Inside the Design Contract" }),
@@ -432,34 +382,6 @@ test("a premium Pack Preview shows complete evidence without exposing gated reso
 		page.getByRole("heading", { name: "Release history" }),
 	).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Changelog" })).toBeVisible();
-	await expect(
-		page.getByText("registry payload", { exact: false }),
-	).toHaveCount(0);
-});
-
-test("Signal publicly demonstrates its distinct evaluated Interface System without exposing gated resources", async ({
-	page,
-}) => {
-	await page.goto("/catalog/signal");
-
-	await expect(page.getByRole("heading", { name: "Signal" })).toBeVisible();
-	await expect(page.getByLabel("Signal rendered Pack Preview")).toBeVisible();
-	for (const surfaceEvidence of [
-		"Turn ideas into momentum.",
-		"Enter the studio",
-		"Shape your first signal",
-		"LIVE MOMENTUM",
-		"Color system ready",
-		"Motion preference",
-		"Ready to launch",
-	]) {
-		await expect(
-			page.getByText(surfaceEvidence, { exact: false }),
-		).toBeVisible();
-	}
-	await expect(
-		page.getByText("WCAG 2.2 Level AA", { exact: false }),
-	).toBeVisible();
 	await expect(
 		page.getByText("registry payload", { exact: false }),
 	).toHaveCount(0);
@@ -576,6 +498,51 @@ test("an unresolved Design Contract selector is refused as plain text", async ({
 	expect(unknownRelease.status()).toBe(404);
 });
 
+test("Command is public while current and exact Signal selectors are ordinarily unknown", async ({
+	request,
+}) => {
+	const currentCommand = await request.get("/contracts/command");
+	const exactCommand = await request.get("/contracts/command/1.0.0");
+
+	for (const response of [currentCommand, exactCommand]) {
+		expect(response.status()).toBe(200);
+		expect(response.headers()["content-type"]).toBe(
+			"text/markdown; charset=utf-8",
+		);
+		expect(response.headers()["x-agentkogei-design-pack"]).toBe("Command");
+		expect(response.headers()["x-agentkogei-pack-release"]).toBe("1.0.0");
+		expect(response.headers()["cache-control"]).toContain("public");
+		expect(response.headers()["www-authenticate"]).toBeUndefined();
+		expect(await response.text()).toContain("# Command Interface System");
+	}
+	expect(currentCommand.headers()["cache-control"]).not.toContain("immutable");
+	expect(exactCommand.headers()["cache-control"]).toContain("immutable");
+
+	for (const selector of ["signal", "signal/1.0.0"]) {
+		const response = await request.get(`/contracts/${selector}`);
+		expect(response.status()).toBe(404);
+		expect(response.headers()["content-type"]).toContain("text/plain");
+		expect(response.headers()["cache-control"]).toBe("no-store");
+		expect(await response.text()).toBe(
+			`${selector.replace("/", "@")} is not a Pack Release in the AgentKogei Official Catalog.\n`,
+		);
+	}
+
+	for (const selector of ["signal", "signal@1.0.0"]) {
+		const project = await mkdtemp(path.join(tmpdir(), "agentkogei-signal-"));
+		try {
+			const result = await runDesignContractInstallation(project, selector);
+			expect(result.exitCode).toBe(1);
+			expect(result.stderr).toContain(
+				`Official Catalog has no Design Contract for ${selector} (404)`,
+			);
+			expect(await readdir(project)).toEqual([]);
+		} finally {
+			await rm(project, { recursive: true, force: true });
+		}
+	}
+});
+
 for (const openPack of openDesignPacks) {
 	const { identity, designPack, releases } = openPack;
 	const currentRelease = releases[releases.length - 1] as string;
@@ -593,8 +560,7 @@ for (const openPack of openDesignPacks) {
 		expect(current.headers()["x-agentkogei-pack-release"]).toBe(currentRelease);
 		const contract = await current.text();
 		expect(contract).toContain(`# ${designPack} Interface System`);
-		expect(contract).toContain("\n## Token definitions\n");
-		expect(contract).toContain("shadcn/ui");
+		expect(contract).toContain("\n## Final validation checklist\n");
 		// The Official Catalog serves a document a Project can read on its own,
 		// so nothing a Builder never receives may reach it.
 		for (const machineMetadata of [
@@ -738,8 +704,8 @@ test("the diagnostics endpoint accepts only the disclosed non-Project fields", a
 for (const evaluatedPack of [
 	"Foundation",
 	"Editorial",
+	"Mono",
 	"Command",
-	"Signal",
 ] as const) {
 	test(`${evaluatedPack} evaluation renders every required screen across evaluated modes`, async ({
 		page,
@@ -977,7 +943,6 @@ const responsiveRoutes = [
 	"/",
 	"/catalog",
 	"/catalog/command",
-	"/catalog/signal",
 	"/premium",
 	"/docs",
 ] as const;

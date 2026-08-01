@@ -38,16 +38,6 @@ export const env = createEnv({
 		POLAR_SERVER: z.enum(["sandbox", "production"]).default("sandbox"),
 		POLAR_SUCCESS_URL: z.url(),
 		POLAR_WEBHOOK_SECRET: z.string().min(1).optional(),
-		COMMAND_PREMIUM_RELEASE: z.string().min(1).optional(),
-		COMMAND_PREMIUM_RELEASE_SHA256: z
-			.string()
-			.regex(/^[a-f0-9]{64}$/)
-			.optional(),
-		SIGNAL_PREMIUM_RELEASE: z.string().min(1).optional(),
-		SIGNAL_PREMIUM_RELEASE_SHA256: z
-			.string()
-			.regex(/^[a-f0-9]{64}$/)
-			.optional(),
 		CORS_ORIGIN: z.url(),
 		NODE_ENV: z
 			.enum(["development", "production", "test"])

@@ -98,6 +98,15 @@ afterEach(async () => {
 });
 
 describe("Pack Release publication validation", () => {
+	test("publishes exactly the four Official Catalog Design Packs", () => {
+		expect(publishedPacks.map((pack) => pack.id)).toEqual([
+			"foundation",
+			"editorial",
+			"mono",
+			"command",
+		]);
+	});
+
 	// Every Pack Release stays independently installable through the same
 	// compatibility and safety gate, so Pack Evaluation covers each published
 	// release rather than only the current one.

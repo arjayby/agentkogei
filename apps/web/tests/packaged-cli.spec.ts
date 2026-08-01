@@ -70,6 +70,42 @@ for (const runner of packageRunners) {
 	});
 }
 
+test("the packed CLI installs current and exact Command releases anonymously", async ({
+	request,
+}) => {
+	const runner = packageRunners.find(({ name }) => name === "npx");
+	if (!runner) throw new Error("The npx package runner is unavailable");
+
+	for (const selector of ["command", "command@1.0.0"]) {
+		const project = await mkdtemp(path.join(tmpdir(), "agentkogei-command-"));
+		try {
+			const { command, arguments: runnerArguments } =
+				runner.command(runTarball);
+			const added = await runProcess(
+				command,
+				[...runnerArguments, "add", selector, "--yes"],
+				{
+					cwd: project,
+					environment: {
+						AGENTKOGEI_CONTRACT_CATALOG_URL: contractCatalogUrl,
+						AGENTKOGEI_CONFIG_DIR: path.join(project, ".agentkogei-config"),
+					},
+				},
+			);
+
+			expect(added.exitCode, added.stderr).toBe(0);
+			expect(added.stdout).toContain("Added Command 1.0.0");
+			const delivered = await request.get("/contracts/command/1.0.0");
+			expect(await readFile(path.join(project, "DESIGN.md"), "utf8")).toBe(
+				await delivered.text(),
+			);
+			expect(added.stderr).not.toContain("login");
+		} finally {
+			await rm(project, { recursive: true, force: true });
+		}
+	}
+});
+
 test("the published package offers one Node executable and no library entry", async () => {
 	const consumer = await mkdtemp(path.join(tmpdir(), "agentkogei-consumer-"));
 	try {
