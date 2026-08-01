@@ -15,7 +15,7 @@ import { type ReactNode, useEffect, useRef, useState } from "react";
 /**
  * Every package runner AgentKogei supports, in the order a Builder meets them.
  * npm leads because it is the mainstream default and its command is the
- * shortest path from a Pack Preview to an Installation; the rest are listed so
+ * shortest path from a Design System Preview to an Installation; the rest are listed so
  * nobody has to translate npm syntax into their own runner.
  */
 const packageManagers = [
@@ -27,16 +27,15 @@ const packageManagers = [
 
 type PackageManagerId = (typeof packageManagers)[number]["id"];
 
-/** The catalog facts the interactive mode needs to offer a Design Pack. */
-export type InstallablePack = {
+/** The catalog facts the interactive mode needs to offer a Design System. */
+export type InstallableDesignSystem = {
 	slug: string;
 	name: string;
-	access: "Open" | "Premium";
 };
 
 /**
  * The one-command Installation flow. `agentkogei@latest` selects the newest
- * CLI; the Design Pack identity selects the Pack Release, so the two versions
+ * CLI; the Design System identity selects the Design System Release, so the two versions
  * stay independent.
  */
 function installationCommand(runner: string, identity: string) {
@@ -52,25 +51,25 @@ const terminalBar =
 const terminalMuted = "text-[#8b98ab]";
 
 type InstallationCommandProps = { children?: ReactNode } & (
-	| { identity: string; packs?: undefined }
-	| { identity?: undefined; packs: readonly InstallablePack[] }
+	| { identity: string; designSystems?: undefined }
+	| { identity?: undefined; designSystems: readonly InstallableDesignSystem[] }
 );
 
 /**
  * The Installation flow shown identically wherever a Builder is asked to run
  * it, presented as a terminal. Static mode lists every runner for one fixed
- * Design Pack identity; interactive mode (when `packs` is given) embeds the
- * package runner and the Design Pack as selectable tokens inside the command
+ * Design System identity; interactive mode (when `designSystems` is given) embeds the
+ * package runner and the Design System as selectable tokens inside the command
  * line itself.
  */
 export function InstallationCommand(props: InstallationCommandProps) {
 	return (
 		<section
 			aria-label="Installation command"
-			className={cn(terminalFrame, props.packs && "w-fit max-w-full")}
+			className={cn(terminalFrame, props.designSystems && "w-fit max-w-full")}
 		>
-			{props.packs ? (
-				<InteractiveCommand packs={props.packs} />
+			{props.designSystems ? (
+				<InteractiveCommand designSystems={props.designSystems} />
 			) : (
 				<>
 					<div className={terminalBar}>
@@ -123,9 +122,15 @@ export function InstallationCommand(props: InstallationCommandProps) {
 const tokenTrigger =
 	"h-8 gap-1 border-[#3d4b61] bg-transparent px-2 font-mono text-[#e7ecf3] text-sm hover:bg-white/5 focus-visible:border-[#55d6ff] focus-visible:ring-[#55d6ff]/40 dark:bg-transparent dark:hover:bg-white/5 [&_svg]:text-[#8b98ab]";
 
-function InteractiveCommand({ packs }: { packs: readonly InstallablePack[] }) {
+function InteractiveCommand({
+	designSystems,
+}: {
+	designSystems: readonly InstallableDesignSystem[];
+}) {
 	const [managerId, setManagerId] = useState<PackageManagerId>("npm");
-	const [packSlug, setPackSlug] = useState(packs[0]?.slug ?? "");
+	const [designSystemSlug, setDesignSystemSlug] = useState(
+		designSystems[0]?.slug ?? "",
+	);
 	const [copied, setCopied] = useState(false);
 	const resetCopied = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -139,7 +144,7 @@ function InteractiveCommand({ packs }: { packs: readonly InstallablePack[] }) {
 
 	const manager =
 		packageManagers.find(({ id }) => id === managerId) ?? packageManagers[0];
-	const command = installationCommand(manager.runner, packSlug);
+	const command = installationCommand(manager.runner, designSystemSlug);
 
 	async function copyCommand() {
 		await navigator.clipboard.writeText(command);
@@ -190,25 +195,23 @@ function InteractiveCommand({ packs }: { packs: readonly InstallablePack[] }) {
 					agentkogei@latest add
 				</span>
 				<Select
-					items={packs.map(({ slug }) => ({ value: slug, label: slug }))}
-					value={packSlug}
-					onValueChange={(value) => setPackSlug(value as string)}
+					items={designSystems.map(({ slug }) => ({
+						value: slug,
+						label: slug,
+					}))}
+					value={designSystemSlug}
+					onValueChange={(value) => setDesignSystemSlug(value as string)}
 				>
 					<SelectTrigger
-						aria-label="Design Pack"
+						aria-label="Design System"
 						className={cn(tokenTrigger, "shrink-0")}
 					>
 						<SelectValue />
 					</SelectTrigger>
 					<SelectContent>
-						{packs.map(({ slug, access }) => (
+						{designSystems.map(({ slug }) => (
 							<SelectItem key={slug} value={slug}>
-								<span className="flex w-full items-baseline justify-between gap-4 font-mono">
-									{slug}
-									<span className="text-muted-foreground text-xs">
-										{access}
-									</span>
-								</span>
+								<span className="font-mono">{slug}</span>
 							</SelectItem>
 						))}
 					</SelectContent>

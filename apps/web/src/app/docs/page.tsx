@@ -12,13 +12,14 @@ import { InstallationCommand } from "@/components/installation-command";
 
 export const metadata: Metadata = {
 	title: "Documentation | AgentKogei",
-	description: "Install and use AgentKogei Design Packs safely in a Project.",
+	description:
+		"Install and use an AgentKogei Design System safely in a Project.",
 };
 
 const sections = [
 	{ href: "#installation", label: "Installation" },
 	{ href: "#retrieval", label: "Design Contract retrieval" },
-	{ href: "#one-pack", label: "One-pack constraint" },
+	{ href: "#one-system", label: "One Design System" },
 	{ href: "#supported-stack", label: "Supported stack" },
 	{ href: "#safety", label: "Safety boundary" },
 ] as const;
@@ -32,7 +33,7 @@ export default function DocsPage() {
 						Documentation / Core concepts
 					</p>
 					<h1 className="max-w-4xl text-balance font-medium text-5xl tracking-[-0.05em] sm:text-7xl">
-						From Pack Preview to durable local direction.
+						From Design System Preview to durable local direction.
 					</h1>
 				</div>
 			</header>
@@ -76,34 +77,35 @@ export default function DocsPage() {
 						<div className="flex max-w-3xl flex-col gap-5 text-base text-muted-foreground leading-8">
 							<p>
 								Run one command from your Project root. Installation writes one
-								root DESIGN.md containing the complete Pack Release, and creates
-								or updates one marked AGENTS.md block so your coding agents
-								discover it. It gives agents a stable Design Contract to follow;
-								it does not automatically redesign an existing interface.
+								root DESIGN.md containing the complete Design System Release,
+								and creates or updates one marked AGENTS.md block so your coding
+								agents discover it. It gives agents a stable Design Contract to
+								follow; it does not automatically redesign an existing
+								interface.
 							</p>
 							<p>
-								A bare Design Pack identity selects the current Pack Release
-								through the Official Catalog, and{" "}
+								A bare Design System identity selects the current Design System
+								Release through the Official Catalog, and{" "}
 								<code className="font-mono">foundation@1.1.0</code> selects that
 								immutable release. Before writing, the CLI shows the Design
-								Pack, Pack Release, absolute target, and the exact change, then
-								waits for your confirmation.
+								System, Design System Release, absolute target, and the exact
+								change, then waits for your confirmation.
 							</p>
 						</div>
 						<div className="mt-8 max-w-3xl">
 							<InstallationCommand identity="foundation">
 								agentkogei@latest selects the newest CLI, not the newest Design
-								Pack. Every Design Pack is retrieved anonymously from the public
-								Official Catalog with the same add command.
+								System Release. Every Design System is retrieved anonymously
+								from the public Official Catalog with the same add command.
 							</InstallationCommand>
 						</div>
 						<div className="mt-8 flex max-w-3xl flex-col gap-5 text-base text-muted-foreground leading-8">
 							<p>
-								Re-running add is the only way to move to another Pack Release.
-								Replacing an existing DESIGN.md shows the diff and asks
-								directly; unattended replacement requires both --yes and
-								--force. Removing a Design Pack is an ordinary Project edit:
-								delete DESIGN.md and the marked AGENTS.md block.
+								Running add again is the only way to move to another Design
+								System Release. Replacing an existing DESIGN.md shows the diff
+								and asks directly; unattended replacement requires both --yes
+								and --force. Removing a Design System is an ordinary Project
+								edit: delete DESIGN.md and the marked AGENTS.md block.
 							</p>
 						</div>
 					</section>
@@ -124,9 +126,9 @@ export default function DocsPage() {
 						</h2>
 						<div className="flex max-w-3xl flex-col gap-5 text-base text-muted-foreground leading-8">
 							<p>
-								The Official Catalog delivers a Pack Release as the exact raw
-								Markdown bytes a Project installs, so what you read is what you
-								add. Every Design Contract is publicly and anonymously
+								The Official Catalog delivers a Design System Release as the
+								exact raw Markdown bytes a Project installs, so what you read is
+								what you add. Every Design Contract is publicly and anonymously
 								retrievable.
 							</p>
 						</div>
@@ -142,22 +144,22 @@ export default function DocsPage() {
 					</section>
 
 					<section
-						id="one-pack"
+						id="one-system"
 						className="scroll-mt-24 border-b py-12"
-						aria-labelledby="one-pack-heading"
+						aria-labelledby="one-system-heading"
 					>
 						<p className="mb-4 font-mono text-muted-foreground text-xs uppercase tracking-[0.18em]">
 							03 / Coherence
 						</p>
 						<h2
-							id="one-pack-heading"
+							id="one-system-heading"
 							className="mb-6 font-medium text-3xl tracking-tight"
 						>
-							One-pack constraint
+							One Design System
 						</h2>
 						<p className="max-w-3xl text-base text-muted-foreground leading-8">
-							A Project can have at most one Installed Pack, because two
-							competing Interface Systems would undermine the durable direction
+							A Project can have at most one Installed Design System, because
+							two competing Design Systems would undermine the durable direction
 							Installation exists to provide. There is nothing to merge: one
 							DESIGN.md either stands or is replaced, and replacing it is always
 							a visible, confirmed decision.
@@ -202,8 +204,8 @@ export default function DocsPage() {
 						</h2>
 						<Alert role="note" className="max-w-3xl">
 							<AlertTitle>
-								The AgentKogei CLI never executes pack-supplied code, scripts,
-								dependency installation, or package-manager commands.
+								The AgentKogei CLI never executes Design System supplied code,
+								scripts, dependency installation, or package-manager commands.
 							</AlertTitle>
 							<AlertDescription>
 								A Design Contract is inert Markdown. The CLI rejects any catalog

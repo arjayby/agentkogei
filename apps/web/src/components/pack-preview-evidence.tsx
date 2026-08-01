@@ -1,4 +1,4 @@
-import type { DesignPack } from "@/lib/catalog";
+import type { DesignSystem } from "@/lib/catalog";
 
 const surfaces = [
 	"Marketing",
@@ -215,7 +215,7 @@ function EditorialSurface({
 						{[
 							"Reading preferences · System",
 							"Notifications · On",
-							"Access · Review",
+							"Sharing · Review",
 						].map((row) => (
 							<p
 								key={row}
@@ -273,7 +273,7 @@ function MonoSurface({
 						</p>
 						<div className="flex items-center gap-2">
 							<span className="rounded-full bg-[var(--mono-primary)] px-4 py-1.5 text-[var(--mono-primary-foreground)] text-xs">
-								Get the pack
+								Explore
 							</span>
 							<span className="rounded-full border border-[var(--mono-border)] px-4 py-1.5 text-xs">
 								Tokens
@@ -522,7 +522,7 @@ function CommandSurface({
 						{[
 							["Runtime", "Production"],
 							["Notifications", "3 routes"],
-							["Access", "12 members"],
+							["Reviewers", "12 members"],
 							["Danger zone", "Review"],
 						].map(([label, value]) => (
 							<div
@@ -576,11 +576,11 @@ function CommandSurface({
 	);
 }
 
-export function PackPreviewEvidence({ pack }: { pack: DesignPack }) {
+export function PackPreviewEvidence({ pack }: { pack: DesignSystem }) {
 	return (
 		<section
 			className="grid gap-px border bg-border md:grid-cols-3"
-			aria-label={`${pack.name} rendered Pack Preview`}
+			aria-label={`${pack.name} rendered Design System Preview`}
 		>
 			{surfaces.map((surface, index) => {
 				if (pack.slug === "editorial") {

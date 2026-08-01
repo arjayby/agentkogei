@@ -1,7 +1,7 @@
 import type { Route } from "next";
 import Link from "next/link";
 
-import { designPacks } from "@/lib/catalog";
+import { designSystems } from "@/lib/catalog";
 
 const productLinks = [
 	{ href: "/catalog" as Route, label: "Catalog" },
@@ -20,21 +20,21 @@ export default function Footer() {
 							AgentKogei
 						</Link>
 						<p className="text-muted-foreground text-sm leading-6">
-							Durable, versioned design direction for coding agents. One
-							interface system across every screen of a Project.
+							Durable, versioned design direction for coding agents. One Design
+							System across every screen of a Project.
 						</p>
 					</div>
-					<nav aria-label="Design Packs" className="flex flex-col gap-3">
+					<nav aria-label="Design Systems" className="flex flex-col gap-3">
 						<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.18em]">
-							Design Packs
+							Design Systems
 						</p>
-						{designPacks.map((pack) => (
+						{designSystems.map((designSystem) => (
 							<Link
-								key={pack.slug}
-								href={`/catalog/${pack.slug}` as Route}
+								key={designSystem.slug}
+								href={`/catalog/${designSystem.slug}` as Route}
 								className="text-muted-foreground text-sm transition-colors hover:text-foreground"
 							>
-								{pack.name}
+								{designSystem.name}
 							</Link>
 						))}
 					</nav>

@@ -8,20 +8,20 @@ import { expect, test } from "@playwright/test";
 import { runCli } from "./support/cli";
 
 /**
- * The Open Design Packs a Builder can install without an account, named the way
+ * The Design Systems a Builder can install without an account, named the way
  * the Official Catalog publishes them. These journeys observe only the HTTP
  * routes and the real CLI process, so the expected catalog is stated here
  * rather than imported from the delivery code under test.
  */
-const openDesignPacks = [
+const publicDesignSystems = [
 	{
 		identity: "foundation",
-		designPack: "Foundation",
+		designSystem: "Foundation",
 		releases: ["1.0.0", "1.1.0"],
 	},
-	{ identity: "editorial", designPack: "Editorial", releases: ["1.0.0"] },
-	{ identity: "mono", designPack: "Mono", releases: ["1.0.0"] },
-	{ identity: "command", designPack: "Command", releases: ["1.0.0"] },
+	{ identity: "editorial", designSystem: "Editorial", releases: ["1.0.0"] },
+	{ identity: "mono", designSystem: "Mono", releases: ["1.0.0"] },
+	{ identity: "command", designSystem: "Command", releases: ["1.0.0"] },
 ] as const;
 
 const removedNavigationDestinations = [
@@ -46,14 +46,14 @@ function runDesignContractInstallation(
 	});
 }
 
-test("a prospective Builder can understand what a Design Pack changes", async ({
+test("a prospective Builder can understand what a Design System changes", async ({
 	page,
 }) => {
 	await page.goto("/");
 
 	await expect(
 		page.getByRole("heading", {
-			name: "One interface system. Every agent. Every screen.",
+			name: "One Design System. Every agent. Every screen.",
 		}),
 	).toBeVisible();
 	await expect(page.getByText("design drift", { exact: false })).toBeVisible();
@@ -65,7 +65,7 @@ test("a prospective Builder can understand what a Design Pack changes", async ({
 	).toHaveAttribute("href", "/docs");
 });
 
-test("the landing page composes one add command from a package manager and a Design Pack", async ({
+test("the landing page composes one add command from a package manager and a Design System", async ({
 	context,
 	page,
 }) => {
@@ -80,8 +80,8 @@ test("the landing page composes one add command from a package manager and a Des
 
 	await installation.getByLabel("Package manager").click();
 	await page.getByRole("option", { name: /bunx/ }).click();
-	await installation.getByLabel("Design Pack").click();
-	await page.getByRole("option", { name: /command.*Open/i }).click();
+	await installation.getByLabel("Design System").click();
+	await page.getByRole("option", { name: "command", exact: true }).click();
 	await expect(command).toHaveText("bunx agentkogei@latest add command");
 
 	await installation.getByRole("button", { name: "Copy command" }).click();
@@ -93,13 +93,13 @@ test("the landing page composes one add command from a package manager and a Des
 	);
 });
 
-test("the landing page surfaces the newest Pack Releases and the four-system catalog", async ({
+test("the landing page surfaces the newest Design System Releases and the four-system catalog", async ({
 	page,
 }) => {
 	await page.goto("/");
 
 	const recent = page.getByRole("region", {
-		name: "The newest Pack Releases.",
+		name: "The newest Design System Releases.",
 	});
 	await expect(
 		recent.getByRole("link", { name: /Mono 1\.0\.0/ }),
@@ -111,18 +111,11 @@ test("the landing page surfaces the newest Pack Releases and the four-system cat
 	const catalog = page.getByRole("region", {
 		name: "One catalog. Four directions.",
 	});
-	await expect(
-		catalog.getByRole("link", { name: /Foundation.*Open/i }),
-	).toBeVisible();
-	await expect(
-		catalog.getByRole("link", { name: /Editorial.*Open/i }),
-	).toBeVisible();
-	await expect(
-		catalog.getByRole("link", { name: /Mono.*Open/i }),
-	).toBeVisible();
-	await expect(
-		catalog.getByRole("link", { name: /Command.*Open/i }),
-	).toBeVisible();
+	for (const designSystem of ["Foundation", "Editorial", "Mono", "Command"]) {
+		await expect(
+			catalog.getByRole("link", { name: new RegExp(designSystem, "i") }),
+		).toBeVisible();
+	}
 	await expect(catalog.getByRole("link", { name: /Signal/i })).toHaveCount(0);
 });
 
@@ -203,16 +196,59 @@ test("public navigation and calls to action expose no commercial or account jour
 	}
 });
 
-test("the Official Catalog presents exactly Foundation, Editorial, Mono, and public Command", async ({
+test("public pages use Design System vocabulary without retired product claims", async ({
+	page,
+}) => {
+	for (const route of [
+		"/",
+		"/catalog",
+		"/catalog/foundation",
+		"/catalog/editorial",
+		"/catalog/mono",
+		"/catalog/command",
+		"/docs",
+	]) {
+		await page.goto(route);
+		const visibleCopy = await page.locator("body").innerText();
+		expect(visibleCopy, route).not.toMatch(
+			/\b(?:pack|packs|premium|pricing|subscription|signal)\b/i,
+		);
+		expect(visibleCopy, route).not.toMatch(
+			/(^|\n)Access(?:\s*·[^\n]*)?(?=\n|$)/i,
+		);
+		await expect(page.getByText("Open", { exact: true })).toHaveCount(0);
+	}
+});
+
+test("public page metadata uses Design System vocabulary", async ({ page }) => {
+	const expectations = [
+		["/", /Design Systems.*AgentKogei/i],
+		["/catalog", /Official Catalog.*AgentKogei/i],
+		["/catalog/foundation", /Foundation Design System Preview.*AgentKogei/i],
+		["/docs", /Documentation.*AgentKogei/i],
+	] as const;
+
+	for (const [route, title] of expectations) {
+		await page.goto(route);
+		await expect(page).toHaveTitle(title);
+		const description = await page
+			.locator('meta[name="description"]')
+			.getAttribute("content");
+		expect(description, route).toMatch(/Design System/i);
+		expect(description, route).not.toMatch(/\bpack\b/i);
+	}
+});
+
+test("the Official Catalog presents exactly Foundation, Editorial, Mono, and Command", async ({
 	page,
 }) => {
 	await page.goto("/catalog");
 	const catalog = page.getByRole("main");
 
-	for (const designPack of ["Foundation", "Editorial", "Mono", "Command"]) {
+	for (const designSystem of ["Foundation", "Editorial", "Mono", "Command"]) {
 		await expect(
 			catalog.getByRole("link", {
-				name: new RegExp(`${designPack}.*Open`, "i"),
+				name: new RegExp(designSystem, "i"),
 			}),
 		).toHaveCount(1);
 	}
@@ -223,25 +259,21 @@ for (const pack of [
 	{
 		slug: "foundation",
 		name: "Foundation",
-		access: "Open",
 	},
 	{
 		slug: "editorial",
 		name: "Editorial",
-		access: "Open",
 	},
 	{
 		slug: "mono",
 		name: "Mono",
-		access: "Open",
 	},
 	{
 		slug: "command",
 		name: "Command",
-		access: "Open",
 	},
 ] as const) {
-	test(`${pack.name} launch smoke exposes Pack Preview, access, compatibility, and evaluation evidence`, async ({
+	test(`${pack.name} launch smoke exposes its Design System Preview, compatibility, and evaluation evidence`, async ({
 		page,
 	}) => {
 		await page.goto(`/catalog/${pack.slug}`);
@@ -250,7 +282,6 @@ for (const pack of [
 		await expect(
 			product.getByRole("heading", { name: pack.name, exact: true }),
 		).toBeVisible();
-		await expect(product.getByText(pack.access, { exact: true })).toBeVisible();
 		await expect(
 			product.getByText("React / Next.js · Tailwind CSS v4 · shadcn/ui", {
 				exact: true,
@@ -258,12 +289,12 @@ for (const pack of [
 		).toBeVisible();
 		await expect(
 			product.getByText(
-				"Pack Evaluation passed · WCAG 2.2 Level AA reference implementation",
+				"Design System Evaluation passed · WCAG 2.2 Level AA reference implementation",
 				{ exact: true },
 			),
 		).toBeVisible();
 		await expect(
-			product.getByLabel(`${pack.name} rendered Pack Preview`),
+			product.getByLabel(`${pack.name} rendered Design System Preview`),
 		).toBeVisible();
 	});
 }
@@ -284,7 +315,7 @@ function packageRunnerCommands(identity: string) {
 
 /**
  * Vocabulary these surfaces used to carry, each naming something `add` never
- * delivers. A Pack Preview that says any of it again is promising a Builder a
+ * delivers. A Design System Preview that says any of it again is promising a Builder a
  * resource tree, a transport envelope, or a lifecycle that does not exist.
  */
 const retiredInstallationPromises = [
@@ -296,41 +327,38 @@ const retiredInstallationPromises = [
 	"managed update",
 ] as const;
 
-const launchPacks = [
+const launchDesignSystems = [
 	{
 		slug: "foundation",
 		name: "Foundation",
-		access: "Open",
 		release: "1.1.0",
 	},
-	{ slug: "editorial", name: "Editorial", access: "Open", release: "1.0.0" },
-	{ slug: "mono", name: "Mono", access: "Open", release: "1.0.0" },
-	{ slug: "command", name: "Command", access: "Open", release: "1.0.0" },
+	{ slug: "editorial", name: "Editorial", release: "1.0.0" },
+	{ slug: "mono", name: "Mono", release: "1.0.0" },
+	{ slug: "command", name: "Command", release: "1.0.0" },
 ] as const;
 
-const openLaunchPacks = launchPacks.filter(({ access }) => access === "Open");
-
-for (const pack of launchPacks) {
-	test(`the ${pack.name} Pack Preview shows one add command for every supported package runner`, async ({
+for (const designSystem of launchDesignSystems) {
+	test(`the ${designSystem.name} Design System Preview shows one add command for every supported package runner`, async ({
 		page,
 	}) => {
-		await page.goto(`/catalog/${pack.slug}`);
+		await page.goto(`/catalog/${designSystem.slug}`);
 		const installation = page.getByRole("region", {
 			name: "Installation command",
 		});
 
 		await expect(installation.getByRole("term")).toHaveText(
-			packageRunnerCommands(pack.slug).map(([runner]) => runner),
+			packageRunnerCommands(designSystem.slug).map(([runner]) => runner),
 		);
 		await expect(installation.getByRole("definition")).toHaveText(
-			packageRunnerCommands(pack.slug).map(([, command]) => command),
+			packageRunnerCommands(designSystem.slug).map(([, command]) => command),
 		);
 	});
 
-	test(`the ${pack.name} Pack Preview promises one Design Contract and nothing beside it`, async ({
+	test(`the ${designSystem.name} Design System Preview promises one Design Contract and nothing beside it`, async ({
 		page,
 	}) => {
-		await page.goto(`/catalog/${pack.slug}`);
+		await page.goto(`/catalog/${designSystem.slug}`);
 		const preview = page.getByRole("main");
 
 		await expect(
@@ -345,12 +373,12 @@ for (const pack of launchPacks) {
 	});
 }
 
-for (const openPack of openLaunchPacks) {
-	test(`the ${openPack.name} Pack Preview offers its raw Design Contract anonymously`, async ({
+for (const designSystem of launchDesignSystems) {
+	test(`the ${designSystem.name} Design System Preview offers its raw Design Contract anonymously`, async ({
 		page,
 		request,
 	}) => {
-		await page.goto(`/catalog/${openPack.slug}`);
+		await page.goto(`/catalog/${designSystem.slug}`);
 		const preview = page.getByRole("main");
 		const installation = preview.getByRole("region", {
 			name: "Installation command",
@@ -358,11 +386,11 @@ for (const openPack of openLaunchPacks) {
 
 		await expect(
 			preview.getByRole("link", {
-				name: `Read the ${openPack.name} ${openPack.release} Design Contract`,
+				name: `Read the ${designSystem.name} ${designSystem.release} Design Contract`,
 			}),
 		).toHaveAttribute(
 			"href",
-			`/contracts/${openPack.slug}/${openPack.release}`,
+			`/contracts/${designSystem.slug}/${designSystem.release}`,
 		);
 		await expect(
 			installation.getByText("retrieved anonymously", { exact: false }),
@@ -370,23 +398,23 @@ for (const openPack of openLaunchPacks) {
 		await expect(preview.locator('a[href*="/r/"]')).toHaveCount(0);
 
 		const delivered = await request.get(
-			`/contracts/${openPack.slug}/${openPack.release}`,
+			`/contracts/${designSystem.slug}/${designSystem.release}`,
 		);
 		expect(delivered.status()).toBe(200);
 		expect(delivered.headers()["content-type"]).toBe(
 			"text/markdown; charset=utf-8",
 		);
-		// The Pack Preview advertises a version it does not itself deliver, so it
+		// The Design System Preview advertises a version it does not itself deliver, so it
 		// can drift behind the catalog. A Builder following the visible command
 		// gets whatever a bare identity selects, and both must name one release.
-		const current = await request.get(`/contracts/${openPack.slug}`);
-		expect(current.headers()["x-agentkogei-pack-release"]).toBe(
-			openPack.release,
+		const current = await request.get(`/contracts/${designSystem.slug}`);
+		expect(current.headers()["x-agentkogei-design-system-release"]).toBe(
+			designSystem.release,
 		);
 	});
 }
 
-test("the public Command Pack Preview shows complete evidence and its raw Design Contract", async ({
+test("the public Command Design System Preview shows complete evidence and its raw Design Contract", async ({
 	page,
 }) => {
 	await page.goto("/catalog/command");
@@ -398,7 +426,9 @@ test("the public Command Pack Preview shows complete evidence and its raw Design
 	await expect(
 		page.getByText("React / Next.js · Tailwind CSS v4 · shadcn/ui"),
 	).toBeVisible();
-	await expect(page.getByLabel("Command rendered Pack Preview")).toBeVisible();
+	await expect(
+		page.getByLabel("Command rendered Design System Preview"),
+	).toBeVisible();
 	for (const surfaceEvidence of [
 		"Ship with operational confidence.",
 		"Continue securely",
@@ -433,7 +463,7 @@ test("the public Command Pack Preview shows complete evidence and its raw Design
 	).toHaveCount(0);
 });
 
-test("a Builder can anonymously retrieve the complete Foundation Pack Release", async ({
+test("a Builder can anonymously retrieve the complete Foundation Design System Release", async ({
 	page,
 	request,
 }) => {
@@ -443,8 +473,10 @@ test("a Builder can anonymously retrieve the complete Foundation Pack Release", 
 	expect(response.headers()["content-type"]).toBe(
 		"text/markdown; charset=utf-8",
 	);
-	expect(response.headers()["x-agentkogei-pack-release"]).toBe("1.0.0");
-	// An exact Pack Release is immutable, so it may be cached forever.
+	expect(response.headers()["x-agentkogei-design-system-release"]).toBe(
+		"1.0.0",
+	);
+	// An exact Design System Release is immutable, so it may be cached forever.
 	expect(response.headers()["cache-control"]).toContain("immutable");
 	const contract = await response.text();
 	expect(contract).toContain("# Foundation Interface System");
@@ -460,14 +492,14 @@ test("a Builder can anonymously retrieve the complete Foundation Pack Release", 
 	).toBeVisible();
 });
 
-test("a Builder can preview, retrieve, and distinguish the Editorial Open Design Pack", async ({
+test("a Builder can preview, retrieve, and distinguish the Editorial Design System", async ({
 	page,
 	request,
 }) => {
 	const response = await request.get("/contracts/editorial/1.0.0");
 
 	expect(response.status()).toBe(200);
-	expect(response.headers()["x-agentkogei-design-pack"]).toBe("Editorial");
+	expect(response.headers()["x-agentkogei-design-system"]).toBe("Editorial");
 	const contract = await response.text();
 	expect(contract).toContain("# Editorial Interface System");
 	expect(contract).toContain("Warmth comes from restraint");
@@ -475,7 +507,7 @@ test("a Builder can preview, retrieve, and distinguish the Editorial Open Design
 	await page.goto("/catalog/editorial");
 	await expect(page.getByRole("heading", { name: "Editorial" })).toBeVisible();
 	await expect(
-		page.getByLabel("Editorial rendered Pack Preview"),
+		page.getByLabel("Editorial rendered Design System Preview"),
 	).toBeVisible();
 	await expect(
 		page.getByText("Preview is evidence, not the Design Contract", {
@@ -557,8 +589,10 @@ test("Command is public while current and exact Signal selectors are ordinarily 
 		expect(response.headers()["content-type"]).toBe(
 			"text/markdown; charset=utf-8",
 		);
-		expect(response.headers()["x-agentkogei-design-pack"]).toBe("Command");
-		expect(response.headers()["x-agentkogei-pack-release"]).toBe("1.0.0");
+		expect(response.headers()["x-agentkogei-design-system"]).toBe("Command");
+		expect(response.headers()["x-agentkogei-design-system-release"]).toBe(
+			"1.0.0",
+		);
 		expect(response.headers()["cache-control"]).toContain("public");
 		expect(response.headers()["www-authenticate"]).toBeUndefined();
 		expect(await response.text()).toContain("# Command Interface System");
@@ -591,11 +625,11 @@ test("Command is public while current and exact Signal selectors are ordinarily 
 	}
 });
 
-for (const openPack of openDesignPacks) {
-	const { identity, designPack, releases } = openPack;
+for (const publishedDesignSystem of publicDesignSystems) {
+	const { identity, designSystem, releases } = publishedDesignSystem;
 	const currentRelease = releases[releases.length - 1] as string;
 
-	test(`the Official Catalog delivers ${designPack} as raw Design Contract Markdown`, async ({
+	test(`the Official Catalog delivers ${designSystem} as raw Design Contract Markdown`, async ({
 		request,
 	}) => {
 		const current = await request.get(`/contracts/${identity}`);
@@ -604,16 +638,12 @@ for (const openPack of openDesignPacks) {
 		expect(current.headers()["content-type"]).toBe(
 			"text/markdown; charset=utf-8",
 		);
-		expect(current.headers()["x-agentkogei-design-system"]).toBe(designPack);
+		expect(current.headers()["x-agentkogei-design-system"]).toBe(designSystem);
 		expect(current.headers()["x-agentkogei-design-system-release"]).toBe(
 			currentRelease,
 		);
-		// TODO(#73): remove the temporary legacy header assertions after the
-		// website and CLI have migrated to Design System response metadata.
-		expect(current.headers()["x-agentkogei-design-pack"]).toBe(designPack);
-		expect(current.headers()["x-agentkogei-pack-release"]).toBe(currentRelease);
 		const contract = await current.text();
-		expect(contract).toContain(`# ${designPack} Interface System`);
+		expect(contract).toContain(`# ${designSystem} Interface System`);
 		expect(contract).toContain("\n## Final validation checklist\n");
 		// The Official Catalog serves a document a Project can read on its own,
 		// so nothing a Builder never receives may reach it.
@@ -628,7 +658,7 @@ for (const openPack of openDesignPacks) {
 		}
 	});
 
-	test(`the retired registry transport serves no ${designPack} Pack Release`, async ({
+	test(`the retired registry transport serves no ${designSystem} Design System Release`, async ({
 		request,
 	}) => {
 		for (const retiredPath of [
@@ -640,19 +670,21 @@ for (const openPack of openDesignPacks) {
 			const response = await request.get(retiredPath);
 			expect(response.status(), retiredPath).toBe(404);
 			expect(await response.text()).not.toContain(
-				`# ${designPack} Interface System`,
+				`# ${designSystem} Interface System`,
 			);
 		}
 	});
 
-	test(`every published ${designPack} Pack Release has its own immutable raw route`, async ({
+	test(`every published ${designSystem} Design System Release has its own immutable raw route`, async ({
 		request,
 	}) => {
 		const delivered = await Promise.all(
 			releases.map(async (release) => {
 				const response = await request.get(`/contracts/${identity}/${release}`);
 				expect(response.status()).toBe(200);
-				expect(response.headers()["x-agentkogei-pack-release"]).toBe(release);
+				expect(response.headers()["x-agentkogei-design-system-release"]).toBe(
+					release,
+				);
 				return response.text();
 			}),
 		);
@@ -662,7 +694,7 @@ for (const openPack of openDesignPacks) {
 		expect(new Set(delivered).size).toBe(releases.length);
 	});
 
-	test(`the distributed CLI adds ${designPack} to a Project as one Design Contract`, async ({
+	test(`the distributed CLI adds ${designSystem} to a Project as one Design Contract`, async ({
 		request,
 	}) => {
 		const project = await mkdtemp(path.join(tmpdir(), "agentkogei-add-web-"));
@@ -681,7 +713,7 @@ for (const openPack of openDesignPacks) {
 
 			expect(refused.exitCode).toBe(2);
 			expect(refused.stdout).toContain(
-				`Design System: ${designPack} (${identity})`,
+				`Design System: ${designSystem} (${identity})`,
 			);
 			expect(refused.stdout).toContain(
 				`Design System Release: ${currentRelease}`,
@@ -689,11 +721,11 @@ for (const openPack of openDesignPacks) {
 			expect(refused.stdout).toContain(path.join(project, "DESIGN.md"));
 			expect(added.exitCode, added.stderr).toBe(0);
 			expect(added.stdout).toContain(
-				`Installed ${designPack} Design System Release ${currentRelease}`,
+				`Installed ${designSystem} Design System Release ${currentRelease}`,
 			);
 			expect(repeated.exitCode, repeated.stderr).toBe(0);
 			expect(repeated.stdout).toContain(
-				`${designPack} Design System Release ${currentRelease} is already this Project's Design Contract`,
+				`${designSystem} Design System Release ${currentRelease} is already this Project's Design Contract`,
 			);
 
 			const delivered = await request.get(`/contracts/${identity}`);
@@ -712,7 +744,7 @@ for (const openPack of openDesignPacks) {
 	});
 
 	for (const release of releases) {
-		test(`the distributed CLI adds the explicit ${designPack} Pack Release ${release}`, async ({
+		test(`the distributed CLI adds the explicit ${designSystem} Design System Release ${release}`, async ({
 			request,
 		}) => {
 			const project = await mkdtemp(
@@ -726,7 +758,7 @@ for (const openPack of openDesignPacks) {
 
 				expect(added.exitCode, added.stderr).toBe(0);
 				expect(added.stdout).toContain(
-					`Installed ${designPack} Design System Release ${release}`,
+					`Installed ${designSystem} Design System Release ${release}`,
 				);
 				const delivered = await request.get(
 					`/contracts/${identity}/${release}`,
@@ -816,7 +848,9 @@ for (const evaluatedPack of [
 				forcedColors: mode.forcedColors,
 			});
 			await page.goto(`/catalog/${evaluatedPack.toLowerCase()}`);
-			const preview = page.getByLabel(`${evaluatedPack} rendered Pack Preview`);
+			const preview = page.getByLabel(
+				`${evaluatedPack} rendered Design System Preview`,
+			);
 			for (const screen of screens) {
 				await expect(preview.getByText(screen, { exact: true })).toBeVisible();
 			}
@@ -873,13 +907,21 @@ test("public documentation explains Installation and remains usable on mobile", 
 		page.getByRole("heading", { name: "Installation", exact: true }),
 	).toBeVisible();
 	await expect(
-		page.getByText("one Installed Pack", { exact: false }),
+		page.getByText("one Installed Design System", { exact: false }),
 	).toBeVisible();
 	await expect(
 		page.getByText("React or Next.js", { exact: false }),
 	).toBeVisible();
 	await expect(
-		page.getByText("never executes pack-supplied code", { exact: false }),
+		page.getByText(
+			"the CLI shows the Design System, Design System Release, absolute target",
+			{ exact: false },
+		),
+	).toBeVisible();
+	await expect(
+		page.getByText("never executes Design System supplied code", {
+			exact: false,
+		}),
 	).toBeVisible();
 
 	const hasHorizontalOverflow = await page.evaluate(
