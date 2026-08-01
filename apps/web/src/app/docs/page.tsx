@@ -88,8 +88,8 @@ export default function DocsPage() {
 								Release through the Official Catalog, and{" "}
 								<code className="font-mono">foundation@1.1.0</code> selects that
 								immutable release. Before writing, the CLI shows the Design
-								Design System, Design System Release, absolute target, and the
-								exact change, then waits for your confirmation.
+								System, Design System Release, absolute target, and the exact
+								change, then waits for your confirmation.
 							</p>
 						</div>
 						<div className="mt-8 max-w-3xl">

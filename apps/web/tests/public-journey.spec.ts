@@ -913,6 +913,12 @@ test("public documentation explains Installation and remains usable on mobile", 
 		page.getByText("React or Next.js", { exact: false }),
 	).toBeVisible();
 	await expect(
+		page.getByText(
+			"the CLI shows the Design System, Design System Release, absolute target",
+			{ exact: false },
+		),
+	).toBeVisible();
+	await expect(
 		page.getByText("never executes Design System supplied code", {
 			exact: false,
 		}),
