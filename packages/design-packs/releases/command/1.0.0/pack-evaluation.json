@@ -1,6 +1,12 @@
 {
 	"schemaVersion": "2.0",
 	"id": "command",
+	"designSystem": "Command",
+	"designSystemRelease": {
+		"version": "1.0.0",
+		"publishedAt": "2026-07-18",
+		"immutable": true
+	},
 	"name": "Command",
 	"publisher": "AgentKogei",
 	"release": {

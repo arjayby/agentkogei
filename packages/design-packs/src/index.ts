@@ -9,8 +9,10 @@ import {
 
 export {
 	type DesignContract,
+	type DesignSystemContract,
 	designContractFileName,
 	designContractSchema,
+	designSystemContractSchema,
 	readDesignContract,
 } from "./design-contract";
 export {
@@ -22,6 +24,8 @@ export {
 	retrieveDesignContract,
 } from "./design-contract-installation";
 export {
+	type DesignSystemEvaluationRecord,
+	designSystemEvaluationRecordSchema,
 	type PackEvaluationRecord,
 	packAccessSchema,
 	packEvaluationFileName,

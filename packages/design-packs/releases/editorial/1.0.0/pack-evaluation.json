@@ -1,6 +1,12 @@
 {
 	"schemaVersion": "2.0",
 	"id": "editorial",
+	"designSystem": "Editorial",
+	"designSystemRelease": {
+		"version": "1.0.0",
+		"publishedAt": "2026-07-19",
+		"immutable": true
+	},
 	"name": "Editorial",
 	"publisher": "AgentKogei",
 	"release": {

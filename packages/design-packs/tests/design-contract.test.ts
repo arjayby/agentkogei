@@ -4,6 +4,7 @@ import path from "node:path";
 
 import {
 	designContractSchema,
+	designSystemContractSchema,
 	editorialReleaseDirectoryFor,
 	foundationReleaseDirectoryFor,
 	publishedPacks,
@@ -25,10 +26,27 @@ describe("Design Contract delivery", () => {
 
 		expect(contract).toMatchObject({
 			identity: "foundation",
+			designSystem: "Foundation",
+			designSystemRelease: "1.1.0",
+			// TODO(#73): remove the temporary legacy assertions when the
+			// publication interface is contracted.
 			designPack: "Foundation",
 			packRelease: "1.1.0",
 			access: "open",
 		});
+	});
+
+	test("represents a Design System Release without access classification", async () => {
+		const contract = await foundation();
+
+		expect(
+			designSystemContractSchema.safeParse({
+				identity: contract.identity,
+				designSystem: contract.designSystem,
+				designSystemRelease: contract.designSystemRelease,
+				markdown: contract.markdown,
+			}).success,
+		).toBe(true);
 	});
 
 	test("delivers the published Markdown byte for byte", async () => {

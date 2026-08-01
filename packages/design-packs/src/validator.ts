@@ -13,7 +13,11 @@ import { hasHiddenDocumentControl } from "./text-safety";
 export type PackValidationResult =
 	| {
 			ok: true;
+			designSystem: string;
+			designSystemRelease: string;
+			/** @deprecated Remove in issue #73. */
 			pack: string;
+			/** @deprecated Remove in issue #73. */
 			version: string;
 			designContractBytes: number;
 			evidenceFilesValidated: number;
@@ -323,6 +327,9 @@ export async function validatePackRelease(
 
 	return {
 		ok: true,
+		designSystem: record.designSystem,
+		designSystemRelease: record.designSystemRelease.version,
+		// TODO(#73): remove these legacy result fields after publication consumers migrate.
 		pack: record.id,
 		version: record.release.version,
 		designContractBytes: contract.byteLength,

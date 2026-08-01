@@ -11,6 +11,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 
 import {
+	designSystemEvaluationRecordSchema,
 	foundationReleaseDirectory,
 	type PackValidationResult,
 	publishedPacks,
@@ -107,6 +108,17 @@ describe("Pack Release publication validation", () => {
 		]);
 	});
 
+	test("represents publication metadata without legacy fields or access classification", async () => {
+		const record = await readEvaluationRecord(foundationReleaseDirectory);
+		Reflect.deleteProperty(record, "name");
+		Reflect.deleteProperty(record, "release");
+		Reflect.deleteProperty(record, "access");
+
+		expect(designSystemEvaluationRecordSchema.safeParse(record).success).toBe(
+			true,
+		);
+	});
+
 	// Every Pack Release stays independently installable through the same
 	// compatibility and safety gate, so Pack Evaluation covers each published
 	// release rather than only the current one.
@@ -116,7 +128,10 @@ describe("Pack Release publication validation", () => {
 				const releaseDirectory = pack.directoryFor(version);
 				const record = (await readEvaluationRecord(
 					releaseDirectory,
-				)) as unknown as { evaluation: { evidence: string[] } };
+				)) as unknown as {
+					designSystem: string;
+					evaluation: { evidence: string[] };
+				};
 				const contract = await readFile(
 					path.join(releaseDirectory, "DESIGN.md"),
 				);
@@ -125,6 +140,10 @@ describe("Pack Release publication validation", () => {
 
 				expect(result).toEqual({
 					ok: true,
+					designSystem: record.designSystem,
+					designSystemRelease: version,
+					// TODO(#73): remove the temporary legacy result fields after all
+					// publication consumers use Design System metadata.
 					pack: pack.id,
 					version,
 					designContractBytes: contract.byteLength,
@@ -148,6 +167,13 @@ describe("Pack Release publication validation", () => {
 				record.hooks = { postinstall: "node install.js" };
 			},
 			error: "hooks",
+		},
+		{
+			name: "inconsistent compatibility",
+			mutate(record: Record<string, unknown>) {
+				record.designSystem = "A different system";
+			},
+			error: "must match temporary legacy name",
 		},
 	] as const;
 

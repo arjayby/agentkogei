@@ -602,6 +602,12 @@ for (const openPack of openDesignPacks) {
 		expect(current.headers()["content-type"]).toBe(
 			"text/markdown; charset=utf-8",
 		);
+		expect(current.headers()["x-agentkogei-design-system"]).toBe(designPack);
+		expect(current.headers()["x-agentkogei-design-system-release"]).toBe(
+			currentRelease,
+		);
+		// TODO(#73): remove the temporary legacy header assertions after the
+		// website and CLI have migrated to Design System response metadata.
 		expect(current.headers()["x-agentkogei-design-pack"]).toBe(designPack);
 		expect(current.headers()["x-agentkogei-pack-release"]).toBe(currentRelease);
 		const contract = await current.text();

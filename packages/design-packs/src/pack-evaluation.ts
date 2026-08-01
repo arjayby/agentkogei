@@ -32,26 +32,26 @@ const relativePathSchema = z
 /** Whether a Design Pack is an Open or a Premium one. */
 export const packAccessSchema = z.enum(["open", "premium"]);
 
+const designSystemReleaseSchema = z
+	.object({
+		version: packReleaseVersionSchema,
+		publishedAt: z.iso.date(),
+		immutable: z.literal(true),
+	})
+	.strict();
+
 /**
- * The file every Pack Release keeps beside its Design Contract, recording what
- * Pack Evaluation examined before the release became a Published Pack. It is
- * internal product tooling: the Official Catalog delivers the Design Contract
- * alone, so nothing here ever reaches a Project.
+ * Canonical publication metadata for one Design System Release. Access is not
+ * part of this interface because every Design System is published through the
+ * same public catalog.
  */
-export const packEvaluationRecordSchema = z
+export const designSystemEvaluationRecordSchema = z
 	.object({
 		schemaVersion: z.literal("2.0"),
 		id: packIdentitySchema,
-		name: terminalTextSchema,
+		designSystem: terminalTextSchema,
 		publisher: terminalTextSchema,
-		release: z
-			.object({
-				version: packReleaseVersionSchema,
-				publishedAt: z.iso.date(),
-				immutable: z.literal(true),
-			})
-			.strict(),
-		access: packAccessSchema,
+		designSystemRelease: designSystemReleaseSchema,
 		/**
 		 * The one document the release publishes, pinned by digest so an
 		 * already-published release cannot be edited under its own version.
@@ -103,6 +103,42 @@ export const packEvaluationRecordSchema = z
 			.strict(),
 	})
 	.strict();
+
+export type DesignSystemEvaluationRecord = z.infer<
+	typeof designSystemEvaluationRecordSchema
+>;
+
+/**
+ * The temporary publication record accepted while runtime consumers migrate
+ * to Design System vocabulary. Issue #73 removes the legacy fields and this
+ * compatibility schema after issues #71 and #72 have migrated their consumers.
+ */
+export const packEvaluationRecordSchema = designSystemEvaluationRecordSchema
+	.extend({
+		name: terminalTextSchema,
+		release: designSystemReleaseSchema,
+		access: packAccessSchema,
+	})
+	.superRefine((record, context) => {
+		if (record.designSystem !== record.name) {
+			context.addIssue({
+				code: "custom",
+				path: ["designSystem"],
+				message: "must match temporary legacy name",
+			});
+		}
+		if (
+			record.designSystemRelease.version !== record.release.version ||
+			record.designSystemRelease.publishedAt !== record.release.publishedAt ||
+			record.designSystemRelease.immutable !== record.release.immutable
+		) {
+			context.addIssue({
+				code: "custom",
+				path: ["designSystemRelease"],
+				message: "must match temporary legacy release",
+			});
+		}
+	});
 
 export type PackEvaluationRecord = z.infer<typeof packEvaluationRecordSchema>;
 

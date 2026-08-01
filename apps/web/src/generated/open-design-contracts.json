@@ -4,6 +4,8 @@
 		"releases": {
 			"1.0.0": {
 				"identity": "foundation",
+				"designSystem": "Foundation",
+				"designSystemRelease": "1.0.0",
 				"designPack": "Foundation",
 				"packRelease": "1.0.0",
 				"access": "open",
@@ -11,6 +13,8 @@
 			},
 			"1.1.0": {
 				"identity": "foundation",
+				"designSystem": "Foundation",
+				"designSystemRelease": "1.1.0",
 				"designPack": "Foundation",
 				"packRelease": "1.1.0",
 				"access": "open",
@@ -23,6 +27,8 @@
 		"releases": {
 			"1.0.0": {
 				"identity": "editorial",
+				"designSystem": "Editorial",
+				"designSystemRelease": "1.0.0",
 				"designPack": "Editorial",
 				"packRelease": "1.0.0",
 				"access": "open",
@@ -35,6 +41,8 @@
 		"releases": {
 			"1.0.0": {
 				"identity": "mono",
+				"designSystem": "Mono",
+				"designSystemRelease": "1.0.0",
 				"designPack": "Mono",
 				"packRelease": "1.0.0",
 				"access": "open",
@@ -47,6 +55,8 @@
 		"releases": {
 			"1.0.0": {
 				"identity": "command",
+				"designSystem": "Command",
+				"designSystemRelease": "1.0.0",
 				"designPack": "Command",
 				"packRelease": "1.0.0",
 				"access": "open",
