@@ -22,16 +22,16 @@ import { addDesignContract } from "../src/add-design-contract";
 /** One Design Contract per Premium catalog identity, as the Official Catalog
  * delivers it: complete direction as one bare, self-contained document. */
 const premiumDesignContracts = {
-	command: {
-		designPack: "Command",
-		markdown: `# Command Interface System
+	vault: {
+		designPack: "Vault",
+		markdown: `# Vault Interface System
 
 Dark-first, dense, and technical direction for the whole product.
 `,
 	},
-	signal: {
-		designPack: "Signal",
-		markdown: `# Signal Interface System
+	beacon: {
+		designPack: "Beacon",
+		markdown: `# Beacon Interface System
 
 Bold geometry, expressive color, and richer motion for the whole product.
 `,
@@ -257,21 +257,21 @@ describe("Premium Installation with inline authorization", () => {
 	test("installs directly when an authorized Pack Credential already exists", async () => {
 		await storeCredential("ak_pack_existing");
 
-		const result = await addDesignContract(["command@1.0.0", "--yes"], {
+		const result = await addDesignContract(["vault@1.0.0", "--yes"], {
 			interactive: true,
 		});
 
 		expect(result).toBe(0);
 		expect(state.polls).toBe(0);
 		expect(await projectFile("DESIGN.md")).toBe(
-			premiumDesignContracts.command.markdown,
+			premiumDesignContracts.vault.markdown,
 		);
 	});
 
 	test("leaves the Project unchanged when authorization is denied", async () => {
 		state.deviceDecision = "deny";
 
-		const result = await addDesignContract(["command", "--yes"], {
+		const result = await addDesignContract(["vault", "--yes"], {
 			interactive: true,
 		});
 
@@ -283,7 +283,7 @@ describe("Premium Installation with inline authorization", () => {
 	test("leaves the Project unchanged when authorization expires", async () => {
 		state.deviceDecision = "expire";
 
-		const result = await addDesignContract(["command", "--yes"], {
+		const result = await addDesignContract(["vault", "--yes"], {
 			interactive: true,
 		});
 
@@ -292,7 +292,7 @@ describe("Premium Installation with inline authorization", () => {
 	});
 
 	test("fails clearly without waiting for a browser when not interactive", async () => {
-		const result = await addDesignContract(["command", "--yes"], {
+		const result = await addDesignContract(["vault", "--yes"], {
 			interactive: false,
 		});
 
@@ -306,20 +306,20 @@ describe("Premium Installation with inline authorization", () => {
 		await storeCredential("ak_pack_expired");
 		state.premiumAccess = "inactive";
 
-		const result = await addDesignContract(["command", "--yes"], {
+		const result = await addDesignContract(["vault", "--yes"], {
 			interactive: true,
 		});
 
 		expect(result).toBe(1);
 		expect(output.join("\n")).toContain("needs active Premium Access");
-		expect(output.join("\n")).not.toContain("Command Interface System");
+		expect(output.join("\n")).not.toContain("Vault Interface System");
 		expect(await projectEntries()).toEqual([]);
 	});
 
 	test("never sends a Pack Credential issued for another server", async () => {
 		await storeCredential("ak_pack_elsewhere", "https://other.example.com");
 
-		const result = await addDesignContract(["command", "--yes"], {
+		const result = await addDesignContract(["vault", "--yes"], {
 			interactive: false,
 		});
 
@@ -341,14 +341,14 @@ describe("Premium Installation with inline authorization", () => {
 		);
 
 		expect(
-			await addDesignContract(["command@1.0.0", "--yes"], {
+			await addDesignContract(["vault@1.0.0", "--yes"], {
 				interactive: true,
 			}),
 		).toBe(0);
 
 		expect(state.premiumRequests).toHaveLength(1);
 		const [request] = state.premiumRequests;
-		expect(request?.url).toBe(`${catalogOrigin}/contracts/command/1.0.0`);
+		expect(request?.url).toBe(`${catalogOrigin}/contracts/vault/1.0.0`);
 		expect(request?.hasBody).toBe(false);
 		expect(Object.keys(request?.headers ?? {}).toSorted()).toEqual([
 			"accept",

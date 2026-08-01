@@ -1,14 +1,6 @@
-import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 
-import {
-	buildTestCommandPackRelease,
-	buildTestSignalPackRelease,
-} from "./tests/support/premium-delivery-fixture";
-
-const commandPremiumRelease = buildTestCommandPackRelease();
-const signalPremiumRelease = buildTestSignalPackRelease();
 const testDatabasePath = resolve(".black-box/postgres");
 
 export default defineConfig({
@@ -25,13 +17,6 @@ export default defineConfig({
 	projects: [
 		{
 			name: "chromium",
-			testIgnore: /premium-delivery-journey\.spec\.ts/,
-			use: { ...devices["Desktop Chrome"] },
-		},
-		{
-			name: "premium-delivery",
-			dependencies: ["chromium"],
-			testMatch: /premium-delivery-journey\.spec\.ts/,
 			use: { ...devices["Desktop Chrome"] },
 		},
 	],
@@ -52,14 +37,6 @@ export default defineConfig({
 				"http://localhost:3011/success?checkout_id={CHECKOUT_ID}",
 			POLAR_WEBHOOK_SECRET: "deterministic-polar-webhook-secret",
 			NEXT_TEST_BUILD: "true",
-			COMMAND_PREMIUM_RELEASE: commandPremiumRelease,
-			COMMAND_PREMIUM_RELEASE_SHA256: createHash("sha256")
-				.update(commandPremiumRelease)
-				.digest("hex"),
-			SIGNAL_PREMIUM_RELEASE: signalPremiumRelease,
-			SIGNAL_PREMIUM_RELEASE_SHA256: createHash("sha256")
-				.update(signalPremiumRelease)
-				.digest("hex"),
 		},
 		url: "http://localhost:3011",
 		reuseExistingServer: false,

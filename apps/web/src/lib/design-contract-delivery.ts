@@ -1,17 +1,5 @@
-import {
-	authorizePremiumRetrieval,
-	recordPremiumEntitlementEvent,
-} from "@agentkogei/auth/lib/premium-delivery";
-import { designContractSchema } from "agentkogei/src/design-contract";
-
 import openDesignContracts from "@/generated/open-design-contracts.json";
 import { catalogSelector } from "@/lib/catalog-selector";
-import {
-	currentOfficialPremiumRelease,
-	getProtectedPremiumRelease,
-	isOfficialPremiumPackIdentity,
-} from "@/lib/protected-premium-releases";
-import { observeTestPremiumRetrieval } from "@/lib/test-premium-delivery";
 
 /**
  * The Official Catalog delivers a Pack Release as the exact raw Markdown bytes
@@ -43,50 +31,17 @@ export function findOpenDesignContract(identity: string, version?: string) {
 	return pack.releases[version ?? pack.currentRelease] ?? null;
 }
 
-/**
- * Resolves a Premium selector to the Design Contract the Official Catalog can
- * deliver for it. A protected Pack Release is provisioned as the same raw
- * Design Contract an Open Pack Release publishes, so a payload that is not one
- * reads as absent rather than failing the request.
- */
-function findPremiumDesignContract(identity: string, version?: string) {
-	if (!isOfficialPremiumPackIdentity(identity)) return null;
-	const selected = version ?? currentOfficialPremiumRelease(identity);
-	if (!selected) return null;
-
-	const release = designContractSchema.safeParse(
-		getProtectedPremiumRelease(identity, selected),
-	);
-	if (!release.success) return null;
-	const contract = release.data;
-	if (
-		contract.identity !== identity ||
-		contract.packRelease !== selected ||
-		contract.access !== "premium"
-	) {
-		return null;
-	}
-	return {
-		designPack: contract.designPack,
-		packRelease: contract.packRelease,
-		markdown: contract.markdown,
-	} satisfies DeliveredDesignContract;
-}
-
 export function designContractResponse(
 	contract: DeliveredDesignContract,
-	{ immutable, gated = false }: { immutable: boolean; gated?: boolean },
+	{ immutable }: { immutable: boolean },
 ) {
 	return new Response(contract.markdown, {
 		status: 200,
 		headers: {
 			"content-type": "text/markdown; charset=utf-8",
-			"cache-control": gated
-				? "private, no-store"
-				: immutable
-					? "public, max-age=31536000, immutable"
-					: "public, max-age=300",
-			...(gated ? { "x-content-type-options": "nosniff" } : {}),
+			"cache-control": immutable
+				? "public, max-age=31536000, immutable"
+				: "public, max-age=300",
 			"x-agentkogei-design-pack": contract.designPack,
 			"x-agentkogei-pack-release": contract.packRelease,
 		},
@@ -106,41 +61,11 @@ export function unknownDesignContractResponse(selector: string) {
 	);
 }
 
-function deniedDesignContractResponse(
-	status: 401 | 403,
-	selector: string,
-	explanation: string,
-) {
-	return new Response(`${selector} ${explanation}\n`, {
-		status,
-		headers: {
-			"content-type": "text/plain; charset=utf-8",
-			"cache-control": "private, no-store",
-			...(status === 401
-				? {
-						"www-authenticate":
-							'Bearer realm="AgentKogei Official Catalog", scope="premium:retrieve"',
-					}
-				: {}),
-		},
-	});
-}
-
-function packCredential(request: Request) {
-	const authorization = request.headers.get("authorization");
-	return authorization?.startsWith("Bearer ")
-		? authorization.slice("Bearer ".length).trim() || null
-		: null;
-}
-
 /**
- * Answers one Official Catalog request for a Design Contract. An Open Pack
- * Release is public; a Premium Pack Release reaches only a Builder holding a
- * valid Pack Credential with active Premium Access, and the two denials stay
- * distinguishable so the CLI knows whether browser authorization would help.
+ * Answers one public Official Catalog request for a Design Contract.
  */
 export async function deliverDesignContract(
-	request: Request,
+	_request: Request,
 	selection: { identity: string; version?: string },
 ) {
 	const { identity, version } = selection;
@@ -152,36 +77,5 @@ export async function deliverDesignContract(
 		});
 	}
 
-	const premiumContract = findPremiumDesignContract(identity, version);
-	if (!premiumContract) return unknownDesignContractResponse(selector);
-
-	observeTestPremiumRetrieval(request);
-	const authorization = await authorizePremiumRetrieval(
-		packCredential(request),
-	);
-	if (authorization.outcome === "unauthenticated") {
-		return deniedDesignContractResponse(
-			401,
-			selector,
-			"is a Premium Design Pack and needs an authorized Pack Credential.",
-		);
-	}
-	if (authorization.outcome === "inactive") {
-		return deniedDesignContractResponse(
-			403,
-			selector,
-			"needs active Premium Access.",
-		);
-	}
-
-	await recordPremiumEntitlementEvent({
-		builderId: authorization.builderId,
-		packId: identity,
-		packRelease: premiumContract.packRelease,
-		action: "retrieval",
-	});
-	return designContractResponse(premiumContract, {
-		immutable: version !== undefined,
-		gated: true,
-	});
+	return unknownDesignContractResponse(selector);
 }

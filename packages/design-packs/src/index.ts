@@ -72,8 +72,9 @@ function createPublishedPack(id: string) {
 const foundation = createPublishedPack("foundation");
 const editorial = createPublishedPack("editorial");
 const mono = createPublishedPack("mono");
+const command = createPublishedPack("command");
 
-export const publishedPacks = [foundation, editorial, mono] as const;
+export const publishedPacks = [foundation, editorial, mono, command] as const;
 
 export function foundationReleaseDirectoryFor(version: PackReleaseVersion) {
 	return foundation.directoryFor(version);
@@ -95,3 +96,10 @@ export function monoReleaseDirectoryFor(version: PackReleaseVersion) {
 
 export const monoReleaseVersions = mono.versions;
 export const monoReleaseDirectory = mono.directory;
+
+export function commandReleaseDirectoryFor(version: PackReleaseVersion) {
+	return command.directoryFor(version);
+}
+
+export const commandReleaseVersions = command.versions;
+export const commandReleaseDirectory = command.directory;

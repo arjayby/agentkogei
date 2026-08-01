@@ -16,7 +16,7 @@ The CLI applies a Design Pack through one `add` command. It resolves an Official
 
 Premium Access will cost USD $99 per year for one named Builder and cover every Premium Design Pack across unlimited Projects. Expiration ends catalog retrieval and new Installation, but an already Installed Pack keeps working offline in that Project. This access model rests on plain ownership of the retrieved file rather than runtime checks or DRM.
 
-The Official Catalog will launch with two complete Open Design Packs—Foundation and Editorial—and two complete Premium Design Packs—Command and Signal. Every Published Pack must meet the same completeness, compatibility, accessibility, and Pack Evaluation standard.
+The Official Catalog will launch with four complete Open Design Packs: Foundation, Editorial, Mono, and Command. Every Published Pack must meet the same completeness, compatibility, accessibility, and Pack Evaluation standard.
 
 ## User Stories
 
@@ -98,21 +98,20 @@ The Official Catalog will launch with two complete Open Design Packs—Foundatio
 76. As a subscribed Builder, I want Premium Design Packs to offer greater distinctiveness, production depth, and breadth of direction, so that Premium Access has meaningful value without withholding basic quality.
 77. As a Builder, I want Foundation to provide a neutral, crisp, highly legible B2B Interface System, so that I have a versatile Open starting point.
 78. As a Builder, I want Editorial to provide a warm, spacious, content-forward Interface System, so that I have a distinct Open alternative.
-79. As a subscribed Builder, I want Command to provide a dark-first, dense, technical Interface System, so that technical and operations products have a purpose-built premium direction.
-80. As a subscribed Builder, I want Signal to provide bold geometry, expressive color, and richer motion direction, so that AI and creative products have a distinctive premium direction.
-81. As a Builder, I want every Published Pack to address semantic tokens, layout, responsiveness, component anatomy, interaction states, loading, empty, error, success, disabled, and destructive states, so that agents receive complete interface direction.
-82. As a Builder, I want every Design Contract to include agent-facing do and do-not examples and a final validation checklist, so that agents can evaluate their own work.
-83. As a Builder, I want Design Packs to avoid prescribing workflows, information architecture, business logic, and product copy, so that the pack does not override product-specific decisions.
-84. As an open-source contributor, I want the application, CLI, Design Contract specification, and validators under MIT, so that I can inspect, modify, integrate, and self-host the software.
-85. As a Builder, I want Open Design Pack content free to install and use in any Project, so that I can reuse and adapt it without tracking attribution.
-86. As a self-hosting Builder, I want it made clear that self-hosting the software does not grant Premium Design Packs, so that open software and commercial content remain separate.
-87. As a subscribed Builder, I want AgentKogei to deliver at least one Material Release per quarter, so that annual Premium Access represents an actively maintained catalog.
+79. As a Builder, I want Command to provide a dark-first, dense, technical Interface System, so that technical and operations products have a purpose-built direction.
+80. As a Builder, I want every Published Pack to address semantic tokens, layout, responsiveness, component anatomy, interaction states, loading, empty, error, success, disabled, and destructive states, so that agents receive complete interface direction.
+81. As a Builder, I want every Design Contract to include agent-facing do and do-not examples and a final validation checklist, so that agents can evaluate their own work.
+82. As a Builder, I want Design Packs to avoid prescribing workflows, information architecture, business logic, and product copy, so that the pack does not override product-specific decisions.
+83. As an open-source contributor, I want the application, CLI, Design Contract specification, and validators under MIT, so that I can inspect, modify, integrate, and self-host the software.
+84. As a Builder, I want Open Design Pack content free to install and use in any Project, so that I can reuse and adapt it without tracking attribution.
+85. As a self-hosting Builder, I want it made clear that self-hosting the software does not grant Premium Design Packs, so that open software and commercial content remain separate.
+86. As a subscribed Builder, I want AgentKogei to deliver at least one Material Release per quarter, so that annual Premium Access represents an actively maintained catalog.
 
 ## Implementation Decisions
 
 - The MVP will extend the existing TypeScript monorepo and its Next.js web application, shared UI package, oRPC API layer, Better Auth integration, Drizzle data layer, Neon-compatible Postgres database, and Polar integration. New catalog, pack-validation, entitlement, and CLI responsibilities should be isolated behind domain-level interfaces rather than embedded in page components.
 - The Official Catalog will be first-party and version-controlled at launch. Open Design Contracts may live in the public project. Premium Design Pack metadata and Pack Previews may be public, but the raw premium Design Contract must remain in private storage and out of public build artifacts.
-- The launch catalog consists of Foundation and Editorial as Open Design Packs and Command and Signal as Premium Design Packs. All four are complete Published Packs, not feature-limited previews.
+- The launch catalog consists of Foundation, Editorial, Mono, and Command as Open Design Packs. All four are complete Published Packs, not feature-limited previews.
 - Each Design Contract directly targets the React or Next.js, Tailwind CSS v4, and shadcn/ui stack. There is no framework-neutral core, Stack Adapter, or per-adapter packaging.
 - The installed Design Contract is bare design direction. A release's identity, immutable semantic version, access class, compatibility, and changelog or migration notes travel as delivery metadata and its internal Pack Evaluation record, not inside the delivered file. There is no separate manifest or machine-readable metadata file a Project receives.
 - Every Pack Release is exactly one `DESIGN.md` Design Contract delivered as raw Markdown. There are no supporting resource files, declared targets, or content hashes.
@@ -161,7 +160,7 @@ The Official Catalog will launch with two complete Open Design Packs—Foundatio
 - Privacy scenarios inspect outbound requests from the CLI and verify that Project names, paths, Git remotes, files, prompts, generated UI, and dependency lists are absent. Opt-in diagnostics are tested separately for default-off behavior and explicit payload disclosure.
 - Pack publication uses valid and invalid Design Contract fixtures through the public validator or publication command surface rather than importing validator internals. It covers the required Design Contract, immutable semantic releases, compatibility, preview metadata, evaluation evidence, and the ban on executable behavior.
 - Automated Pack Evaluation checks repeatable structure, representative screen coverage, responsive states, light/dark behavior, reduced motion, and machine-testable WCAG 2.2 Level AA criteria. Human visual review and rights review remain explicit publication gates because their judgments cannot be replaced by implementation tests.
-- The launch catalog receives black-box smoke coverage proving that Foundation, Editorial, Command, and Signal expose correct metadata, previews, access classes, compatibility, and retrievability rules, and that Open packs are complete rather than restricted samples.
+- The launch catalog receives black-box smoke coverage proving that Foundation, Editorial, Mono, and Command expose correct metadata, previews, access classes, compatibility, and retrievability rules, and that Open packs are complete rather than restricted samples.
 - Good tests use realistic release fixtures and state transitions, assert one domain outcome per scenario, remain deterministic without live GitHub or Polar accounts, and avoid snapshots of incidental markup or terminal formatting unless the exact output is itself a compatibility contract.
 - The existing project has no behavioral test suite or comparable test fixture to reuse. Existing type-check, formatting, and production-build commands remain supporting verification, not substitutes for the new black-box acceptance seam.
 

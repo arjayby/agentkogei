@@ -116,7 +116,7 @@ export default function Home() {
 								id="catalog-heading"
 								className="text-balance font-medium text-3xl tracking-tight sm:text-5xl"
 							>
-								One catalog. Five directions.
+								One catalog. Four directions.
 							</h2>
 						</div>
 						<Link
@@ -131,42 +131,6 @@ export default function Home() {
 						{designPacks.map((pack, index) => (
 							<PackCard key={pack.slug} pack={pack} index={index} />
 						))}
-					</div>
-				</div>
-			</section>
-
-			<section
-				className="px-5 py-16 sm:px-8 lg:px-12 lg:py-24"
-				aria-labelledby="premium-heading"
-			>
-				<div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-2 lg:items-start lg:gap-24">
-					<div>
-						<p className="mb-5 font-mono text-muted-foreground text-xs uppercase tracking-[0.24em]">
-							03 / Premium Access
-						</p>
-						<h2
-							id="premium-heading"
-							className="text-balance font-medium text-3xl tracking-tight sm:text-5xl"
-						>
-							Unlock Command and Signal.
-						</h2>
-					</div>
-					<div className="flex flex-col gap-6">
-						<p className="max-w-xl text-pretty text-lg text-muted-foreground leading-8">
-							Command and Signal carry the most distinctive directions in the
-							Official Catalog. Premium Access unlocks both, and a pack you
-							install while access is active keeps working in that Project after
-							access expires.
-						</p>
-						<div>
-							<Link
-								href={"/premium" as Route}
-								className={buttonVariants({ size: "lg" })}
-							>
-								Explore Premium Access
-								<ArrowUpRight data-icon="inline-end" aria-hidden="true" />
-							</Link>
-						</div>
 					</div>
 				</div>
 			</section>
