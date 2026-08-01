@@ -14,7 +14,7 @@ _Avoid_: repo, codebase, workspace
 
 **Design System**:
 A versioned, self-contained body of agent-readable visual and behavioral direction for a product. Each Design System Release is delivered to a Project as a single Design Contract.
-_Avoid_: design pack, interface system, design.md, template, theme
+_Avoid_: legacy catalog names, `DESIGN.md`, template, theme
 
 **Design Contract**:
 The root `DESIGN.md` document through which an Installed Design System directs a Project's AI coding agents. It contains the complete Design System Release as a single, inspectable artifact.
@@ -26,7 +26,7 @@ _Avoid_: marketplace, store, registry
 
 **Published Design System**:
 A Design System admitted to the Official Catalog after meeting its completeness and quality requirements.
-_Avoid_: listing, pack
+_Avoid_: listing, catalog item
 
 **Design System Evaluation**:
 The standardized generation, automated validation, and human review process that a Design System Release must pass before its Design System can be published, including evidence that its reference implementation meets WCAG 2.2 Level AA.
@@ -46,4 +46,4 @@ _Avoid_: download, copy
 
 **Installed Design System**:
 A Design System applied to a Project as its root Design Contract and agent-instruction reference. It remains usable without AgentKogei or network access; a Project can have at most one Installed Design System at a time.
-_Avoid_: installed pack, hosted system, linked system
+_Avoid_: hosted system, linked system
