@@ -13,22 +13,44 @@ import { packReleaseVersionSchema } from "./release-version";
 /** The one document a Pack Release publishes, by its fixed name. */
 export const designContractFileName = "DESIGN.md";
 
-/**
- * One Pack Release as the Official Catalog delivers it: the raw Markdown a
- * Project installs as its root `DESIGN.md`, and the catalog facts a Builder
- * needs before consenting to Installation. Those facts travel beside the
- * document rather than inside it, so the installed Design Contract stays free
- * of machine metadata.
- */
-export const designContractSchema = z
+/** One Design System Release and the raw Markdown a Project installs. */
+export const designSystemContractSchema = z
 	.object({
 		identity: packIdentitySchema,
-		designPack: z.string().min(1),
-		packRelease: packReleaseVersionSchema,
-		access: packAccessSchema,
+		designSystem: z.string().min(1),
+		designSystemRelease: packReleaseVersionSchema,
 		markdown: z.string().min(1),
 	})
 	.strict();
+
+export type DesignSystemContract = z.infer<typeof designSystemContractSchema>;
+
+/**
+ * Temporary delivery interface retaining legacy fields for consumers migrating
+ * in issues #71 and #72. Ticket 7 (#73) removes these fields and access.
+ */
+export const designContractSchema = designSystemContractSchema
+	.extend({
+		designPack: z.string().min(1),
+		packRelease: packReleaseVersionSchema,
+		access: packAccessSchema,
+	})
+	.superRefine((contract, context) => {
+		if (contract.designSystem !== contract.designPack) {
+			context.addIssue({
+				code: "custom",
+				path: ["designSystem"],
+				message: "must match temporary legacy designPack",
+			});
+		}
+		if (contract.designSystemRelease !== contract.packRelease) {
+			context.addIssue({
+				code: "custom",
+				path: ["designSystemRelease"],
+				message: "must match temporary legacy packRelease",
+			});
+		}
+	});
 
 export type DesignContract = z.infer<typeof designContractSchema>;
 
@@ -47,6 +69,9 @@ export async function readDesignContract(
 	const record = packEvaluationRecordSchema.parse(JSON.parse(recordContents));
 	return {
 		identity: record.id,
+		designSystem: record.designSystem,
+		designSystemRelease: record.designSystemRelease.version,
+		// TODO(#73): remove the legacy delivery fields after all consumers migrate.
 		designPack: record.name,
 		packRelease: record.release.version,
 		access: record.access,
