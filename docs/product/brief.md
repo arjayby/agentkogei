@@ -1,154 +1,109 @@
-# AgentKogei MVP Product Brief
+# AgentKogei Product Brief
 
-Status: accepted on 2026-07-18
+Status: implemented
 
 ## Outcome
 
-AgentKogei gives AI coding agents a durable interface system for a software Project. A Builder chooses one Design Pack, installs it locally, and gets consistent design direction across the Project's marketing, authentication and onboarding, and application surfaces.
+AgentKogei gives AI coding agents durable design direction for a software Project. A Builder chooses one Design System from the public Official Catalog and installs its complete Design Contract locally. Every agent working in that Project can then follow the same visual and behavioral direction.
 
-The MVP validates two claims:
+## Builder
 
-1. A sufficiently complete Design Contract materially reduces visual inconsistency and design rework in agent-built SaaS products.
-2. Builders will pay annually for a continually maintained catalog of distinctive Premium Design Packs.
+AgentKogei serves a solo technical founder or member of a small product team who builds a web application with AI coding agents.
 
-## Initial customer
-
-The first customer is a solo technical founder or member of a small product team building a greenfield SaaS web application with AI coding agents.
-
-The MVP is not designed for enterprise design-system teams, agencies managing catalogs for many clients, or third-party Design Pack sellers.
+The product does not serve enterprise design system administration, client catalog management, or third party publishing.
 
 ## Product model
 
-- A **Design Pack** is a fixed, semantically versioned interface system.
-- Each Pack Release is delivered as a single **Design Contract** named `DESIGN.md`.
-- The Design Contract is self-contained Markdown: token definitions, component guidance, and examples all live inside the one file. It carries no license, attribution, or provenance text.
-- A Project can have at most one Installed Pack.
-- There is no Project Profile, pack customizer, manifest, hidden directory, or machine state. A Builder edits the installed `DESIGN.md` directly.
-- Installation governs future agent work. It does not promise to redesign an existing interface.
+- A Design System is a versioned, self contained body of visual and behavioral direction.
+- A Design System Release is delivered as one Design Contract named `DESIGN.md`.
+- The Design Contract contains tokens, layout, component guidance, states, accessibility direction, and examples in Markdown.
+- A Project can have at most one Installed Design System.
+- Installation adds no manifest, hidden directory, or machine state.
+- A Builder may edit an installed `DESIGN.md` directly.
+- Installation governs future agent work. It does not redesign an existing interface.
 
-## Interface boundary
+## Direction boundary
 
-Every Published Pack covers:
+Every Published Design System covers:
 
-- Marketing pages, including landing and pricing surfaces
-- Authentication and onboarding
-- Authenticated product UI
+- Marketing, onboarding, and product interfaces
 - Semantic color, typography, spacing, radius, elevation, and motion
-- Layout and responsive rules
+- Layout and responsive behavior
 - Component anatomy, variants, and interaction states
 - Loading, empty, error, success, disabled, and destructive states
-- Accessibility and reduced-motion behavior
-- Agent-facing do and do-not examples
-- A final validation checklist for agent work
+- Accessibility and reduced motion behavior
+- Agent facing examples and a final validation checklist
 
-Packs do not prescribe product workflows, information architecture, business logic, or product copy.
+A Design System does not prescribe product workflows, information architecture, business logic, or product copy.
 
-## Launch catalog
+## Official Catalog
 
-The Official Catalog launches with four first-party packs:
+The first party Official Catalog contains exactly four MIT licensed Design Systems:
 
-| Access | Working name | Direction |
-| --- | --- | --- |
-| Open | Foundation | Neutral, crisp, and highly legible B2B SaaS |
-| Open | Editorial | Warm, spacious, and content-forward SaaS |
-| Open | Mono | Monochrome, high-contrast, content-forward interfaces for media and creative tooling |
-| Open | Command | Dark-first, dense, technical interfaces for developer and operations products |
+| Design System | Direction |
+| --- | --- |
+| Foundation | Neutral, crisp, and highly legible B2B SaaS |
+| Editorial | Warm, spacious, and content forward SaaS |
+| Mono | Monochrome, high contrast interfaces for media and creative tooling |
+| Command | Dark first, dense interfaces for developer and operations products |
 
-Open and Premium packs meet the same completeness, accessibility, and evaluation standard. Premium value comes from greater creative distinctiveness, production depth, and breadth of direction rather than withholding baseline quality.
-
-The Official Catalog is first-party only and contains only AgentKogei-published packs. There are no third-party Pack Sources in the MVP.
+Every Design System is public and complete. The catalog does not accept third party submissions.
 
 ## Publication standard
 
-Every Pack Release must:
+Every Design System Release must:
 
-- Pass Design Contract structure and text-safety validation
-- Carry original or rightfully used direction, verified by human review at publication
-- Directly target the React/Next.js, Tailwind CSS v4, and shadcn/ui stack
-- Produce representative marketing, authentication, dashboard, table, form, settings, and state screens
-- Be evaluated across desktop and mobile, light and dark modes
+- Pass Design Contract structure and text safety validation
+- Contain original direction or material the publisher has the right to use
+- Target React or Next.js, Tailwind CSS v4, and shadcn/ui
+- Cover representative screens, responsive behavior, light and dark modes, and reduced motion
 - Demonstrate WCAG 2.2 Level AA in its reference implementation
-- Pass repeated agent-generation tasks, automated checks, and human visual review
-- Publish a visual Pack Preview and changelog
+- Pass repeatable generation tasks, automated checks, human visual review, and human rights review
+- Publish a Design System Preview, evaluation evidence, and a changelog
 
-Patch releases clarify or correct without materially changing output. Minor releases add compatible direction. Major releases may intentionally alter a Project's interface and require migration notes. Each release is an immutable Design Contract at its own catalog route.
+Patch releases clarify or correct direction without materially changing output. Minor releases add compatible direction. Major releases may intentionally alter a Project interface and require migration notes. Each release is immutable at its exact catalog route.
 
 ## Web product
 
-The web application provides:
+The web application presents the landing page, Official Catalog, documentation, and a Design System Preview for each of the four Published Design Systems. Current and exact Design Contract routes expose raw Markdown publicly.
 
-- Public landing, catalog, pricing, and documentation pages
-- Public Pack Previews for Open and Premium packs
-- Raw Open Design Pack access without an account
-- GitHub-only authentication for premium flows
-- Polar checkout and billing portal access
-- An account dashboard showing Premium Access and authorized CLI credentials
-- Browser approval for CLI device authorization
-- Raw Design Contract routes: Open contracts served publicly, Premium contracts only to an authorized CLI
-
-Premium previews expose rendered evidence, direction, coverage, compatibility, evaluation status, and changelog. They do not expose the raw premium Design Contract.
+The application is stateless. It requires no identity, authorization, persistent application data, or protected delivery path.
 
 ## CLI product
 
-The MIT-licensed AgentKogei CLI has one Design Pack lifecycle command, `agentkogei add <pack[@version]>`:
+The AgentKogei CLI provides one operation:
 
-- Installs Open packs without an AgentKogei account
-- Uses browser device authorization and a revocable Pack Credential for Premium packs, starting authorization inline and resuming the same Installation
-- Resolves only Official Catalog identities: a bare identity selects the current Pack Release; `pack@1.1.0` selects that exact release
-- Writes one root `DESIGN.md` and one clearly marked `AGENTS.md` reference, preserving existing instructions
-- Previews the Pack Release and the absolute files it will write, then asks before changing anything; `--yes` consents without a prompt
-- Refuses to replace an existing `DESIGN.md` unless the Builder passes `--yes --force`
-- Leaves the Project unchanged on any fetch, validation, authorization, entitlement, confirmation, or write failure
-- Never executes pack-supplied code, scripts, dependency installation, or package-manager commands
-- Installs no hidden directory, manifest, checksum record, or machine state; removal is deleting `DESIGN.md` and its `AGENTS.md` reference
+```text
+agentkogei add <design-system[@version]> [--yes] [--force]
+```
 
-The CLI never sends Project names, paths, Git remotes, file contents, prompts, generated UI, or dependency lists. Premium operations send only the Builder identity, Pack Release, and action type; no Project identifier is created or retained. Diagnostics are opt-in.
+The CLI:
 
-## Access
+- Retrieves current or exact Design System Releases anonymously from the Official Catalog
+- Validates the complete Design Contract before changing the Project
+- Previews the selected release and absolute files it will write
+- Requires confirmation, or `--yes` for unattended consent
+- Requires `--yes --force` for unattended replacement
+- Writes one root `DESIGN.md` and one marked `AGENTS.md` reference
+- Preserves unrelated Project files and existing agent instructions
+- Leaves the Project unchanged after retrieval, validation, consent, conflict, or write failure
+- Never executes supplied code, installs dependencies, or invokes a package manager
+- Sends only the Design Contract request initiated by the Builder
 
-- Web application, CLI, pack specification, and validators: MIT
-- Open Design Packs: free to install and use in any Project; the use grant is stated on the website Terms page
-- Premium Design Packs: private and access-gated; redistribution limits are stated on the website Terms page
+Removing an Installed Design System is an ordinary Project edit: delete `DESIGN.md` and the marked `AGENTS.md` block.
 
-Public visibility of a Premium Design Pack inside a genuine end-product Project does not make it freely reusable elsewhere. Extraction, resale, republishing, and reuse in another Project remain prohibited under the Terms.
+## License
 
-## Subscription
+The MIT License covers all source code and all four Design Systems, including their Design Contracts and Design System Evaluation content. Installed Design Contracts remain bare design direction and do not repeat license, attribution, or provenance prose.
 
-- Product: Premium Access to the complete premium catalog
-- Price: USD $99 per year
-- Account scope: one named Builder
-- Project scope: unlimited Projects while Premium Access is active
-- Team plan: deferred
-- Trial: none; complete Open packs demonstrate the workflow
-- Voluntary refunds: none; mandatory or Polar-issued refunds terminate affected access
-- Content commitment: at least one Material Release per quarter
+## Exclusions
 
-When Premium Access expires, the Builder cannot preview gated source, install, or reinstall any Premium Design Pack. A premium Design Contract already installed while access was active keeps working in that Project and is usable by all Project collaborators. It continues to work offline without runtime checks or DRM.
-
-## Billing and authentication
-
-- Better Auth owns application sessions and GitHub OAuth.
-- Better Auth device authorization supports the browser-approved CLI flow.
-- Polar is the Merchant of Record and billing source of truth.
-- AgentKogei owns Pack Credentials and premium delivery authorization. It records the Builder, Pack Release, and Installation event for entitlement and audit, but retains no Project identifier.
-- Open catalog usage remains account-free.
-
-## MVP exclusions
-
-- Creator marketplace, submissions, payouts, and moderation
-- Team organizations, invitations, roles, and seat billing
-- Project Profile or live design customization
-- Automatic redesign or migration of an existing application
-- Frameworks other than React/Next.js with Tailwind CSS v4 and shadcn/ui
-- Executable pack hooks
-- Mandatory telemetry or customer repository inspection
-
-## Validation gate
-
-Before expanding the product, acquire 10 paid annual subscribers. Review real Projects with at least five of them and continue investing only if at least four demonstrate materially less visual inconsistency or design rework.
-
-GitHub stars, site traffic, and Open Pack downloads are supporting signals rather than proof of the paid outcome.
-
-## Commercial terms
-
-The website Terms and Privacy pages publish the commercial terms for the Service: the open-pack use grant and premium redistribution limits, subscription disclosures, public-Project permissions, and the no-voluntary-refund policy.
+- Third party catalog submissions or a marketplace
+- Team administration and enterprise controls
+- Project customization or hosted configuration
+- Automatic redesign or migration
+- More than one Installed Design System in a Project
+- Manifests, supporting resources, executable hooks, or automatic dependency installation
+- Managed status, automatic updates, or integrity tracking after Installation
+- Frameworks beyond React or Next.js with Tailwind CSS v4 and shadcn/ui
+- Runtime dependence on AgentKogei after Installation
