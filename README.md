@@ -51,44 +51,35 @@ Installation governs *future* agent work. It does not migrate or redesign an exi
 | --- | --- |
 | **Design Pack** | A fixed, versioned interface system, delivered as a single Design Contract. |
 | **Design Contract** | The `DESIGN.md` that tells a project's agents which interface system to follow. |
-| **Open Design Pack** | A complete pack anyone can install without an account, free to use in any project. |
-| **Premium Design Pack** | A private, access-gated pack — greater creative depth and breadth, same baseline quality. |
-| **Premium Access** | An annual subscription entitling one Builder to every Premium pack, for unlimited projects. |
-| **Official Catalog** | The curated, first-party collection of Open and Premium packs published by AgentKogei. |
+| **Official Catalog** | The curated, first party collection of public packs published by AgentKogei. |
 
 📖 See [`CONTEXT.md`](CONTEXT.md) for the full domain vocabulary and [`docs/product/brief.md`](docs/product/brief.md) for the product brief.
 
 ## 🗂️ Official Catalog
 
-| Access | Pack | Direction |
-| --- | --- | --- |
-| Open | **Foundation** | Neutral, crisp, highly legible B2B SaaS |
-| Open | **Editorial** | Warm, spacious, content-forward SaaS |
-| Open | **Mono** | Monochrome, high-contrast, content-forward interfaces for media & creative tooling |
-| Open | **Command** | Dark-first, dense, technical interfaces for developer & ops products |
-
-Open and Premium packs meet the same completeness, accessibility, and evaluation standard. Premium value comes from greater creative distinctiveness and depth — never from withholding baseline quality.
+| Pack | Direction |
+| --- | --- |
+| **Foundation** | Neutral, crisp, highly legible B2B SaaS |
+| **Editorial** | Warm, spacious, content-forward SaaS |
+| **Mono** | Monochrome, high contrast, content forward interfaces for media and creative tooling |
+| **Command** | Dark first, dense, technical interfaces for developer and operations products |
 
 ## 🔒 Open source & access
 
-The AgentKogei application, API, CLI, Design Pack specification, and validators are available under the [MIT License](LICENSE). Design Pack content is not separately licensed inside the files — how Open and Premium packs may be used is set out in the website Terms. Self-hosting the software does not grant access to Premium Design Packs.
+The AgentKogei web application, CLI, Design Pack specification, and validators are available under the [MIT License](LICENSE). Every Design Pack in the Official Catalog is public, and the CLI installs its Design Contract anonymously.
 
 ## 🛠️ Tech stack
 
-Built on [Better-T-Stack](https://github.com/AmanVarshney01/create-better-t-stack): a Turborepo monorepo running Next.js, oRPC end-to-end type-safe APIs, Drizzle ORM over PostgreSQL, Better-Auth (GitHub OAuth), TailwindCSS with a shared shadcn/ui package, and Biome for linting and formatting.
+Built as a Turborepo monorepo with Next.js, React, Tailwind CSS, a shared shadcn/ui package, and Biome for linting and formatting.
 
 ```
 agentkogei/
 ├── apps/
-│   └── web/              # Fullstack application (Next.js)
+│   └── web/              # Public catalog (Next.js)
 └── packages/
     ├── ui/               # Shared shadcn/ui components and styles
-    ├── api/              # oRPC API layer / business logic
-    ├── auth/             # Authentication configuration & logic
-    ├── db/               # Drizzle schema & migrations
     ├── design-packs/     # Design Pack specification & validators
-    ├── config/           # Shared tooling config
-    └── env/              # Environment schema
+    └── config/           # Shared tooling config
 ```
 
 ## 🚀 Getting started
@@ -97,28 +88,6 @@ Install dependencies:
 
 ```bash
 bun install
-```
-
-Copy `apps/web/.env.example` to `apps/web/.env` and replace its placeholders.
-
-Create a GitHub OAuth App for the web application and set its authorization callback URL to:
-
-```text
-http://localhost:3001/api/auth/callback/github
-```
-
-Use the deployed origin in place of `http://localhost:3001` for preview and production OAuth Apps. GitHub is the only sign-in provider; email/password authentication is disabled.
-
-### Database setup
-
-This project uses PostgreSQL with Drizzle ORM.
-
-1. Set up a PostgreSQL database.
-2. Update `apps/web/.env` with your connection details.
-3. Apply the schema:
-
-```bash
-bun run db:push
 ```
 
 Then start the dev server:
@@ -138,7 +107,7 @@ bun install --frozen-lockfile
 bun run launch:verify
 ```
 
-This verifies formatting, types, migrations, production builds, the distributable CLI, premium-resource isolation, and the full black-box suite. See [the MVP launch handoff](docs/launch-handoff.md) for the test boundary, distribution, manual commercial validation checklist, deployment migration command, and commercial terms.
+This verifies formatting, types, production builds, the distributable CLI, and the full black-box suite. No database or commercial service credentials are required.
 
 ## 🎛️ UI customization
 
@@ -164,18 +133,14 @@ For app-specific blocks instead of shared primitives, run the shadcn CLI from `a
 
 ## ☁️ Deployment
 
-Deploys target the web + server on Vercel, configured via `vercel.json`. Vercel Services share project environment variables, but deploys do not upload local `.env` files automatically — link the project and sync env before your first deploy.
+Deploys target the public catalog on Vercel, configured via `vercel.json`. The application requires no authentication, billing, database, protected release, or diagnostics variables.
 
 ```bash
 bun run deploy:setup     # Link this repo to a Vercel project (first-time)
-bun run env:preview      # Sync local env to the Vercel preview environment
-bun run env:production   # Sync local env to the Vercel production environment
 bun run deploy:check     # Dry-run a deploy (no upload)
 bun run deploy           # Preview deploy
 bun run deploy:prod      # Production deploy
 ```
-
-Pass Vercel CLI flags to the env sync commands directly, e.g. `bun run env:production --scope your-team`. For more detail, see [Deploying to Vercel](https://www.better-t-stack.dev/docs/guides/vercel).
 
 ## 📜 Available scripts
 
@@ -188,11 +153,6 @@ Pass Vercel CLI flags to the env sync commands directly, e.g. `bun run env:produ
 | `bun run format:check` | Check formatting and lint rules without rewriting |
 | `bun run check-types` | Check TypeScript types across all apps |
 | `bun run launch:verify` | Run the complete technical launch gate |
-| `bun run db:push` | Push schema changes to the database |
-| `bun run db:generate` | Generate database client/types |
-| `bun run db:migrate` | Run database migrations |
-| `bun run db:check` | Validate the committed Drizzle migration journal |
-| `bun run db:studio` | Open the database studio UI |
 | `bun run prepare` | Initialize Git hooks (Husky) |
 
 ---

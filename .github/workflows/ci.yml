@@ -20,16 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      BETTER_AUTH_SECRET: "ci-only-secret-ci-only-secret-ci-only"
-      BETTER_AUTH_URL: "http://localhost:3001"
       CI: "true"
-      CORS_ORIGIN: "http://localhost:3001"
-      DATABASE_URL: "postgresql://postgres:postgres@127.0.0.1:5432/agentkogei"
-      GITHUB_CLIENT_ID: "ci-only-github-client"
-      GITHUB_CLIENT_SECRET: "ci-only-github-secret"
       HUSKY: "0"
-      POLAR_ACCESS_TOKEN: "ci-only-polar-token"
-      POLAR_SUCCESS_URL: "http://localhost:3001/success"
 
     steps:
       - name: Check out repository
@@ -55,7 +47,6 @@ jobs:
         run: bun run build
 
       # The black-box journeys drive a real browser against the built product.
-      # Their database is embedded, so no service container is required.
       - name: Install the black-box browser
         run: bun x playwright install --with-deps chromium
         working-directory: apps/web
@@ -70,6 +61,5 @@ jobs:
           name: black-box-evidence
           path: |
             apps/web/test-results
-            apps/web/.black-box/application.log
           if-no-files-found: ignore
           retention-days: 7
