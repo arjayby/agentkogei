@@ -16,17 +16,17 @@ import { hasHiddenDocumentControl, hasTerminalControl } from "./text-safety";
 
 const managedReference = [
 	managedBlockStart,
-	"## AgentKogei Design Pack",
+	"## AgentKogei Design System",
 	"",
-	"Follow the Interface System in `DESIGN.md` for all user interface work in this Project.",
+	"Follow the Design System in `DESIGN.md` for all user interface work in this Project.",
 	managedBlockEnd,
 ].join("\n");
 
 /** What a Builder is consenting to before either Project file is written. */
 export type DesignContractInstallationPlan = {
 	identity: string;
-	designPack: string;
-	packRelease: string;
+	designSystem: string;
+	designSystemRelease: string;
 	source: string;
 	markdown: string;
 	projectDirectory: string;
@@ -42,13 +42,13 @@ export type DesignContractInstallationPlan = {
 
 export type RetrievedDesignContract = {
 	identity: string;
-	designPack: string;
-	packRelease: string;
+	designSystem: string;
+	designSystemRelease: string;
 	markdown: string;
 	source: string;
 };
 
-function packSelector(identity: string, version?: string) {
+function designSystemSelector(identity: string, version?: string) {
 	return version ? `${identity}@${version}` : identity;
 }
 
@@ -74,15 +74,15 @@ export async function retrieveDesignContract(input: {
 	officialCatalogUrl: string;
 }): Promise<RetrievedDesignContract> {
 	if (!packIdentityPattern.test(input.identity)) {
-		throw new Error("invalid Design Pack identity");
+		throw new Error("invalid Design System identity");
 	}
 	if (
 		input.version !== undefined &&
 		!packReleaseVersionSchema.safeParse(input.version).success
 	) {
-		throw new Error("invalid Pack Release version");
+		throw new Error("invalid Design System Release version");
 	}
-	const selector = packSelector(input.identity, input.version);
+	const selector = designSystemSelector(input.identity, input.version);
 	const base = input.officialCatalogUrl.endsWith("/")
 		? input.officialCatalogUrl
 		: `${input.officialCatalogUrl}/`;
@@ -144,22 +144,26 @@ export async function retrieveDesignContract(input: {
 		);
 	}
 
-	const packRelease = catalogHeader(response, "pack-release", selector);
-	if (!packReleaseVersionSchema.safeParse(packRelease).success) {
+	const designSystemRelease = catalogHeader(
+		response,
+		"design-system-release",
+		selector,
+	);
+	if (!packReleaseVersionSchema.safeParse(designSystemRelease).success) {
 		throw new Error(
-			`Official Catalog reported an invalid Pack Release for ${selector}`,
+			`Official Catalog reported an invalid Design System Release for ${selector}`,
 		);
 	}
-	if (input.version && packRelease !== input.version) {
+	if (input.version && designSystemRelease !== input.version) {
 		throw new Error(
-			`Official Catalog returned ${input.identity}@${packRelease}, expected ${selector}`,
+			`Official Catalog returned ${input.identity}@${designSystemRelease}, expected ${selector}`,
 		);
 	}
 
 	return {
 		identity: input.identity,
-		designPack: catalogHeader(response, "design-pack", selector),
-		packRelease,
+		designSystem: catalogHeader(response, "design-system", selector),
+		designSystemRelease,
 		markdown,
 		source: source.href,
 	};
@@ -351,14 +355,14 @@ export function formatDesignContractPreview(
 		unchanged: `Keep ${plan.designContractPath} (already this exact Design Contract)`,
 	}[plan.designContractChange];
 	const agentsChange = {
-		create: `Create ${plan.agentsPath} with the AgentKogei Design Pack reference`,
-		reference: `Update ${plan.agentsPath} to add the AgentKogei Design Pack reference (existing instructions preserved)`,
-		rereference: `Update the AgentKogei Design Pack reference in ${plan.agentsPath} (existing instructions preserved)`,
+		create: `Create ${plan.agentsPath} with the AgentKogei Design System reference`,
+		reference: `Update ${plan.agentsPath} to add the AgentKogei Design System reference (existing instructions preserved)`,
+		rereference: `Update the AgentKogei Design System reference in ${plan.agentsPath} (existing instructions preserved)`,
 		unchanged: `Keep ${plan.agentsPath} (already references DESIGN.md)`,
 	}[plan.agentsChange];
 
 	const catalogFacts = [
-		`${plan.designPack} ${plan.packRelease} (${plan.identity})`,
+		`Design System: ${plan.designSystem} (${plan.identity})\nDesign System Release: ${plan.designSystemRelease}`,
 		[
 			`Official Catalog: ${plan.source}`,
 			`Project: ${plan.projectDirectory}`,

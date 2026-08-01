@@ -15,10 +15,6 @@ export type PackValidationResult =
 			ok: true;
 			designSystem: string;
 			designSystemRelease: string;
-			/** @deprecated Remove in issue #73. */
-			pack: string;
-			/** @deprecated Remove in issue #73. */
-			version: string;
 			designContractBytes: number;
 			evidenceFilesValidated: number;
 	  }
@@ -244,7 +240,8 @@ async function validateAgainstPublishedRelease(
 		);
 		if (
 			published.id !== release.record.id ||
-			published.release.version !== release.record.release.version
+			published.designSystemRelease.version !==
+				release.record.designSystemRelease.version
 		) {
 			return [];
 		}
@@ -255,7 +252,7 @@ async function validateAgainstPublishedRelease(
 			publishedContract.equals(release.contract)
 			? []
 			: [
-					`immutable Pack Release ${release.record.id}@${release.record.release.version} differs from the published snapshot`,
+					`immutable Design System Release ${release.record.id}@${release.record.designSystemRelease.version} differs from the published snapshot`,
 				];
 	} catch {
 		return ["published release metadata is missing or invalid"];
@@ -329,9 +326,6 @@ export async function validatePackRelease(
 		ok: true,
 		designSystem: record.designSystem,
 		designSystemRelease: record.designSystemRelease.version,
-		// TODO(#73): remove these legacy result fields after publication consumers migrate.
-		pack: record.id,
-		version: record.release.version,
 		designContractBytes: contract.byteLength,
 		evidenceFilesValidated: record.evaluation.evidence.length,
 	};

@@ -142,10 +142,6 @@ describe("Pack Release publication validation", () => {
 					ok: true,
 					designSystem: record.designSystem,
 					designSystemRelease: version,
-					// TODO(#73): remove the temporary legacy result fields after all
-					// publication consumers use Design System metadata.
-					pack: pack.id,
-					version,
 					designContractBytes: contract.byteLength,
 					evidenceFilesValidated: record.evaluation.evidence.length,
 				});
@@ -297,10 +293,11 @@ describe("Pack Release publication validation", () => {
 
 	test("rejects invalid semantic release metadata", async () => {
 		const errors = await evaluateMutatedRelease((record) => {
-			(record.release as Record<string, unknown>).version = "01.0.0";
+			(record.designSystemRelease as Record<string, unknown>).version =
+				"01.0.0";
 		});
 
-		expect(errors).toContain("release.version");
+		expect(errors).toContain("designSystemRelease.version");
 	});
 
 	test("rejects a compatibility range that also admits Tailwind CSS v3", async () => {
@@ -368,7 +365,9 @@ describe("Pack Release publication validation", () => {
 
 		expect(result.ok).toBe(false);
 		if (!result.ok) {
-			expect(result.errors.join(" ")).toContain("immutable Pack Release");
+			expect(result.errors.join(" ")).toContain(
+				"immutable Design System Release",
+			);
 		}
 	});
 

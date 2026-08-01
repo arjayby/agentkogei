@@ -14,9 +14,9 @@ const catalog = Object.fromEntries(
 			const releases = await Promise.all(
 				pack.versions.map(async (version) => {
 					const contract = await readDesignContract(pack.directoryFor(version));
-					if (contract.packRelease !== version) {
+					if (contract.designSystemRelease !== version) {
 						throw new Error(
-							`${pack.id} ${version} declares Pack Release ${contract.packRelease}`,
+							`${pack.id} ${version} declares Design System Release ${contract.designSystemRelease}`,
 						);
 					}
 					// This catalog is compiled into the public bundle and served
@@ -32,7 +32,7 @@ const catalog = Object.fromEntries(
 			);
 			const currentRelease = pack.versions.at(-1);
 			if (!currentRelease) {
-				throw new Error(`${pack.id} has no Pack Releases`);
+				throw new Error(`${pack.id} has no Design System Releases`);
 			}
 			return [
 				pack.id,

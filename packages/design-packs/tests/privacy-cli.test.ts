@@ -45,8 +45,8 @@ const catalog = captureServer(
 		new Response(designContract, {
 			headers: {
 				"content-type": "text/markdown; charset=utf-8",
-				"x-agentkogei-design-pack": "Foundation",
-				"x-agentkogei-pack-release": "1.1.0",
+				"x-agentkogei-design-system": "Foundation",
+				"x-agentkogei-design-system-release": "1.1.0",
 			},
 		}),
 );
@@ -181,7 +181,7 @@ describe("CLI privacy boundary", () => {
 			expect(result.exitCode, arguments_[0]).toBe(2);
 			expect(result.stdout).toBe("");
 			expect(result.stderr).toContain(
-				"Usage:\n  agentkogei add <pack[@version]> [--yes] [--force]",
+				"Usage:\n  agentkogei add <design-system[@version]> [--yes] [--force]",
 			);
 			expect(result.stderr).not.toMatch(
 				/login|logout|credential|authorization|diagnostic/i,

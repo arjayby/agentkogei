@@ -521,7 +521,9 @@ test("the distributed CLI rejects every retired command and flag without touchin
 			for (const retiredVerb of ["install", "status", "update", "detach"]) {
 				expect(result.stderr).not.toContain(`agentkogei ${retiredVerb}`);
 			}
-			expect(result.stderr).toContain("agentkogei add <pack[@version]>");
+			expect(result.stderr).toContain(
+				"agentkogei add <design-system[@version]>",
+			);
 			// Neither the directory the CLI ran in nor the one a retired flag
 			// named may gain a file on the way to a refusal.
 			expect(await readdir(project)).toEqual([]);
@@ -570,7 +572,7 @@ test("Command is public while current and exact Signal selectors are ordinarily 
 		expect(response.headers()["content-type"]).toContain("text/plain");
 		expect(response.headers()["cache-control"]).toBe("no-store");
 		expect(await response.text()).toBe(
-			`${selector.replace("/", "@")} is not a Pack Release in the AgentKogei Official Catalog.\n`,
+			`${selector.replace("/", "@")} is not a Design System Release in the AgentKogei Official Catalog.\n`,
 		);
 	}
 
@@ -679,12 +681,20 @@ for (const openPack of openDesignPacks) {
 
 			expect(refused.exitCode).toBe(2);
 			expect(refused.stdout).toContain(
-				`${designPack} ${currentRelease} (${identity})`,
+				`Design System: ${designPack} (${identity})`,
+			);
+			expect(refused.stdout).toContain(
+				`Design System Release: ${currentRelease}`,
 			);
 			expect(refused.stdout).toContain(path.join(project, "DESIGN.md"));
 			expect(added.exitCode, added.stderr).toBe(0);
-			expect(added.stdout).toContain(`Added ${designPack} ${currentRelease}`);
+			expect(added.stdout).toContain(
+				`Installed ${designPack} Design System Release ${currentRelease}`,
+			);
 			expect(repeated.exitCode, repeated.stderr).toBe(0);
+			expect(repeated.stdout).toContain(
+				`${designPack} Design System Release ${currentRelease} is already this Project's Design Contract`,
+			);
 
 			const delivered = await request.get(`/contracts/${identity}`);
 			expect(await readFile(path.join(project, "DESIGN.md"), "utf8")).toBe(
@@ -715,7 +725,9 @@ for (const openPack of openDesignPacks) {
 				);
 
 				expect(added.exitCode, added.stderr).toBe(0);
-				expect(added.stdout).toContain(`Added ${designPack} ${release}`);
+				expect(added.stdout).toContain(
+					`Installed ${designPack} Design System Release ${release}`,
+				);
 				const delivered = await request.get(
 					`/contracts/${identity}/${release}`,
 				);
