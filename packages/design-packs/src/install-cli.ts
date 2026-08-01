@@ -4,12 +4,14 @@ import { addDesignContract } from "./add-design-contract";
 import { terminalIsInteractive } from "./terminal-consent";
 
 /**
- * Everything AgentKogei accepts. `add` is the one Design Pack lifecycle
+ * Everything AgentKogei accepts. `add` is the one Design System lifecycle
  * operation; the rest support it. Any other command or option is unknown, so a
  * Builder who reaches for a retired verb sees only the interface that exists.
  */
 function usage() {
-	console.error("Usage:\n  agentkogei add <pack[@version]> [--yes] [--force]");
+	console.error(
+		"Usage:\n  agentkogei add <design-system[@version]> [--yes] [--force]",
+	);
 }
 
 async function main() {

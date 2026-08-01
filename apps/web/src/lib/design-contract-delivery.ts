@@ -57,7 +57,7 @@ export function designContractResponse(
 
 export function unknownDesignContractResponse(selector: string) {
 	return new Response(
-		`${selector} is not a Pack Release in the AgentKogei Official Catalog.\n`,
+		`${selector} is not a Design System Release in the AgentKogei Official Catalog.\n`,
 		{
 			status: 404,
 			headers: {

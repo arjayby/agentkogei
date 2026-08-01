@@ -24,8 +24,8 @@ type CatalogResponse = {
 	status?: number;
 	body?: string | Uint8Array;
 	contentType?: string;
-	designPack?: string;
-	packRelease?: string;
+	designSystem?: string;
+	designSystemRelease?: string;
 };
 
 const contracts = {
@@ -46,11 +46,14 @@ const catalog = Bun.serve({
 				headers: {
 					"content-type":
 						override.contentType ?? "text/markdown; charset=utf-8",
-					...(override.designPack
-						? { "x-agentkogei-design-pack": override.designPack }
+					...(override.designSystem
+						? { "x-agentkogei-design-system": override.designSystem }
 						: {}),
-					...(override.packRelease
-						? { "x-agentkogei-pack-release": override.packRelease }
+					...(override.designSystemRelease
+						? {
+								"x-agentkogei-design-system-release":
+									override.designSystemRelease,
+							}
 						: {}),
 				},
 			});
@@ -64,16 +67,19 @@ const catalog = Bun.serve({
 						? contracts["1.0.0"]
 						: null;
 		if (!release) {
-			return new Response("not a Pack Release in the Official Catalog\n", {
-				status: 404,
-				headers: { "content-type": "text/plain; charset=utf-8" },
-			});
+			return new Response(
+				"not a Design System Release in the Official Catalog\n",
+				{
+					status: 404,
+					headers: { "content-type": "text/plain; charset=utf-8" },
+				},
+			);
 		}
 		return new Response(release.markdown, {
 			headers: {
 				"content-type": "text/markdown; charset=utf-8",
-				"x-agentkogei-design-pack": release.designPack,
-				"x-agentkogei-pack-release": release.packRelease,
+				"x-agentkogei-design-system": release.designSystem,
+				"x-agentkogei-design-system-release": release.designSystemRelease,
 			},
 		});
 	},
@@ -144,7 +150,8 @@ describe("agentkogei add", () => {
 		const result = await runAdd(project, ["add", "foundation"]);
 
 		expect(result.exitCode).toBe(2);
-		expect(result.stdout).toContain("Foundation 1.1.0 (foundation)");
+		expect(result.stdout).toContain("Design System: Foundation (foundation)");
+		expect(result.stdout).toContain("Design System Release: 1.1.0");
 		expect(result.stdout).toContain(
 			`Create ${path.join(project, "DESIGN.md")}`,
 		);
@@ -161,7 +168,9 @@ describe("agentkogei add", () => {
 		const result = await runAdd(project, ["add", "foundation", "--yes"]);
 
 		expect(result.exitCode, result.stderr).toBe(0);
-		expect(result.stdout).toContain("Added Foundation 1.1.0");
+		expect(result.stdout).toContain(
+			"Installed Foundation Design System Release 1.1.0",
+		);
 		expect(await projectFile(project, "DESIGN.md")).toBe(
 			contracts["1.1.0"].markdown,
 		);
@@ -177,7 +186,9 @@ describe("agentkogei add", () => {
 		const result = await runAdd(project, ["add", "foundation@1.0.0", "--yes"]);
 
 		expect(result.exitCode, result.stderr).toBe(0);
-		expect(result.stdout).toContain("Added Foundation 1.0.0");
+		expect(result.stdout).toContain(
+			"Installed Foundation Design System Release 1.0.0",
+		);
 		expect(await projectFile(project, "DESIGN.md")).toBe(
 			contracts["1.0.0"].markdown,
 		);
@@ -273,8 +284,8 @@ describe("agentkogei add", () => {
 		const project = await temporaryProject();
 		overrides.set("/contracts/foundation", {
 			body: new Uint8Array([0x23, 0x20, 0xff, 0xfe, 0x0a]),
-			designPack: "Foundation",
-			packRelease: "1.1.0",
+			designSystem: "Foundation",
+			designSystemRelease: "1.1.0",
 		});
 
 		const result = await runAdd(project, ["add", "foundation", "--yes"]);
@@ -289,8 +300,8 @@ describe("agentkogei add", () => {
 		overrides.set("/contracts/foundation", {
 			body: '{"name":"foundation","type":"registry:item"}',
 			contentType: "application/json",
-			designPack: "Foundation",
-			packRelease: "1.1.0",
+			designSystem: "Foundation",
+			designSystemRelease: "1.1.0",
 		});
 
 		const result = await runAdd(project, ["add", "foundation", "--yes"]);
@@ -300,12 +311,12 @@ describe("agentkogei add", () => {
 		expect(await projectEntries(project)).toEqual([]);
 	});
 
-	test("rejects a Pack Release that does not match the selected version", async () => {
+	test("rejects a Design System Release that does not match the selected version", async () => {
 		const project = await temporaryProject();
 		overrides.set("/contracts/foundation/1.0.0", {
 			body: contracts["1.1.0"].markdown,
-			designPack: "Foundation",
-			packRelease: "1.1.0",
+			designSystem: "Foundation",
+			designSystemRelease: "1.1.0",
 		});
 
 		const result = await runAdd(project, ["add", "foundation@1.0.0", "--yes"]);

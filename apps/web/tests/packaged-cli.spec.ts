@@ -56,7 +56,9 @@ for (const runner of packageRunners) {
 			);
 
 			expect(added.exitCode, added.stderr).toBe(0);
-			expect(added.stdout).toContain("Added Foundation");
+			expect(added.stdout).toContain(
+				"Installed Foundation Design System Release 1.1.0",
+			);
 			const delivered = await request.get("/contracts/foundation");
 			expect(await readFile(path.join(project, "DESIGN.md"), "utf8")).toBe(
 				await delivered.text(),
@@ -70,38 +72,54 @@ for (const runner of packageRunners) {
 	});
 }
 
-test("the packed CLI installs current and exact Command releases anonymously", async ({
+test("the packed CLI installs every current and exact Design System Release anonymously", async ({
 	request,
 }) => {
 	const runner = packageRunners.find(({ name }) => name === "npx");
 	if (!runner) throw new Error("The npx package runner is unavailable");
 
-	for (const selector of ["command", "command@1.0.0"]) {
-		const project = await mkdtemp(path.join(tmpdir(), "agentkogei-command-"));
-		try {
-			const { command, arguments: runnerArguments } =
-				runner.command(runTarball);
-			const added = await runProcess(
-				command,
-				[...runnerArguments, "add", selector, "--yes"],
-				{
-					cwd: project,
-					environment: {
-						AGENTKOGEI_CONTRACT_CATALOG_URL: contractCatalogUrl,
-						AGENTKOGEI_CONFIG_DIR: path.join(project, ".agentkogei-config"),
-					},
-				},
-			);
+	const designSystems = [
+		{ identity: "foundation", currentRelease: "1.1.0", exactRelease: "1.0.0" },
+		{ identity: "editorial", currentRelease: "1.0.0", exactRelease: "1.0.0" },
+		{ identity: "mono", currentRelease: "1.0.0", exactRelease: "1.0.0" },
+		{ identity: "command", currentRelease: "1.0.0", exactRelease: "1.0.0" },
+	] as const;
 
-			expect(added.exitCode, added.stderr).toBe(0);
-			expect(added.stdout).toContain("Added Command 1.0.0");
-			const delivered = await request.get("/contracts/command/1.0.0");
-			expect(await readFile(path.join(project, "DESIGN.md"), "utf8")).toBe(
-				await delivered.text(),
-			);
-			expect(added.stderr).not.toContain("login");
-		} finally {
-			await rm(project, { recursive: true, force: true });
+	for (const { identity, currentRelease, exactRelease } of designSystems) {
+		for (const selector of [identity, `${identity}@${exactRelease}`]) {
+			const selectedRelease = selector.includes("@")
+				? exactRelease
+				: currentRelease;
+			const project = await mkdtemp(path.join(tmpdir(), "agentkogei-command-"));
+			try {
+				const { command, arguments: runnerArguments } =
+					runner.command(runTarball);
+				const added = await runProcess(
+					command,
+					[...runnerArguments, "add", selector, "--yes"],
+					{
+						cwd: project,
+						environment: {
+							AGENTKOGEI_CONTRACT_CATALOG_URL: contractCatalogUrl,
+							AGENTKOGEI_CONFIG_DIR: path.join(project, ".agentkogei-config"),
+						},
+					},
+				);
+
+				expect(added.exitCode, added.stderr).toBe(0);
+				expect(added.stdout).toContain(
+					`Design System Release ${selectedRelease}`,
+				);
+				const delivered = await request.get(
+					`/contracts/${identity}/${selectedRelease}`,
+				);
+				expect(await readFile(path.join(project, "DESIGN.md"), "utf8")).toBe(
+					await delivered.text(),
+				);
+				expect(added.stderr).not.toContain("login");
+			} finally {
+				await rm(project, { recursive: true, force: true });
+			}
 		}
 	}
 });
@@ -129,7 +147,7 @@ test("the packed CLI exposes no account, credential, authorization, or diagnosti
 			expect(result.exitCode, retiredCommand).toBe(2);
 			expect(result.stdout, retiredCommand).toBe("");
 			expect(result.stderr, retiredCommand).toContain(
-				"Usage:\n  agentkogei add <pack[@version]> [--yes] [--force]",
+				"Usage:\n  agentkogei add <design-system[@version]> [--yes] [--force]",
 			);
 			expect(result.stderr, retiredCommand).not.toMatch(
 				/login|logout|credential|authorization|diagnostic/i,

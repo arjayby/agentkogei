@@ -51,7 +51,7 @@ export async function addDesignContract(
 		plan.agentsChange === "unchanged"
 	) {
 		console.log(
-			`\n${plan.designPack} ${plan.packRelease} is already this Project's Design Contract.`,
+			`\n${plan.designSystem} Design System Release ${plan.designSystemRelease} is already this Project's Design Contract.`,
 		);
 		return 0;
 	}
@@ -81,7 +81,7 @@ export async function addDesignContract(
 
 	await applyDesignContractInstallation(plan);
 	console.log(
-		`\nAdded ${plan.designPack} ${plan.packRelease} to ${plan.designContractPath}.`,
+		`\nInstalled ${plan.designSystem} Design System Release ${plan.designSystemRelease} as ${plan.designContractPath}.`,
 	);
 	return 0;
 }
