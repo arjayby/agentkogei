@@ -1,6 +1,14 @@
 import { randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
-import { copyFile, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import {
+	copyFile,
+	mkdir,
+	mkdtemp,
+	readFile,
+	rm,
+	writeFile,
+} from "node:fs/promises";
+import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
@@ -15,6 +23,48 @@ import { cliTarball, packageRunners } from "./support/package-runners";
 test.setTimeout(180_000);
 
 const contractCatalogUrl = "http://localhost:3011/contracts/";
+
+type CapturedRequest = {
+	method: string | undefined;
+	url: string | undefined;
+	headers: Record<string, string | string[] | undefined>;
+	body: string;
+};
+
+async function requestInspectionCatalog() {
+	const requests: CapturedRequest[] = [];
+	const server = createServer((request, response) => {
+		const chunks: Buffer[] = [];
+		request.on("data", (chunk: Buffer) => chunks.push(chunk));
+		request.on("end", () => {
+			requests.push({
+				method: request.method,
+				url: request.url,
+				headers: request.headers,
+				body: Buffer.concat(chunks).toString("utf8"),
+			});
+			response.writeHead(200, {
+				"content-type": "text/markdown; charset=utf-8",
+				"x-agentkogei-design-system": "Foundation",
+				"x-agentkogei-design-system-release": "1.1.0",
+			});
+			response.end("# Foundation Design System\n\nPublic direction.\n");
+		});
+	});
+	await new Promise<void>((resolve, reject) => {
+		server.once("error", reject);
+		server.listen(0, "127.0.0.1", resolve);
+	});
+	const address = server.address();
+	if (!address || typeof address === "string") {
+		throw new Error("Request inspection catalog did not bind a TCP port");
+	}
+	return {
+		requests,
+		url: `http://127.0.0.1:${address.port}/contracts/`,
+		close: () => new Promise<void>((resolve) => server.close(() => resolve())),
+	};
+}
 
 /**
  * Every runner keeps its own download cache keyed by the package it was asked
@@ -121,6 +171,71 @@ test("the packed CLI installs every current and exact Design System Release anon
 				await rm(project, { recursive: true, force: true });
 			}
 		}
+	}
+});
+
+test("the packed CLI sends only the anonymous Design Contract request", async () => {
+	const runner = packageRunners.find(({ name }) => name === "npx");
+	if (!runner) throw new Error("The npx package runner is unavailable");
+	const project = await mkdtemp(path.join(tmpdir(), "private-project-canary-"));
+	const catalog = await requestInspectionCatalog();
+	const projectCanaries = [
+		"private-file-contents-canary",
+		"private-prompt-canary",
+		"private-generated-ui-canary",
+		"private-dependency-canary",
+		"private-git-remote-canary",
+		"private-credential-canary",
+	] as const;
+
+	try {
+		await Promise.all([
+			writeFile(path.join(project, "PRIVATE.txt"), projectCanaries[0]),
+			writeFile(path.join(project, "PROMPT.md"), projectCanaries[1]),
+			writeFile(path.join(project, "GENERATED.tsx"), projectCanaries[2]),
+			writeFile(
+				path.join(project, "package.json"),
+				JSON.stringify({ dependencies: { [projectCanaries[3]]: "1.0.0" } }),
+			),
+			mkdir(path.join(project, ".git")),
+		]);
+		await writeFile(
+			path.join(project, ".git/config"),
+			`[remote "origin"]\nurl = https://example.test/${projectCanaries[4]}\n`,
+		);
+
+		const { command, arguments: runnerArguments } = runner.command(runTarball);
+		const added = await runProcess(
+			command,
+			[...runnerArguments, "add", "foundation", "--yes"],
+			{
+				cwd: project,
+				environment: {
+					AGENTKOGEI_CONTRACT_CATALOG_URL: catalog.url,
+					AGENTKOGEI_DIAGNOSTICS_URL: new URL("../diagnostics", catalog.url)
+						.href,
+					AGENTKOGEI_PACK_CREDENTIAL: projectCanaries[5],
+				},
+			},
+		);
+
+		expect(added.exitCode, added.stderr).toBe(0);
+		expect(catalog.requests).toHaveLength(1);
+		expect(catalog.requests[0]).toMatchObject({
+			method: "GET",
+			url: "/contracts/foundation",
+			body: "",
+		});
+		expect(catalog.requests[0]?.headers.authorization).toBeUndefined();
+
+		const outbound = JSON.stringify(catalog.requests);
+		expect(outbound).not.toContain(path.basename(project));
+		for (const canary of projectCanaries) {
+			expect(outbound).not.toContain(canary);
+		}
+	} finally {
+		await catalog.close();
+		await rm(project, { recursive: true, force: true });
 	}
 });
 
