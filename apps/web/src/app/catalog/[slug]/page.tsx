@@ -20,7 +20,6 @@ import {
 	currentRelease,
 	designPacks,
 	getDesignPack,
-	premiumValueStatement,
 } from "@/lib/catalog";
 
 type PackPageProps = {
@@ -56,20 +55,9 @@ export default async function PackPage({ params }: PackPageProps) {
 	}
 
 	const release = currentRelease(pack);
-	const isOpen = pack.access === "Open";
-	// An Open Design Pack is genuinely inspectable, so its Pack Preview links
-	// straight to the raw Design Contract a Project would install. A Premium
-	// Design Contract is the subscription's value, so its Pack Preview offers
-	// Premium Access instead.
-	const actionHref = (
-		isOpen ? `/contracts/${pack.slug}/${release.version}` : "/premium"
-	) as Route;
-	const actionLabel = isOpen
-		? `Read the ${pack.name} ${release.version} Design Contract`
-		: "Explore Premium Access";
-	const accessNote = isOpen
-		? `${pack.name} is an Open Design Pack, so add retrieves it without an AgentKogei account. The CLI shows the absolute target and the exact change before it writes anything.`
-		: `${pack.name} is a Premium Design Pack, so add needs active Premium Access. When the CLI holds no Pack Credential it starts browser authorization and resumes the same Installation after you approve it.`;
+	const actionHref = `/contracts/${pack.slug}/${release.version}` as Route;
+	const actionLabel = `Read the ${pack.name} ${release.version} Design Contract`;
+	const accessNote = `${pack.name} is retrieved anonymously from the public Official Catalog. The CLI shows the absolute target and the exact change before it writes anything.`;
 
 	return (
 		<main>
@@ -137,9 +125,9 @@ export default async function PackPage({ params }: PackPageProps) {
 							One direction across the whole product.
 						</h2>
 						<p className="max-w-2xl text-muted-foreground">
-							{isOpen
-								? "Preview is evidence, not the Design Contract. It demonstrates direction and evaluated coverage; the Design Contract itself is public, so you can read every word before you add it."
-								: "Preview is evidence, not the Design Contract. The Official Catalog delivers the complete Pack Release only to a CLI authorized by a Builder with active Premium Access."}
+							Preview is evidence, not the Design Contract. It demonstrates
+							direction and evaluated coverage; the Design Contract itself is
+							public, so you can read every word before you add it.
 						</p>
 					</div>
 					<PackPreviewEvidence pack={pack} />
@@ -228,11 +216,6 @@ export default async function PackPage({ params }: PackPageProps) {
 									</li>
 								))}
 							</ul>
-							{isOpen ? null : (
-								<p className="text-muted-foreground leading-7">
-									{premiumValueStatement}
-								</p>
-							)}
 						</CardContent>
 					</Card>
 

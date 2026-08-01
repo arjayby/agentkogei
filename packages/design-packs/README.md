@@ -27,12 +27,11 @@ will write, then asks before changing anything. Pass `--yes`
 to consent without a prompt, and `--yes --force` to replace an existing
 `DESIGN.md` unattended.
 
-## Open and Premium Design Packs
+## Anonymous retrieval
 
-Both use the same `add` command; only the access requirement differs. An Open
-Design Pack installs without an AgentKogei account. A Premium Design Pack needs
-active Premium Access, and `add` starts browser authorization automatically when
-the CLI holds no Pack Credential, then resumes the same Installation.
+Every Design Pack is retrieved anonymously from the public Official Catalog.
+The CLI sends only the requested Design Contract selector and never stores an
+account credential or sends a diagnostic or Installation event.
 
 ## Requirements
 
@@ -46,5 +45,4 @@ edited.
 
 ## License
 
-MIT. Installed Design Packs are bare design direction and carry no license text;
-how Open and Premium packs may be used is set out in the AgentKogei website Terms.
+MIT. Installed Design Packs are bare design direction and carry no license text.

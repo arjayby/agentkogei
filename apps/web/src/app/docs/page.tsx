@@ -93,9 +93,8 @@ export default function DocsPage() {
 						<div className="mt-8 max-w-3xl">
 							<InstallationCommand identity="foundation">
 								agentkogei@latest selects the newest CLI, not the newest Design
-								Pack. Open Design Packs add without an AgentKogei account;
-								Premium Design Packs use the same command and start browser
-								authorization when the CLI holds no Pack Credential.
+								Pack. Every Design Pack is retrieved anonymously from the public
+								Official Catalog with the same add command.
 							</InstallationCommand>
 						</div>
 						<div className="mt-8 flex max-w-3xl flex-col gap-5 text-base text-muted-foreground leading-8">
@@ -127,13 +126,8 @@ export default function DocsPage() {
 							<p>
 								The Official Catalog delivers a Pack Release as the exact raw
 								Markdown bytes a Project installs, so what you read is what you
-								add. Every Open Design Contract is publicly retrievable without
-								an account.
-							</p>
-							<p>
-								A Premium Design Contract uses the same raw endpoint behind a
-								Pack Credential and active Premium Access, so gated direction
-								never reaches an unauthorized caller.
+								add. Every Design Contract is publicly and anonymously
+								retrievable.
 							</p>
 						</div>
 						<div className="mt-8">
