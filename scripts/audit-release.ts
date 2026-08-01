@@ -38,11 +38,13 @@ const retiredContent = [
 		allowedMatches: {},
 	},
 	{
-		name: "retired catalog identity",
-		pattern:
-			/(?:["'`]Signal["'`]|["'`/]signal(?:@|\/|["'`])|agentkogei-signal)/i,
+		name: "retired catalog or commercial vocabulary",
+		pattern: /\b(?:Signal|premium|subscription|entitlement)\b/i,
 		allowedMatches: {
-			"apps/web/tests/public-journey.spec.ts": 7,
+			"apps/web/src/generated/design-contracts.json": 2,
+			"apps/web/tests/public-journey.spec.ts": 18,
+			"packages/design-systems/releases/command/1.0.0/DESIGN.md": 1,
+			"packages/design-systems/releases/mono/1.0.0/DESIGN.md": 1,
 		},
 	},
 	{
