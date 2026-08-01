@@ -1,0 +1,70 @@
+{
+	"schemaVersion": "2.0",
+	"id": "command",
+	"designSystem": "Command",
+	"designSystemRelease": {
+		"version": "1.0.0",
+		"publishedAt": "2026-07-18",
+		"immutable": true
+	},
+	"publisher": "AgentKogei",
+	"designContract": {
+		"sha256": "a6825345a05fea609942fd2fb9082f5bf79be48a90dd49a41ae54ab603a46cd7"
+	},
+	"compatibility": {
+		"frameworks": ["react", "nextjs"],
+		"react": ">=18 <20",
+		"nextjs": ">=15 <17",
+		"tailwind": ">=4 <5",
+		"ui": "shadcn/ui"
+	},
+	"evaluation": {
+		"status": "passed",
+		"standard": "WCAG 2.2 Level AA",
+		"screens": [
+			"marketing",
+			"authentication",
+			"onboarding",
+			"dashboard",
+			"table",
+			"form",
+			"settings",
+			"states"
+		],
+		"viewports": ["1440x900", "390x844"],
+		"colorSchemes": ["light", "dark"],
+		"reducedMotion": true,
+		"agentGenerationRuns": 4,
+		"automatedChecks": [
+			"structure",
+			"accessibility",
+			"responsive overflow",
+			"color contrast"
+		],
+		"humanReview": {
+			"status": "passed",
+			"reviewedAt": "2026-07-18",
+			"rightsReview": "passed"
+		},
+		"evidence": ["evaluation/report.json"]
+	},
+	"preview": {
+		"summary": "Dark-first, dense, and technical.",
+		"surfaces": [
+			"marketing",
+			"authentication",
+			"onboarding",
+			"dashboard",
+			"table",
+			"form",
+			"settings",
+			"states"
+		],
+		"route": "/catalog/command"
+	},
+	"changelog": {
+		"summary": "Initial Published Design System with dense technical patterns and complete state coverage.",
+		"breaking": false,
+		"migrationNotes": null
+	}
+}

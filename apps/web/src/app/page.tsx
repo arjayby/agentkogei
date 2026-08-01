@@ -2,12 +2,11 @@ import { buttonVariants } from "@agentkogei/ui/components/button";
 import { ArrowUpRight } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-
+import { DesignSystemCard } from "@/components/design-system-card";
 import {
 	type InstallableDesignSystem,
 	InstallationCommand,
 } from "@/components/installation-command";
-import { PackCard } from "@/components/pack-card";
 import { designSystems, recentDesignSystemReleases } from "@/lib/catalog";
 
 const installableDesignSystems: readonly InstallableDesignSystem[] =
@@ -128,7 +127,7 @@ export default function Home() {
 					</div>
 					<div className="grid gap-5 md:grid-cols-2">
 						{designSystems.map((designSystem, index) => (
-							<PackCard
+							<DesignSystemCard
 								key={designSystem.slug}
 								designSystem={designSystem}
 								index={index}
