@@ -170,6 +170,36 @@
 	}
 }
 
+.installation-command-name-enter {
+	animation: installation-command-name-enter 180ms ease-out both;
+}
+
+.installation-command-name-exit {
+	animation: installation-command-name-exit 180ms ease-in both;
+}
+
+@keyframes installation-command-name-enter {
+	from {
+		opacity: 0;
+		transform: translateY(70%);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes installation-command-name-exit {
+	from {
+		opacity: 1;
+		transform: translateY(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateY(-70%);
+	}
+}
+
 @media (min-width: 40rem) {
 	.hero-artwork {
 		min-height: 23rem;
@@ -197,5 +227,13 @@
 @media (prefers-reduced-motion: reduce) {
 	.hero-artwork-piece {
 		animation: none;
+	}
+
+	.installation-command-name-enter {
+		animation: none;
+	}
+
+	.installation-command-name-exit {
+		display: none;
 	}
 }

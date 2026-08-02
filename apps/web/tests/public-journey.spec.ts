@@ -110,20 +110,24 @@ test("the landing page composes one add command from a package manager and a Des
 	const command = installation.getByLabel("Generated command");
 
 	await expect(command).toHaveText("npx agentkogei@latest add foundation");
+	await page.mouse.move(0, 0);
+	await page.waitForTimeout(2200);
+	await expect(command).toHaveText("npx agentkogei@latest add editorial");
 
-	await installation.getByLabel("Package manager").click();
-	await page.getByRole("option", { name: /bunx/ }).click();
-	await installation.getByLabel("Design System").click();
-	await page.getByRole("option", { name: "command", exact: true }).click();
-	await expect(command).toHaveText("bunx agentkogei@latest add command");
+	await installation.getByRole("tab", { name: "bun" }).click();
+	await expect(command).toHaveText("bunx agentkogei@latest add editorial");
 
 	await installation.getByRole("button", { name: "Copy command" }).click();
 	await expect(
 		installation.getByRole("button", { name: "Copied" }),
 	).toBeVisible();
 	expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
-		"bunx agentkogei@latest add command",
+		"bunx agentkogei@latest add editorial",
 	);
+
+	await page.mouse.move(0, 0);
+	await page.waitForTimeout(2200);
+	await expect(command).toHaveText("bunx agentkogei@latest add editorial");
 });
 
 test("the landing page presents four visual directions without release details", async ({
