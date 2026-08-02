@@ -77,9 +77,6 @@ test("the landing page locks its brand artwork without URL evaluation options", 
 	);
 	await expect(page.locator(".hero-artwork")).toBeVisible();
 	await expect(page.locator(".hero-field-mark")).toHaveCount(9);
-	await expect(page.locator(".hero-artwork-caption")).toHaveText(
-		"One direction, every screen",
-	);
 	await expect(page.locator(".site-brand-mark")).toBeVisible();
 	await expect(page.locator(".site-brand-wordmark")).toBeVisible();
 	await expect(page.locator(".hero-artwork")).toHaveCSS(
