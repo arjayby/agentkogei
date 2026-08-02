@@ -3,10 +3,7 @@ import Link from "next/link";
 
 import { designSystems } from "@/lib/catalog";
 
-const productLinks = [
-	{ href: "/catalog" as Route, label: "Catalog" },
-	{ href: "/docs" as Route, label: "Docs" },
-] as const;
+const productLinks = [{ href: "/catalog" as Route, label: "Catalog" }] as const;
 
 const repositoryUrl = "https://github.com/arjayby/agentkogei";
 
@@ -20,8 +17,8 @@ export default function Footer() {
 							AgentKogei
 						</Link>
 						<p className="text-muted-foreground text-sm leading-6">
-							Durable, versioned design direction for coding agents. One Design
-							System across every screen of a Project.
+							Complete design systems for coding agents. One visual direction
+							across every screen.
 						</p>
 					</div>
 					<nav aria-label="Design Systems" className="flex flex-col gap-3">

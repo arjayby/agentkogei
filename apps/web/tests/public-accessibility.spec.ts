@@ -8,7 +8,6 @@ const publicRoutes = [
 	"/catalog/editorial",
 	"/catalog/mono",
 	"/catalog/command",
-	"/docs",
 ] as const;
 
 const viewports = [

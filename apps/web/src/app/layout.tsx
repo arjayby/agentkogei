@@ -18,9 +18,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Design Systems | AgentKogei",
+	title: "Give your agents better taste | AgentKogei",
 	description:
-		"Versioned Design Systems that keep agent-built product interfaces coherent across every screen.",
+		"Complete design systems that stop generic design slop and keep every screen consistent.",
 };
 
 export default function RootLayout({
