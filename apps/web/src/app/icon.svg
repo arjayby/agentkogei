@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+	<title>AgentKogei</title>
+	<path d="M5 6.5 93 4l3 88-89 4L4 41Z" fill="#b73126"/>
+	<path d="m10 11 78-1.5 2.5 77L12 90Z" fill="none" stroke="#f5ead5" stroke-width="2.5"/>
+	<g fill="#f5ead5" font-family="Yu Mincho,Hiragino Mincho ProN,serif" font-weight="700" text-anchor="middle">
+		<text x="49" y="46" font-size="42">工</text>
+		<text x="50" y="84" font-size="42">芸</text>
+	</g>
+</svg>

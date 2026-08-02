@@ -65,6 +65,39 @@ test("a prospective Builder can understand what a Design System changes", async 
 	await expect(page.locator('a[href="/docs"]')).toHaveCount(0);
 });
 
+test("the landing page locks its brand artwork without URL evaluation options", async ({
+	page,
+}) => {
+	await page.goto(
+		"/?hero=paper&motion=ambient&mobile=hide&mark=horizontal&header=mark",
+	);
+
+	await expect(page.locator("main[data-mark], main[data-header]")).toHaveCount(
+		0,
+	);
+	await expect(page.locator(".hero-artwork")).toBeVisible();
+	await expect(page.locator(".hero-field-mark")).toHaveCount(9);
+	await expect(page.locator(".site-brand-mark")).toBeVisible();
+	await expect(page.locator(".site-brand-wordmark")).toBeVisible();
+	await expect(page.locator(".hero-artwork")).toHaveCSS(
+		"background-color",
+		"rgba(0, 0, 0, 0)",
+	);
+	await expect(page.locator('link[rel="icon"][href*="icon.svg"]')).toHaveCount(
+		1,
+	);
+});
+
+test("hero artwork honors reduced motion", async ({ page }) => {
+	await page.emulateMedia({ reducedMotion: "reduce" });
+	await page.goto("/");
+
+	await expect(page.locator(".hero-field-mark").first()).toHaveCSS(
+		"animation-name",
+		"none",
+	);
+});
+
 test("the landing page composes one add command from a package manager and a Design System", async ({
 	context,
 	page,
