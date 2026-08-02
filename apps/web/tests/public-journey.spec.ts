@@ -53,16 +53,16 @@ test("a prospective Builder can understand what a Design System changes", async 
 
 	await expect(
 		page.getByRole("heading", {
-			name: "One Design System. Every agent. Every screen.",
+			name: "Give your agents better taste.",
 		}),
 	).toBeVisible();
-	await expect(page.getByText("design drift", { exact: false })).toBeVisible();
 	await expect(
-		page.getByRole("link", { name: "Browse the Catalog" }),
+		page.getByText("generic design slop", { exact: false }),
+	).toBeVisible();
+	await expect(
+		page.getByRole("link", { name: "Choose a design system" }),
 	).toHaveAttribute("href", "/catalog");
-	await expect(
-		page.getByRole("link", { name: "Read the Docs" }),
-	).toHaveAttribute("href", "/docs");
+	await expect(page.locator('a[href="/docs"]')).toHaveCount(0);
 });
 
 test("the landing page composes one add command from a package manager and a Design System", async ({
@@ -93,23 +93,13 @@ test("the landing page composes one add command from a package manager and a Des
 	);
 });
 
-test("the landing page surfaces the newest Design System Releases and the four-system catalog", async ({
+test("the landing page presents four visual directions without release details", async ({
 	page,
 }) => {
 	await page.goto("/");
 
-	const recent = page.getByRole("region", {
-		name: "The newest Design System Releases.",
-	});
-	await expect(
-		recent.getByRole("link", { name: /Mono 1\.0\.0/ }),
-	).toHaveAttribute("href", "/catalog/mono");
-	await expect(
-		recent.getByRole("link", { name: /Foundation 1\.1\.0/ }),
-	).toHaveAttribute("href", "/catalog/foundation");
-
 	const catalog = page.getByRole("region", {
-		name: "One catalog. Four directions.",
+		name: "Choose your taste.",
 	});
 	for (const designSystem of ["Foundation", "Editorial", "Mono", "Command"]) {
 		await expect(
@@ -117,6 +107,7 @@ test("the landing page surfaces the newest Design System Releases and the four-s
 		).toBeVisible();
 	}
 	await expect(catalog.getByRole("link", { name: /Signal/i })).toHaveCount(0);
+	await expect(page.getByText(/Recently published/i)).toHaveCount(0);
 });
 
 test("removed commercial, account, authorization, and telemetry routes are absent", async ({
@@ -124,6 +115,7 @@ test("removed commercial, account, authorization, and telemetry routes are absen
 }) => {
 	const removedRoutes = [
 		...removedNavigationDestinations,
+		"/docs",
 		"/success",
 		"/device",
 		"/device/result",
@@ -160,7 +152,7 @@ test("removed commercial, account, authorization, and telemetry routes are absen
 test("every page carries a footer naming the catalog and public product surfaces", async ({
 	page,
 }) => {
-	await page.goto("/docs");
+	await page.goto("/");
 	const footer = page.getByRole("contentinfo");
 
 	for (const designSystem of ["Foundation", "Editorial", "Mono", "Command"]) {
@@ -171,9 +163,7 @@ test("every page carries a footer naming the catalog and public product surfaces
 	await expect(
 		footer.getByRole("link", { name: "Catalog", exact: true }),
 	).toHaveAttribute("href", "/catalog");
-	await expect(
-		footer.getByRole("link", { name: "Docs", exact: true }),
-	).toHaveAttribute("href", "/docs");
+	await expect(footer.getByRole("link", { name: "Docs" })).toHaveCount(0);
 	await expect(
 		footer.getByRole("link", { name: "GitHub", exact: true }),
 	).toHaveAttribute("href", "https://github.com/arjayby/agentkogei");
@@ -182,7 +172,7 @@ test("every page carries a footer naming the catalog and public product surfaces
 test("public navigation and calls to action expose no commercial or account journeys", async ({
 	page,
 }) => {
-	for (const route of ["/", "/catalog", "/catalog/foundation", "/docs"]) {
+	for (const route of ["/", "/catalog", "/catalog/foundation"]) {
 		await page.goto(route);
 		const actionText = (await page.locator("a, button").allInnerTexts()).join(
 			" ",
@@ -206,7 +196,6 @@ test("public pages use Design System vocabulary without retired product claims",
 		"/catalog/editorial",
 		"/catalog/mono",
 		"/catalog/command",
-		"/docs",
 	]) {
 		await page.goto(route);
 		const visibleCopy = await page.locator("body").innerText();
@@ -222,10 +211,9 @@ test("public pages use Design System vocabulary without retired product claims",
 
 test("public page metadata uses Design System vocabulary", async ({ page }) => {
 	const expectations = [
-		["/", /Design Systems.*AgentKogei/i],
+		["/", /Give your agents better taste.*AgentKogei/i],
 		["/catalog", /Official Catalog.*AgentKogei/i],
 		["/catalog/foundation", /Foundation Design System Preview.*AgentKogei/i],
-		["/docs", /Documentation.*AgentKogei/i],
 	] as const;
 
 	for (const [route, title] of expectations) {
@@ -899,103 +887,7 @@ for (const evaluatedDesignSystem of [
 	});
 }
 
-test("public documentation explains Installation and remains usable on mobile", async ({
-	page,
-}) => {
-	await page.setViewportSize({ width: 390, height: 844 });
-	await page.goto("/docs");
-
-	await expect(
-		page.getByRole("heading", { name: "Installation", exact: true }),
-	).toBeVisible();
-	await expect(
-		page.getByText("one Installed Design System", { exact: false }),
-	).toBeVisible();
-	await expect(
-		page.getByText("React or Next.js", { exact: false }),
-	).toBeVisible();
-	await expect(
-		page.getByText(
-			"the CLI shows the Design System, Design System Release, absolute target",
-			{ exact: false },
-		),
-	).toBeVisible();
-	await expect(
-		page.getByText("never executes Design System supplied code", {
-			exact: false,
-		}),
-	).toBeVisible();
-
-	const hasHorizontalOverflow = await page.evaluate(
-		() =>
-			document.documentElement.scrollWidth >
-			document.documentElement.clientWidth,
-	);
-	expect(hasHorizontalOverflow).toBe(false);
-});
-
-test("public documentation presents the same add command for every package runner", async ({
-	page,
-}) => {
-	await page.goto("/docs");
-	const installation = page.getByRole("region", {
-		name: "Installation command",
-	});
-
-	await expect(installation.getByRole("term")).toHaveText(
-		packageRunnerCommands("foundation").map(([runner]) => runner),
-	);
-	await expect(installation.getByRole("definition")).toHaveText(
-		packageRunnerCommands("foundation").map(([, command]) => command),
-	);
-});
-
-test("public documentation describes the single Design Contract Installation writes", async ({
-	page,
-}) => {
-	await page.goto("/docs");
-	const documentation = page.getByRole("main");
-
-	await expect(
-		documentation.getByText("one root DESIGN.md", { exact: false }),
-	).toBeVisible();
-	await expect(
-		documentation.getByText("one marked AGENTS.md block", { exact: false }),
-	).toBeVisible();
-	for (const retired of retiredInstallationPromises) {
-		await expect(
-			documentation.getByText(retired, { exact: false }),
-		).toHaveCount(0);
-	}
-});
-
-test("public documentation retrieves Design Contracts as raw Markdown rather than registry JSON", async ({
-	page,
-	request,
-}) => {
-	await page.goto("/docs");
-	const documentation = page.getByRole("main");
-
-	await expect(
-		documentation.getByRole("link", {
-			name: "Read the Foundation Design Contract",
-		}),
-	).toHaveAttribute("href", "/contracts/foundation");
-	await expect(documentation.locator('a[href*="/r/"]')).toHaveCount(0);
-
-	const delivered = await request.get("/contracts/foundation");
-	expect(delivered.status()).toBe(200);
-	expect(delivered.headers()["content-type"]).toBe(
-		"text/markdown; charset=utf-8",
-	);
-});
-
-const responsiveRoutes = [
-	"/",
-	"/catalog",
-	"/catalog/command",
-	"/docs",
-] as const;
+const responsiveRoutes = ["/", "/catalog", "/catalog/command"] as const;
 
 for (const route of responsiveRoutes) {
 	test(`${route} remains navigable without horizontal overflow on mobile`, async ({
@@ -1012,7 +904,7 @@ for (const route of responsiveRoutes) {
 		).toBeVisible();
 		await expect(
 			navigation.getByRole("link", { name: "Docs", exact: true }),
-		).toBeVisible();
+		).toHaveCount(0);
 
 		const hasHorizontalOverflow = await page.evaluate(
 			() =>

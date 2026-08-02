@@ -3,10 +3,7 @@ import Link from "next/link";
 
 import { ModeToggle } from "./mode-toggle";
 
-const navigation = [
-	{ href: "/catalog" as Route, label: "Catalog" },
-	{ href: "/docs" as Route, label: "Docs" },
-] as const;
+const navigation = [{ href: "/catalog" as Route, label: "Catalog" }] as const;
 
 export default function Header() {
 	return (
