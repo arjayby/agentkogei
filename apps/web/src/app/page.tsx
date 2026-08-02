@@ -3,6 +3,7 @@ import { ArrowUpRight } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
 import { DesignSystemCard } from "@/components/design-system-card";
+import { HeroArtwork } from "@/components/hero-artwork";
 import {
 	type InstallableDesignSystem,
 	InstallationCommand,
@@ -16,34 +17,35 @@ export default function Home() {
 	return (
 		<main>
 			<section className="border-b px-5 py-20 sm:px-8 sm:py-24 lg:px-12 lg:py-28">
-				<div className="mx-auto flex max-w-7xl flex-col gap-10">
-					<div className="flex flex-col gap-8">
-						<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.24em]">
-							Complete design systems for coding agents
-						</p>
-						<h1 className="max-w-5xl text-balance font-medium text-5xl tracking-[-0.055em] sm:text-7xl lg:text-[6.5rem] lg:leading-[0.92]">
-							Give your agents better taste.
-						</h1>
-					</div>
-					<div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(26rem,30rem)] lg:items-end lg:gap-16">
-						<div className="flex min-w-0 flex-col gap-8">
-							<p className="max-w-2xl text-pretty text-lg text-muted-foreground leading-8 lg:text-xl">
-								Without clear direction, agents produce generic design slop.
-								Install one complete design system. Keep every agent and every
-								screen consistent.
+				<div className="hero-layout mx-auto max-w-7xl">
+					<div className="hero-copy">
+						<div className="hero-intro flex flex-col gap-8">
+							<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.24em]">
+								Complete design systems for coding agents
 							</p>
-							<div>
-								<Link
-									href={"/catalog" as Route}
-									className={buttonVariants({ size: "lg" })}
-								>
-									Choose a design system
-									<ArrowUpRight data-icon="inline-end" aria-hidden="true" />
-								</Link>
-							</div>
+							<h1 className="text-balance font-medium text-5xl tracking-[-0.055em] sm:text-7xl lg:text-[6.5rem] lg:leading-[0.92]">
+								Give your agents better taste.
+							</h1>
+						</div>
+						<p className="hero-description max-w-2xl text-pretty text-lg text-muted-foreground leading-8 lg:text-xl">
+							Without clear direction, agents produce generic design slop.
+							Install one complete design system. Keep every agent and every
+							screen consistent.
+						</p>
+						<div className="hero-action">
+							<Link
+								href={"/catalog" as Route}
+								className={buttonVariants({ size: "lg" })}
+							>
+								Choose a design system
+								<ArrowUpRight data-icon="inline-end" aria-hidden="true" />
+							</Link>
+						</div>
+						<div className="hero-installation">
 							<InstallationCommand designSystems={installableDesignSystems} />
 						</div>
 					</div>
+					<HeroArtwork className="hero-visual" />
 				</div>
 			</section>
 
