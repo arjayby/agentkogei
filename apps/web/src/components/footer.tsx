@@ -58,9 +58,6 @@ export default function Footer() {
 						</a>
 					</nav>
 				</div>
-				<div className="border-t pt-6 text-muted-foreground text-xs leading-5">
-					<p>© {new Date().getFullYear()} AgentKogei</p>
-				</div>
 			</div>
 		</footer>
 	);
