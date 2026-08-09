@@ -1,5 +1,5 @@
 {
-	"schemaVersion": "2.0",
+	"schemaVersion": "3.0",
 	"id": "command",
 	"designSystem": "Command",
 	"designSystemRelease": {
@@ -49,7 +49,9 @@
 		"evidence": ["evaluation/report.json"]
 	},
 	"preview": {
+		"order": 4,
 		"summary": "Dark-first, dense, and technical.",
+		"intendedFit": "Developer and operations products",
 		"surfaces": [
 			"marketing",
 			"authentication",
@@ -60,7 +62,60 @@
 			"settings",
 			"states"
 		],
-		"route": "/catalog/command"
+		"route": "/catalog/command",
+		"signature": {
+			"label": "Node 04",
+			"headline": "Purpose-built instrument.",
+			"principles": [
+				"Graphite working planes",
+				"Operational cyan signals",
+				"Dense persistent context"
+			]
+		},
+		"tokens": {
+			"light": {
+				"background": "#f3f6fa",
+				"foreground": "#111827",
+				"card": "#ffffff",
+				"muted": "#e9eef5",
+				"mutedForeground": "#526174",
+				"border": "#aebdce",
+				"primary": "#006f95",
+				"primaryForeground": "#ffffff",
+				"destructive": "#b42335",
+				"success": "#18794e",
+				"warning": "#8a6100",
+				"info": "#006f95",
+				"ring": "#006f95"
+			},
+			"dark": {
+				"background": "#080b10",
+				"foreground": "#e8edf5",
+				"card": "#0d1118",
+				"muted": "#121823",
+				"mutedForeground": "#98a4b5",
+				"border": "#283344",
+				"primary": "#55d6ff",
+				"primaryForeground": "#051015",
+				"destructive": "#ff6b7a",
+				"success": "#6ee7a8",
+				"warning": "#f6c85f",
+				"info": "#55d6ff",
+				"ring": "#55d6ff"
+			}
+		},
+		"typography": {
+			"display": "sans",
+			"body": "sans",
+			"accent": "mono",
+			"scale": "compact"
+		},
+		"geometry": {
+			"density": "compact",
+			"radius": "square",
+			"border": "strong",
+			"elevation": "layered"
+		}
 	},
 	"changelog": {
 		"summary": "Initial Published Design System with dense technical patterns and complete state coverage.",

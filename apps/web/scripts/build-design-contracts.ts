@@ -1,51 +1,33 @@
+import { execFile } from "node:child_process";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { promisify } from "node:util";
 
-import {
-	publishedDesignSystems,
-	readDesignContract,
-} from "agentkogei/src/index";
+import { generateOfficialCatalogArtifacts } from "agentkogei/src/official-catalog-generation";
 
-const outputFile = path.resolve(
+const releasesDirectory = path.resolve(
 	import.meta.dirname,
-	"../src/generated/design-contracts.json",
+	"../../../packages/design-systems/releases",
 );
-
-const catalog = Object.fromEntries(
-	await Promise.all(
-		publishedDesignSystems.map(async (designSystem) => {
-			const releases = await Promise.all(
-				designSystem.versions.map(async (version) => {
-					const contract = await readDesignContract(
-						designSystem.directoryFor(version),
-					);
-					if (contract.designSystemRelease !== version) {
-						throw new Error(
-							`${designSystem.id} ${version} declares Design System Release ${contract.designSystemRelease}`,
-						);
-					}
-					return [
-						version,
-						{
-							identity: contract.identity,
-							designSystem: contract.designSystem,
-							designSystemRelease: contract.designSystemRelease,
-							markdown: contract.markdown,
-						},
-					] as const;
-				}),
-			);
-			const currentRelease = designSystem.versions.at(-1);
-			if (!currentRelease) {
-				throw new Error(`${designSystem.id} has no Design System Releases`);
-			}
-			return [
-				designSystem.id,
-				{ currentRelease, releases: Object.fromEntries(releases) },
-			] as const;
-		}),
-	),
+const generatedDirectory = path.resolve(
+	import.meta.dirname,
+	"../src/generated",
 );
+const { catalog, designContracts } =
+	await generateOfficialCatalogArtifacts(releasesDirectory);
+const catalogFile = path.join(generatedDirectory, "official-catalog.json");
+const contractsFile = path.join(generatedDirectory, "design-contracts.json");
 
-await mkdir(path.dirname(outputFile), { recursive: true });
-await writeFile(outputFile, `${JSON.stringify(catalog, null, "\t")}\n`);
+await mkdir(generatedDirectory, { recursive: true });
+await Promise.all([
+	writeFile(catalogFile, `${JSON.stringify(catalog, null, "\t")}\n`),
+	writeFile(contractsFile, `${JSON.stringify(designContracts, null, "\t")}\n`),
+]);
+
+await promisify(execFile)("bunx", [
+	"biome",
+	"format",
+	"--write",
+	catalogFile,
+	contractsFile,
+]);

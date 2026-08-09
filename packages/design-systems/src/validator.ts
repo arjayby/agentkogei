@@ -7,6 +7,7 @@ import {
 	type DesignSystemEvaluationRecord,
 	designSystemEvaluationFileName,
 	designSystemEvaluationRecordSchema,
+	designSystemPreviewSurfaces,
 } from "./design-system-evaluation";
 import { hasHiddenDocumentControl } from "./text-safety";
 
@@ -51,16 +52,7 @@ const evaluatedStack = {
 	ui: "shadcn/ui",
 } as const;
 
-const requiredScreens = [
-	"marketing",
-	"authentication",
-	"onboarding",
-	"dashboard",
-	"table",
-	"form",
-	"settings",
-	"states",
-];
+const requiredScreens = designSystemPreviewSurfaces;
 const requiredChecks = [
 	"structure",
 	"accessibility",
@@ -97,6 +89,14 @@ function validateReleaseRules(record: DesignSystemEvaluationRecord) {
 	}
 	if (new Set(record.evaluation.screens).size !== requiredScreens.length) {
 		errors.push("evaluation screens must be unique and complete");
+	}
+	if (
+		new Set(record.preview.surfaces).size !== requiredScreens.length ||
+		!requiredScreens.every((surface) =>
+			record.preview.surfaces.includes(surface),
+		)
+	) {
+		errors.push("preview surfaces must be unique and complete");
 	}
 	for (const viewport of ["1440x900", "390x844"]) {
 		if (!record.evaluation.viewports.includes(viewport)) {

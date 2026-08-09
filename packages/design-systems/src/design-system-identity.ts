@@ -9,4 +9,7 @@ export const designSystemIdentityPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export const designSystemIdentitySchema = z
 	.string()
-	.regex(designSystemIdentityPattern);
+	.regex(designSystemIdentityPattern)
+	.brand<"DesignSystemIdentity">();
+
+export type DesignSystemIdentity = z.infer<typeof designSystemIdentitySchema>;

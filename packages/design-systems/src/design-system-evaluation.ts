@@ -31,6 +31,44 @@ const relativePathSchema = z
 		},
 	);
 
+const previewColorSchema = z
+	.string()
+	.regex(
+		/^(?:#[0-9a-fA-F]{6}|oklch\(\d+(?:\.\d+)? \d+(?:\.\d+)? \d+(?:\.\d+)?\))$/,
+		"must be a supported six digit hex or OKLCH preview color",
+	);
+
+const previewPaletteSchema = z
+	.object({
+		background: previewColorSchema,
+		foreground: previewColorSchema,
+		card: previewColorSchema,
+		muted: previewColorSchema,
+		mutedForeground: previewColorSchema,
+		border: previewColorSchema,
+		primary: previewColorSchema,
+		primaryForeground: previewColorSchema,
+		destructive: previewColorSchema,
+		success: previewColorSchema,
+		warning: previewColorSchema,
+		info: previewColorSchema,
+		ring: previewColorSchema,
+	})
+	.strict();
+
+export const designSystemPreviewSurfaces = [
+	"marketing",
+	"authentication",
+	"onboarding",
+	"dashboard",
+	"table",
+	"form",
+	"settings",
+	"states",
+] as const;
+
+const previewSurfaceSchema = z.enum(designSystemPreviewSurfaces);
+
 const designSystemReleaseSchema = z
 	.object({
 		version: designSystemReleaseVersionSchema,
@@ -46,7 +84,7 @@ const designSystemReleaseSchema = z
  */
 export const designSystemEvaluationRecordSchema = z
 	.object({
-		schemaVersion: z.literal("2.0"),
+		schemaVersion: z.literal("3.0"),
 		id: designSystemIdentitySchema,
 		designSystem: terminalTextSchema,
 		publisher: terminalTextSchema,
@@ -88,9 +126,40 @@ export const designSystemEvaluationRecordSchema = z
 			.strict(),
 		preview: z
 			.object({
-				summary: z.string().min(1),
-				surfaces: z.array(z.string()).min(1),
+				order: z.number().int().positive(),
+				summary: terminalTextSchema,
+				intendedFit: terminalTextSchema,
+				surfaces: z.array(previewSurfaceSchema).length(8),
 				route: z.string().startsWith("/"),
+				signature: z
+					.object({
+						label: terminalTextSchema,
+						headline: terminalTextSchema,
+						principles: z.array(terminalTextSchema).min(3).max(5),
+					})
+					.strict(),
+				tokens: z
+					.object({
+						light: previewPaletteSchema,
+						dark: previewPaletteSchema,
+					})
+					.strict(),
+				typography: z
+					.object({
+						display: z.enum(["sans", "serif", "mono"]),
+						body: z.enum(["sans", "serif", "mono"]),
+						accent: z.enum(["sans", "serif", "mono"]),
+						scale: z.enum(["compact", "balanced", "expressive"]),
+					})
+					.strict(),
+				geometry: z
+					.object({
+						density: z.enum(["compact", "balanced", "spacious"]),
+						radius: z.enum(["square", "soft", "rounded", "pill"]),
+						border: z.enum(["subtle", "defined", "strong"]),
+						elevation: z.enum(["flat", "layered"]),
+					})
+					.strict(),
 			})
 			.strict(),
 		changelog: z
