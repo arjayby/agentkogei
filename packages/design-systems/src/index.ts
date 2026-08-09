@@ -7,6 +7,16 @@ import { discoverPublishedDesignSystems } from "./published-design-systems";
 import type { DesignSystemReleaseVersion } from "./release-version";
 
 export {
+	type CandidateValidationOptions,
+	type CandidateValidationResult,
+	candidateDesignContractFileName,
+	candidateEvaluationPlanFileName,
+	candidateEvaluationPlanSchema,
+	candidateMetadataFileName,
+	candidateMetadataSchema,
+	validateCandidateDesignSystemRelease,
+} from "./candidate-design-system";
+export {
 	type DesignContract,
 	designContractFileName,
 	designContractSchema,
