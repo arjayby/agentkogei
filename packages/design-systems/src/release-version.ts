@@ -14,7 +14,7 @@ export const designSystemReleaseVersionSchema =
 	);
 
 function components(version: DesignSystemReleaseVersion) {
-	return version.split(".").map(Number) as [number, number, number];
+	return version.split(".").map(BigInt) as [bigint, bigint, bigint];
 }
 
 export function compareDesignSystemReleaseVersions(
@@ -24,11 +24,10 @@ export function compareDesignSystemReleaseVersions(
 	const leftComponents = components(left);
 	const rightComponents = components(right);
 	for (let index = 0; index < 3; index += 1) {
-		const difference =
-			(leftComponents[index] ?? 0) - (rightComponents[index] ?? 0);
-		if (difference !== 0) {
-			return difference;
-		}
+		const leftComponent = leftComponents[index] ?? BigInt(0);
+		const rightComponent = rightComponents[index] ?? BigInt(0);
+		if (leftComponent < rightComponent) return -1;
+		if (leftComponent > rightComponent) return 1;
 	}
 	return 0;
 }

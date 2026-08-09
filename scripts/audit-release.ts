@@ -73,6 +73,7 @@ const retiredContent = [
 
 const expectedGeneratedArtifacts = [
 	"apps/web/src/generated/design-contracts.json",
+	"apps/web/src/generated/official-catalog.json",
 ];
 
 const files = await trackedFiles();

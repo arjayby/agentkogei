@@ -1,11 +1,10 @@
-import { readdirSync } from "node:fs";
-import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-	compareDesignSystemReleaseVersions,
-	type DesignSystemReleaseVersion,
-	designSystemReleaseVersionSchema,
-} from "./release-version";
+	type DesignSystemIdentity,
+	designSystemIdentitySchema,
+} from "./design-system-identity";
+import { discoverPublishedDesignSystems } from "./published-design-systems";
+import type { DesignSystemReleaseVersion } from "./release-version";
 
 export {
 	type DesignContract,
@@ -25,7 +24,15 @@ export {
 	type DesignSystemEvaluationRecord,
 	designSystemEvaluationFileName,
 	designSystemEvaluationRecordSchema,
+	designSystemPreviewSurfaces,
 } from "./design-system-evaluation";
+export type { DesignSystemIdentity } from "./design-system-identity";
+export { generateOfficialCatalogArtifacts } from "./official-catalog-generation";
+export {
+	discoverPublishedDesignSystems,
+	type PublishedDesignSystem,
+	type PublishedDesignSystemRelease,
+} from "./published-design-systems";
 export {
 	compareDesignSystemReleaseVersions,
 	type DesignSystemReleaseVersion,
@@ -37,46 +44,33 @@ export {
 	validateDesignSystemRelease,
 } from "./validator";
 
-function createPublishedDesignSystem(id: string) {
-	const releasesDirectory = fileURLToPath(
-		new URL(`../releases/${id}`, import.meta.url),
+const releasesDirectory = fileURLToPath(
+	new URL("../releases", import.meta.url),
+);
+
+export const publishedDesignSystems =
+	await discoverPublishedDesignSystems(releasesDirectory);
+
+function publishedDesignSystem(identity: DesignSystemIdentity) {
+	const designSystem = publishedDesignSystems.find(
+		(candidate) => candidate.id === identity,
 	);
-	const versions = readdirSync(releasesDirectory, {
-		withFileTypes: true,
-	}).flatMap((entry) => {
-		const version = designSystemReleaseVersionSchema.safeParse(entry.name);
-		return entry.isDirectory() && version.success ? [version.data] : [];
-	});
-	versions.sort(compareDesignSystemReleaseVersions);
-	const catalogVersion = versions.at(-1);
-	if (!catalogVersion) {
-		throw new Error(`${id} has no Design System Releases`);
+	if (!designSystem) {
+		throw new Error(`${identity} is not a Published Design System`);
 	}
-	function directoryFor(version: DesignSystemReleaseVersion) {
-		if (!versions.includes(version)) {
-			throw new Error(`Unknown ${id} Design System Release ${version}`);
-		}
-		return path.join(releasesDirectory, version);
-	}
-	return {
-		id,
-		versions,
-		directory: directoryFor(catalogVersion),
-		directoryFor,
-	};
+	return designSystem;
 }
 
-const foundation = createPublishedDesignSystem("foundation");
-const editorial = createPublishedDesignSystem("editorial");
-const mono = createPublishedDesignSystem("mono");
-const command = createPublishedDesignSystem("command");
-
-export const publishedDesignSystems = [
-	foundation,
-	editorial,
-	mono,
-	command,
-] as const;
+const foundation = publishedDesignSystem(
+	designSystemIdentitySchema.parse("foundation"),
+);
+const editorial = publishedDesignSystem(
+	designSystemIdentitySchema.parse("editorial"),
+);
+const mono = publishedDesignSystem(designSystemIdentitySchema.parse("mono"));
+const command = publishedDesignSystem(
+	designSystemIdentitySchema.parse("command"),
+);
 
 export function foundationReleaseDirectoryFor(
 	version: DesignSystemReleaseVersion,

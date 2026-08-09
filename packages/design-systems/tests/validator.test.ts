@@ -121,6 +121,16 @@ describe("Design System Release publication validation", () => {
 		expect(record).not.toHaveProperty("access");
 	});
 
+	test("requires the canonical Design System Preview anatomy", async () => {
+		const record = await readEvaluationRecord(foundationReleaseDirectory);
+		const preview = record.preview as Record<string, unknown>;
+		Reflect.deleteProperty(preview, "intendedFit");
+
+		expect(designSystemEvaluationRecordSchema.safeParse(record).success).toBe(
+			false,
+		);
+	});
+
 	// Every Design System Release stays independently installable through the same
 	// compatibility and safety gate, so Design System Evaluation covers each published
 	// release rather than only the current one.
@@ -293,7 +303,7 @@ describe("Design System Release publication validation", () => {
 		await rm(outsideFile, { force: true });
 	});
 
-	test("rejects invalid semantic release metadata", async () => {
+	test("rejects an invalid Design System Release version", async () => {
 		const errors = await evaluateMutatedRelease((record) => {
 			(record.designSystemRelease as Record<string, unknown>).version =
 				"01.0.0";
@@ -351,6 +361,15 @@ describe("Design System Release publication validation", () => {
 		expect(errors).toContain("required viewport");
 		expect(errors).toContain("both light and dark");
 		expect(errors).toContain("automated check");
+	});
+
+	test("rejects incomplete public preview surface coverage", async () => {
+		const errors = await evaluateMutatedRelease((record) => {
+			const preview = record.preview as Record<string, unknown>;
+			preview.surfaces = Array.from({ length: 8 }, () => "marketing");
+		});
+
+		expect(errors).toContain("preview surfaces must be unique and complete");
 	});
 
 	test("rejects changed bytes under an already-published Design System Release", async () => {

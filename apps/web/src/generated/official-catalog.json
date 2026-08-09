@@ -1,0 +1,503 @@
+{
+	"schemaVersion": "1.0",
+	"designSystems": [
+		{
+			"id": "foundation",
+			"name": "Foundation",
+			"currentRelease": "1.1.0",
+			"preview": {
+				"order": 1,
+				"summary": "Neutral, crisp, and highly legible B2B SaaS.",
+				"intendedFit": "Versatile product foundations",
+				"surfaces": [
+					"marketing",
+					"authentication",
+					"onboarding",
+					"dashboard",
+					"table",
+					"form",
+					"settings",
+					"states"
+				],
+				"route": "/catalog/foundation",
+				"signature": {
+					"label": "System 01",
+					"headline": "Clarity before character.",
+					"principles": [
+						"Quiet surfaces",
+						"Decisive actions",
+						"Accessible by construction"
+					]
+				},
+				"tokens": {
+					"light": {
+						"background": "oklch(0.985 0.003 247)",
+						"foreground": "oklch(0.205 0.015 255)",
+						"card": "oklch(1 0 0)",
+						"muted": "oklch(0.955 0.006 247)",
+						"mutedForeground": "oklch(0.49 0.02 255)",
+						"border": "oklch(0.89 0.01 247)",
+						"primary": "oklch(0.47 0.15 255)",
+						"primaryForeground": "oklch(0.99 0.002 247)",
+						"destructive": "oklch(0.55 0.2 27)",
+						"success": "oklch(0.5 0.13 155)",
+						"warning": "oklch(0.62 0.13 75)",
+						"info": "oklch(0.55 0.12 230)",
+						"ring": "oklch(0.57 0.17 255)"
+					},
+					"dark": {
+						"background": "oklch(0.17 0.012 255)",
+						"foreground": "oklch(0.94 0.007 247)",
+						"card": "oklch(0.215 0.014 255)",
+						"muted": "oklch(0.255 0.014 255)",
+						"mutedForeground": "oklch(0.72 0.015 247)",
+						"border": "oklch(0.34 0.018 255)",
+						"primary": "oklch(0.72 0.13 255)",
+						"primaryForeground": "oklch(0.17 0.012 255)",
+						"destructive": "oklch(0.7 0.17 27)",
+						"success": "oklch(0.7 0.12 155)",
+						"warning": "oklch(0.78 0.12 75)",
+						"info": "oklch(0.74 0.1 230)",
+						"ring": "oklch(0.72 0.13 255)"
+					}
+				},
+				"typography": {
+					"display": "sans",
+					"body": "sans",
+					"accent": "mono",
+					"scale": "balanced"
+				},
+				"geometry": {
+					"density": "balanced",
+					"radius": "soft",
+					"border": "defined",
+					"elevation": "flat"
+				}
+			},
+			"compatibility": {
+				"frameworks": ["react", "nextjs"],
+				"react": ">=18 <20",
+				"nextjs": ">=15 <17",
+				"tailwind": ">=4 <5",
+				"ui": "shadcn/ui"
+			},
+			"evaluation": {
+				"status": "passed",
+				"standard": "WCAG 2.2 Level AA",
+				"screens": [
+					"marketing",
+					"authentication",
+					"onboarding",
+					"dashboard",
+					"table",
+					"form",
+					"settings",
+					"states"
+				],
+				"viewports": ["1440x900", "390x844"],
+				"colorSchemes": ["light", "dark"],
+				"reducedMotion": true,
+				"agentGenerationRuns": 3,
+				"automatedChecks": [
+					"structure",
+					"accessibility",
+					"responsive overflow",
+					"color contrast"
+				],
+				"humanReview": {
+					"status": "passed",
+					"reviewedAt": "2026-07-18",
+					"rightsReview": "passed"
+				},
+				"evidence": ["evaluation/report.json"]
+			},
+			"releases": [
+				{
+					"version": "1.1.0",
+					"publishedAt": "2026-07-19",
+					"changelog": {
+						"summary": "Adds semantic informational-state tokens and detailed responsive pagination guidance.",
+						"breaking": false,
+						"migrationNotes": null
+					}
+				},
+				{
+					"version": "1.0.0",
+					"publishedAt": "2026-07-18",
+					"changelog": {
+						"summary": "Initial Published Design System with complete cross-surface guidance, implementation direction, and Design System Evaluation evidence.",
+						"breaking": false,
+						"migrationNotes": null
+					}
+				}
+			]
+		},
+		{
+			"id": "editorial",
+			"name": "Editorial",
+			"currentRelease": "1.0.0",
+			"preview": {
+				"order": 2,
+				"summary": "Warm, spacious, and content-forward SaaS.",
+				"intendedFit": "Knowledge and content products",
+				"surfaces": [
+					"marketing",
+					"authentication",
+					"onboarding",
+					"dashboard",
+					"table",
+					"form",
+					"settings",
+					"states"
+				],
+				"route": "/catalog/editorial",
+				"signature": {
+					"label": "Volume 01",
+					"headline": "Ideas need room.",
+					"principles": [
+						"Editorial hierarchy",
+						"Warm paper surfaces",
+						"Spacious reading rhythm"
+					]
+				},
+				"tokens": {
+					"light": {
+						"background": "oklch(0.975 0.014 82)",
+						"foreground": "oklch(0.22 0.025 48)",
+						"card": "oklch(0.995 0.008 82)",
+						"muted": "oklch(0.935 0.02 79)",
+						"mutedForeground": "oklch(0.46 0.035 52)",
+						"border": "oklch(0.82 0.025 74)",
+						"primary": "oklch(0.38 0.095 335)",
+						"primaryForeground": "oklch(0.985 0.008 82)",
+						"destructive": "oklch(0.5 0.17 28)",
+						"success": "oklch(0.43 0.1 145)",
+						"warning": "oklch(0.55 0.11 72)",
+						"info": "oklch(0.43 0.08 245)",
+						"ring": "oklch(0.52 0.13 335)"
+					},
+					"dark": {
+						"background": "oklch(0.18 0.018 48)",
+						"foreground": "oklch(0.92 0.018 82)",
+						"card": "oklch(0.22 0.02 48)",
+						"muted": "oklch(0.265 0.025 48)",
+						"mutedForeground": "oklch(0.73 0.025 76)",
+						"border": "oklch(0.37 0.03 52)",
+						"primary": "oklch(0.76 0.09 335)",
+						"primaryForeground": "oklch(0.18 0.018 48)",
+						"destructive": "oklch(0.69 0.15 28)",
+						"success": "oklch(0.7 0.1 145)",
+						"warning": "oklch(0.76 0.1 72)",
+						"info": "oklch(0.72 0.08 245)",
+						"ring": "oklch(0.76 0.09 335)"
+					}
+				},
+				"typography": {
+					"display": "serif",
+					"body": "serif",
+					"accent": "sans",
+					"scale": "expressive"
+				},
+				"geometry": {
+					"density": "spacious",
+					"radius": "soft",
+					"border": "subtle",
+					"elevation": "flat"
+				}
+			},
+			"compatibility": {
+				"frameworks": ["react", "nextjs"],
+				"react": ">=18 <20",
+				"nextjs": ">=15 <17",
+				"tailwind": ">=4 <5",
+				"ui": "shadcn/ui"
+			},
+			"evaluation": {
+				"status": "passed",
+				"standard": "WCAG 2.2 Level AA",
+				"screens": [
+					"marketing",
+					"authentication",
+					"onboarding",
+					"dashboard",
+					"table",
+					"form",
+					"settings",
+					"states"
+				],
+				"viewports": ["1440x900", "390x844", "320x844"],
+				"colorSchemes": ["light", "dark"],
+				"reducedMotion": true,
+				"agentGenerationRuns": 3,
+				"automatedChecks": [
+					"structure",
+					"accessibility",
+					"responsive overflow",
+					"text reflow and source order",
+					"color contrast"
+				],
+				"humanReview": {
+					"status": "passed",
+					"reviewedAt": "2026-07-19",
+					"rightsReview": "passed"
+				},
+				"evidence": ["evaluation/report.json", "evaluation/agent-runs.md"]
+			},
+			"releases": [
+				{
+					"version": "1.0.0",
+					"publishedAt": "2026-07-19",
+					"changelog": {
+						"summary": "Initial Published Design System with complete cross-surface guidance, evaluated implementation direction, and WCAG 2.2 AA evidence.",
+						"breaking": false,
+						"migrationNotes": null
+					}
+				}
+			]
+		},
+		{
+			"id": "mono",
+			"name": "Mono",
+			"currentRelease": "1.0.0",
+			"preview": {
+				"order": 3,
+				"summary": "Monochrome, high-contrast, and content-spotlit.",
+				"intendedFit": "Media and creative tooling",
+				"surfaces": [
+					"marketing",
+					"authentication",
+					"onboarding",
+					"dashboard",
+					"table",
+					"form",
+					"settings",
+					"states"
+				],
+				"route": "/catalog/mono",
+				"signature": {
+					"label": "System 03",
+					"headline": "Ink and paper.",
+					"principles": [
+						"Achromatic chrome",
+						"Content carries color",
+						"Bold typographic scale"
+					]
+				},
+				"tokens": {
+					"light": {
+						"background": "oklch(1 0 0)",
+						"foreground": "oklch(0.145 0 0)",
+						"card": "oklch(1 0 0)",
+						"muted": "oklch(0.97 0 0)",
+						"mutedForeground": "oklch(0.5 0 0)",
+						"border": "oklch(0.922 0 0)",
+						"primary": "oklch(0.205 0 0)",
+						"primaryForeground": "oklch(0.985 0 0)",
+						"destructive": "oklch(0.55 0.21 27)",
+						"success": "oklch(0.5 0.13 155)",
+						"warning": "oklch(0.6 0.13 75)",
+						"info": "oklch(0.55 0.12 230)",
+						"ring": "oklch(0.44 0 0)"
+					},
+					"dark": {
+						"background": "oklch(0.145 0 0)",
+						"foreground": "oklch(0.985 0 0)",
+						"card": "oklch(0.205 0 0)",
+						"muted": "oklch(0.269 0 0)",
+						"mutedForeground": "oklch(0.708 0 0)",
+						"border": "oklch(0.31 0 0)",
+						"primary": "oklch(0.985 0 0)",
+						"primaryForeground": "oklch(0.145 0 0)",
+						"destructive": "oklch(0.7 0.19 22)",
+						"success": "oklch(0.7 0.12 155)",
+						"warning": "oklch(0.78 0.12 75)",
+						"info": "oklch(0.74 0.1 230)",
+						"ring": "oklch(0.72 0 0)"
+					}
+				},
+				"typography": {
+					"display": "sans",
+					"body": "sans",
+					"accent": "mono",
+					"scale": "expressive"
+				},
+				"geometry": {
+					"density": "balanced",
+					"radius": "pill",
+					"border": "subtle",
+					"elevation": "flat"
+				}
+			},
+			"compatibility": {
+				"frameworks": ["react", "nextjs"],
+				"react": ">=18 <20",
+				"nextjs": ">=15 <17",
+				"tailwind": ">=4 <5",
+				"ui": "shadcn/ui"
+			},
+			"evaluation": {
+				"status": "passed",
+				"standard": "WCAG 2.2 Level AA",
+				"screens": [
+					"marketing",
+					"authentication",
+					"onboarding",
+					"dashboard",
+					"table",
+					"form",
+					"settings",
+					"states"
+				],
+				"viewports": ["1440x900", "390x844"],
+				"colorSchemes": ["light", "dark"],
+				"reducedMotion": true,
+				"agentGenerationRuns": 3,
+				"automatedChecks": [
+					"structure",
+					"accessibility",
+					"responsive overflow",
+					"color contrast"
+				],
+				"humanReview": {
+					"status": "passed",
+					"reviewedAt": "2026-07-25",
+					"rightsReview": "passed"
+				},
+				"evidence": ["evaluation/report.json"]
+			},
+			"releases": [
+				{
+					"version": "1.0.0",
+					"publishedAt": "2026-07-25",
+					"changelog": {
+						"summary": "Initial Published Design System with complete cross-surface coverage and evaluation evidence.",
+						"breaking": false,
+						"migrationNotes": null
+					}
+				}
+			]
+		},
+		{
+			"id": "command",
+			"name": "Command",
+			"currentRelease": "1.0.0",
+			"preview": {
+				"order": 4,
+				"summary": "Dark-first, dense, and technical.",
+				"intendedFit": "Developer and operations products",
+				"surfaces": [
+					"marketing",
+					"authentication",
+					"onboarding",
+					"dashboard",
+					"table",
+					"form",
+					"settings",
+					"states"
+				],
+				"route": "/catalog/command",
+				"signature": {
+					"label": "Node 04",
+					"headline": "Purpose-built instrument.",
+					"principles": [
+						"Graphite working planes",
+						"Operational cyan signals",
+						"Dense persistent context"
+					]
+				},
+				"tokens": {
+					"light": {
+						"background": "#f3f6fa",
+						"foreground": "#111827",
+						"card": "#ffffff",
+						"muted": "#e9eef5",
+						"mutedForeground": "#526174",
+						"border": "#aebdce",
+						"primary": "#006f95",
+						"primaryForeground": "#ffffff",
+						"destructive": "#b42335",
+						"success": "#18794e",
+						"warning": "#8a6100",
+						"info": "#006f95",
+						"ring": "#006f95"
+					},
+					"dark": {
+						"background": "#080b10",
+						"foreground": "#e8edf5",
+						"card": "#0d1118",
+						"muted": "#121823",
+						"mutedForeground": "#98a4b5",
+						"border": "#283344",
+						"primary": "#55d6ff",
+						"primaryForeground": "#051015",
+						"destructive": "#ff6b7a",
+						"success": "#6ee7a8",
+						"warning": "#f6c85f",
+						"info": "#55d6ff",
+						"ring": "#55d6ff"
+					}
+				},
+				"typography": {
+					"display": "sans",
+					"body": "sans",
+					"accent": "mono",
+					"scale": "compact"
+				},
+				"geometry": {
+					"density": "compact",
+					"radius": "square",
+					"border": "strong",
+					"elevation": "layered"
+				}
+			},
+			"compatibility": {
+				"frameworks": ["react", "nextjs"],
+				"react": ">=18 <20",
+				"nextjs": ">=15 <17",
+				"tailwind": ">=4 <5",
+				"ui": "shadcn/ui"
+			},
+			"evaluation": {
+				"status": "passed",
+				"standard": "WCAG 2.2 Level AA",
+				"screens": [
+					"marketing",
+					"authentication",
+					"onboarding",
+					"dashboard",
+					"table",
+					"form",
+					"settings",
+					"states"
+				],
+				"viewports": ["1440x900", "390x844"],
+				"colorSchemes": ["light", "dark"],
+				"reducedMotion": true,
+				"agentGenerationRuns": 4,
+				"automatedChecks": [
+					"structure",
+					"accessibility",
+					"responsive overflow",
+					"color contrast"
+				],
+				"humanReview": {
+					"status": "passed",
+					"reviewedAt": "2026-07-18",
+					"rightsReview": "passed"
+				},
+				"evidence": ["evaluation/report.json"]
+			},
+			"releases": [
+				{
+					"version": "1.0.0",
+					"publishedAt": "2026-07-18",
+					"changelog": {
+						"summary": "Initial Published Design System with dense technical patterns and complete state coverage.",
+						"breaking": false,
+						"migrationNotes": null
+					}
+				}
+			]
+		}
+	]
+}
