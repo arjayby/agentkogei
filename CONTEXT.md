@@ -40,6 +40,22 @@ _Avoid_: demo, sample, source
 An immutable, semantically versioned edition of a Design System. Patch releases preserve generated output, minor releases add compatible direction, and major releases may intentionally change a Project's interface.
 _Avoid_: latest, update, revision
 
+**Candidate Design System Release**:
+A complete proposed Design System Release that is ready for validation and Design System Evaluation but has not yet been admitted to the Official Catalog.
+_Avoid_: draft `DESIGN.md`, generated file, unfinished release
+
+**Authoring Approval**:
+A maintainer's explicit acceptance that a validated Candidate Design System Release expresses its approved creative brief and is ready for Design System Evaluation. It does not assert that evaluation has passed or authorize publication.
+_Avoid_: publication approval, evaluation pass, looks good
+
+**Publication Approval**:
+A maintainer's explicit authorization to admit an evaluated Design System Release to the Official Catalog and deploy it to production. It is granted only after all automated evaluation and separate visual, accessibility, and rights reviews have passed.
+_Avoid_: authoring approval, candidate approval, merge approval
+
+**Design Reference**:
+An image or URL supplied as inspiration for a Candidate Design System Release. It may inform general visual characteristics but is never a target for copying product identity, proprietary assets, distinctive compositions, or a living designer's style.
+_Avoid_: source design, replication target, style clone
+
 **Installation**:
 The declarative, non-executable application of a Design System to a Project through the AgentKogei CLI. It places the Design Contract at the Project root and makes it discoverable through the Project's agent instructions, but does not migrate an existing interface.
 _Avoid_: download, copy
