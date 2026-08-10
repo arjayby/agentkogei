@@ -32,11 +32,12 @@ export function DesignSystemCard({
 				</CardContent>
 				<CardHeader>
 					<CardTitle>{designSystem.name}</CardTitle>
-					<CardDescription>{designSystem.direction}</CardDescription>
+					<CardDescription>{designSystem.preview.summary}</CardDescription>
 				</CardHeader>
 				<CardFooter className="justify-between">
 					<span className="font-mono text-muted-foreground text-xs">
-						0{index + 1} / {designSystem.bestFor}
+						{String(index + 1).padStart(2, "0")} /{" "}
+						{designSystem.preview.intendedFit}
 					</span>
 					<ArrowUpRight aria-hidden="true" />
 				</CardFooter>

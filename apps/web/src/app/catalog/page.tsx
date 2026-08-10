@@ -5,7 +5,8 @@ import { designSystems } from "@/lib/catalog";
 
 export const metadata: Metadata = {
 	title: "Official Catalog | AgentKogei",
-	description: "Browse four Design Systems in the AgentKogei Official Catalog.",
+	description:
+		"Browse Published Design Systems in the AgentKogei Official Catalog.",
 };
 
 export default function CatalogPage() {
@@ -18,7 +19,7 @@ export default function CatalogPage() {
 							Official Catalog / Launch collection
 						</p>
 						<h1 className="font-medium text-5xl tracking-[-0.05em] sm:text-7xl">
-							Four systems. Four voices.
+							Published systems. Distinct voices.
 						</h1>
 					</div>
 					<p className="max-w-xl text-lg text-muted-foreground leading-8">
