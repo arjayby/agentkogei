@@ -21,8 +21,8 @@ The root `DESIGN.md` document through which an Installed Design System directs a
 _Avoid_: prompt, style guide, rules file
 
 **Official Catalog**:
-The curated collection of MIT-licensed Design Systems published and maintained by AgentKogei. It contains only first-party systems.
-_Avoid_: marketplace, store, registry
+The curated collection of MIT-licensed Design Systems published and maintained by AgentKogei. It contains only first-party systems and is presented to Builders as Design Systems.
+_Avoid_: marketplace, store, registry, Catalog as a public collection name
 
 **Published Design System**:
 A Design System admitted to the Official Catalog after meeting its completeness and quality requirements.
@@ -33,12 +33,16 @@ The standardized generation, automated validation, and human review process that
 _Avoid_: demo, preview, test
 
 **Design System Preview**:
-The public visual and descriptive evidence showing a Design System's direction, coverage, compatibility, and evaluation status.
-_Avoid_: demo, sample, source
+The public visual and descriptive specimen showing a Design System's direction, tokens, typography, components, behavior, coverage, compatibility, and evaluation status. It presents the system consistently without replacing its complete Design Contract.
+_Avoid_: demo, sample, source, showcase, style guide
+
+**Design System Mark**:
+An original abstract symbol that identifies one Design System within a cohesive AgentKogei family. It remains recognizable at navigation size and when enlarged within its Design System Preview.
+_Avoid_: icon, logo, preview artwork, borrowed brand symbol
 
 **Design System Release**:
-An immutable, semantically versioned edition of a Design System. Patch releases preserve generated output, minor releases add compatible direction, and major releases may intentionally change a Project's interface.
-_Avoid_: latest, update, revision
+An immutable edition of a Design System identified by a two part `major.minor` version. Minor releases add compatible direction, while major releases may intentionally change a Project's interface.
+_Avoid_: three part semantic version, patch release, latest, update, revision
 
 **Candidate Design System Release**:
 A complete proposed Design System Release that is ready for validation and Design System Evaluation but has not yet been admitted to the Official Catalog.
