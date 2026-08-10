@@ -7,10 +7,9 @@ import { commandArguments } from "./command-arguments";
 
 const command = commandArguments(process.argv.slice(2));
 const approvalFile = command.primary;
-const productionUrl = command.option("--production-url");
-if (!approvalFile || !productionUrl) {
+if (!approvalFile) {
 	console.error(
-		"Usage: bun verify-production.ts <approval-file> --production-url <url> [--repository <directory>] [--cli-package <tarball>]",
+		"Usage: bun verify-production.ts <approval-file> [--repository <directory>] [--cli-package <tarball>]",
 	);
 	process.exit(2);
 }
@@ -22,7 +21,6 @@ const repository = path.resolve(
 const result = await verifyProductionPublication({
 	approvalFile,
 	repository,
-	productionUrl,
 	cliPackage:
 		command.option("--cli-package") ??
 		path.join(

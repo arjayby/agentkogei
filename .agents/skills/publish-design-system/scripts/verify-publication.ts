@@ -11,6 +11,7 @@ import {
 import {
 	contractRetrievalProtocol,
 	inspectPublicationProposal,
+	verifyContractRetrievalProtocol,
 } from "../../../../packages/design-systems/src/publication-release";
 import { validateDesignSystemRelease } from "../../../../packages/design-systems/src/validator";
 import { commandArguments } from "./command-arguments";
@@ -43,6 +44,11 @@ if (
 			errors: ["repository must be clean before publication verification"],
 		}),
 	);
+	process.exit(1);
+}
+const protocol = await verifyContractRetrievalProtocol(repository);
+if (!protocol.ok) {
+	console.log(JSON.stringify(protocol));
 	process.exit(1);
 }
 const validation = await validateDesignSystemRelease(proposalDirectory);

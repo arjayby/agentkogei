@@ -1,7 +1,11 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import {
+	verifyContractRetrievalProtocol,
+	verifyPublicationAtUrl,
+} from "../src/publication-release";
 
 const startEvaluationCommand = path.resolve(
 	import.meta.dirname,
@@ -30,10 +34,6 @@ const approvePublicationCommand = path.resolve(
 const promotePublicationCommand = path.resolve(
 	import.meta.dirname,
 	"../../../.agents/skills/publish-design-system/scripts/promote-publication.ts",
-);
-const verifyProductionCommand = path.resolve(
-	import.meta.dirname,
-	"../../../.agents/skills/publish-design-system/scripts/verify-production.ts",
 );
 const publicationSkillDirectory = path.resolve(
 	import.meta.dirname,
@@ -443,18 +443,36 @@ async function createPromotionRepository() {
 		path.join(tmpdir(), "agentkogei-promotion-repository-"),
 	);
 	temporaryDirectories.push(repository);
+	const failureMarker = `${repository}-fail-promotion`;
+	temporaryDirectories.push(failureMarker);
 	await mkdir(path.join(repository, "apps/web"), { recursive: true });
 	await mkdir(path.join(repository, "packages/design-systems/releases"), {
 		recursive: true,
 	});
 	await writeFile(
 		path.join(repository, "package.json"),
-		'{"scripts":{"launch:verify":"true"}}\n',
+		`${JSON.stringify({ scripts: { "launch:verify": `test ! -e '${failureMarker}'` } })}\n`,
 	);
 	await writeFile(
 		path.join(repository, "apps/web/package.json"),
 		'{"scripts":{"contracts:build":"true"}}\n',
 	);
+	for (const relativePath of [
+		"packages/design-systems/contract-retrieval-protocol.json",
+		"packages/design-systems/src/add-design-contract.ts",
+		"packages/design-systems/src/design-contract-installation.ts",
+		"packages/design-systems/src/install-cli.ts",
+		"apps/web/src/lib/design-contract-delivery.ts",
+		"apps/web/src/app/contracts/[identity]/route.ts",
+		"apps/web/src/app/contracts/[identity]/[version]/route.ts",
+	]) {
+		const target = path.join(repository, relativePath);
+		await mkdir(path.dirname(target), { recursive: true });
+		await cp(
+			path.resolve(import.meta.dirname, "../../..", relativePath),
+			target,
+		);
+	}
 	const installed = await runProcess(["bun", "install"], repository);
 	expect(installed.exitCode, installed.stderr).toBe(0);
 	for (const arguments_ of [
@@ -474,7 +492,7 @@ async function createPromotionRepository() {
 		const result = await runProcess([...arguments_], repository);
 		expect(result.exitCode, result.stderr).toBe(0);
 	}
-	return { repository };
+	return { repository, failureMarker };
 }
 
 async function runVerifyPublication(
@@ -518,6 +536,26 @@ describe("Design System publication workflow", () => {
 		expect(skill).toMatch(/^---\nname: publish-design-system\n/);
 		expect(interfaceMetadata).toContain("$publish-design-system");
 		expect(interfaceMetadata).toContain("allow_implicit_invocation: false");
+	});
+
+	test("stops before Publication Approval when the packaged CLI protocol changed", async () => {
+		const { repository } = await createPromotionRepository();
+		expect(await verifyContractRetrievalProtocol(repository)).toEqual({
+			ok: true,
+			version: "1.0",
+		});
+		const protocolSource = path.join(
+			repository,
+			"packages/design-systems/src/add-design-contract.ts",
+		);
+		await writeFile(protocolSource, "changed protocol\n");
+
+		expect(await verifyContractRetrievalProtocol(repository)).toEqual({
+			ok: false,
+			errors: [
+				"contract retrieval protocol changed at packages/design-systems/src/add-design-contract.ts; request a separate package release decision",
+			],
+		});
 	});
 
 	test("refuses evaluation without Authoring Approval and creates no Project", async () => {
@@ -781,7 +819,7 @@ describe("Design System publication workflow", () => {
 	test("promotes only the exact verified proposal after explicit Publication Approval", async () => {
 		const { proposalDirectory, parentDirectory } =
 			await prepareApprovedProposal();
-		const { repository } = await createPromotionRepository();
+		const { repository, failureMarker } = await createPromotionRepository();
 		const verificationFile = path.join(parentDirectory, "verification.json");
 		const approvalFile = path.join(
 			parentDirectory,
@@ -837,6 +875,32 @@ describe("Design System publication workflow", () => {
 			path.join(proposalDirectory, "DESIGN.md"),
 			completeDesignContract,
 		);
+		await writeFile(failureMarker, "fail\n");
+		const failedVerification = await runJsonCommand([
+			process.execPath,
+			promotePublicationCommand,
+			proposalDirectory,
+			"--approval",
+			approvalFile,
+			"--repository",
+			repository,
+		]);
+		expect(failedVerification.result).toMatchObject({
+			ok: false,
+			live: false,
+		});
+		expect(failedVerification.result.errors).toEqual([
+			expect.stringContaining("launch:verify failed after promotion"),
+		]);
+		expect(
+			await Bun.file(
+				path.join(
+					repository,
+					"packages/design-systems/releases/lattice/1.0.0/DESIGN.md",
+				),
+			).exists(),
+		).toBe(false);
+		await rm(failureMarker, { force: true });
 
 		const promoted = await runJsonCommand([
 			process.execPath,
@@ -958,33 +1022,27 @@ describe("Design System publication workflow", () => {
 			},
 		});
 		try {
-			const arguments_ = [
-				process.execPath,
-				verifyProductionCommand,
+			const verificationInput = {
 				approvalFile,
-				"--repository",
 				repository,
-				"--production-url",
-				server.url.href,
-				"--cli-package",
-				path.resolve(import.meta.dirname, "../.distribution/agentkogei.tgz"),
-			];
-			const mismatch = await runJsonCommand(arguments_);
+				productionUrl: server.url.href,
+				cliPackage: path.resolve(
+					import.meta.dirname,
+					"../.distribution/agentkogei.tgz",
+				),
+			};
+			const mismatch = await verifyPublicationAtUrl(verificationInput);
 			expect(mismatch).toEqual({
-				exitCode: 1,
-				result: {
-					ok: false,
-					errors: [
-						"production Design Contract digest differs from Publication Approval: lattice@1.0.0",
-					],
-					live: false,
-				},
+				ok: false,
+				errors: [
+					"production Design Contract digest differs from Publication Approval: lattice@1.0.0",
+				],
+				live: false,
 			});
 
 			tampered = false;
-			const verified = await runJsonCommand(arguments_);
-			expect(verified.exitCode).toBe(0);
-			expect(verified.result).toMatchObject({
+			const verified = await verifyPublicationAtUrl(verificationInput);
+			expect(verified).toMatchObject({
 				ok: true,
 				identity: "lattice",
 				version: "1.0.0",

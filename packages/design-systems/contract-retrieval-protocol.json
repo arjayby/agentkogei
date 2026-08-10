@@ -1,0 +1,12 @@
+{
+	"schemaVersion": "1.0",
+	"version": "1.0",
+	"sources": {
+		"packages/design-systems/src/add-design-contract.ts": "f3f90cfe024f30a837a3563381ad9ffa53c8944eccaa001061d821f53239d18c",
+		"packages/design-systems/src/design-contract-installation.ts": "44e488d1d7e9e782e3a7e2d071fa104960218660978059c71519ca81bdd016e4",
+		"packages/design-systems/src/install-cli.ts": "439031c84d51c56852a59eb347d8c8f756dc3aca0e226352521e10091273daaa",
+		"apps/web/src/lib/design-contract-delivery.ts": "5974fbad924f55694a7fc1ab9f3044864933f328b353a7f92dfbc20adfe4f690",
+		"apps/web/src/app/contracts/[identity]/route.ts": "353382f7e2492d517889814513361210f3f9c99352e258440b6a4e9b0136ea0e",
+		"apps/web/src/app/contracts/[identity]/[version]/route.ts": "f8354b97dbf34441838dabf12ec3dbb3ade5dd9bad4beae5ab10e97e9be895d3"
+	}
+}

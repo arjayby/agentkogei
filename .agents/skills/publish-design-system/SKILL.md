@@ -91,7 +91,7 @@ bun .agents/skills/publish-design-system/scripts/promote-publication.ts <proposa
 
 The command must validate the candidate record, evidence digests, automated results, three human reviews, Publication Approval, every approved proposal file, and the verified repository commit. It atomically admits the exact proposal, rebuilds generated catalog data, proves the identity is discovered, and reruns `launch:verify`. Continue only when it reports `readyToDeploy` as `true`, `launchVerify` as `passed`, and `live` as `false`.
 
-If contract retrieval protocol `1.0` is not preserved, stop and request a separate package release decision. Publication Approval does not authorize npm publication.
+The tracked protocol lock must prove that contract retrieval protocol `1.0` is unchanged before approval and promotion. If it differs, stop and request a separate package release decision. Publication Approval does not authorize npm publication.
 
 ## 7. Deploy the production website
 
@@ -108,9 +108,9 @@ Capture the production website URL from the successful deployment. Do not run `n
 Run:
 
 ```text
-bun .agents/skills/publish-design-system/scripts/verify-production.ts <approval-file> --production-url <production-url>
+bun .agents/skills/publish-design-system/scripts/verify-production.ts <approval-file>
 ```
 
-This command must verify the new catalog entry and Design System Preview, every repository backed current and historical exact contract route, approved response identity and release headers, byte identical Markdown, the approved digest, and Installation by the packaged CLI into a temporary Project. A mismatch or unverifiable response fails with `live` as `false`.
+This command verifies only the canonical `https://agentkogei.com/` production origin. It must verify the new catalog entry and Design System Preview, every repository backed current and historical exact contract route, approved response identity and release headers, byte identical Markdown, the approved digest, and Installation by the packaged CLI into a temporary Project. A mismatch or unverifiable response fails with `live` as `false`.
 
 Only a successful result may be reported as live. Report the catalog route, current contract route, exact contract route, Design System identity, semantic version, and verified digest. Also report that no npm CLI package was published.

@@ -3,11 +3,9 @@ import { createHash } from "node:crypto";
 import {
 	cp,
 	lstat,
-	mkdir,
 	mkdtemp,
 	readdir,
 	readFile,
-	rename,
 	rm,
 	writeFile,
 } from "node:fs/promises";
@@ -94,6 +92,56 @@ const publicationProposalReportSchema = z
 	.strict();
 
 export const contractRetrievalProtocol = "1.0" as const;
+export const productionWebsiteUrl = "https://agentkogei.com/" as const;
+const contractRetrievalProtocolSchema = z
+	.object({
+		schemaVersion: z.literal("1.0"),
+		version: z.literal(contractRetrievalProtocol),
+		sources: z.record(z.string().min(1), sha256Schema),
+	})
+	.strict();
+
+export async function verifyContractRetrievalProtocol(repository: string) {
+	let protocol: z.infer<typeof contractRetrievalProtocolSchema>;
+	try {
+		protocol = contractRetrievalProtocolSchema.parse(
+			JSON.parse(
+				await readFile(
+					path.join(
+						repository,
+						"packages/design-systems/contract-retrieval-protocol.json",
+					),
+					"utf8",
+				),
+			),
+		);
+	} catch {
+		return {
+			ok: false as const,
+			errors: [
+				"contract retrieval protocol lock is missing or invalid; request a separate package release decision",
+			],
+		};
+	}
+	for (const [relativePath, expectedDigest] of Object.entries(
+		protocol.sources,
+	)) {
+		try {
+			const digest = createHash("sha256")
+				.update(await readFile(path.join(repository, relativePath)))
+				.digest("hex");
+			if (digest !== expectedDigest) throw new Error();
+		} catch {
+			return {
+				ok: false as const,
+				errors: [
+					`contract retrieval protocol changed at ${relativePath}; request a separate package release decision`,
+				],
+			};
+		}
+	}
+	return { ok: true as const, version: protocol.version };
+}
 
 export const publicationVerificationSchema = z
 	.object({
@@ -402,7 +450,7 @@ export async function recordPublicationApproval(input: {
 	};
 }
 
-async function run(
+async function runCommand(
 	command: string[],
 	cwd: string,
 	environment?: Record<string, string>,
@@ -472,7 +520,7 @@ export async function promoteApprovedPublication(input: {
 			"publication proposal differs from the explicitly approved artifacts",
 		]);
 	}
-	const head = await run(["git", "rev-parse", "HEAD"], input.repository);
+	const head = await runCommand(["git", "rev-parse", "HEAD"], input.repository);
 	if (
 		head.exitCode !== 0 ||
 		head.stdout.trim() !== approval.verification.repositoryHead
@@ -481,7 +529,7 @@ export async function promoteApprovedPublication(input: {
 			"repository changed after publication verification; verify again and obtain fresh Publication Approval",
 		]);
 	}
-	const status = await run(
+	const status = await runCommand(
 		["git", "status", "--porcelain", "--untracked-files=all"],
 		input.repository,
 	);
@@ -490,63 +538,145 @@ export async function promoteApprovedPublication(input: {
 			"repository must be clean before admitting an approved Design System Release",
 		]);
 	}
+	const protocol = await verifyContractRetrievalProtocol(input.repository);
+	if (!protocol.ok) return failure(protocol.errors);
 
-	const releasesDirectory = path.join(
-		input.repository,
+	const productionRelativePath = path.join(
 		"packages/design-systems/releases",
-	);
-	const target = path.join(
-		releasesDirectory,
 		proposal.record.id,
 		proposal.record.designSystemRelease.version,
 	);
+	const target = path.join(input.repository, productionRelativePath);
 	try {
 		await lstat(target);
-		if (!sameProposalFiles(await listProposalFiles(target), proposal.files)) {
-			return failure([
-				`production target already exists with different contents: ${target}`,
-			]);
-		}
-	} catch {
-		const parent = path.dirname(target);
-		await mkdir(parent, { recursive: true });
-		const staging = await mkdtemp(path.join(parent, ".agentkogei-promotion-"));
-		try {
-			await cp(input.proposalDirectory, staging, { recursive: true });
-			await rename(staging, target);
-		} finally {
-			await rm(staging, { recursive: true, force: true });
+		return failure([`production target already exists: ${target}`]);
+	} catch (error) {
+		if ((error as NodeJS.ErrnoException).code !== "ENOENT") {
+			return failure([`production target cannot be inspected: ${target}`]);
 		}
 	}
 
+	const worktree = await mkdtemp(
+		path.join(tmpdir(), "agentkogei-promotion-worktree-"),
+	);
+	let addedWorktree = false;
 	try {
-		const discovered = await discoverPublishedDesignSystems(releasesDirectory);
+		const added = await runCommand(
+			["git", "worktree", "add", "--detach", worktree, "HEAD"],
+			input.repository,
+		);
+		if (added.exitCode !== 0) {
+			return failure([
+				`could not create promotion worktree: ${added.stderr.trim()}`,
+			]);
+		}
+		addedWorktree = true;
+		const installed = await runCommand(
+			["bun", "install", "--frozen-lockfile"],
+			worktree,
+		);
+		if (installed.exitCode !== 0) {
+			return failure([
+				`could not install promotion dependencies: ${installed.stderr.trim()}`,
+			]);
+		}
+		const worktreeTarget = path.join(worktree, productionRelativePath);
+		await cp(input.proposalDirectory, worktreeTarget, {
+			recursive: true,
+			errorOnExist: true,
+		});
+		const worktreeReleases = path.join(
+			worktree,
+			"packages/design-systems/releases",
+		);
+		const discovered = await discoverPublishedDesignSystems(worktreeReleases);
 		if (!discovered.some(({ id }) => id === proposal.record.id)) {
 			return failure([
 				"promoted identity was not discovered in the Official Catalog",
+			]);
+		}
+		const generated = await runCommand(
+			["bun", "run", "--cwd", "apps/web", "contracts:build"],
+			worktree,
+		);
+		if (generated.exitCode !== 0) {
+			return failure([
+				`Official Catalog generation failed: ${(generated.stderr || generated.stdout).trim()}`,
+			]);
+		}
+		const verified = await runCommand(
+			["bun", "run", "launch:verify"],
+			worktree,
+		);
+		if (verified.exitCode !== 0) {
+			return failure([
+				`launch:verify failed after promotion: ${(verified.stderr || verified.stdout).trim()}`,
+			]);
+		}
+		const intent = await runCommand(
+			["git", "add", "-N", "--", productionRelativePath],
+			worktree,
+		);
+		if (intent.exitCode !== 0) {
+			return failure([
+				`could not prepare promotion patch: ${intent.stderr.trim()}`,
+			]);
+		}
+		const generatedPaths = [
+			"apps/web/src/generated/official-catalog.json",
+			"apps/web/src/generated/design-contracts.json",
+		];
+		const diff = await runCommand(
+			[
+				"git",
+				"diff",
+				"--binary",
+				"--no-ext-diff",
+				"HEAD",
+				"--",
+				productionRelativePath,
+				...generatedPaths,
+			],
+			worktree,
+		);
+		if (diff.exitCode !== 0 || diff.stdout.length === 0) {
+			return failure([
+				"verified promotion produced no applicable catalog patch",
+			]);
+		}
+		const patchFile = path.join(worktree, ".agentkogei-publication.patch");
+		await writeFile(patchFile, diff.stdout);
+		const checked = await runCommand(
+			["git", "apply", "--check", patchFile],
+			input.repository,
+		);
+		if (checked.exitCode !== 0) {
+			return failure([
+				`verified promotion patch cannot be applied: ${checked.stderr.trim()}`,
+			]);
+		}
+		const applied = await runCommand(
+			["git", "apply", patchFile],
+			input.repository,
+		);
+		if (applied.exitCode !== 0) {
+			return failure([
+				`verified promotion patch failed to apply: ${applied.stderr.trim()}`,
 			]);
 		}
 	} catch (error) {
 		return failure([
 			error instanceof Error
 				? error.message
-				: "Official Catalog discovery failed",
+				: "approved publication promotion failed",
 		]);
-	}
-	const generated = await run(
-		["bun", "run", "--cwd", "apps/web", "contracts:build"],
-		input.repository,
-	);
-	if (generated.exitCode !== 0) {
-		return failure([
-			`Official Catalog generation failed: ${(generated.stderr || generated.stdout).trim()}`,
-		]);
-	}
-	const verified = await run(["bun", "run", "launch:verify"], input.repository);
-	if (verified.exitCode !== 0) {
-		return failure([
-			`launch:verify failed after promotion: ${(verified.stderr || verified.stdout).trim()}`,
-		]);
+	} finally {
+		if (addedWorktree) {
+			await runCommand(
+				["git", "worktree", "remove", "--force", worktree],
+				input.repository,
+			);
+		}
 	}
 	return {
 		ok: true as const,
@@ -605,7 +735,7 @@ async function fetchContract(
 	return bytes;
 }
 
-export async function verifyProductionPublication(input: {
+export async function verifyPublicationAtUrl(input: {
 	approvalFile: string;
 	repository: string;
 	productionUrl: string;
@@ -744,7 +874,7 @@ export async function verifyProductionPublication(input: {
 			path.join(tmpdir(), "agentkogei-production-cli-"),
 		);
 		try {
-			const installed = await run(
+			const installed = await runCommand(
 				[
 					"npm",
 					"exec",
@@ -815,4 +945,13 @@ export async function verifyProductionPublication(input: {
 		}
 		return failure([message]);
 	}
+}
+
+export function verifyProductionPublication(
+	input: Omit<Parameters<typeof verifyPublicationAtUrl>[0], "productionUrl">,
+) {
+	return verifyPublicationAtUrl({
+		...input,
+		productionUrl: productionWebsiteUrl,
+	});
 }
