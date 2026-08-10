@@ -38,7 +38,7 @@ A Design System does not prescribe product workflows, information architecture, 
 
 ## Official Catalog
 
-The first party Official Catalog contains exactly four MIT licensed Design Systems:
+The first party Official Catalog contains validated, MIT licensed Design Systems discovered from published release metadata. Current directions include:
 
 | Design System | Direction |
 | --- | --- |
@@ -65,7 +65,7 @@ Patch releases clarify or correct direction without materially changing output. 
 
 ## Web product
 
-The web application presents the landing page, Official Catalog, documentation, and a Design System Preview for each of the four Published Design Systems. Current and exact Design Contract routes expose raw Markdown publicly.
+The web application presents the landing page, Official Catalog, documentation, and a Design System Preview for every Published Design System. Current and exact Design Contract routes expose raw Markdown publicly.
 
 The application is stateless. It requires no identity, authorization, persistent application data, or protected delivery path.
 
@@ -94,7 +94,7 @@ Removing an Installed Design System is an ordinary Project edit: delete `DESIGN.
 
 ## License
 
-The MIT License covers all source code and all four Design Systems, including their Design Contracts and Design System Evaluation content. Installed Design Contracts remain bare design direction and do not repeat license, attribution, or provenance prose.
+The MIT License covers all source code and every Published Design System, including its Design Contract and Design System Evaluation content. Installed Design Contracts remain bare design direction and do not repeat license, attribution, or provenance prose.
 
 ## Exclusions
 

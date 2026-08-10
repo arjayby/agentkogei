@@ -4,14 +4,13 @@ import path from "node:path";
 
 import {
 	designContractSchema,
-	editorialReleaseDirectoryFor,
-	foundationReleaseDirectoryFor,
 	publishedDesignSystems,
 	readDesignContract,
 } from "../src/index";
+import { publishedReleaseDirectory } from "./support/published-release";
 
 const foundation = () =>
-	readDesignContract(foundationReleaseDirectoryFor("1.1.0"));
+	readDesignContract(publishedReleaseDirectory("foundation", "1.1.0"));
 
 const publishedReleases = publishedDesignSystems.flatMap((designSystem) =>
 	designSystem.versions.map(
@@ -32,7 +31,10 @@ describe("Design Contract delivery", () => {
 			designSystem: "Foundation",
 			designSystemRelease: "1.1.0",
 			markdown: await readFile(
-				path.join(foundationReleaseDirectoryFor("1.1.0"), "DESIGN.md"),
+				path.join(
+					publishedReleaseDirectory("foundation", "1.1.0"),
+					"DESIGN.md",
+				),
 				"utf8",
 			),
 		});
@@ -45,7 +47,7 @@ describe("Design Contract delivery", () => {
 	});
 
 	test("delivers the published Markdown byte for byte", async () => {
-		const directory = foundationReleaseDirectoryFor("1.1.0");
+		const directory = publishedReleaseDirectory("foundation", "1.1.0");
 
 		expect((await foundation()).markdown).toBe(
 			await readFile(path.join(directory, "DESIGN.md"), "utf8"),
@@ -100,7 +102,7 @@ describe("Design Contract delivery", () => {
 
 	test("leaves publication evidence out of the direction a Project installs", async () => {
 		const { markdown } = await readDesignContract(
-			editorialReleaseDirectoryFor("1.0.0"),
+			publishedReleaseDirectory("editorial", "1.0.0"),
 		);
 
 		expect(markdown).toContain("# Editorial Design System");
@@ -111,7 +113,7 @@ describe("Design Contract delivery", () => {
 	test("delivers each Design System Release as its own immutable document", async () => {
 		const [current, previous, repeated] = await Promise.all([
 			foundation(),
-			readDesignContract(foundationReleaseDirectoryFor("1.0.0")),
+			readDesignContract(publishedReleaseDirectory("foundation", "1.0.0")),
 			foundation(),
 		]);
 

@@ -15,7 +15,7 @@
 
 </div>
 
-AgentKogei publishes four complete Design Systems for AI coding agents. Choose a direction from the public Official Catalog, install its Design Contract in your Project, and give every agent the same visual and behavioral guidance.
+AgentKogei publishes complete Design Systems for AI coding agents. Choose a direction from the public Official Catalog, install its Design Contract in your Project, and give every agent the same visual and behavioral guidance.
 
 [Browse the live Official Catalog](https://agentkogei.vercel.app/catalog)
 
@@ -28,7 +28,7 @@ AgentKogei publishes four complete Design Systems for AI coding agents. Choose a
 | **Mono** | Monochrome, high contrast interfaces for media and creative tooling |
 | **Command** | Dark first, dense interfaces for developer and operations products |
 
-All four Design Systems and all AgentKogei source code are available under the [MIT License](LICENSE). Their Design Contracts and Design System Evaluation evidence are committed in `packages/design-systems/releases`.
+Every Published Design System and all AgentKogei source code are available under the [MIT License](LICENSE). Their Design Contracts and Design System Evaluation evidence are committed in `packages/design-systems/releases`.
 
 ## What is a Design Contract?
 

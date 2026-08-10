@@ -5,9 +5,9 @@ import path from "node:path";
 
 import {
 	designSystemEvaluationFileName,
-	foundationReleaseDirectoryFor,
 	generateOfficialCatalogArtifacts,
 } from "../src/index";
+import { publishedReleaseDirectory } from "./support/published-release";
 
 const temporaryDirectories: string[] = [];
 
@@ -31,9 +31,13 @@ describe("Official Catalog generation", () => {
 			"1.0.0",
 		);
 		await mkdir(path.dirname(releaseDirectory), { recursive: true });
-		await cp(foundationReleaseDirectoryFor("1.0.0"), releaseDirectory, {
-			recursive: true,
-		});
+		await cp(
+			publishedReleaseDirectory("foundation", "1.0.0"),
+			releaseDirectory,
+			{
+				recursive: true,
+			},
+		);
 
 		const artifacts = await generateOfficialCatalogArtifacts(releasesDirectory);
 		const metadata = JSON.parse(

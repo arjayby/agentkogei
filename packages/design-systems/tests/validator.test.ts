@@ -13,9 +13,11 @@ import path from "node:path";
 import {
 	type DesignSystemValidationResult,
 	designSystemEvaluationRecordSchema,
-	foundationReleaseDirectory,
 	publishedDesignSystems,
 } from "../src/index";
+import { publishedReleaseDirectory } from "./support/published-release";
+
+const foundationReleaseDirectory = publishedReleaseDirectory("foundation");
 
 const validatorCommand = new URL("../src/cli.ts", import.meta.url).pathname;
 
@@ -104,12 +106,6 @@ afterEach(async () => {
 });
 
 describe("Design System Release publication validation", () => {
-	test("publishes exactly the four Official Catalog Design Systems", () => {
-		expect(
-			publishedDesignSystems.map((designSystem) => designSystem.id),
-		).toEqual(["foundation", "editorial", "mono", "command"]);
-	});
-
 	test("represents publication metadata without legacy fields or access classification", async () => {
 		const record = await readEvaluationRecord(foundationReleaseDirectory);
 

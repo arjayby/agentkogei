@@ -12,13 +12,13 @@ Themes and component libraries primarily provide code or visual primitives. They
 
 AgentKogei provides a public Official Catalog, Design System Previews, Design Contract validation, and a CLI for installing versioned Design Systems.
 
-Each Design System Release is one inert Markdown Design Contract named `DESIGN.md`. It directly targets React or Next.js Projects using Tailwind CSS v4 and shadcn/ui. The Official Catalog contains Foundation, Editorial, Mono, and Command. All four are complete, public, and covered by the MIT License.
+Each Design System Release is one inert Markdown Design Contract named `DESIGN.md`. It directly targets React or Next.js Projects using Tailwind CSS v4 and shadcn/ui. The Official Catalog discovers complete, public, MIT licensed Design Systems from validated published release metadata.
 
 The CLI retrieves a current or exact release, validates it, previews the change, and installs it after explicit consent. Installation writes one root `DESIGN.md` and one marked `AGENTS.md` reference. It preserves unrelated files, never executes supplied code, and leaves the Project unchanged on failure.
 
 ## Builder stories
 
-1. As a Builder, I want to compare four complete Design Systems so that I can choose a coherent direction for my Project.
+1. As a Builder, I want to compare complete Published Design Systems so that I can choose a coherent direction for my Project.
 2. As a Builder, I want to inspect each Design System Preview and its evaluation evidence so that I can assess direction, coverage, compatibility, and quality.
 3. As a Builder, I want to retrieve every Design Contract publicly so that I can inspect the exact Markdown before Installation.
 4. As a Builder, I want to install a current Design System Release by identity so that the common path is simple.
@@ -36,7 +36,7 @@ The CLI retrieves a current or exact release, validates it, previews the change,
 
 ## Implementation decisions
 
-- The Official Catalog contains exactly Foundation, Editorial, Mono, and Command.
+- The Official Catalog discovers Published Design Systems from validated release directories without an application registry of identities.
 - The catalog is first party and version controlled.
 - Each Design System Release contains one `DESIGN.md` plus its publication evaluation artifacts.
 - Each installed Design Contract directly targets React or Next.js, Tailwind CSS v4, and shadcn/ui.
@@ -67,7 +67,7 @@ Tests observe browser visible state, HTTP responses, CLI output and exit status,
 
 The acceptance suite verifies:
 
-- Exactly four visible Design Systems and no retired identities
+- Every generated Published Design System and no retired identities
 - Design System Previews, compatibility, evaluation evidence, and documentation
 - Public current and exact Design Contract retrieval for every release
 - Correct public cache behavior and response metadata

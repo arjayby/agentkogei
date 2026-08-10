@@ -18,7 +18,7 @@ export default defineConfig({
 		},
 	],
 	webServer: {
-		command: "bun run build && bun run start:test",
+		command: "bun run tests/build-acceptance-app.ts && bun run start:test",
 		env: {
 			NEXT_TEST_BUILD: "true",
 		},
