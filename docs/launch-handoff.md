@@ -17,7 +17,7 @@ The Playwright suite builds and starts the public Next.js catalog, creates the p
 
 The black box suite observes browser visible state, HTTP responses, CLI output and exit status, resulting Project files, and outbound CLI requests. It covers:
 
-- Public discovery, Design System Previews, compatibility, Design System Evaluation, retrieval, and Installation for Foundation, Editorial, Mono, and Command
+- Public discovery, Design System Previews, compatibility, Design System Evaluation, retrieval, and Installation for every discovered Published Design System
 - Anonymous current and exact Design Contract routes
 - The absence of removed identity, payment, authorization, diagnostics, and provider test routes
 - Installation safety, privacy, and supported package runners
@@ -41,4 +41,4 @@ Remote Polar, Neon, GitHub OAuth, Vercel variable, and other historical vendor c
 ## Handoff status
 
 - Technical release candidate: verify with `bun run launch:verify`.
-- Design System Evaluation and rights review: retain the evaluation reports and approval records for all four Design Systems.
+- Design System Evaluation and rights review: retain the evaluation reports and approval records for every Published Design System.

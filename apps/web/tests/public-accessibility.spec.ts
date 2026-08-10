@@ -1,5 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
+import { discoverCatalogRoutes } from "./support/catalog";
 
 const publicRoutes = ["/", "/catalog"] as const;
 
@@ -30,22 +31,15 @@ for (const viewport of viewports) {
 		page,
 	}) => {
 		await page.setViewportSize(viewport);
-		await page.goto("/catalog");
-		const routes = await page
-			.getByRole("region", { name: "Published Design Systems" })
-			.getByRole("link")
-			.evaluateAll((links) =>
-				links.map((link) => link.getAttribute("href")).filter(Boolean),
-			);
+		const routes = await discoverCatalogRoutes(page);
 
-		expect(routes.length).toBeGreaterThan(0);
-		for (const route of new Set(routes)) {
-			await page.goto(route as string);
+		for (const route of routes) {
+			await page.goto(route);
 			const results = await new AxeBuilder({ page })
 				.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
 				.analyze();
 
-			expect(results.violations, route as string).toEqual([]);
+			expect(results.violations, route).toEqual([]);
 		}
 	});
 }

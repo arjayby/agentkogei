@@ -1,13 +1,22 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import {
+	cp,
+	mkdir,
+	mkdtemp,
+	readdir,
+	readFile,
+	rm,
+	writeFile,
+} from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
 import {
 	designSystemEvaluationFileName,
 	discoverPublishedDesignSystems,
-	foundationReleaseDirectoryFor,
+	publishedDesignSystems,
 } from "../src/index";
+import { publishedReleaseDirectory } from "./support/published-release";
 
 const temporaryDirectories: string[] = [];
 
@@ -26,7 +35,7 @@ async function copyRelease(
 ) {
 	const releaseDirectory = path.join(rootDirectory, identity, version);
 	await mkdir(path.dirname(releaseDirectory), { recursive: true });
-	await cp(foundationReleaseDirectoryFor("1.0.0"), releaseDirectory, {
+	await cp(publishedReleaseDirectory("foundation", "1.0.0"), releaseDirectory, {
 		recursive: true,
 	});
 	const metadataPath = path.join(
@@ -68,6 +77,21 @@ afterEach(async () => {
 });
 
 describe("Published Design System discovery", () => {
+	test("discovers every bundled identity directory without fixed membership", async () => {
+		const entries = await readdir(
+			path.resolve(import.meta.dirname, "../releases"),
+			{ withFileTypes: true },
+		);
+		const identityDirectories = entries
+			.filter((entry) => entry.isDirectory())
+			.map((entry) => entry.name)
+			.sort();
+
+		expect(publishedDesignSystems.map(({ id }) => id).sort()).toEqual(
+			identityDirectories,
+		);
+	});
+
 	test("discovers identities and selects the current Design System Release", async () => {
 		const rootDirectory = await temporaryReleaseRoot();
 		await copyRelease(rootDirectory, "tracer", "1.9.0");
@@ -151,6 +175,16 @@ describe("Published Design System discovery", () => {
 				});
 			},
 			error: "evaluation.status: Invalid input",
+		},
+		{
+			name: "failed review",
+			mutate: async (releaseDirectory: string) => {
+				await mutateMetadata(releaseDirectory, (metadata) => {
+					const evaluation = metadata.evaluation as Record<string, unknown>;
+					(evaluation.humanReview as Record<string, unknown>).status = "failed";
+				});
+			},
+			error: "evaluation.humanReview.status: Invalid input",
 		},
 		{
 			name: "digest mismatch",

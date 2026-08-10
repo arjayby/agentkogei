@@ -1,0 +1,125 @@
+{
+	"schemaVersion": "3.0",
+	"id": "aperture",
+	"designSystem": "Aperture",
+	"publisher": "AgentKogei acceptance fixture",
+	"designSystemRelease": {
+		"version": "1.0.0",
+		"publishedAt": "2026-08-10",
+		"immutable": true
+	},
+	"designContract": {
+		"sha256": "3f4babd61a7761e33e3e40f511f3060aa65d0faf417375a982a369f71fc20292"
+	},
+	"compatibility": {
+		"frameworks": ["react", "nextjs"],
+		"react": ">=18 <20",
+		"nextjs": ">=15 <17",
+		"tailwind": ">=4 <5",
+		"ui": "shadcn/ui"
+	},
+	"evaluation": {
+		"status": "passed",
+		"standard": "WCAG 2.2 Level AA",
+		"screens": [
+			"marketing",
+			"authentication",
+			"onboarding",
+			"dashboard",
+			"table",
+			"form",
+			"settings",
+			"states"
+		],
+		"viewports": ["1440x900", "390x844"],
+		"colorSchemes": ["light", "dark"],
+		"reducedMotion": true,
+		"agentGenerationRuns": 2,
+		"automatedChecks": [
+			"structure",
+			"accessibility",
+			"responsive overflow",
+			"color contrast"
+		],
+		"humanReview": {
+			"status": "passed",
+			"reviewedAt": "2026-08-10",
+			"rightsReview": "passed"
+		},
+		"evidence": ["evaluation/report.json"]
+	},
+	"preview": {
+		"order": 5,
+		"summary": "Calm, luminous interfaces for analytical products.",
+		"intendedFit": "Analytical and decision support products",
+		"surfaces": [
+			"marketing",
+			"authentication",
+			"onboarding",
+			"dashboard",
+			"table",
+			"form",
+			"settings",
+			"states"
+		],
+		"route": "/catalog/aperture",
+		"signature": {
+			"label": "Acceptance fixture",
+			"headline": "Frame the decision.",
+			"principles": [
+				"Luminous hierarchy",
+				"Measured contrast",
+				"Explicit status"
+			]
+		},
+		"tokens": {
+			"light": {
+				"background": "#f7f9fc",
+				"foreground": "#172033",
+				"card": "#ffffff",
+				"muted": "#e8edf5",
+				"mutedForeground": "#526078",
+				"border": "#cbd5e3",
+				"primary": "#3156a3",
+				"primaryForeground": "#ffffff",
+				"destructive": "#b42332",
+				"success": "#19734a",
+				"warning": "#8a5a00",
+				"info": "#216a8f",
+				"ring": "#3156a3"
+			},
+			"dark": {
+				"background": "#111827",
+				"foreground": "#eef3fb",
+				"card": "#182235",
+				"muted": "#253149",
+				"mutedForeground": "#aab6ca",
+				"border": "#394761",
+				"primary": "#8eabf4",
+				"primaryForeground": "#111827",
+				"destructive": "#ff8a96",
+				"success": "#7bd6a9",
+				"warning": "#f3c36b",
+				"info": "#80c8ee",
+				"ring": "#8eabf4"
+			}
+		},
+		"typography": {
+			"display": "sans",
+			"body": "sans",
+			"accent": "mono",
+			"scale": "balanced"
+		},
+		"geometry": {
+			"density": "balanced",
+			"radius": "soft",
+			"border": "defined",
+			"elevation": "layered"
+		}
+	},
+	"changelog": {
+		"summary": "Acceptance fixture proving release discovered catalog membership.",
+		"breaking": false,
+		"migrationNotes": null
+	}
+}

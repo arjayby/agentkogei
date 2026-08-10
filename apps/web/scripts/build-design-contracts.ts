@@ -5,10 +5,12 @@ import { promisify } from "node:util";
 
 import { generateOfficialCatalogArtifacts } from "agentkogei/src/official-catalog-generation";
 
-const releasesDirectory = path.resolve(
-	import.meta.dirname,
-	"../../../packages/design-systems/releases",
-);
+const releasesDirectory = process.env.AGENTKOGEI_RELEASES_DIRECTORY
+	? path.resolve(process.env.AGENTKOGEI_RELEASES_DIRECTORY)
+	: path.resolve(
+			import.meta.dirname,
+			"../../../packages/design-systems/releases",
+		);
 const generatedDirectory = path.resolve(
 	import.meta.dirname,
 	"../src/generated",

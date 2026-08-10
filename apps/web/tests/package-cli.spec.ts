@@ -13,6 +13,10 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
 
+import {
+	discoverCatalogRoutes,
+	readPublishedDesignSystem,
+} from "./support/catalog";
 import { runProcess } from "./support/cli";
 import { cliTarball, packageRunners } from "./support/package-runners";
 
@@ -23,6 +27,10 @@ import { cliTarball, packageRunners } from "./support/package-runners";
 test.setTimeout(180_000);
 
 const contractCatalogUrl = "http://localhost:3011/contracts/";
+const apertureContractPath = path.resolve(
+	process.cwd(),
+	"../../packages/design-systems/tests/fixtures/releases/aperture/1.0.0/DESIGN.md",
+);
 
 type CapturedRequest = {
 	method: string | undefined;
@@ -96,7 +104,7 @@ for (const runner of packageRunners) {
 
 			const added = await runProcess(
 				command,
-				[...runnerArguments, "add", "foundation", "--yes"],
+				[...runnerArguments, "add", "aperture", "--yes"],
 				{
 					cwd: project,
 					environment: {
@@ -108,12 +116,12 @@ for (const runner of packageRunners) {
 
 			expect(added.exitCode, added.stderr).toBe(0);
 			expect(added.stdout).toContain(
-				"Installed Foundation Design System Release 1.1.0",
+				"Installed Aperture Design System Release 1.0.0",
 			);
-			const delivered = await request.get("/contracts/foundation");
-			expect(await readFile(path.join(project, "DESIGN.md"), "utf8")).toBe(
-				await delivered.text(),
-			);
+			const delivered = await request.get("/contracts/aperture");
+			const installed = await readFile(path.join(project, "DESIGN.md"), "utf8");
+			expect(installed).toBe(await delivered.text());
+			expect(installed).toBe(await readFile(apertureContractPath, "utf8"));
 			expect(await readFile(path.join(project, "AGENTS.md"), "utf8")).toContain(
 				"`DESIGN.md`",
 			);
@@ -123,24 +131,24 @@ for (const runner of packageRunners) {
 	});
 }
 
-test("the packed CLI installs every current and exact Design System Release anonymously", async ({
+test("the packed CLI installs every discovered current and exact Design System Release anonymously", async ({
+	page,
 	request,
 }) => {
 	const runner = packageRunners.find(({ name }) => name === "npx");
 	if (!runner) throw new Error("The npx package runner is unavailable");
 
-	const designSystems = [
-		{ identity: "foundation", currentRelease: "1.1.0", exactRelease: "1.0.0" },
-		{ identity: "editorial", currentRelease: "1.0.0", exactRelease: "1.0.0" },
-		{ identity: "mono", currentRelease: "1.0.0", exactRelease: "1.0.0" },
-		{ identity: "command", currentRelease: "1.0.0", exactRelease: "1.0.0" },
-	] as const;
+	const routes = await discoverCatalogRoutes(page);
 
-	for (const { identity, currentRelease, exactRelease } of designSystems) {
-		for (const selector of [identity, `${identity}@${exactRelease}`]) {
-			const selectedRelease = selector.includes("@")
-				? exactRelease
-				: currentRelease;
+	for (const route of routes) {
+		const { identity, currentRelease, exactReleases } =
+			await readPublishedDesignSystem(page, route);
+
+		for (const selector of [
+			identity,
+			...exactReleases.map((release) => `${identity}@${release}`),
+		]) {
+			const selectedRelease = selector.split("@")[1] ?? currentRelease;
 			const project = await mkdtemp(path.join(tmpdir(), "agentkogei-command-"));
 			try {
 				const { command, arguments: runnerArguments } =

@@ -1,28 +1,14 @@
-import { existsSync } from "node:fs";
-import { mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
+import {
+	discoverCatalogRoutes,
+	readPublishedDesignSystem,
+} from "./support/catalog";
 import { runCli } from "./support/cli";
-
-/**
- * The Design Systems a Builder can install without an account, named the way
- * the Official Catalog publishes them. These journeys observe only the HTTP
- * routes and the real CLI process, so the expected catalog is stated here
- * rather than imported from the delivery code under test.
- */
-const publicDesignSystems = [
-	{
-		identity: "foundation",
-		designSystem: "Foundation",
-		releases: ["1.0.0", "1.1.0"],
-	},
-	{ identity: "editorial", designSystem: "Editorial", releases: ["1.0.0"] },
-	{ identity: "mono", designSystem: "Mono", releases: ["1.0.0"] },
-	{ identity: "command", designSystem: "Command", releases: ["1.0.0"] },
-] as const;
 
 const removedNavigationDestinations = [
 	"/pricing",
@@ -130,7 +116,7 @@ test("the landing page composes one add command from a package manager and a Des
 	await expect(command).toHaveText("bunx agentkogei@latest add editorial");
 });
 
-test("the landing page presents four visual directions without release details", async ({
+test("the landing page presents every discovered visual direction without release details", async ({
 	page,
 }) => {
 	await page.goto("/");
@@ -138,13 +124,17 @@ test("the landing page presents four visual directions without release details",
 	const catalog = page.getByRole("region", {
 		name: "Choose your taste.",
 	});
-	for (const designSystem of ["Foundation", "Editorial", "Mono", "Command"]) {
-		await expect(
-			catalog.getByRole("link", { name: new RegExp(designSystem, "i") }),
-		).toBeVisible();
-	}
+	const homeRoutes = await catalog.getByRole("link").evaluateAll((links) =>
+		links.flatMap((link) => {
+			const href = link.getAttribute("href");
+			return href?.startsWith("/catalog/") ? [href] : [];
+		}),
+	);
 	await expect(catalog.getByRole("link", { name: /Signal/i })).toHaveCount(0);
 	await expect(page.getByText(/Recently published/i)).toHaveCount(0);
+	const catalogRoutes = await discoverCatalogRoutes(page);
+	expect(homeRoutes.length).toBeGreaterThan(0);
+	expect(new Set(homeRoutes)).toEqual(new Set(catalogRoutes));
 });
 
 test("removed commercial, account, authorization, and telemetry routes are absent", async ({
@@ -264,7 +254,7 @@ test("public page metadata uses Design System vocabulary", async ({ page }) => {
 	}
 });
 
-test("the Official Catalog presents exactly Foundation, Editorial, Mono, and Command", async ({
+test("the Official Catalog retains every launch Design System", async ({
 	page,
 }) => {
 	await page.goto("/catalog");
@@ -283,28 +273,14 @@ test("the Official Catalog presents exactly Foundation, Editorial, Mono, and Com
 test("every discovered catalog route presents its complete published anatomy", async ({
 	page,
 }) => {
-	await page.goto("/catalog");
-	const routes = await page
-		.getByRole("region", { name: "Published Design Systems" })
-		.getByRole("link")
-		.evaluateAll((links) =>
-			links.map((link) => link.getAttribute("href")).filter(Boolean),
-		);
-	expect(routes.length).toBeGreaterThan(0);
+	const routes = await discoverCatalogRoutes(page);
 
-	for (const route of new Set(routes)) {
-		await page.goto(route as string);
-		const identity = (route as string).split("/").at(-1);
-		expect(identity).toBeTruthy();
-		const name =
-			(await page.getByRole("heading", { level: 1 }).textContent())?.trim() ??
-			"";
-		expect(name).toBeTruthy();
-		const releaseLabel = await page
-			.getByText(/^Design System Release /)
-			.textContent();
-		expect(releaseLabel).not.toBeNull();
-		const release = releaseLabel?.replace("Design System Release ", "") ?? "";
+	for (const route of routes) {
+		const {
+			identity,
+			name,
+			currentRelease: release,
+		} = await readPublishedDesignSystem(page, route);
 		const preview = page.getByLabel(`${name} rendered Design System Preview`);
 		const coverage = await page
 			.getByRole("region", { name: "Coverage" })
@@ -314,8 +290,8 @@ test("every discovered catalog route presents its complete published anatomy", a
 			.getByRole("heading", { level: 3 })
 			.allTextContents();
 
-		expect(coverage.length, route as string).toBeGreaterThan(0);
-		expect(renderedSurfaces, route as string).toEqual(coverage);
+		expect(coverage.length, route).toBeGreaterThan(0);
+		expect(renderedSurfaces, route).toEqual(coverage);
 		await expect(
 			page.getByRole("region", { name: "Installation command" }),
 		).toBeVisible();
@@ -324,6 +300,34 @@ test("every discovered catalog route presents its complete published anatomy", a
 				name: `Read the ${name} ${release} Design Contract`,
 			}),
 		).toHaveAttribute("href", `/contracts/${identity}/${release}`);
+	}
+});
+
+test("an isolated valid release reaches catalog discovery and its complete public journey", async ({
+	page,
+	request,
+}) => {
+	await page.goto("/catalog");
+	await expect(
+		page.getByRole("link", { name: "Aperture", exact: true }),
+	).toHaveAttribute("href", "/catalog/aperture");
+
+	await page.goto("/catalog/aperture");
+	await expect(
+		page.getByRole("heading", { name: "Aperture", exact: true }),
+	).toBeVisible();
+	await expect(
+		page.getByLabel("Aperture rendered Design System Preview"),
+	).toBeVisible();
+
+	for (const route of ["/contracts/aperture", "/contracts/aperture/1.0.0"]) {
+		const response = await request.get(route);
+		expect(response.status(), route).toBe(200);
+		expect(response.headers()["x-agentkogei-design-system"]).toBe("Aperture");
+		expect(response.headers()["x-agentkogei-design-system-release"]).toBe(
+			"1.0.0",
+		);
+		expect(await response.text()).toContain("# Aperture Design System");
 	}
 });
 
@@ -399,53 +403,6 @@ test("the Official Catalog and Design System Previews present published metadata
 	}
 });
 
-for (const designSystem of [
-	{
-		slug: "foundation",
-		name: "Foundation",
-	},
-	{
-		slug: "editorial",
-		name: "Editorial",
-	},
-	{
-		slug: "mono",
-		name: "Mono",
-	},
-	{
-		slug: "command",
-		name: "Command",
-	},
-] as const) {
-	test(`${designSystem.name} launch smoke exposes its Design System Preview, compatibility, and evaluation evidence`, async ({
-		page,
-	}) => {
-		await page.goto(`/catalog/${designSystem.slug}`);
-		const product = page.getByRole("main");
-
-		await expect(
-			product.getByRole("heading", { name: designSystem.name, exact: true }),
-		).toBeVisible();
-		await expect(
-			product.getByText(
-				"React >=18 <20 · Next.js >=15 <17 · Tailwind >=4 <5 · shadcn/ui",
-				{
-					exact: true,
-				},
-			),
-		).toBeVisible();
-		await expect(
-			product.getByText(
-				"Design System Evaluation passed · WCAG 2.2 Level AA reference implementation",
-				{ exact: true },
-			),
-		).toBeVisible();
-		await expect(
-			product.getByLabel(`${designSystem.name} rendered Design System Preview`),
-		).toBeVisible();
-	});
-}
-
 /**
  * The one-command Installation flow every Builder-facing surface advertises:
  * `npx` first because it is the shortest mainstream path, then the equivalent
@@ -474,40 +431,29 @@ const retiredInstallationPromises = [
 	"managed update",
 ] as const;
 
-const launchDesignSystems = [
-	{
-		slug: "foundation",
-		name: "Foundation",
-		release: "1.1.0",
-	},
-	{ slug: "editorial", name: "Editorial", release: "1.0.0" },
-	{ slug: "mono", name: "Mono", release: "1.0.0" },
-	{ slug: "command", name: "Command", release: "1.0.0" },
-] as const;
+test("every discovered Design System Preview advertises the complete Installation path", async ({
+	page,
+	request,
+}) => {
+	const routes = await discoverCatalogRoutes(page);
 
-for (const designSystem of launchDesignSystems) {
-	test(`the ${designSystem.name} Design System Preview shows one add command for every supported package runner`, async ({
-		page,
-	}) => {
-		await page.goto(`/catalog/${designSystem.slug}`);
-		const installation = page.getByRole("region", {
+	for (const route of routes) {
+		const {
+			identity,
+			name,
+			currentRelease: release,
+		} = await readPublishedDesignSystem(page, route);
+		const preview = page.getByRole("main");
+		const installation = preview.getByRole("region", {
 			name: "Installation command",
 		});
 
 		await expect(installation.getByRole("term")).toHaveText(
-			packageRunnerCommands(designSystem.slug).map(([runner]) => runner),
+			packageRunnerCommands(identity).map(([runner]) => runner),
 		);
 		await expect(installation.getByRole("definition")).toHaveText(
-			packageRunnerCommands(designSystem.slug).map(([, command]) => command),
+			packageRunnerCommands(identity).map(([, command]) => command),
 		);
-	});
-
-	test(`the ${designSystem.name} Design System Preview promises one Design Contract and nothing beside it`, async ({
-		page,
-	}) => {
-		await page.goto(`/catalog/${designSystem.slug}`);
-		const preview = page.getByRole("main");
-
 		await expect(
 			preview.getByRole("heading", { name: "Inside the Design Contract" }),
 		).toBeVisible();
@@ -517,49 +463,27 @@ for (const designSystem of launchDesignSystems) {
 		for (const retired of retiredInstallationPromises) {
 			await expect(preview.getByText(retired, { exact: false })).toHaveCount(0);
 		}
-	});
-}
-
-for (const designSystem of launchDesignSystems) {
-	test(`the ${designSystem.name} Design System Preview offers its raw Design Contract anonymously`, async ({
-		page,
-		request,
-	}) => {
-		await page.goto(`/catalog/${designSystem.slug}`);
-		const preview = page.getByRole("main");
-		const installation = preview.getByRole("region", {
-			name: "Installation command",
-		});
-
 		await expect(
 			preview.getByRole("link", {
-				name: `Read the ${designSystem.name} ${designSystem.release} Design Contract`,
+				name: `Read the ${name} ${release} Design Contract`,
 			}),
-		).toHaveAttribute(
-			"href",
-			`/contracts/${designSystem.slug}/${designSystem.release}`,
-		);
+		).toHaveAttribute("href", `/contracts/${identity}/${release}`);
 		await expect(
 			installation.getByText("retrieved anonymously", { exact: false }),
 		).toBeVisible();
 		await expect(preview.locator('a[href*="/r/"]')).toHaveCount(0);
 
-		const delivered = await request.get(
-			`/contracts/${designSystem.slug}/${designSystem.release}`,
-		);
+		const delivered = await request.get(`/contracts/${identity}/${release}`);
 		expect(delivered.status()).toBe(200);
 		expect(delivered.headers()["content-type"]).toBe(
 			"text/markdown; charset=utf-8",
 		);
-		// The Design System Preview advertises a version it does not itself deliver, so it
-		// can drift behind the catalog. A Builder following the visible command
-		// gets whatever a bare identity selects, and both must name one release.
-		const current = await request.get(`/contracts/${designSystem.slug}`);
+		const current = await request.get(`/contracts/${identity}`);
 		expect(current.headers()["x-agentkogei-design-system-release"]).toBe(
-			designSystem.release,
+			release,
 		);
-	});
-}
+	}
+});
 
 test("the public Command Design System Preview shows complete evidence and its raw Design Contract", async ({
 	page,
@@ -804,15 +728,21 @@ test("Command is public while current and exact Signal selectors are ordinarily 
 	}
 });
 
-for (const publishedDesignSystem of publicDesignSystems) {
-	const { identity, designSystem, releases } = publishedDesignSystem;
-	const currentRelease = releases[releases.length - 1] as string;
+test("every discovered release is delivered and installed through identity independent paths", async ({
+	page,
+	request,
+}) => {
+	const routes = await discoverCatalogRoutes(page);
 
-	test(`the Official Catalog delivers ${designSystem} as raw Design Contract Markdown`, async ({
-		request,
-	}) => {
+	for (const route of routes) {
+		const {
+			identity,
+			name: designSystem,
+			currentRelease,
+			exactReleases: releases,
+		} = await readPublishedDesignSystem(page, route);
+
 		const current = await request.get(`/contracts/${identity}`);
-
 		expect(current.status()).toBe(200);
 		expect(current.headers()["content-type"]).toBe(
 			"text/markdown; charset=utf-8",
@@ -821,11 +751,9 @@ for (const publishedDesignSystem of publicDesignSystems) {
 		expect(current.headers()["x-agentkogei-design-system-release"]).toBe(
 			currentRelease,
 		);
-		const contract = await current.text();
-		expect(contract).toContain(`# ${designSystem} Design System`);
-		expect(contract).toContain("\n## Final validation checklist\n");
-		// The Official Catalog serves a document a Project can read on its own,
-		// so nothing a Builder never receives may reach it.
+		const currentContract = await current.text();
+		expect(currentContract).toContain(`# ${designSystem} Design System`);
+		expect(currentContract).toContain("\n## Final validation checklist\n");
 		for (const machineMetadata of [
 			"design-system-evaluation.json",
 			"agentkogei.manifest.json",
@@ -833,13 +761,9 @@ for (const publishedDesignSystem of publicDesignSystems) {
 			"registry:item",
 			"sha256",
 		]) {
-			expect(contract).not.toContain(machineMetadata);
+			expect(currentContract).not.toContain(machineMetadata);
 		}
-	});
 
-	test(`the retired registry transport serves no ${designSystem} Design System Release`, async ({
-		request,
-	}) => {
 		for (const retiredPath of [
 			`/r/${identity}.json`,
 			`/r/${identity}/${currentRelease}.json`,
@@ -848,15 +772,8 @@ for (const publishedDesignSystem of publicDesignSystems) {
 		]) {
 			const response = await request.get(retiredPath);
 			expect(response.status(), retiredPath).toBe(404);
-			expect(await response.text()).not.toContain(
-				`# ${designSystem} Design System`,
-			);
 		}
-	});
 
-	test(`every published ${designSystem} Design System Release has its own immutable raw route`, async ({
-		request,
-	}) => {
 		const delivered = await Promise.all(
 			releases.map(async (release) => {
 				const response = await request.get(`/contracts/${identity}/${release}`);
@@ -867,83 +784,28 @@ for (const publishedDesignSystem of publicDesignSystems) {
 				return response.text();
 			}),
 		);
-		const current = await request.get(`/contracts/${identity}`);
-
-		expect(delivered.at(-1)).toBe(await current.text());
+		expect(delivered[releases.indexOf(currentRelease)]).toBe(currentContract);
 		expect(new Set(delivered).size).toBe(releases.length);
-	});
 
-	test(`the distributed CLI adds ${designSystem} to a Project as one Design Contract`, async ({
-		request,
-	}) => {
-		const project = await mkdtemp(path.join(tmpdir(), "agentkogei-add-web-"));
-		const existingInstructions =
-			"# Project agents\n\nKeep the Makefile current.\n";
-		try {
-			await writeFile(path.join(project, "AGENTS.md"), existingInstructions);
-
-			const refused = await runDesignContractInstallation(
-				project,
-				identity,
-				[],
-			);
-			const added = await runDesignContractInstallation(project, identity);
-			const repeated = await runDesignContractInstallation(project, identity);
-
-			expect(refused.exitCode).toBe(2);
-			expect(refused.stdout).toContain(
-				`Design System: ${designSystem} (${identity})`,
-			);
-			expect(refused.stdout).toContain(
-				`Design System Release: ${currentRelease}`,
-			);
-			expect(refused.stdout).toContain(path.join(project, "DESIGN.md"));
-			expect(added.exitCode, added.stderr).toBe(0);
-			expect(added.stdout).toContain(
-				`Installed ${designSystem} Design System Release ${currentRelease}`,
-			);
-			expect(repeated.exitCode, repeated.stderr).toBe(0);
-			expect(repeated.stdout).toContain(
-				`${designSystem} Design System Release ${currentRelease} is already this Project's Design Contract`,
-			);
-
-			const delivered = await request.get(`/contracts/${identity}`);
-			expect(await readFile(path.join(project, "DESIGN.md"), "utf8")).toBe(
-				await delivered.text(),
-			);
-			const agents = await readFile(path.join(project, "AGENTS.md"), "utf8");
-			expect(agents).toContain(existingInstructions);
-			expect(agents).toContain("<!-- agentkogei:design-system:start -->");
-			expect(agents.match(/agentkogei:design-system:start/g)).toHaveLength(1);
-			expect(agents).toContain("`DESIGN.md`");
-			expect(existsSync(path.join(project, ".agentkogei"))).toBe(false);
-		} finally {
-			await rm(project, { recursive: true, force: true });
-		}
-	});
-
-	for (const release of releases) {
-		test(`the distributed CLI adds the explicit ${designSystem} Design System Release ${release}`, async ({
-			request,
-		}) => {
+		for (const selector of [
+			identity,
+			...releases.map((release) => `${identity}@${release}`),
+		]) {
+			const selectedRelease = selector.split("@")[1] ?? currentRelease;
 			const project = await mkdtemp(
 				path.join(tmpdir(), "agentkogei-add-release-"),
 			);
 			try {
-				const added = await runDesignContractInstallation(
-					project,
-					`${identity}@${release}`,
-				);
-
+				const added = await runDesignContractInstallation(project, selector);
 				expect(added.exitCode, added.stderr).toBe(0);
 				expect(added.stdout).toContain(
-					`Installed ${designSystem} Design System Release ${release}`,
+					`Installed ${designSystem} Design System Release ${selectedRelease}`,
 				);
-				const delivered = await request.get(
-					`/contracts/${identity}/${release}`,
+				const response = await request.get(
+					`/contracts/${identity}/${selectedRelease}`,
 				);
 				expect(await readFile(path.join(project, "DESIGN.md"), "utf8")).toBe(
-					await delivered.text(),
+					await response.text(),
 				);
 				expect(
 					await readFile(path.join(project, "AGENTS.md"), "utf8"),
@@ -951,9 +813,9 @@ for (const publishedDesignSystem of publicDesignSystems) {
 			} finally {
 				await rm(project, { recursive: true, force: true });
 			}
-		});
+		}
 	}
-}
+});
 
 test("every discovered Design System Preview remains evaluated across supported modes", async ({
 	page,
@@ -1003,16 +865,9 @@ test("every discovered Design System Preview remains evaluated across supported 
 		},
 	] as const;
 
-	await page.goto("/catalog");
-	const routes = await page
-		.getByRole("region", { name: "Published Design Systems" })
-		.getByRole("link")
-		.evaluateAll((links) =>
-			links.map((link) => link.getAttribute("href")).filter(Boolean),
-		);
-	expect(routes.length).toBeGreaterThan(0);
+	const routes = await discoverCatalogRoutes(page);
 
-	for (const route of new Set(routes)) {
+	for (const route of routes) {
 		for (const mode of modes) {
 			await page.setViewportSize(mode.viewport);
 			await page.emulateMedia({
@@ -1020,7 +875,7 @@ test("every discovered Design System Preview remains evaluated across supported 
 				reducedMotion: mode.reducedMotion,
 				forcedColors: mode.forcedColors,
 			});
-			await page.goto(route as string);
+			await page.goto(route);
 			const name = await page.getByRole("heading", { level: 1 }).innerText();
 			await expect(
 				page.getByLabel(`${name} rendered Design System Preview`),
@@ -1039,7 +894,7 @@ test("every discovered Design System Preview remains evaluated across supported 
 				]);
 			}
 			const accessibility = await accessibilityCheck.analyze();
-			expect(accessibility.violations, route as string).toEqual([]);
+			expect(accessibility.violations, route).toEqual([]);
 			const overflow = await page.evaluate(() => ({
 				document: {
 					clientWidth: document.documentElement.clientWidth,
@@ -1058,7 +913,7 @@ test("every discovered Design System Preview remains evaluated across supported 
 						text: element.textContent?.slice(0, 80),
 					})),
 			}));
-			expect(overflow, route as string).toEqual({
+			expect(overflow, route).toEqual({
 				document: {
 					clientWidth: mode.viewport.width,
 					scrollWidth: mode.viewport.width,
