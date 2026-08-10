@@ -1,11 +1,11 @@
 ---
 name: publish-design-system
-description: "Evaluate an Authoring Approved Candidate Design System Release and prepare a verified immutable publication proposal."
+description: "Evaluate and publish an approved Design System Release through explicit Publication Approval and verified production deployment."
 ---
 
-# Prepare a Design System publication
+# Publish a Design System
 
-Evaluate one Authoring Approved Candidate Design System Release. Prepare and verify an immutable publication proposal, then request Publication Approval. Never promote a proposal, modify `packages/design-systems/releases`, deploy, or report the Design System as live.
+Evaluate one Authoring Approved Candidate Design System Release, prepare an immutable proposal, obtain explicit Publication Approval, admit the exact release to the Official Catalog, deploy the production website, and verify the live result. Never infer an approval or report an unverifiable deployment as live.
 
 ## 1. Start in an isolated Project
 
@@ -64,13 +64,53 @@ git diff --no-index -- <empty-directory> <proposal-directory>
 Treat exit status 1 as the expected nonempty diff and any status above 1 as failure. Verify the complete production integration in a disposable Git worktree:
 
 ```text
-bun .agents/skills/publish-design-system/scripts/verify-publication.ts <proposal-directory>
+bun .agents/skills/publish-design-system/scripts/verify-publication.ts <proposal-directory> --output <verification-file>
 ```
 
 This command inserts the proposal at its production release path only inside the disposable worktree and runs `launch:verify` there. It must report `launchVerify` as `passed` and `productionMutated` as `false`. Resolve repository failures without changing the evaluated proposal or rewriting evidence. Run proposal preparation again if any permitted proposal input changes.
 
-## 5. Request Publication Approval and stop
+## 5. Request Publication Approval
 
 Present the identity, version, pinned digest, all evaluation results, three separate approvals, allowed artifact list, complete proposed production diff, and successful `launch:verify` result. Request explicit Publication Approval for Official Catalog admission and production deployment.
 
-Stop with Publication Approval pending. This workflow contains no promotion or deployment action and never reports the Design System as published or live.
+Stop with Publication Approval pending unless the maintainer explicitly approves both actions. After explicit approval, read [publication-protocol.md](references/publication-protocol.md) completely and record the approval once:
+
+```text
+bun .agents/skills/publish-design-system/scripts/approve-publication.ts <proposal-directory> --verification <verification-file> --approval <approval-file> --approved-at <ISO-8601-UTC> --approved-by <maintainer-identifier> --assert official-catalog-admission --assert production-deployment
+```
+
+Do not edit or replace an existing approval record. Any changed proposal artifact, verification result, or repository commit requires verification and Publication Approval again.
+
+## 6. Admit the approved release
+
+Run:
+
+```text
+bun .agents/skills/publish-design-system/scripts/promote-publication.ts <proposal-directory> --approval <approval-file>
+```
+
+The command must validate the candidate record, evidence digests, automated results, three human reviews, Publication Approval, every approved proposal file, and the verified repository commit. It atomically admits the exact proposal, rebuilds generated catalog data, proves the identity is discovered, and reruns `launch:verify`. Continue only when it reports `readyToDeploy` as `true`, `launchVerify` as `passed`, and `live` as `false`.
+
+The tracked protocol lock must prove that contract retrieval protocol `1.0` is unchanged before approval and promotion. If it differs, stop and request a separate package release decision. Publication Approval does not authorize npm publication.
+
+## 7. Deploy the production website
+
+Run the existing AgentKogei production path exactly:
+
+```text
+bun run deploy:prod
+```
+
+Capture the production website URL from the successful deployment. Do not run `npm publish`. A failed deployment, missing production URL, or ambiguous deployment status is not live and must be reported as such.
+
+## 8. Verify production and report
+
+Run:
+
+```text
+bun .agents/skills/publish-design-system/scripts/verify-production.ts <approval-file>
+```
+
+This command verifies only the canonical `https://agentkogei.com/` production origin. It must verify the new catalog entry and Design System Preview, every repository backed current and historical exact contract route, approved response identity and release headers, byte identical Markdown, the approved digest, and Installation by the packaged CLI into a temporary Project. A mismatch or unverifiable response fails with `live` as `false`.
+
+Only a successful result may be reported as live. Report the catalog route, current contract route, exact contract route, Design System identity, semantic version, and verified digest. Also report that no npm CLI package was published.
