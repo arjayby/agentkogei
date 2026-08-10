@@ -60,6 +60,10 @@ export function formatPublishedAt(publishedAt: string) {
 	}).format(new Date(`${publishedAt}T00:00:00Z`));
 }
 
+export function catalogMetadataLabel(value: string) {
+	return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
+}
+
 export function compatibilityText(designSystem: DesignSystem) {
 	const { compatibility } = designSystem;
 	return `React ${compatibility.react} · Next.js ${compatibility.nextjs} · Tailwind ${compatibility.tailwind} · ${compatibility.ui}`;

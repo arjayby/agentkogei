@@ -14,6 +14,7 @@ import { DesignSystemArtwork } from "@/components/design-system-artwork";
 import { DesignSystemPreviewEvidence } from "@/components/design-system-preview-evidence";
 import { InstallationCommand } from "@/components/installation-command";
 import {
+	catalogMetadataLabel,
 	compatibilityText,
 	contractSections,
 	currentRelease,
@@ -171,9 +172,8 @@ export default async function DesignSystemPage({
 											<li>{designSystem.evaluation.viewports.join(" · ")}</li>
 											<li>
 												{designSystem.evaluation.colorSchemes
-													.map(
-														(colorScheme) =>
-															`${colorScheme.charAt(0).toUpperCase()}${colorScheme.slice(1)}`,
+													.map((colorScheme) =>
+														catalogMetadataLabel(colorScheme),
 													)
 													.join(" · ")}{" "}
 												· Reduced motion
@@ -199,10 +199,10 @@ export default async function DesignSystemPage({
 						</CardContent>
 					</Card>
 
-					<Card>
+					<Card role="region" aria-labelledby="coverage-heading">
 						<CardHeader>
 							<CardTitle>
-								<h2>Coverage</h2>
+								<h2 id="coverage-heading">Coverage</h2>
 							</CardTitle>
 							<CardDescription>
 								Required surfaces and system states.
@@ -213,7 +213,7 @@ export default async function DesignSystemPage({
 								{designSystem.preview.surfaces.map((item) => (
 									<li key={item} className="flex gap-3 text-sm leading-6">
 										<Check aria-hidden="true" className="mt-1 shrink-0" />
-										{item.charAt(0).toUpperCase() + item.slice(1)}
+										{catalogMetadataLabel(item)}
 									</li>
 								))}
 							</ul>

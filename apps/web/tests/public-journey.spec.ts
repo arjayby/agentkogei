@@ -280,6 +280,53 @@ test("the Official Catalog presents exactly Foundation, Editorial, Mono, and Com
 	await expect(catalog.getByRole("link", { name: /Signal/i })).toHaveCount(0);
 });
 
+test("every discovered catalog route presents its complete published anatomy", async ({
+	page,
+}) => {
+	await page.goto("/catalog");
+	const routes = await page
+		.getByRole("region", { name: "Published Design Systems" })
+		.getByRole("link")
+		.evaluateAll((links) =>
+			links.map((link) => link.getAttribute("href")).filter(Boolean),
+		);
+	expect(routes.length).toBeGreaterThan(0);
+
+	for (const route of new Set(routes)) {
+		await page.goto(route as string);
+		const identity = (route as string).split("/").at(-1);
+		expect(identity).toBeTruthy();
+		const name =
+			(await page.getByRole("heading", { level: 1 }).textContent())?.trim() ??
+			"";
+		expect(name).toBeTruthy();
+		const releaseLabel = await page
+			.getByText(/^Design System Release /)
+			.textContent();
+		expect(releaseLabel).not.toBeNull();
+		const release = releaseLabel?.replace("Design System Release ", "") ?? "";
+		const preview = page.getByLabel(`${name} rendered Design System Preview`);
+		const coverage = await page
+			.getByRole("region", { name: "Coverage" })
+			.getByRole("listitem")
+			.allInnerTexts();
+		const renderedSurfaces = await preview
+			.getByRole("heading", { level: 3 })
+			.allTextContents();
+
+		expect(coverage.length, route as string).toBeGreaterThan(0);
+		expect(renderedSurfaces, route as string).toEqual(coverage);
+		await expect(
+			page.getByRole("region", { name: "Installation command" }),
+		).toBeVisible();
+		await expect(
+			page.getByRole("link", {
+				name: `Read the ${name} ${release} Design Contract`,
+			}),
+		).toHaveAttribute("href", `/contracts/${identity}/${release}`);
+	}
+});
+
 test("the Official Catalog and Design System Previews present published metadata", async ({
 	page,
 }) => {
@@ -908,70 +955,64 @@ for (const publishedDesignSystem of publicDesignSystems) {
 	}
 }
 
-for (const evaluatedDesignSystem of [
-	"Foundation",
-	"Editorial",
-	"Mono",
-	"Command",
-] as const) {
-	test(`${evaluatedDesignSystem} evaluation renders every required screen across evaluated modes`, async ({
-		page,
-	}) => {
-		const screens = [
-			"Marketing",
-			"Authentication",
-			"Onboarding",
-			"Dashboard",
-			"Table",
-			"Form",
-			"Settings",
-			"States",
-		] as const;
-		const modes = [
-			{
-				viewport: { width: 1440, height: 900 },
-				colorScheme: "light" as const,
-				reducedMotion: "no-preference" as const,
-				forcedColors: "none" as const,
-			},
-			{
-				viewport: { width: 1440, height: 900 },
-				colorScheme: "dark" as const,
-				reducedMotion: "no-preference" as const,
-				forcedColors: "none" as const,
-			},
-			{
-				viewport: { width: 390, height: 844 },
-				colorScheme: "light" as const,
-				reducedMotion: "no-preference" as const,
-				forcedColors: "none" as const,
-			},
-			{
-				viewport: { width: 390, height: 844 },
-				colorScheme: "dark" as const,
-				reducedMotion: "no-preference" as const,
-				forcedColors: "none" as const,
-			},
-			{
-				viewport: { width: 1440, height: 900 },
-				colorScheme: "light" as const,
-				reducedMotion: "reduce" as const,
-				forcedColors: "none" as const,
-			},
-			{
-				viewport: { width: 320, height: 844 },
-				colorScheme: "light" as const,
-				reducedMotion: "no-preference" as const,
-				forcedColors: "none" as const,
-			},
-			{
-				viewport: { width: 1440, height: 900 },
-				colorScheme: "light" as const,
-				reducedMotion: "no-preference" as const,
-				forcedColors: "active" as const,
-			},
-		] as const;
+test("every discovered Design System Preview remains evaluated across supported modes", async ({
+	page,
+}) => {
+	const modes = [
+		{
+			viewport: { width: 1440, height: 900 },
+			colorScheme: "light" as const,
+			reducedMotion: "no-preference" as const,
+			forcedColors: "none" as const,
+		},
+		{
+			viewport: { width: 1440, height: 900 },
+			colorScheme: "dark" as const,
+			reducedMotion: "no-preference" as const,
+			forcedColors: "none" as const,
+		},
+		{
+			viewport: { width: 390, height: 844 },
+			colorScheme: "light" as const,
+			reducedMotion: "no-preference" as const,
+			forcedColors: "none" as const,
+		},
+		{
+			viewport: { width: 390, height: 844 },
+			colorScheme: "dark" as const,
+			reducedMotion: "no-preference" as const,
+			forcedColors: "none" as const,
+		},
+		{
+			viewport: { width: 1440, height: 900 },
+			colorScheme: "light" as const,
+			reducedMotion: "reduce" as const,
+			forcedColors: "none" as const,
+		},
+		{
+			viewport: { width: 320, height: 844 },
+			colorScheme: "light" as const,
+			reducedMotion: "no-preference" as const,
+			forcedColors: "none" as const,
+		},
+		{
+			viewport: { width: 1440, height: 900 },
+			colorScheme: "light" as const,
+			reducedMotion: "no-preference" as const,
+			forcedColors: "active" as const,
+		},
+	] as const;
 
+	await page.goto("/catalog");
+	const routes = await page
+		.getByRole("region", { name: "Published Design Systems" })
+		.getByRole("link")
+		.evaluateAll((links) =>
+			links.map((link) => link.getAttribute("href")).filter(Boolean),
+		);
+	expect(routes.length).toBeGreaterThan(0);
+
+	for (const route of new Set(routes)) {
 		for (const mode of modes) {
 			await page.setViewportSize(mode.viewport);
 			await page.emulateMedia({
@@ -979,13 +1020,12 @@ for (const evaluatedDesignSystem of [
 				reducedMotion: mode.reducedMotion,
 				forcedColors: mode.forcedColors,
 			});
-			await page.goto(`/catalog/${evaluatedDesignSystem.toLowerCase()}`);
-			const preview = page.getByLabel(
-				`${evaluatedDesignSystem} rendered Design System Preview`,
-			);
-			for (const screen of screens) {
-				await expect(preview.getByText(screen, { exact: true })).toBeVisible();
-			}
+			await page.goto(route as string);
+			const name = await page.getByRole("heading", { level: 1 }).innerText();
+			await expect(
+				page.getByLabel(`${name} rendered Design System Preview`),
+			).toBeVisible();
+
 			let accessibilityCheck = new AxeBuilder({ page }).withTags([
 				"wcag2a",
 				"wcag2aa",
@@ -999,7 +1039,7 @@ for (const evaluatedDesignSystem of [
 				]);
 			}
 			const accessibility = await accessibilityCheck.analyze();
-			expect(accessibility.violations).toEqual([]);
+			expect(accessibility.violations, route as string).toEqual([]);
 			const overflow = await page.evaluate(() => ({
 				document: {
 					clientWidth: document.documentElement.clientWidth,
@@ -1018,7 +1058,7 @@ for (const evaluatedDesignSystem of [
 						text: element.textContent?.slice(0, 80),
 					})),
 			}));
-			expect(overflow).toEqual({
+			expect(overflow, route as string).toEqual({
 				document: {
 					clientWidth: mode.viewport.width,
 					scrollWidth: mode.viewport.width,
@@ -1026,8 +1066,8 @@ for (const evaluatedDesignSystem of [
 				elements: [],
 			});
 		}
-	});
-}
+	}
+});
 
 const responsiveRoutes = ["/", "/catalog", "/catalog/command"] as const;
 

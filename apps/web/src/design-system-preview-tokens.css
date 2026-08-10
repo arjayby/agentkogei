@@ -13,6 +13,12 @@
 	padding: var(--preview-space);
 }
 
+.catalog-preview-surface {
+	border-width: var(--preview-border-width);
+	border-radius: var(--preview-radius);
+	box-shadow: var(--preview-shadow);
+}
+
 .catalog-preview-display {
 	font-family: var(--preview-font-display);
 }
@@ -26,6 +32,7 @@
 }
 
 .catalog-preview-panel {
+	border-width: var(--preview-border-width);
 	border-color: var(--preview-border);
 	border-radius: var(--preview-radius);
 	background: var(--preview-card);
