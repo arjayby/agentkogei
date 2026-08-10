@@ -34,6 +34,20 @@ export {
 export type { DesignSystemIdentity } from "./design-system-identity";
 export { generateOfficialCatalogArtifacts } from "./official-catalog-generation";
 export {
+	approvePublicationHumanReview,
+	type EvaluationResultKind,
+	type EvaluationResultStatus,
+	type HumanReviewKind,
+	type PublicationWorkflowResult,
+	preparePublicationProposal,
+	publicationEvaluationSchema,
+	publicationProposalMetadataSchema,
+	publicationWorkflowDirectoryName,
+	publicationWorkflowFileName,
+	recordPublicationEvaluationResult,
+	startPublicationEvaluation,
+} from "./publication-workflow";
+export {
 	discoverPublishedDesignSystems,
 	type PublishedDesignSystem,
 	type PublishedDesignSystemRelease,

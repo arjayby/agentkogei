@@ -1,0 +1,659 @@
+import { afterEach, describe, expect, test } from "bun:test";
+import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+
+const startEvaluationCommand = path.resolve(
+	import.meta.dirname,
+	"../../../.agents/skills/publish-design-system/scripts/start-evaluation.ts",
+);
+const recordEvaluationResultCommand = path.resolve(
+	import.meta.dirname,
+	"../../../.agents/skills/publish-design-system/scripts/record-evaluation-result.ts",
+);
+const approveHumanReviewCommand = path.resolve(
+	import.meta.dirname,
+	"../../../.agents/skills/publish-design-system/scripts/approve-human-review.ts",
+);
+const preparePublicationCommand = path.resolve(
+	import.meta.dirname,
+	"../../../.agents/skills/publish-design-system/scripts/prepare-publication.ts",
+);
+const publicationSkillDirectory = path.resolve(
+	import.meta.dirname,
+	"../../../.agents/skills/publish-design-system",
+);
+const temporaryDirectories: string[] = [];
+
+const completeDesignContract = `# Lattice Design System
+
+## Identity and intended fit
+Lattice is the Design System name. Its intended fit is dense collaborative planning products, while unsuitable uses include expressive consumer entertainment. It creates a calm, decisive working experience.
+
+## Principles and system signature
+Its system signature is a calm grid with crisp alignment and one warm action accent.
+
+- Principle: prioritize legible hierarchy.
+- Principle: make relationships spatially precise.
+- Principle: reserve warmth for consequential action.
+
+## Semantic color
+Define light and dark semantic tokens for background, foreground, card, muted, muted foreground, border, primary, primary foreground, destructive, success, warning, info, and focus ring. Explain contrast, hierarchy, and usage.
+
+## Typography
+Use role based display, body, label, and code typography with weights, line heights, tracking, wrapping, and a responsive type scale.
+
+## Spacing and density
+Use a four pixel base spacing unit and scale with compact density, documented control heights, content rhythm, and grouping.
+
+## Responsive layout
+Define mobile, tablet, and desktop behavior with breakpoints or content driven transitions, content widths, grids, navigation changes, reflow, and overflow rules.
+
+## Components and interaction states
+Specify geometry and behavior for buttons, links, inputs, text areas, selects, checkboxes, navigation, cards, dialogs, menus, tables, feedback components, and complete default, hover, focus visible, active, selected, disabled, invalid, and destructive states.
+
+## Product surfaces
+Cover marketing, authentication, onboarding, dashboard, table, form, settings, and general state surfaces.
+
+## Feedback states
+Cover loading, empty, error, success, disabled, and destructive states with recovery actions and stable layouts.
+
+## Motion
+Define duration, easing, spatial movement, enter and exit behavior, continuity, and a reduced motion alternative.
+
+## Accessibility
+Target WCAG 2.2 Level AA with keyboard access, visible focus, semantics, accessible names, contrast, target size, zoom, reflow, error identification, assistive technology direction, and reduced motion.
+
+## Supported stack
+Target React or Next.js, Tailwind CSS v4, and shadcn/ui. Map semantic tokens and component variants without executable installation steps.
+
+## Agent examples
+Good request: Build a compact planning dashboard using this system for faithful direction. Bad request: Copy a referenced product screen exactly and introduce prohibited drift.
+
+## Final validation
+Confirm every required surface, state, viewport, color scheme, motion preference, component interaction, stack requirement, and accessibility obligation before completion.
+`;
+
+function candidateMetadata(approved: boolean) {
+	return {
+		schemaVersion: "1.0",
+		status: "candidate",
+		id: "lattice",
+		designSystem: "Lattice",
+		designSystemRelease: { version: "1.0.0" },
+		creativeBrief: {
+			intendedFit: "Dense collaborative planning products",
+			systemSignature:
+				"A calm grid with crisp alignment and one warm action accent",
+			referenceTransformation:
+				"Transforms compact hierarchy into an original planning grid",
+			inspiredTraits: [
+				"compact density",
+				"clear hierarchy",
+				"precise geometry",
+			],
+			excludedElements: [
+				"copied assets",
+				"product identity",
+				"distinctive compositions",
+				"recognizable product replication",
+				"imitation of living designers",
+			],
+		},
+		designReference: {
+			kind: "image",
+			locator: "user-supplied-image",
+			inspectedScope: "The complete supplied image",
+			generalizedTraits: [
+				"compact density",
+				"clear hierarchy",
+				"precise geometry",
+			],
+		},
+		authoringApproval: approved
+			? { status: "approved", recordedAt: "2026-08-10T00:00:00.000Z" }
+			: { status: "pending", recordedAt: null },
+	};
+}
+
+function evaluationPlan() {
+	return {
+		schemaVersion: "1.0",
+		status: "pending",
+		standard: "WCAG 2.2 Level AA",
+		screens: [
+			"marketing",
+			"authentication",
+			"onboarding",
+			"dashboard",
+			"table",
+			"form",
+			"settings",
+			"states",
+		],
+		viewports: ["1440x900", "390x844"],
+		colorSchemes: ["light", "dark"],
+		reducedMotion: true,
+		agentGenerationRuns: [
+			{ id: "run-1", status: "pending", evidence: [] },
+			{ id: "run-2", status: "pending", evidence: [] },
+		],
+		automatedChecks: [
+			{ id: "structure", status: "pending", evidence: [] },
+			{ id: "accessibility", status: "pending", evidence: [] },
+			{ id: "responsive-overflow", status: "pending", evidence: [] },
+			{ id: "color-contrast", status: "pending", evidence: [] },
+		],
+		humanReviews: {
+			visual: { status: "pending", evidence: [] },
+			accessibility: { status: "pending", evidence: [] },
+			rights: { status: "pending", evidence: [] },
+		},
+		publicationApproval: { status: "pending", recordedAt: null },
+	};
+}
+
+async function createCandidate(approved: boolean) {
+	const directory = await mkdtemp(
+		path.join(tmpdir(), "agentkogei-publication-"),
+	);
+	temporaryDirectories.push(directory);
+	await mkdir(path.join(directory, "evaluation"));
+	await Promise.all([
+		writeFile(path.join(directory, "DESIGN.md"), completeDesignContract),
+		writeFile(
+			path.join(directory, "candidate.json"),
+			`${JSON.stringify(candidateMetadata(approved), null, "\t")}\n`,
+		),
+		writeFile(
+			path.join(directory, "evaluation/plan.json"),
+			`${JSON.stringify(evaluationPlan(), null, "\t")}\n`,
+		),
+	]);
+	return directory;
+}
+
+async function runJsonCommand(arguments_: string[]) {
+	const process_ = Bun.spawn(arguments_);
+	const [stdout, exitCode] = await Promise.all([
+		new Response(process_.stdout).text(),
+		process_.exited,
+	]);
+	return { exitCode, result: JSON.parse(stdout) as Record<string, unknown> };
+}
+
+async function runStartEvaluation(
+	candidateDirectory: string,
+	evaluationDirectory: string,
+	publishedDirectory: string,
+) {
+	return runJsonCommand([
+		process.execPath,
+		startEvaluationCommand,
+		candidateDirectory,
+		"--project",
+		evaluationDirectory,
+		"--published",
+		publishedDirectory,
+	]);
+}
+
+async function runRecordResult(
+	evaluationDirectory: string,
+	kind: "agent-run" | "automated-check",
+	id: string,
+	status: "passed" | "failed",
+	evidence: string,
+) {
+	return runJsonCommand([
+		process.execPath,
+		recordEvaluationResultCommand,
+		evaluationDirectory,
+		"--kind",
+		kind,
+		"--id",
+		id,
+		"--status",
+		status,
+		"--evidence",
+		evidence,
+	]);
+}
+
+async function startApprovedEvaluation() {
+	const candidateDirectory = await createCandidate(true);
+	const parentDirectory = await mkdtemp(
+		path.join(tmpdir(), "agentkogei-evaluation-parent-"),
+	);
+	temporaryDirectories.push(parentDirectory);
+	const evaluationDirectory = path.join(parentDirectory, "evaluation-project");
+	const publishedDirectory = path.join(parentDirectory, "published");
+	await mkdir(publishedDirectory);
+	const started = await runStartEvaluation(
+		candidateDirectory,
+		evaluationDirectory,
+		publishedDirectory,
+	);
+	expect(started.exitCode).toBe(0);
+	return { candidateDirectory, evaluationDirectory, publishedDirectory };
+}
+
+async function completeAutomatedEvaluation(evaluationDirectory: string) {
+	await mkdir(path.join(evaluationDirectory, "evidence"), { recursive: true });
+	for (const [kind, ids] of [
+		["agent-run", ["run-1", "run-2"]],
+		[
+			"automated-check",
+			["structure", "accessibility", "responsive-overflow", "color-contrast"],
+		],
+	] as const) {
+		for (const id of ids) {
+			const evidence = `evidence/${id}.json`;
+			await writeFile(path.join(evaluationDirectory, evidence), "{}\n");
+			const result = await runRecordResult(
+				evaluationDirectory,
+				kind,
+				id,
+				"passed",
+				evidence,
+			);
+			expect(result.exitCode).toBe(0);
+		}
+	}
+}
+
+async function runApproveReview(
+	evaluationDirectory: string,
+	review: "visual" | "accessibility" | "rights",
+	assertions: string[],
+) {
+	const evidence = `evidence/${review}-review.md`;
+	await writeFile(
+		path.join(evaluationDirectory, evidence),
+		`${review} review\n`,
+	);
+	return runJsonCommand([
+		process.execPath,
+		approveHumanReviewCommand,
+		evaluationDirectory,
+		"--review",
+		review,
+		"--reviewed-at",
+		"2026-08-10T01:00:00.000Z",
+		"--evidence",
+		evidence,
+		...assertions.flatMap((assertion) => ["--assert", assertion]),
+	]);
+}
+
+const accessibilityAssertions = [
+	"keyboard",
+	"focus",
+	"semantics",
+	"zoom",
+	"reflow",
+	"reduced-motion",
+	"assistive-technology",
+];
+const rightsAssertions = [
+	"originality",
+	"no-proprietary-material",
+	"mit-permission",
+];
+
+function proposalMetadata() {
+	const palette = {
+		background: "#ffffff",
+		foreground: "#111111",
+		card: "#ffffff",
+		muted: "#eeeeee",
+		mutedForeground: "#555555",
+		border: "#cccccc",
+		primary: "#2233aa",
+		primaryForeground: "#ffffff",
+		destructive: "#aa2222",
+		success: "#227744",
+		warning: "#886611",
+		info: "#225588",
+		ring: "#3344bb",
+	};
+	return {
+		schemaVersion: "1.0",
+		publisher: "AgentKogei",
+		publishedAt: "2026-08-10",
+		preview: {
+			order: 5,
+			summary: "Calm, precise planning interfaces.",
+			intendedFit: "Dense collaborative planning products",
+			surfaces: evaluationPlan().screens,
+			route: "/catalog/lattice",
+			signature: {
+				label: "Lattice 01",
+				headline: "Make the work visible.",
+				principles: ["Precise hierarchy", "Calm density", "Warm action"],
+			},
+			tokens: { light: palette, dark: palette },
+			typography: {
+				display: "sans",
+				body: "sans",
+				accent: "mono",
+				scale: "compact",
+			},
+			geometry: {
+				density: "compact",
+				radius: "soft",
+				border: "defined",
+				elevation: "flat",
+			},
+		},
+		changelog: {
+			summary: "Initial Lattice Design System Release.",
+			breaking: false,
+			migrationNotes: null,
+		},
+	};
+}
+
+async function runPreparePublication(
+	candidateDirectory: string,
+	evaluationDirectory: string,
+	proposalDirectory: string,
+	publishedDirectory: string,
+	metadataFile: string,
+) {
+	return runJsonCommand([
+		process.execPath,
+		preparePublicationCommand,
+		evaluationDirectory,
+		"--candidate",
+		candidateDirectory,
+		"--proposal",
+		proposalDirectory,
+		"--metadata",
+		metadataFile,
+		"--published",
+		publishedDirectory,
+	]);
+}
+
+afterEach(async () => {
+	await Promise.all(
+		temporaryDirectories
+			.splice(0)
+			.map((directory) => rm(directory, { recursive: true, force: true })),
+	);
+});
+
+describe("Design System publication workflow", () => {
+	test("is discoverable only by explicit $publish-design-system invocation", async () => {
+		const [skill, interfaceMetadata] = await Promise.all([
+			readFile(path.join(publicationSkillDirectory, "SKILL.md"), "utf8"),
+			readFile(
+				path.join(publicationSkillDirectory, "agents/openai.yaml"),
+				"utf8",
+			),
+		]);
+
+		expect(skill).toMatch(/^---\nname: publish-design-system\n/);
+		expect(interfaceMetadata).toContain("$publish-design-system");
+		expect(interfaceMetadata).toContain("allow_implicit_invocation: false");
+	});
+
+	test("refuses evaluation without Authoring Approval and creates no Project", async () => {
+		const candidateDirectory = await createCandidate(false);
+		const parentDirectory = await mkdtemp(
+			path.join(tmpdir(), "agentkogei-evaluation-parent-"),
+		);
+		temporaryDirectories.push(parentDirectory);
+		const evaluationDirectory = path.join(
+			parentDirectory,
+			"evaluation-project",
+		);
+		const publishedDirectory = path.join(parentDirectory, "published");
+		await mkdir(publishedDirectory);
+
+		const result = await runStartEvaluation(
+			candidateDirectory,
+			evaluationDirectory,
+			publishedDirectory,
+		);
+
+		expect(result).toEqual({
+			exitCode: 1,
+			result: {
+				ok: false,
+				errors: [
+					"Authoring Approval is required before Design System Evaluation",
+				],
+			},
+		});
+		expect(await Bun.file(evaluationDirectory).exists()).toBe(false);
+		expect(
+			await readFile(path.join(candidateDirectory, "candidate.json"), "utf8"),
+		).toContain('"status": "pending"');
+	});
+
+	test("preserves a failed automated check and blocks rewriting it as passed", async () => {
+		const { evaluationDirectory } = await startApprovedEvaluation();
+		await mkdir(path.join(evaluationDirectory, "evidence"));
+		for (const runId of ["run-1", "run-2"]) {
+			const evidence = `evidence/${runId}.json`;
+			await writeFile(
+				path.join(evaluationDirectory, evidence),
+				JSON.stringify({ runId, generatedScreens: 8 }),
+			);
+			const result = await runRecordResult(
+				evaluationDirectory,
+				"agent-run",
+				runId,
+				"passed",
+				evidence,
+			);
+			expect(result.exitCode).toBe(0);
+		}
+		await writeFile(
+			path.join(evaluationDirectory, "evidence/structure.json"),
+			JSON.stringify({ violations: ["missing main landmark"] }),
+		);
+
+		const failed = await runRecordResult(
+			evaluationDirectory,
+			"automated-check",
+			"structure",
+			"failed",
+			"evidence/structure.json",
+		);
+		const rewrite = await runRecordResult(
+			evaluationDirectory,
+			"automated-check",
+			"structure",
+			"passed",
+			"evidence/structure.json",
+		);
+
+		expect(failed).toEqual({
+			exitCode: 1,
+			result: {
+				ok: false,
+				errors: [
+					"automated check structure failed; Design System Evaluation is blocked",
+				],
+			},
+		});
+		expect(rewrite).toEqual({
+			exitCode: 1,
+			result: {
+				ok: false,
+				errors: [
+					"Design System Evaluation is failed and cannot be rewritten as passed",
+				],
+			},
+		});
+		const state = JSON.parse(
+			await readFile(
+				path.join(evaluationDirectory, ".agentkogei/evaluation.json"),
+				"utf8",
+			),
+		) as { status: string; automatedChecks: Array<Record<string, unknown>> };
+		expect(state.status).toBe("failed");
+		expect(state.automatedChecks[0]).toMatchObject({
+			id: "structure",
+			status: "failed",
+			evidence: ["evidence/structure.json"],
+		});
+	});
+
+	test("requires separate visual, accessibility, and rights approvals", async () => {
+		const { evaluationDirectory } = await startApprovedEvaluation();
+		await completeAutomatedEvaluation(evaluationDirectory);
+
+		const visual = await runApproveReview(evaluationDirectory, "visual", [
+			"faithful-expression",
+		]);
+		const incompleteAccessibility = await runApproveReview(
+			evaluationDirectory,
+			"accessibility",
+			["keyboard", "focus", "semantics"],
+		);
+
+		expect(visual.exitCode).toBe(0);
+		expect(incompleteAccessibility).toEqual({
+			exitCode: 1,
+			result: {
+				ok: false,
+				errors: [
+					"accessibility review is missing required assertion: zoom",
+					"accessibility review is missing required assertion: reflow",
+					"accessibility review is missing required assertion: reduced-motion",
+					"accessibility review is missing required assertion: assistive-technology",
+				],
+			},
+		});
+		const state = JSON.parse(
+			await readFile(
+				path.join(evaluationDirectory, ".agentkogei/evaluation.json"),
+				"utf8",
+			),
+		) as { humanReviews: Record<string, { status: string }> };
+		expect(state.humanReviews.visual.status).toBe("approved");
+		expect(state.humanReviews.accessibility.status).toBe("pending");
+		expect(state.humanReviews.rights.status).toBe("pending");
+	});
+
+	test("prepares a verified immutable proposal without publishing it", async () => {
+		const { candidateDirectory, evaluationDirectory, publishedDirectory } =
+			await startApprovedEvaluation();
+		await completeAutomatedEvaluation(evaluationDirectory);
+		for (const [review, assertions] of [
+			["visual", ["faithful-expression"]],
+			["accessibility", accessibilityAssertions],
+			["rights", rightsAssertions],
+		] as const) {
+			const approval = await runApproveReview(evaluationDirectory, review, [
+				...assertions,
+			]);
+			expect(approval.exitCode).toBe(0);
+		}
+		const parentDirectory = path.dirname(evaluationDirectory);
+		const proposalDirectory = path.join(parentDirectory, "proposal");
+		const metadataFile = path.join(parentDirectory, "proposal-metadata.json");
+		await writeFile(
+			metadataFile,
+			`${JSON.stringify(proposalMetadata(), null, "\t")}\n`,
+		);
+		const candidateBefore = await readFile(
+			path.join(candidateDirectory, "candidate.json"),
+			"utf8",
+		);
+
+		await writeFile(
+			path.join(evaluationDirectory, "evidence/run-1.json"),
+			'{"rewritten":true}\n',
+		);
+		const tampered = await runPreparePublication(
+			candidateDirectory,
+			evaluationDirectory,
+			proposalDirectory,
+			publishedDirectory,
+			metadataFile,
+		);
+		expect(tampered).toEqual({
+			exitCode: 1,
+			result: {
+				ok: false,
+				errors: [
+					"evaluation evidence changed after it was recorded: evidence/run-1.json",
+				],
+			},
+		});
+		await writeFile(
+			path.join(evaluationDirectory, "evidence/run-1.json"),
+			"{}\n",
+		);
+		await writeFile(
+			path.join(candidateDirectory, "candidate.json"),
+			candidateBefore.replace(
+				"Dense collaborative planning products",
+				"Unreviewed product direction",
+			),
+		);
+		const changedCandidate = await runPreparePublication(
+			candidateDirectory,
+			evaluationDirectory,
+			proposalDirectory,
+			publishedDirectory,
+			metadataFile,
+		);
+		expect(changedCandidate).toEqual({
+			exitCode: 1,
+			result: {
+				ok: false,
+				errors: [
+					"Candidate Design System Release changed after evaluation began",
+				],
+			},
+		});
+		await writeFile(
+			path.join(candidateDirectory, "candidate.json"),
+			candidateBefore,
+		);
+		const prepared = await runPreparePublication(
+			candidateDirectory,
+			evaluationDirectory,
+			proposalDirectory,
+			publishedDirectory,
+			metadataFile,
+		);
+
+		expect(prepared.exitCode).toBe(0);
+		expect(prepared.result).toMatchObject({
+			ok: true,
+			identity: "lattice",
+			version: "1.0.0",
+			publicationApproval: "pending",
+			live: false,
+			releaseValidated: true,
+			launchVerify: "pending",
+		});
+		const releaseRecord = JSON.parse(
+			await readFile(
+				path.join(proposalDirectory, "design-system-evaluation.json"),
+				"utf8",
+			),
+		) as {
+			designContract: { sha256: string };
+			evaluation: { evidence: string[] };
+		};
+		expect(releaseRecord.designContract.sha256).toMatch(/^[a-f0-9]{64}$/);
+		expect(releaseRecord.evaluation.evidence).toContain(
+			"evaluation/report.json",
+		);
+		expect(releaseRecord.evaluation.evidence).toContain("evidence/run-1.json");
+		expect(
+			await readFile(path.join(candidateDirectory, "candidate.json"), "utf8"),
+		).toBe(candidateBefore);
+		expect(
+			await Bun.file(path.join(publishedDirectory, "lattice")).exists(),
+		).toBe(false);
+	});
+});
