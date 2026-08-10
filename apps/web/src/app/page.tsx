@@ -57,7 +57,7 @@ export default function Home() {
 					<div className="flex flex-wrap items-end justify-between gap-6">
 						<div>
 							<p className="mb-5 font-mono text-muted-foreground text-xs uppercase tracking-[0.24em]">
-								Four visual directions
+								Published visual directions
 							</p>
 							<h2
 								id="catalog-heading"

@@ -61,3 +61,7 @@ export async function generateOfficialCatalogArtifacts(
 		designContracts: Object.fromEntries(deliveryEntries),
 	};
 }
+
+export type OfficialCatalogArtifacts = Awaited<
+	ReturnType<typeof generateOfficialCatalogArtifacts>
+>;

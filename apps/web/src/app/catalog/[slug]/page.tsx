@@ -14,9 +14,12 @@ import { DesignSystemArtwork } from "@/components/design-system-artwork";
 import { DesignSystemPreviewEvidence } from "@/components/design-system-preview-evidence";
 import { InstallationCommand } from "@/components/installation-command";
 import {
+	compatibilityText,
 	contractSections,
 	currentRelease,
 	designSystems,
+	evaluationText,
+	formatPublishedAt,
 	getDesignSystem,
 } from "@/lib/catalog";
 
@@ -40,7 +43,7 @@ export async function generateMetadata({
 
 	return {
 		title: `${designSystem.name} Design System Preview | AgentKogei`,
-		description: `${designSystem.name} Design System: ${designSystem.direction}`,
+		description: `${designSystem.name} Design System: ${designSystem.preview.summary}`,
 	};
 }
 
@@ -84,8 +87,8 @@ export default async function DesignSystemPage({
 							{designSystem.name}
 						</h1>
 						<p className="max-w-2xl text-pretty text-2xl text-muted-foreground leading-9">
-							{designSystem.direction} Built for{" "}
-							{designSystem.bestFor.toLowerCase()}.
+							{designSystem.preview.summary} Built for{" "}
+							{designSystem.preview.intendedFit.toLowerCase()}.
 						</p>
 						<div>
 							<Link
@@ -151,13 +154,13 @@ export default async function DesignSystemPage({
 									<dt className="font-mono text-muted-foreground text-xs uppercase">
 										Compatibility
 									</dt>
-									<dd>{designSystem.compatibility}</dd>
+									<dd>{compatibilityText(designSystem)}</dd>
 								</div>
 								<div className="grid gap-2 bg-background p-4 sm:grid-cols-[10rem_1fr]">
 									<dt className="font-mono text-muted-foreground text-xs uppercase">
 										Evaluation
 									</dt>
-									<dd>{designSystem.evaluation}</dd>
+									<dd>{evaluationText(designSystem)}</dd>
 								</div>
 								<div className="grid gap-2 bg-background p-4 sm:grid-cols-[10rem_1fr]">
 									<dt className="font-mono text-muted-foreground text-xs uppercase">
@@ -165,9 +168,30 @@ export default async function DesignSystemPage({
 									</dt>
 									<dd>
 										<ul className="flex flex-col gap-1">
-											{designSystem.evaluationEvidence.map((evidence) => (
-												<li key={evidence}>{evidence}</li>
-											))}
+											<li>{designSystem.evaluation.viewports.join(" · ")}</li>
+											<li>
+												{designSystem.evaluation.colorSchemes
+													.map(
+														(colorScheme) =>
+															`${colorScheme.charAt(0).toUpperCase()}${colorScheme.slice(1)}`,
+													)
+													.join(" · ")}{" "}
+												· Reduced motion
+											</li>
+											<li>
+												Human review{" "}
+												{designSystem.evaluation.humanReview.status} · Rights
+												review{" "}
+												{designSystem.evaluation.humanReview.rightsReview}
+											</li>
+											<li>
+												{designSystem.evaluation.agentGenerationRuns} agent
+												generation runs
+											</li>
+											<li>
+												{designSystem.evaluation.automatedChecks.join(" · ")}
+											</li>
+											<li>{designSystem.evaluation.evidence.join(" · ")}</li>
 										</ul>
 									</dd>
 								</div>
@@ -186,10 +210,10 @@ export default async function DesignSystemPage({
 						</CardHeader>
 						<CardContent>
 							<ul className="grid gap-3 sm:grid-cols-2">
-								{designSystem.coverage.map((item) => (
+								{designSystem.preview.surfaces.map((item) => (
 									<li key={item} className="flex gap-3 text-sm leading-6">
 										<Check aria-hidden="true" className="mt-1 shrink-0" />
-										{item}
+										{item.charAt(0).toUpperCase() + item.slice(1)}
 									</li>
 								))}
 							</ul>
@@ -234,15 +258,23 @@ export default async function DesignSystemPage({
 									<div className="grid gap-2 sm:grid-cols-[8rem_1fr]">
 										<span className="font-mono">v{published.version}</span>
 										<span className="text-muted-foreground">
-											Published {published.publishedAt}
+											Published {formatPublishedAt(published.publishedAt)}
 										</span>
 									</div>
 									<div>
 										<h3 className="mb-2 font-medium text-base">Changelog</h3>
 										<p className="text-muted-foreground leading-7">
-											{published.changelog}
+											{published.changelog.summary}
 										</p>
 									</div>
+									<Link
+										href={
+											`/contracts/${designSystem.slug}/${published.version}` as Route
+										}
+										className="w-fit font-medium text-sm underline underline-offset-4"
+									>
+										Read {designSystem.name} {published.version} Design Contract
+									</Link>
 								</div>
 							))}
 						</CardContent>

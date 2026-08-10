@@ -1,30 +1,16 @@
-export type DesignSystemRelease = {
-	version: `${number}.${number}.${number}`;
-	publishedAt: string;
-	changelog: string;
-};
+import type { OfficialCatalogArtifacts } from "agentkogei/src/official-catalog-generation";
 
-export type DesignSystem = {
-	slug: "foundation" | "editorial" | "mono" | "command";
-	name: string;
-	direction: string;
-	bestFor: string;
-	/** Published Design System Releases, newest first. The first is what a bare identity selects. */
-	releases: readonly [DesignSystemRelease, ...DesignSystemRelease[]];
-	compatibility: string;
-	evaluation: string;
-	evaluationEvidence: readonly string[];
-	coverage: readonly string[];
-};
+import officialCatalog from "@/generated/official-catalog.json";
 
-const coverage = [
-	"Marketing pages",
-	"Onboarding flows",
-	"Dashboard and product UI",
-	"Forms, settings, and tables",
-	"Loading, empty, error, and success states",
-	"Responsive, dark mode, and reduced motion",
-] as const;
+type OfficialCatalog = OfficialCatalogArtifacts["catalog"];
+type PublishedCatalogEntry = OfficialCatalog["designSystems"][number];
+
+export type DesignSystemRelease = PublishedCatalogEntry["releases"][number];
+export type PreviewPalette =
+	PublishedCatalogEntry["preview"]["tokens"]["light"];
+export type DesignSystem = Omit<PublishedCatalogEntry, "id"> & {
+	slug: string;
+};
 
 /**
  * The sections every Published Design System consolidates into its Design Contract.
@@ -41,95 +27,14 @@ export const contractSections = [
 	"React or Next.js, Tailwind CSS v4, and shadcn/ui implementation direction",
 ] as const;
 
-const compatibility = "React / Next.js · Tailwind CSS v4 · shadcn/ui";
-const evaluation =
-	"Design System Evaluation passed · WCAG 2.2 Level AA reference implementation";
-const evaluationEvidence = [
-	"Desktop 1440×900 and mobile 390×844",
-	"Light, dark, and reduced motion",
-	"Human visual and accessibility review passed",
-] as const;
+/** The generated catalog is already validated before this module is built. */
+const generatedCatalog = officialCatalog as unknown as OfficialCatalog;
 
-export const designSystems: readonly DesignSystem[] = [
-	{
-		slug: "foundation",
-		name: "Foundation",
-		direction: "Neutral, crisp, and highly legible B2B SaaS.",
-		bestFor: "Versatile product foundations",
-		releases: [
-			{
-				version: "1.1.0",
-				publishedAt: "July 19, 2026",
-				changelog:
-					"Adds semantic informational-state tokens and detailed responsive pagination direction.",
-			},
-			{
-				version: "1.0.0",
-				publishedAt: "July 18, 2026",
-				changelog:
-					"Initial Published Design System with complete cross-surface coverage and evaluation evidence.",
-			},
-		],
-		compatibility,
-		evaluation,
-		evaluationEvidence,
-		coverage,
-	},
-	{
-		slug: "editorial",
-		name: "Editorial",
-		direction: "Warm, spacious, and content-forward SaaS.",
-		bestFor: "Knowledge and content products",
-		releases: [
-			{
-				version: "1.0.0",
-				publishedAt: "July 19, 2026",
-				changelog:
-					"Initial Published Design System with complete cross-surface coverage and evaluation evidence.",
-			},
-		],
-		compatibility,
-		evaluation,
-		evaluationEvidence,
-		coverage,
-	},
-	{
-		slug: "mono",
-		name: "Mono",
-		direction: "Monochrome, high-contrast, and content-forward.",
-		bestFor: "Media and creative tooling",
-		releases: [
-			{
-				version: "1.0.0",
-				publishedAt: "July 25, 2026",
-				changelog:
-					"Initial Published Design System with complete cross-surface coverage and evaluation evidence.",
-			},
-		],
-		compatibility,
-		evaluation,
-		evaluationEvidence,
-		coverage,
-	},
-	{
-		slug: "command",
-		name: "Command",
-		direction: "Dark-first, dense, and technical.",
-		bestFor: "Developer and operations products",
-		releases: [
-			{
-				version: "1.0.0",
-				publishedAt: "July 18, 2026",
-				changelog:
-					"Initial Published Design System with dense technical patterns and complete state coverage.",
-			},
-		],
-		compatibility,
-		evaluation,
-		evaluationEvidence,
-		coverage,
-	},
-] as const;
+export const designSystems: readonly DesignSystem[] =
+	generatedCatalog.designSystems.map(({ id, ...designSystem }) => ({
+		...designSystem,
+		slug: id,
+	}));
 
 export function getDesignSystem(slug: string) {
 	return designSystems.find((designSystem) => designSystem.slug === slug);
@@ -137,13 +42,39 @@ export function getDesignSystem(slug: string) {
 
 /** The Design System Release a bare identity selects. */
 export function currentRelease(designSystem: DesignSystem) {
-	return designSystem.releases[0];
+	const release = designSystem.releases.find(
+		(candidate) => candidate.version === designSystem.currentRelease,
+	);
+	if (!release) {
+		throw new Error(
+			`${designSystem.name} has no current Design System Release ${designSystem.currentRelease}`,
+		);
+	}
+	return release;
+}
+
+export function formatPublishedAt(publishedAt: string) {
+	return new Intl.DateTimeFormat("en-US", {
+		dateStyle: "long",
+		timeZone: "UTC",
+	}).format(new Date(`${publishedAt}T00:00:00Z`));
+}
+
+export function compatibilityText(designSystem: DesignSystem) {
+	const { compatibility } = designSystem;
+	return `React ${compatibility.react} · Next.js ${compatibility.nextjs} · Tailwind ${compatibility.tailwind} · ${compatibility.ui}`;
+}
+
+export function evaluationText(designSystem: DesignSystem) {
+	const status =
+		designSystem.evaluation.status.charAt(0).toLowerCase() +
+		designSystem.evaluation.status.slice(1);
+	return `Design System Evaluation ${status} · ${designSystem.evaluation.standard} reference implementation`;
 }
 
 /**
  * The newest Design System Releases across the catalog, newest first. Only each
- * Design System's
- * current release can qualify, and catalog order breaks publication-date ties.
+ * Design System's current release can qualify, and catalog order breaks date ties.
  */
 export function recentDesignSystemReleases(count: number) {
 	return designSystems

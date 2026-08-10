@@ -280,6 +280,78 @@ test("the Official Catalog presents exactly Foundation, Editorial, Mono, and Com
 	await expect(catalog.getByRole("link", { name: /Signal/i })).toHaveCount(0);
 });
 
+test("the Official Catalog and Design System Previews present published metadata", async ({
+	page,
+}) => {
+	await page.goto("/catalog");
+	await expect(
+		page.getByRole("heading", { name: "Published systems. Distinct voices." }),
+	).toBeVisible();
+	expect(
+		await page.locator('meta[name="description"]').getAttribute("content"),
+	).not.toMatch(/\bfour\b/i);
+
+	const publishedMetadata = [
+		{
+			identity: "foundation",
+			name: "Foundation",
+			signature: "Clarity before character.",
+			fit: "Versatile product foundations",
+			viewports: "1440x900 · 390x844",
+			changelog:
+				"Adds semantic informational-state tokens and detailed responsive pagination guidance.",
+		},
+		{
+			identity: "editorial",
+			name: "Editorial",
+			signature: "Ideas need room.",
+			fit: "Knowledge and content products",
+			viewports: "1440x900 · 390x844 · 320x844",
+			changelog:
+				"Initial Published Design System with complete cross-surface guidance, evaluated implementation direction, and WCAG 2.2 AA evidence.",
+		},
+		{
+			identity: "mono",
+			name: "Mono",
+			signature: "Ink and paper.",
+			fit: "Media and creative tooling",
+			viewports: "1440x900 · 390x844",
+			changelog:
+				"Initial Published Design System with complete cross-surface coverage and evaluation evidence.",
+		},
+		{
+			identity: "command",
+			name: "Command",
+			signature: "Purpose-built instrument.",
+			fit: "Developer and operations products",
+			viewports: "1440x900 · 390x844",
+			changelog:
+				"Initial Published Design System with dense technical patterns and complete state coverage.",
+		},
+	] as const;
+
+	for (const published of publishedMetadata) {
+		const catalogCard = page.getByRole("link", {
+			name: new RegExp(published.name, "i"),
+		});
+		await expect(catalogCard.getByText(published.signature)).toBeVisible();
+		await expect(catalogCard.getByText(published.fit)).toBeVisible();
+
+		await page.goto(`/catalog/${published.identity}`);
+		const preview = page.getByRole("main");
+		await expect(preview.getByText(published.signature)).toBeVisible();
+		await expect(preview.getByText(published.viewports)).toBeVisible();
+		await expect(
+			preview.getByText(
+				"React >=18 <20 · Next.js >=15 <17 · Tailwind >=4 <5 · shadcn/ui",
+			),
+		).toBeVisible();
+		await expect(preview.getByText(published.changelog)).toBeVisible();
+
+		await page.goto("/catalog");
+	}
+});
+
 for (const designSystem of [
 	{
 		slug: "foundation",
@@ -308,9 +380,12 @@ for (const designSystem of [
 			product.getByRole("heading", { name: designSystem.name, exact: true }),
 		).toBeVisible();
 		await expect(
-			product.getByText("React / Next.js · Tailwind CSS v4 · shadcn/ui", {
-				exact: true,
-			}),
+			product.getByText(
+				"React >=18 <20 · Next.js >=15 <17 · Tailwind >=4 <5 · shadcn/ui",
+				{
+					exact: true,
+				},
+			),
 		).toBeVisible();
 		await expect(
 			product.getByText(
@@ -449,25 +524,22 @@ test("the public Command Design System Preview shows complete evidence and its r
 		page.getByText("WCAG 2.2 Level AA", { exact: false }),
 	).toBeVisible();
 	await expect(
-		page.getByText("React / Next.js · Tailwind CSS v4 · shadcn/ui"),
+		page.getByText(
+			"React >=18 <20 · Next.js >=15 <17 · Tailwind >=4 <5 · shadcn/ui",
+		),
 	).toBeVisible();
 	await expect(
 		page.getByLabel("Command rendered Design System Preview"),
 	).toBeVisible();
-	for (const surfaceEvidence of [
-		"Ship with operational confidence.",
-		"Continue securely",
-		"Verify the runtime connection",
-		"SYSTEM HEALTH",
-		"v1.8.4",
-		"Configuration verified",
-		"Danger zone",
-		"✓Verified",
+	for (const publishedEvidence of [
+		"Purpose-built instrument.",
+		"Graphite working planes",
+		"Operational cyan signals",
+		"Dense persistent context",
+		"1440x900 · 390x844",
 	]) {
 		await expect(
-			page.getByText(surfaceEvidence, {
-				exact: surfaceEvidence === "✓Verified",
-			}),
+			page.getByText(publishedEvidence, { exact: true }).first(),
 		).toBeVisible();
 	}
 	await expect(
@@ -510,12 +582,45 @@ test("a Builder can anonymously retrieve the complete Foundation Design System R
 	expect(contract).toContain("## Final validation checklist");
 
 	await page.goto("/catalog/foundation");
+	await expect(page.getByText("1440x900 · 390x844")).toBeVisible();
+	await expect(page.getByText("Light · Dark · Reduced motion")).toBeVisible();
 	await expect(
-		page.getByText("Desktop 1440×900 and mobile 390×844"),
+		page.getByText("Human review passed · Rights review passed"),
 	).toBeVisible();
-	await expect(page.getByText("Light, dark, and reduced motion")).toBeVisible();
+});
+
+test("an unknown catalog identity returns not found", async ({ request }) => {
+	const response = await request.get("/catalog/unknown");
+
+	expect(response.status()).toBe(404);
+});
+
+test("release history links to every exact published Design Contract", async ({
+	page,
+}) => {
+	await page.goto("/catalog/foundation");
+
+	for (const release of ["1.1.0", "1.0.0"]) {
+		await expect(
+			page.getByRole("link", {
+				name: `Read Foundation ${release} Design Contract`,
+			}),
+		).toHaveAttribute("href", `/contracts/foundation/${release}`);
+	}
+});
+
+test("a Design System Preview exposes its published evaluation provenance", async ({
+	page,
+}) => {
+	await page.goto("/catalog/editorial");
+
 	await expect(
-		page.getByText("Human visual and accessibility review passed"),
+		page.getByText(
+			"structure · accessibility · responsive overflow · text reflow and source order · color contrast",
+		),
+	).toBeVisible();
+	await expect(
+		page.getByText("evaluation/report.json · evaluation/agent-runs.md"),
 	).toBeVisible();
 });
 
