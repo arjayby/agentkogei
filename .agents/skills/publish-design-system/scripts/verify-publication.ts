@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 
-import { cp, lstat, mkdtemp, readFile } from "node:fs/promises";
+import { cp, lstat, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -8,6 +8,10 @@ import {
 	designSystemEvaluationFileName,
 	designSystemEvaluationRecordSchema,
 } from "../../../../packages/design-systems/src/design-system-evaluation";
+import {
+	contractRetrievalProtocol,
+	inspectPublicationProposal,
+} from "../../../../packages/design-systems/src/publication-release";
 import { validateDesignSystemRelease } from "../../../../packages/design-systems/src/validator";
 import { commandArguments } from "./command-arguments";
 
@@ -16,7 +20,7 @@ const proposalDirectory = command.primary;
 
 if (!proposalDirectory) {
 	console.error(
-		"Usage: bun verify-publication.ts <proposal-directory> [--repository <directory>]",
+		"Usage: bun verify-publication.ts <proposal-directory> [--repository <directory>] [--output <verification-file>]",
 	);
 	process.exit(2);
 }
@@ -25,6 +29,22 @@ const repository = path.resolve(
 	command.option("--repository") ??
 		path.resolve(import.meta.dirname, "../../../.."),
 );
+const repositoryStatus = Bun.spawnSync(
+	["git", "status", "--porcelain", "--untracked-files=all"],
+	{ cwd: repository },
+);
+if (
+	repositoryStatus.exitCode !== 0 ||
+	repositoryStatus.stdout.toString().trim().length > 0
+) {
+	console.log(
+		JSON.stringify({
+			ok: false,
+			errors: ["repository must be clean before publication verification"],
+		}),
+	);
+	process.exit(1);
+}
 const validation = await validateDesignSystemRelease(proposalDirectory);
 if (!validation.ok) {
 	console.log(JSON.stringify(validation));
@@ -103,16 +123,37 @@ try {
 			"launch:verify failed with the proposed release integrated",
 		);
 	}
-	console.log(
-		JSON.stringify({
-			ok: true,
-			identity: record.id,
-			version: record.designSystemRelease.version,
-			designContractSha256: record.designContract.sha256,
-			launchVerify: "passed",
-			productionMutated: false,
-		}),
-	);
+	const [proposal, head] = await Promise.all([
+		inspectPublicationProposal(proposalDirectory),
+		run(["git", "rev-parse", "HEAD"], repository),
+	]);
+	if (!proposal.ok) {
+		throw new Error(proposal.errors.join("; "));
+	}
+	if (head.exitCode !== 0) {
+		throw new Error(
+			`could not resolve verified repository commit: ${head.stderr.trim()}`,
+		);
+	}
+	const result = {
+		ok: true,
+		schemaVersion: "1.0",
+		identity: record.id,
+		version: record.designSystemRelease.version,
+		designContractSha256: record.designContract.sha256,
+		proposalFiles: proposal.files,
+		repositoryHead: head.stdout.trim(),
+		contractRetrievalProtocol,
+		launchVerify: "passed",
+		productionMutated: false,
+	};
+	const output = command.option("--output");
+	if (output) {
+		await writeFile(output, `${JSON.stringify(result, null, "\t")}\n`, {
+			flag: "wx",
+		});
+	}
+	console.log(JSON.stringify(result));
 } catch (error) {
 	console.log(
 		JSON.stringify({

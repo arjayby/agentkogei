@@ -1,6 +1,6 @@
 interface:
   display_name: "Publish Design System"
-  short_description: "Evaluate a candidate and prepare publication"
-  default_prompt: "Use $publish-design-system to evaluate this approved candidate and prepare an immutable publication proposal."
+  short_description: "Evaluate, approve, and publish a Design System"
+  default_prompt: "Use $publish-design-system to evaluate this approved candidate and publish it after explicit Publication Approval."
 policy:
   allow_implicit_invocation: false

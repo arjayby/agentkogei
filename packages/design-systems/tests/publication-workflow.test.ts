@@ -19,6 +19,22 @@ const preparePublicationCommand = path.resolve(
 	import.meta.dirname,
 	"../../../.agents/skills/publish-design-system/scripts/prepare-publication.ts",
 );
+const verifyPublicationCommand = path.resolve(
+	import.meta.dirname,
+	"../../../.agents/skills/publish-design-system/scripts/verify-publication.ts",
+);
+const approvePublicationCommand = path.resolve(
+	import.meta.dirname,
+	"../../../.agents/skills/publish-design-system/scripts/approve-publication.ts",
+);
+const promotePublicationCommand = path.resolve(
+	import.meta.dirname,
+	"../../../.agents/skills/publish-design-system/scripts/promote-publication.ts",
+);
+const verifyProductionCommand = path.resolve(
+	import.meta.dirname,
+	"../../../.agents/skills/publish-design-system/scripts/verify-production.ts",
+);
 const publicationSkillDirectory = path.resolve(
 	import.meta.dirname,
 	"../../../.agents/skills/publish-design-system",
@@ -376,6 +392,111 @@ async function runPreparePublication(
 	]);
 }
 
+async function prepareApprovedProposal() {
+	const { candidateDirectory, evaluationDirectory, publishedDirectory } =
+		await startApprovedEvaluation();
+	await completeAutomatedEvaluation(evaluationDirectory);
+	for (const [review, assertions] of [
+		["visual", ["faithful-expression"]],
+		["accessibility", accessibilityAssertions],
+		["rights", rightsAssertions],
+	] as const) {
+		const approval = await runApproveReview(evaluationDirectory, review, [
+			...assertions,
+		]);
+		expect(approval.exitCode).toBe(0);
+	}
+	const parentDirectory = path.dirname(evaluationDirectory);
+	const proposalDirectory = path.join(parentDirectory, "proposal");
+	const metadataFile = path.join(parentDirectory, "proposal-metadata.json");
+	await writeFile(
+		metadataFile,
+		`${JSON.stringify(proposalMetadata(), null, "\t")}\n`,
+	);
+	const prepared = await runPreparePublication(
+		candidateDirectory,
+		evaluationDirectory,
+		proposalDirectory,
+		publishedDirectory,
+		metadataFile,
+	);
+	expect(prepared.exitCode).toBe(0);
+	return { proposalDirectory, parentDirectory };
+}
+
+async function runProcess(arguments_: string[], cwd?: string) {
+	const process_ = Bun.spawn(arguments_, {
+		cwd,
+		stdout: "pipe",
+		stderr: "pipe",
+	});
+	const [exitCode, stdout, stderr] = await Promise.all([
+		process_.exited,
+		new Response(process_.stdout).text(),
+		new Response(process_.stderr).text(),
+	]);
+	return { exitCode, stdout, stderr };
+}
+
+async function createPromotionRepository() {
+	const repository = await mkdtemp(
+		path.join(tmpdir(), "agentkogei-promotion-repository-"),
+	);
+	temporaryDirectories.push(repository);
+	await mkdir(path.join(repository, "apps/web"), { recursive: true });
+	await mkdir(path.join(repository, "packages/design-systems/releases"), {
+		recursive: true,
+	});
+	await writeFile(
+		path.join(repository, "package.json"),
+		'{"scripts":{"launch:verify":"true"}}\n',
+	);
+	await writeFile(
+		path.join(repository, "apps/web/package.json"),
+		'{"scripts":{"contracts:build":"true"}}\n',
+	);
+	const installed = await runProcess(["bun", "install"], repository);
+	expect(installed.exitCode, installed.stderr).toBe(0);
+	for (const arguments_ of [
+		["git", "init", "-q"],
+		["git", "add", "."],
+		[
+			"git",
+			"-c",
+			"user.name=AgentKogei Tests",
+			"-c",
+			"user.email=tests@agentkogei.com",
+			"commit",
+			"-qm",
+			"test repository",
+		],
+	] as const) {
+		const result = await runProcess([...arguments_], repository);
+		expect(result.exitCode, result.stderr).toBe(0);
+	}
+	return { repository };
+}
+
+async function runVerifyPublication(
+	proposalDirectory: string,
+	repository: string,
+	verificationFile: string,
+) {
+	const processResult = await runProcess([
+		process.execPath,
+		verifyPublicationCommand,
+		proposalDirectory,
+		"--repository",
+		repository,
+		"--output",
+		verificationFile,
+	]);
+	const result = JSON.parse(
+		processResult.stdout.trim().split("\n").at(-1) ?? "",
+	) as Record<string, unknown>;
+	return { exitCode: processResult.exitCode, result };
+}
+
 afterEach(async () => {
 	await Promise.all(
 		temporaryDirectories
@@ -655,5 +776,231 @@ describe("Design System publication workflow", () => {
 		expect(
 			await Bun.file(path.join(publishedDirectory, "lattice")).exists(),
 		).toBe(false);
+	});
+
+	test("promotes only the exact verified proposal after explicit Publication Approval", async () => {
+		const { proposalDirectory, parentDirectory } =
+			await prepareApprovedProposal();
+		const { repository } = await createPromotionRepository();
+		const verificationFile = path.join(parentDirectory, "verification.json");
+		const approvalFile = path.join(
+			parentDirectory,
+			"publication-approval.json",
+		);
+		const verifiedProposal = await runVerifyPublication(
+			proposalDirectory,
+			repository,
+			verificationFile,
+		);
+		expect(verifiedProposal.exitCode).toBe(0);
+
+		const approved = await runJsonCommand([
+			process.execPath,
+			approvePublicationCommand,
+			proposalDirectory,
+			"--verification",
+			verificationFile,
+			"--approval",
+			approvalFile,
+			"--approved-at",
+			"2026-08-10T02:00:00.000Z",
+			"--approved-by",
+			"maintainer@example.com",
+			"--assert",
+			"official-catalog-admission",
+			"--assert",
+			"production-deployment",
+		]);
+		expect(approved.exitCode, JSON.stringify(approved.result)).toBe(0);
+
+		await writeFile(path.join(proposalDirectory, "DESIGN.md"), "tampered\n");
+		const refused = await runJsonCommand([
+			process.execPath,
+			promotePublicationCommand,
+			proposalDirectory,
+			"--approval",
+			approvalFile,
+			"--repository",
+			repository,
+		]);
+		expect(refused).toEqual({
+			exitCode: 1,
+			result: {
+				ok: false,
+				errors: [
+					"publication proposal differs from the explicitly approved artifacts",
+				],
+				live: false,
+			},
+		});
+		await writeFile(
+			path.join(proposalDirectory, "DESIGN.md"),
+			completeDesignContract,
+		);
+
+		const promoted = await runJsonCommand([
+			process.execPath,
+			promotePublicationCommand,
+			proposalDirectory,
+			"--approval",
+			approvalFile,
+			"--repository",
+			repository,
+		]);
+		expect(promoted.exitCode).toBe(0);
+		expect(promoted.result).toMatchObject({
+			ok: true,
+			identity: "lattice",
+			version: "1.0.0",
+			publicationApproval: "approved",
+			catalogGeneration: "passed",
+			launchVerify: "passed",
+			readyToDeploy: true,
+			live: false,
+			npmCliPublished: false,
+		});
+		expect(
+			await readFile(
+				path.join(
+					repository,
+					"packages/design-systems/releases/lattice/1.0.0/DESIGN.md",
+				),
+				"utf8",
+			),
+		).toBe(completeDesignContract);
+	});
+
+	test("reports a release live only after production routes and packaged CLI Installation match approval", async () => {
+		const { proposalDirectory, parentDirectory } =
+			await prepareApprovedProposal();
+		const { repository } = await createPromotionRepository();
+		const verificationFile = path.join(parentDirectory, "verification.json");
+		const approvalFile = path.join(
+			parentDirectory,
+			"publication-approval.json",
+		);
+		const metadata = JSON.parse(
+			await readFile(
+				path.join(proposalDirectory, "design-system-evaluation.json"),
+				"utf8",
+			),
+		) as { designContract: { sha256: string } };
+		const verifiedProposal = await runVerifyPublication(
+			proposalDirectory,
+			repository,
+			verificationFile,
+		);
+		expect(verifiedProposal.exitCode).toBe(0);
+		const approved = await runJsonCommand([
+			process.execPath,
+			approvePublicationCommand,
+			proposalDirectory,
+			"--verification",
+			verificationFile,
+			"--approval",
+			approvalFile,
+			"--approved-at",
+			"2026-08-10T02:00:00.000Z",
+			"--approved-by",
+			"maintainer@example.com",
+			"--assert",
+			"official-catalog-admission",
+			"--assert",
+			"production-deployment",
+		]);
+		expect(approved.exitCode, JSON.stringify(approved.result)).toBe(0);
+		const promoted = await runJsonCommand([
+			process.execPath,
+			promotePublicationCommand,
+			proposalDirectory,
+			"--approval",
+			approvalFile,
+			"--repository",
+			repository,
+		]);
+		expect(promoted.exitCode).toBe(0);
+
+		let tampered = true;
+		const server = Bun.serve({
+			port: 0,
+			fetch(request) {
+				const pathname = new URL(request.url).pathname;
+				if (pathname === "/catalog") {
+					return new Response(
+						'<main><a href="/catalog/lattice">Lattice</a></main>',
+						{ headers: { "content-type": "text/html" } },
+					);
+				}
+				if (pathname === "/catalog/lattice") {
+					return new Response(
+						"<main><h1>Lattice</h1><h2>Design System Preview</h2></main>",
+						{ headers: { "content-type": "text/html" } },
+					);
+				}
+				if (
+					pathname === "/contracts/lattice" ||
+					pathname === "/contracts/lattice/1.0.0"
+				) {
+					return new Response(
+						tampered
+							? `${completeDesignContract}\nchanged`
+							: completeDesignContract,
+						{
+							headers: {
+								"content-type": "text/markdown; charset=utf-8",
+								"x-agentkogei-design-system": "Lattice",
+								"x-agentkogei-design-system-release": "1.0.0",
+							},
+						},
+					);
+				}
+				return new Response("not found", { status: 404 });
+			},
+		});
+		try {
+			const arguments_ = [
+				process.execPath,
+				verifyProductionCommand,
+				approvalFile,
+				"--repository",
+				repository,
+				"--production-url",
+				server.url.href,
+				"--cli-package",
+				path.resolve(import.meta.dirname, "../.distribution/agentkogei.tgz"),
+			];
+			const mismatch = await runJsonCommand(arguments_);
+			expect(mismatch).toEqual({
+				exitCode: 1,
+				result: {
+					ok: false,
+					errors: [
+						"production Design Contract digest differs from Publication Approval: lattice@1.0.0",
+					],
+					live: false,
+				},
+			});
+
+			tampered = false;
+			const verified = await runJsonCommand(arguments_);
+			expect(verified.exitCode).toBe(0);
+			expect(verified.result).toMatchObject({
+				ok: true,
+				identity: "lattice",
+				version: "1.0.0",
+				designContractSha256: metadata.designContract.sha256,
+				catalogRoute: `${server.url.href}catalog/lattice`,
+				currentContractRoute: `${server.url.href}contracts/lattice`,
+				exactContractRoute: `${server.url.href}contracts/lattice/1.0.0`,
+				catalogDiscovery: "passed",
+				preview: "passed",
+				currentAndHistoricalContracts: "passed",
+				packagedCliInstallation: "passed",
+				live: true,
+				npmCliPublished: false,
+			});
+		} finally {
+			server.stop(true);
+		}
 	});
 });
