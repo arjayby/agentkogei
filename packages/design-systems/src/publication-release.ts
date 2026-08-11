@@ -249,6 +249,12 @@ export async function inspectPublicationProposal(proposalDirectory: string) {
 				),
 			),
 		);
+		if (record.schemaVersion !== "4.0") {
+			return {
+				ok: false as const,
+				errors: ["publication proposal requires Version 4 Preview metadata"],
+			};
+		}
 		const report = publicationProposalReportSchema.parse(
 			JSON.parse(
 				await readFile(

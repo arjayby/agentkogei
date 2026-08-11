@@ -1,5 +1,5 @@
 {
-	"schemaVersion": "3.0",
+	"schemaVersion": "4.0",
 	"id": "editorial",
 	"designSystem": "Editorial",
 	"designSystemRelease": {
@@ -303,6 +303,76 @@
 						"usage": "Dialogs, menus, and content above the working plane."
 					}
 				}
+			}
+		},
+		"controls": {
+			"buttons": {
+				"primaryLabel": "Publish story",
+				"secondaryLabel": "Save draft",
+				"guidance": "Let the primary action punctuate the reading flow while secondary actions remain typographic.",
+				"states": {
+					"default": "Preserve strong editorial contrast and an unambiguous verb.",
+					"hover": "Deepen emphasis without disturbing the reading rhythm.",
+					"focus": "Frame the action with the semantic focus ring.",
+					"active": "Show a composed pressed treatment without layout movement.",
+					"disabled": "Keep the action legible while clearly unavailable.",
+					"loading": "Keep the original verb beside a visible busy indicator.",
+					"success": "Confirm publication with words and the success role.",
+					"error": "State what failed using words and the destructive role."
+				}
+			},
+			"links": {
+				"primaryLabel": "Continue reading",
+				"secondaryLabel": "Browse the archive",
+				"guidance": "Treat links as part of the prose while retaining persistent underlines and precise destinations.",
+				"states": {
+					"default": "Underline the destination within the reading color hierarchy.",
+					"hover": "Increase underline weight without reflow.",
+					"focus": "Frame the link with the semantic focus ring.",
+					"active": "Keep the destination readable during activation.",
+					"disabled": "Use plain text for unavailable destinations.",
+					"loading": "Pair busy status with the unchanged destination label.",
+					"success": "Confirm the local result with nearby text.",
+					"error": "Explain the local failure in adjacent text."
+				}
+			},
+			"forms": {
+				"legend": "Reader correspondence",
+				"guidance": "Give each response room, keep labels visible, and place validation in the reading path.",
+				"submitLabel": "Check response",
+				"help": "A reply address lets the editorial team continue the conversation.",
+				"error": "Enter a complete reply address.",
+				"success": "Your response is ready to send."
+			},
+			"inputs": {
+				"textLabel": "Reply address",
+				"textPlaceholder": "reader@example.com",
+				"textareaLabel": "Response",
+				"textareaPlaceholder": "Write a considered response.",
+				"disabledLabel": "Publication edition",
+				"guidance": "Use generous line height, clear rules, and visible labels that never collapse into placeholders."
+			},
+			"cards": {
+				"title": "The shape of a useful idea",
+				"description": "A reading led card keeps its headline, abstract, context, and next step in a clear sequence.",
+				"metadata": "Essay · 8 minute read",
+				"actionLabel": "Open essay",
+				"guidance": "Use cards as editorial entry points with generous hierarchy and restrained boundaries."
+			},
+			"panels": {
+				"title": "Issue contents",
+				"description": "A quiet panel holds related reading context without competing with the article.",
+				"items": ["Opening note", "Feature essay", "Field observations"],
+				"guidance": "Use panels for supporting context and let typography do more work than decoration."
+			},
+			"navigation": {
+				"label": "Issue sections",
+				"items": [
+					{ "id": "opening", "label": "Opening" },
+					{ "id": "features", "label": "Features" },
+					{ "id": "notes", "label": "Notes" }
+				],
+				"guidance": "Name the current reading location and keep navigation in document order."
 			}
 		},
 		"theme": {

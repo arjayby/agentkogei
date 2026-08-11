@@ -10,6 +10,7 @@ import { ArrowLeft, ArrowUpRight, Check } from "lucide-react";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { DesignSystemControlsSpecimen } from "@/components/design-system-controls-specimen";
 import { DesignSystemFoundationsSpecimen } from "@/components/design-system-foundations-specimen";
 import { DesignSystemMark } from "@/components/design-system-mark";
 import { DesignSystemPreviewEvidence } from "@/components/design-system-preview-evidence";
@@ -23,6 +24,7 @@ import {
 	designSystems,
 	evaluationText,
 	getDesignSystem,
+	previewShellFor,
 } from "@/lib/catalog";
 
 type DesignSystemPageProps = {
@@ -60,6 +62,7 @@ export default async function DesignSystemPage({
 	}
 
 	const release = currentRelease(designSystem);
+	const { composition, controls } = previewShellFor(designSystem);
 	const actionHref =
 		`/contracts/${designSystem.slug}/${release.version}` as Route;
 	const actionLabel = `Read the ${designSystem.name} ${release.version} Design Contract`;
@@ -170,6 +173,14 @@ export default async function DesignSystemPage({
 					</div>
 					<div className="grid gap-12 lg:gap-20">
 						<DesignSystemFoundationsSpecimen designSystem={designSystem} />
+						{controls ? (
+							<DesignSystemControlsSpecimen
+								composition={composition}
+								controls={controls}
+								name={designSystem.name}
+								slug={designSystem.slug}
+							/>
+						) : null}
 						<DesignSystemPreviewEvidence designSystem={designSystem} />
 					</div>
 				</div>

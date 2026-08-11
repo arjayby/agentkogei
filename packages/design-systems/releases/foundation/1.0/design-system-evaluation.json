@@ -1,5 +1,5 @@
 {
-	"schemaVersion": "3.0",
+	"schemaVersion": "4.0",
 	"id": "foundation",
 	"designSystem": "Foundation",
 	"designSystemRelease": {
@@ -294,6 +294,80 @@
 						"usage": "Dialogs, menus, and content above the working plane."
 					}
 				}
+			}
+		},
+		"controls": {
+			"buttons": {
+				"primaryLabel": "Create Project",
+				"secondaryLabel": "Review details",
+				"guidance": "Use one clear primary action and quiet secondary actions with stable geometry.",
+				"states": {
+					"default": "Preserve a clear fill and readable action label.",
+					"hover": "Increase emphasis without changing size or position.",
+					"focus": "Show the semantic focus ring outside the control edge.",
+					"active": "Use a restrained pressed treatment without moving nearby content.",
+					"disabled": "Keep the label readable while removing action affordance.",
+					"loading": "Retain the action label and add an explicit busy indicator.",
+					"success": "Confirm completion with text and the success role.",
+					"error": "Name the failed action with text and the destructive role."
+				}
+			},
+			"links": {
+				"primaryLabel": "Read release notes",
+				"secondaryLabel": "View documentation",
+				"guidance": "Keep destination language specific and preserve the underline as a noncolor cue.",
+				"states": {
+					"default": "Underline actionable text and use the primary role.",
+					"hover": "Strengthen the underline without shifting the line.",
+					"focus": "Use the same visible focus ring as other controls.",
+					"active": "Retain the destination name while showing activation.",
+					"disabled": "Render unavailable destinations as text, not links.",
+					"loading": "Expose busy status without replacing the destination name.",
+					"success": "Confirm a completed local action in adjacent text.",
+					"error": "Describe the local failure without relying on color."
+				}
+			},
+			"forms": {
+				"legend": "Project contact",
+				"guidance": "Keep labels visible, help persistent, and validation adjacent to the affected field.",
+				"submitLabel": "Validate details",
+				"help": "Use a work address so the confirmation has a clear destination.",
+				"error": "Enter a complete email address.",
+				"success": "Contact details are ready."
+			},
+			"inputs": {
+				"textLabel": "Work email",
+				"textPlaceholder": "builder@example.com",
+				"textareaLabel": "Project context",
+				"textareaPlaceholder": "Describe the interface direction to preserve.",
+				"disabledLabel": "Assigned organization",
+				"guidance": "Align field edges, keep labels above values, and reserve space for help and validation."
+			},
+			"cards": {
+				"title": "Release readiness",
+				"description": "A balanced summary of the evidence needed before publication.",
+				"metadata": "8 surfaces · AA evaluated",
+				"actionLabel": "Review evidence",
+				"guidance": "Group one topic per card with a stable title, summary, evidence, and action hierarchy."
+			},
+			"panels": {
+				"title": "Publication checklist",
+				"description": "Related checks remain visible as one bounded working region.",
+				"items": [
+					"Design Contract pinned",
+					"Evaluation passed",
+					"Rights review passed"
+				],
+				"guidance": "Use panels for durable context and align related rows to a shared grid."
+			},
+			"navigation": {
+				"label": "Release sections",
+				"items": [
+					{ "id": "overview", "label": "Overview" },
+					{ "id": "components", "label": "Components" },
+					{ "id": "evidence", "label": "Evidence" }
+				],
+				"guidance": "Mark the current location in text and structure, and preserve logical keyboard order."
 			}
 		},
 		"theme": {

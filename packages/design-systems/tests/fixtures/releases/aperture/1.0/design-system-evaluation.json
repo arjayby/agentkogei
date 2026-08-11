@@ -1,5 +1,5 @@
 {
-	"schemaVersion": "3.0",
+	"schemaVersion": "4.0",
 	"id": "aperture",
 	"designSystem": "Aperture",
 	"publisher": "AgentKogei acceptance fixture",
@@ -294,6 +294,76 @@
 						"usage": "Dialogs, menus, and content above the working plane."
 					}
 				}
+			}
+		},
+		"controls": {
+			"buttons": {
+				"primaryLabel": "Open workspace",
+				"secondaryLabel": "Review context",
+				"guidance": "Use focused actions with explicit labels and stable geometry.",
+				"states": {
+					"default": "Show clear contrast and an action label.",
+					"hover": "Increase emphasis without moving content.",
+					"focus": "Show the semantic focus ring around the action.",
+					"active": "Show activation without changing layout.",
+					"disabled": "Keep the unavailable action readable.",
+					"loading": "Keep the label beside an explicit busy state.",
+					"success": "Confirm completion with text and color.",
+					"error": "Describe failure with text and color."
+				}
+			},
+			"links": {
+				"primaryLabel": "Inspect details",
+				"secondaryLabel": "Read guidance",
+				"guidance": "Use specific destinations, underlines, and visible focus.",
+				"states": {
+					"default": "Underline the destination.",
+					"hover": "Increase emphasis without reflow.",
+					"focus": "Show the semantic focus ring.",
+					"active": "Keep the destination visible during activation.",
+					"disabled": "Use plain text when unavailable.",
+					"loading": "Show busy status beside the destination.",
+					"success": "Confirm the local result in text.",
+					"error": "Explain the local failure in text."
+				}
+			},
+			"forms": {
+				"legend": "Workspace details",
+				"guidance": "Keep labels and validation visible beside the affected fields.",
+				"submitLabel": "Validate workspace",
+				"help": "Use an address that can receive a local confirmation.",
+				"error": "Enter a complete email address.",
+				"success": "Workspace details are valid."
+			},
+			"inputs": {
+				"textLabel": "Contact email",
+				"textPlaceholder": "builder@example.com",
+				"textareaLabel": "Workspace context",
+				"textareaPlaceholder": "Describe the current interface goal.",
+				"disabledLabel": "Release channel",
+				"guidance": "Keep labels visible, field edges aligned, and messages in a reserved row."
+			},
+			"cards": {
+				"title": "Workspace summary",
+				"description": "One card groups the current workspace context and next action.",
+				"metadata": "Release 1.0 · Evaluated",
+				"actionLabel": "Review workspace",
+				"guidance": "Keep one topic, its evidence, and its action in a clear hierarchy."
+			},
+			"panels": {
+				"title": "Workspace checks",
+				"description": "A bounded panel groups related readiness information.",
+				"items": ["Metadata complete", "Evaluation passed", "Contract pinned"],
+				"guidance": "Use panels for durable related context."
+			},
+			"navigation": {
+				"label": "Workspace sections",
+				"items": [
+					{ "id": "summary", "label": "Summary" },
+					{ "id": "workspace", "label": "Workspace" },
+					{ "id": "review", "label": "Review" }
+				],
+				"guidance": "Expose the current location in text and structure and preserve keyboard order."
 			}
 		},
 		"theme": {

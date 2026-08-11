@@ -515,6 +515,92 @@ test("every discovered Preview renders the complete visual foundations specimen 
 	}
 });
 
+test("every discovered Preview exposes self contained controls and content containers", async ({
+	page,
+}) => {
+	const routes = await discoverDesignSystemRoutes(page);
+	const stateNames = [
+		"Default",
+		"Hover",
+		"Focus",
+		"Active",
+		"Disabled",
+		"Loading",
+		"Success",
+		"Error",
+	];
+
+	for (const route of routes) {
+		const { name } = await readPublishedDesignSystem(page, route);
+		const externalRequests: string[] = [];
+		const captureSpecimenRequest = (request: {
+			resourceType(): string;
+			url(): string;
+		}) => {
+			const url = new URL(request.url());
+			if (
+				["fetch", "xhr"].includes(request.resourceType()) &&
+				!url.searchParams.has("_rsc")
+			) {
+				externalRequests.push(request.url());
+			}
+		};
+		page.on("request", captureSpecimenRequest);
+		const specimens = page.getByRole("region", {
+			name: `${name} controls and content containers`,
+		});
+
+		await expect(specimens).toBeVisible();
+		await expect(specimens.getByRole("heading", { level: 3 })).toHaveText([
+			"Buttons and links",
+			"Forms and inputs",
+			"Cards and panels",
+			"Navigation",
+		]);
+
+		for (const groupName of ["Button states", "Link states"]) {
+			const stateGroup = specimens.getByRole("group", { name: groupName });
+			for (const stateName of stateNames) {
+				await expect(
+					stateGroup.getByText(stateName, { exact: true }),
+				).toBeVisible();
+			}
+		}
+
+		const primaryAction = specimens
+			.getByRole("group", { name: "Interactive actions" })
+			.getByRole("button");
+		await primaryAction.click();
+		await expect(
+			specimens.getByRole("status", { name: "Action result" }),
+		).toContainText(/complete/i);
+
+		const form = specimens.getByRole("form");
+		await form.getByRole("button").click();
+		await expect(form.getByRole("alert")).toBeVisible();
+		await form
+			.getByRole("textbox", { name: /email|address/i })
+			.fill("builder@example.com");
+		await form.getByRole("button").click();
+		await expect(form.getByRole("status")).toBeVisible();
+
+		const navigation = specimens.getByRole("navigation");
+		const navigationLinks = navigation.getByRole("link");
+		await expect(navigationLinks.first()).toHaveAttribute(
+			"aria-current",
+			"page",
+		);
+		await navigationLinks.last().focus();
+		await page.keyboard.press("Enter");
+		await expect(navigationLinks.last()).toHaveAttribute(
+			"aria-current",
+			"page",
+		);
+		expect(externalRequests, route).toEqual([]);
+		page.off("request", captureSpecimenRequest);
+	}
+});
+
 test("an isolated valid release reaches Design System discovery and its complete public journey", async ({
 	page,
 	request,

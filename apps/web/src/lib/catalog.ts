@@ -13,8 +13,8 @@ export type DesignSystem = Omit<PublishedCatalogEntry, "id"> & {
 };
 
 export type PreviewShell = NonNullable<DesignSystem["previewShell"]>;
-type ResolvedPreviewShell = Omit<PreviewShell, "foundations"> &
-	Partial<Pick<PreviewShell, "foundations">>;
+type ResolvedPreviewShell = Omit<PreviewShell, "controls" | "foundations"> &
+	Partial<Pick<PreviewShell, "controls" | "foundations">>;
 
 const legacyFontChoices = {
 	sans: "humanist-sans",
