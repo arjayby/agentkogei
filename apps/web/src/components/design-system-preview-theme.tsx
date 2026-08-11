@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 
 import {
 	type DesignSystem,
+	type DesignSystemDiscovery,
 	type PreviewPalette,
 	previewShellFor,
 } from "@/lib/catalog";
@@ -53,19 +54,29 @@ function paletteDeclarations(palette: PreviewPalette) {
 		.join("\n");
 }
 
-export function DesignSystemPreviewTheme({
-	designSystem,
-	children,
-	page = false,
-}: {
-	designSystem: DesignSystem;
-	children: ReactNode;
-	page?: boolean;
-}) {
-	const { composition, theme, typography } = previewShellFor(designSystem);
+function resolvedPreviewShell(
+	designSystem: DesignSystem | DesignSystemDiscovery,
+) {
+	return "releases" in designSystem
+		? previewShellFor(designSystem)
+		: designSystem.previewShell;
+}
+
+function previewThemeStylesheet(
+	designSystem: DesignSystem | DesignSystemDiscovery,
+	page: boolean,
+) {
+	const { theme, typography } = resolvedPreviewShell(designSystem);
 	const { geometry, tokens } = theme;
 	const selector = `[data-design-system-preview="${designSystem.slug}"]`;
 	const pageSelector = `body:has([data-design-system-preview-page="${designSystem.slug}"])`;
+	const scope = page ? `${selector}, ${pageSelector}` : selector;
+	const darkScope = page
+		? `.dark ${selector}, .dark ${pageSelector}`
+		: `.dark ${selector}`;
+	const preferredDarkScope = page
+		? `html:not(.light) ${selector}, html:not(.light) ${pageSelector}`
+		: `html:not(.light) ${selector}`;
 	const sharedDeclarations = `
 		--preview-font-display: ${fontFamilies[typography.display]};
 		--preview-font-body: ${fontFamilies[typography.body]};
@@ -113,20 +124,23 @@ export function DesignSystemPreviewTheme({
 		--color-input: var(--preview-border);
 		--color-ring: var(--preview-ring);
 	`;
-	const stylesheet = `${selector}, ${pageSelector} {
+
+	return `${scope} {
 		${paletteDeclarations(tokens.light)}
 		${sharedDeclarations}
+		${semanticDeclarations}
 	}
-	.dark ${selector}, .dark ${pageSelector} {
+	${darkScope} {
 		${paletteDeclarations(tokens.dark)}
 	}
 	@media (prefers-color-scheme: dark) {
-		html:not(.light) ${selector}, html:not(.light) ${pageSelector} {
+		${preferredDarkScope} {
 			${paletteDeclarations(tokens.dark)}
 		}
 	}
-	${pageSelector} {
-		${semanticDeclarations}
+	${
+		page
+			? `${pageSelector} {
 		background: var(--preview-background);
 		color: var(--preview-foreground);
 		font-family: var(--preview-font-body);
@@ -146,12 +160,29 @@ export function DesignSystemPreviewTheme({
 	${pageSelector} nav,
 	${pageSelector} footer {
 		font-family: var(--preview-font-accent);
+	}`
+			: ""
 	}`;
+}
+
+export function DesignSystemPreviewTheme({
+	designSystem,
+	children,
+	page = false,
+	includeStyles = true,
+}: {
+	designSystem: DesignSystem | DesignSystemDiscovery;
+	children: ReactNode;
+	page?: boolean;
+	includeStyles?: boolean;
+}) {
+	const { composition } = resolvedPreviewShell(designSystem);
+	const stylesheet = previewThemeStylesheet(designSystem, page);
 
 	if (page) {
 		return (
 			<>
-				<style>{stylesheet}</style>
+				{includeStyles ? <style>{stylesheet}</style> : null}
 				<main
 					data-design-system-preview={designSystem.slug}
 					data-design-system-preview-page={designSystem.slug}
@@ -165,8 +196,16 @@ export function DesignSystemPreviewTheme({
 
 	return (
 		<>
-			<style>{stylesheet}</style>
+			{includeStyles ? <style>{stylesheet}</style> : null}
 			<div data-design-system-preview={designSystem.slug}>{children}</div>
 		</>
 	);
+}
+
+export function DesignSystemPreviewThemeStyles({
+	designSystem,
+}: {
+	designSystem: DesignSystem | DesignSystemDiscovery;
+}) {
+	return <style>{previewThemeStylesheet(designSystem, false)}</style>;
 }

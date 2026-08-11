@@ -1,6 +1,10 @@
 import type { SVGProps } from "react";
 
-import { type DesignSystem, previewShellFor } from "@/lib/catalog";
+import {
+	type DesignSystem,
+	type DesignSystemDiscovery,
+	previewShellFor,
+} from "@/lib/catalog";
 
 type MarkDrawingProps = SVGProps<SVGSVGElement>;
 
@@ -149,8 +153,13 @@ export function DesignSystemMark({
 	designSystem,
 	className,
 	...props
-}: { designSystem: DesignSystem } & MarkDrawingProps) {
-	const { mark } = previewShellFor(designSystem);
+}: {
+	designSystem: DesignSystem | DesignSystemDiscovery;
+} & MarkDrawingProps) {
+	const { mark } =
+		"releases" in designSystem
+			? previewShellFor(designSystem)
+			: designSystem.previewShell;
 	const Drawing = drawings[mark.recipe];
 
 	return (

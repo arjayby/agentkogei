@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
-import { DesignSystemCard } from "@/components/design-system-card";
-import { designSystems } from "@/lib/catalog";
+import { DesignSystemBrowser } from "@/components/design-system-browser";
+import { designSystemDiscoveryFor, designSystems } from "@/lib/catalog";
 
 export const metadata: Metadata = {
 	title: "Design Systems | AgentKogei",
@@ -10,6 +10,8 @@ export const metadata: Metadata = {
 };
 
 export default function DesignSystemsPage() {
+	const browserDesignSystems = designSystems.map(designSystemDiscoveryFor);
+
 	return (
 		<main>
 			<header className="border-b px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
@@ -34,14 +36,8 @@ export default function DesignSystemsPage() {
 				className="px-5 py-12 sm:px-8 lg:px-12 lg:py-20"
 				aria-label="Published Design Systems"
 			>
-				<div className="mx-auto grid max-w-7xl gap-5 md:grid-cols-2">
-					{designSystems.map((designSystem, index) => (
-						<DesignSystemCard
-							key={designSystem.slug}
-							designSystem={designSystem}
-							index={index}
-						/>
-					))}
+				<div className="mx-auto max-w-7xl">
+					<DesignSystemBrowser designSystems={browserDesignSystems} />
 				</div>
 			</section>
 		</main>

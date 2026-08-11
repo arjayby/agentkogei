@@ -2,7 +2,7 @@ import { buttonVariants } from "@agentkogei/ui/components/button";
 import { ArrowUpRight } from "lucide-react";
 import type { Route } from "next";
 import Link from "next/link";
-import { DesignSystemCard } from "@/components/design-system-card";
+import { DesignSystemIdentityList } from "@/components/design-system-identity-list";
 import { HeroArtwork } from "@/components/hero-artwork";
 import {
 	type InstallableDesignSystem,
@@ -78,15 +78,7 @@ export default function Home() {
 							<ArrowUpRight className="size-3.5" aria-hidden="true" />
 						</Link>
 					</div>
-					<div className="grid gap-5 md:grid-cols-2">
-						{designSystems.map((designSystem, index) => (
-							<DesignSystemCard
-								key={designSystem.slug}
-								designSystem={designSystem}
-								index={index}
-							/>
-						))}
-					</div>
+					<DesignSystemIdentityList designSystems={designSystems} />
 				</div>
 			</section>
 		</main>
