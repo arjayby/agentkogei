@@ -4,11 +4,11 @@ export async function discoverDesignSystemRoutes(page: Page) {
 	await page.goto("/design-systems");
 	const routes = await page
 		.getByRole("region", { name: "Published Design Systems" })
-		.getByRole("link")
-		.evaluateAll((links) =>
-			links.flatMap((link) => {
-				const href = link.getAttribute("href");
-				return href ? [href] : [];
+		.getByRole("tab")
+		.evaluateAll((tabs) =>
+			tabs.flatMap((tab) => {
+				const route = tab.getAttribute("data-design-system-route");
+				return route ? [route] : [];
 			}),
 		);
 	if (routes.length === 0) {

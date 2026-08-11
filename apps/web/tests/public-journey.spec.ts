@@ -135,6 +135,21 @@ test("the landing page presents every discovered visual direction without releas
 		designSystemsRegion.getByRole("link", { name: /Signal/i }),
 	).toHaveCount(0);
 	await expect(page.getByText(/Recently published/i)).toHaveCount(0);
+	const identityEntries = designSystemsRegion.locator(
+		"[data-design-system-identity]",
+	);
+	await expect(identityEntries).toHaveCount(homeRoutes.length);
+	for (const entry of await identityEntries.all()) {
+		await expect(entry.getByRole("img")).toHaveCount(1);
+		await expect(entry.locator("[data-identity-summary]")).not.toBeEmpty();
+		await expect(entry.locator("[data-identity-fit]")).not.toBeEmpty();
+	}
+	await expect(
+		designSystemsRegion.locator(".catalog-preview-artwork"),
+	).toHaveCount(0);
+	await expect(
+		designSystemsRegion.getByText("Clarity before character.", { exact: true }),
+	).toHaveCount(0);
 	const designSystemRoutes = await discoverDesignSystemRoutes(page);
 	expect(homeRoutes.length).toBeGreaterThan(0);
 	expect(new Set(homeRoutes)).toEqual(new Set(designSystemRoutes));
@@ -188,7 +203,7 @@ test("public Design Systems routes replace every former Catalog route", async ({
 		page.getByRole("heading", { name: "Published systems. Distinct voices." }),
 	).toBeVisible();
 	await expect(
-		page.getByRole("main").getByRole("link", { name: /Foundation/i }),
+		page.getByRole("main").getByRole("link", { name: "Explore Foundation" }),
 	).toHaveAttribute("href", "/design-systems/foundation");
 
 	await page.goto("/design-systems/foundation");
@@ -298,14 +313,147 @@ test("Design Systems retains every launch Design System", async ({ page }) => {
 
 	for (const designSystem of ["Foundation", "Editorial", "Mono", "Command"]) {
 		await expect(
-			designSystems.getByRole("link", {
-				name: new RegExp(designSystem, "i"),
-			}),
+			designSystems.getByRole("tab", { name: designSystem, exact: true }),
 		).toHaveCount(1);
 	}
+	await expect(designSystems.getByRole("tab", { name: /Signal/i })).toHaveCount(
+		0,
+	);
+});
+
+test("a Builder compares Design Systems through explicit tab activation and shareable hash state", async ({
+	page,
+}) => {
+	await page.goto("/design-systems");
+	const browser = page.getByRole("region", {
+		name: "Published Design Systems",
+	});
+	const foundation = browser.getByRole("tab", {
+		name: "Foundation",
+		exact: true,
+	});
+	const editorial = browser.getByRole("tab", {
+		name: "Editorial",
+		exact: true,
+	});
+
+	await expect(foundation).toHaveAttribute("aria-selected", "true");
+	await expect(page).toHaveURL(/\/design-systems#foundation$/);
+	const foundationPanel = browser.getByRole("tabpanel", { name: "Foundation" });
+	await expect(foundationPanel).toBeVisible();
 	await expect(
-		designSystems.getByRole("link", { name: /Signal/i }),
-	).toHaveCount(0);
+		foundationPanel.getByRole("img", {
+			name: "Foundation Design System Mark",
+		}),
+	).toHaveAttribute("data-mark-size", "collection");
+	await expect(
+		foundationPanel.getByText("Neutral, crisp, and highly legible B2B SaaS."),
+	).toBeVisible();
+	await expect(
+		foundationPanel.getByText("Clarity before character.", { exact: true }),
+	).toBeVisible();
+	await expect(foundationPanel.locator("ol").getByRole("listitem")).toHaveCount(
+		3,
+	);
+	await expect(
+		foundationPanel.getByRole("region", { name: "Current theme palette" }),
+	).toBeVisible();
+	await expect(
+		foundationPanel.getByRole("region", { name: "Typography sample" }),
+	).toBeVisible();
+	await expect(
+		foundationPanel.getByText("Versatile product foundations", {
+			exact: true,
+		}),
+	).toBeVisible();
+	const collectionShellColor = await page
+		.locator("header.site-header")
+		.evaluate((element) => getComputedStyle(element).backgroundColor);
+	const foundationPanelPrimary = await foundationPanel
+		.locator("[data-design-system-preview]")
+		.evaluate((element) =>
+			getComputedStyle(element).getPropertyValue("--preview-primary").trim(),
+		);
+	await editorial.hover();
+	await expect(foundation).toHaveAttribute("aria-selected", "true");
+
+	await foundation.focus();
+	await page.keyboard.press("ArrowDown");
+	await expect(editorial).toBeFocused();
+	await expect(foundation).toHaveAttribute("aria-selected", "true");
+	await page.keyboard.press("Enter");
+
+	await expect(editorial).toHaveAttribute("aria-selected", "true");
+	await expect(
+		browser.getByRole("tabpanel", { name: "Editorial" }),
+	).toBeVisible();
+	await expect(page).toHaveURL(/\/design-systems#editorial$/);
+	await expect(
+		browser.getByRole("link", { name: "Explore Editorial" }),
+	).toHaveAttribute("href", "/design-systems/editorial");
+	await expect(page.locator("header.site-header")).toHaveCSS(
+		"background-color",
+		collectionShellColor,
+	);
+	const editorialPanelPrimary = await browser
+		.getByRole("tabpanel", { name: "Editorial" })
+		.locator("[data-design-system-preview]")
+		.evaluate((element) =>
+			getComputedStyle(element).getPropertyValue("--preview-primary").trim(),
+		);
+	expect(editorialPanelPrimary).not.toBe(foundationPanelPrimary);
+
+	await page.goto("/design-systems#mono");
+	await expect(
+		browser.getByRole("tab", { name: "Mono", exact: true }),
+	).toHaveAttribute("aria-selected", "true");
+	await expect(browser.getByRole("tabpanel", { name: "Mono" })).toBeVisible();
+
+	await page.evaluate(() => {
+		window.location.hash = "unknown";
+	});
+	await expect(foundation).toHaveAttribute("aria-selected", "true");
+	await expect(page).toHaveURL(/\/design-systems#foundation$/);
+});
+
+test("the split browser uses a desktop rail and a horizontally scrollable mobile tab row", async ({
+	page,
+}) => {
+	await page.setViewportSize({ width: 1280, height: 900 });
+	await page.goto("/design-systems");
+	const browser = page.locator(".design-system-browser");
+	const rail = page.locator(".design-system-browser-rail");
+	const tablist = page.getByRole("tablist", {
+		name: "Design System selection",
+	});
+	const panel = page.getByRole("tabpanel", { name: "Foundation" });
+
+	await expect(tablist).toHaveAttribute("aria-orientation", "vertical");
+	const desktopRailBox = await rail.boundingBox();
+	const desktopPanelBox = await panel.boundingBox();
+	expect(desktopRailBox).not.toBeNull();
+	expect(desktopPanelBox).not.toBeNull();
+	expect(desktopRailBox?.x).toBeLessThan(desktopPanelBox?.x ?? 0);
+
+	await page.setViewportSize({ width: 390, height: 844 });
+	await expect(tablist).not.toHaveAttribute("aria-orientation", "vertical");
+	const [firstTabBox, secondTabBox, mobileRailBox, mobilePanelBox] =
+		await Promise.all([
+			tablist.getByRole("tab").nth(0).boundingBox(),
+			tablist.getByRole("tab").nth(1).boundingBox(),
+			rail.boundingBox(),
+			panel.boundingBox(),
+		]);
+	expect(firstTabBox).not.toBeNull();
+	expect(secondTabBox).not.toBeNull();
+	expect(mobileRailBox).not.toBeNull();
+	expect(mobilePanelBox).not.toBeNull();
+	expect(firstTabBox?.x).toBeLessThan(secondTabBox?.x ?? 0);
+	expect(mobileRailBox?.y).toBeLessThan(mobilePanelBox?.y ?? 0);
+	expect(
+		await rail.evaluate((element) => element.scrollWidth > element.clientWidth),
+	).toBe(true);
+	await expect(browser).toBeVisible();
 });
 
 test("every discovered Design System route presents its complete published anatomy", async ({
@@ -808,8 +956,8 @@ test("an isolated valid release reaches Design System discovery and its complete
 }) => {
 	await page.goto("/design-systems");
 	await expect(
-		page.getByRole("link", { name: "Aperture", exact: true }),
-	).toHaveAttribute("href", "/design-systems/aperture");
+		page.getByRole("tab", { name: "Aperture", exact: true }),
+	).toHaveAttribute("data-design-system-route", "/design-systems/aperture");
 
 	await page.goto("/design-systems/aperture");
 	await expect(
@@ -881,11 +1029,17 @@ test("Design Systems and Design System Previews present published metadata", asy
 	] as const;
 
 	for (const published of publishedMetadata) {
-		const designSystemCard = page.getByRole("link", {
-			name: new RegExp(published.name, "i"),
+		await page
+			.getByRole("tab", {
+				name: published.name,
+				exact: true,
+			})
+			.click();
+		const selectedPanel = page.getByRole("tabpanel", {
+			name: published.name,
 		});
-		await expect(designSystemCard.getByText(published.signature)).toBeVisible();
-		await expect(designSystemCard.getByText(published.fit)).toBeVisible();
+		await expect(selectedPanel.getByText(published.signature)).toBeVisible();
+		await expect(selectedPanel.getByText(published.fit)).toBeVisible();
 
 		await page.goto(`/design-systems/${published.identity}`);
 		const preview = page.getByRole("main");

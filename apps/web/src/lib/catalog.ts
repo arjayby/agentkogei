@@ -13,8 +13,19 @@ export type DesignSystem = Omit<PublishedCatalogEntry, "id"> & {
 };
 
 export type PreviewShell = NonNullable<DesignSystem["previewShell"]>;
-type ResolvedPreviewShell = Omit<PreviewShell, "controls" | "foundations"> &
+export type ResolvedPreviewShell = Omit<
+	PreviewShell,
+	"controls" | "foundations"
+> &
 	Partial<Pick<PreviewShell, "controls" | "foundations">>;
+
+export type DesignSystemDiscovery = Pick<DesignSystem, "name" | "slug"> & {
+	preview: Pick<
+		DesignSystem["preview"],
+		"intendedFit" | "route" | "signature" | "summary"
+	>;
+	previewShell: ResolvedPreviewShell;
+};
 
 const legacyFontChoices = {
 	sans: "humanist-sans",
@@ -30,8 +41,9 @@ const legacyFontChoices = {
  * shape. Issue #113 removes this fallback after every specimen slice migrates.
  */
 export function previewShellFor(
-	designSystem: DesignSystem,
+	designSystem: DesignSystem | DesignSystemDiscovery,
 ): ResolvedPreviewShell {
+	if (!("releases" in designSystem)) return designSystem.previewShell;
 	if (designSystem.previewShell) return designSystem.previewShell;
 
 	const legacyTypography = designSystem.preview.typography;
@@ -50,6 +62,18 @@ export function previewShellFor(
 			tokens: designSystem.preview.tokens,
 			geometry: designSystem.preview.geometry,
 		},
+	};
+}
+
+export function designSystemDiscoveryFor(
+	designSystem: DesignSystem,
+): DesignSystemDiscovery {
+	const { intendedFit, route, signature, summary } = designSystem.preview;
+	return {
+		name: designSystem.name,
+		slug: designSystem.slug,
+		preview: { intendedFit, route, signature, summary },
+		previewShell: previewShellFor(designSystem),
 	};
 }
 
