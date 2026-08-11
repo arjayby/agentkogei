@@ -48,7 +48,7 @@ function DesignSystemIdentityPanel({
 }: {
 	designSystem: DesignSystemDiscovery;
 }) {
-	const { mark, typography } = designSystem.preview;
+	const { typography } = designSystem.preview;
 	const { intendedFit, route, signature, summary } = designSystem.preview;
 
 	return (
@@ -84,7 +84,6 @@ function DesignSystemIdentityPanel({
 						designSystem={designSystem}
 						className="size-36 shrink-0 sm:size-44"
 						data-mark-size="collection"
-						aria-description={mark.label}
 					/>
 				</div>
 
