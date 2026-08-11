@@ -374,6 +374,120 @@
 				"guidance": "Keep the selected view explicit with text, border, and programmatic current state."
 			}
 		},
+		"interactions": {
+			"dataDisplay": {
+				"tableCaption": "Frame inventory",
+				"columns": [
+					{ "id": "frame", "label": "Frame" },
+					{ "id": "format", "label": "Format" },
+					{ "id": "state", "label": "State" }
+				],
+				"rows": [
+					{
+						"id": "frame-040",
+						"label": "Frame 040",
+						"cells": ["4:3", "Archived"]
+					},
+					{
+						"id": "frame-041",
+						"label": "Frame 041",
+						"cells": ["4:3", "Review"]
+					},
+					{
+						"id": "frame-042",
+						"label": "Frame 042",
+						"cells": ["16:9", "Selected"]
+					}
+				],
+				"listLabel": "Selected frame details",
+				"listItems": [
+					{
+						"title": "Crop",
+						"description": "Wide focal composition.",
+						"status": "16:9"
+					},
+					{
+						"title": "Sequence",
+						"description": "Third frame in the working set.",
+						"status": "03 of 12"
+					},
+					{
+						"title": "Export",
+						"description": "Print ready monochrome output.",
+						"status": "Ready"
+					}
+				],
+				"guidance": "Use hard rules, stark alignment, and compact labels to make visual records comparable.",
+				"overflowGuidance": "Keep the comparison grid whole inside a labelled horizontal scroll region at narrow widths."
+			},
+			"feedback": {
+				"badges": [
+					{
+						"label": "Archived",
+						"meaning": "The frame is retained outside the active set",
+						"tone": "neutral"
+					},
+					{
+						"label": "Review",
+						"meaning": "The frame needs a visual decision",
+						"tone": "info"
+					},
+					{
+						"label": "Selected",
+						"meaning": "The frame is in the active export",
+						"tone": "success"
+					},
+					{
+						"label": "Missing",
+						"meaning": "The source frame is unavailable",
+						"tone": "destructive"
+					}
+				],
+				"alerts": [
+					{
+						"title": "Export ready",
+						"description": "Every selected frame has complete metadata.",
+						"tone": "success"
+					},
+					{
+						"title": "Source frame missing",
+						"description": "Restore Frame 017 before exporting this sequence.",
+						"tone": "destructive"
+					}
+				],
+				"states": {
+					"loading": "Loading frame inventory…",
+					"empty": "No frames are in this contact sheet.",
+					"filteredEmpty": "No frames match the selected format.",
+					"error": "Frame metadata could not be loaded. Try again locally.",
+					"success": "The selected frames are ready to export.",
+					"disabled": "Export is unavailable while a source frame is missing.",
+					"destructive": "Removing this frame changes the local sequence."
+				},
+				"guidance": "Keep status terse, adjacent to the frame, and explicit about what changed.",
+				"nonColorGuidance": "Combine each tone with a written state, distinct border, and recognizable symbol."
+			},
+			"dialogs": {
+				"title": "Inspect frame details",
+				"description": "Review the selected frame metadata without leaving the contact sheet.",
+				"openLabel": "Open frame details",
+				"initialFocusLabel": "Inspect metadata",
+				"confirmLabel": "Mark inspected",
+				"closeLabel": "Close",
+				"guidance": "Frame the focused object clearly and keep the dialog actions compact.",
+				"escapeBehavior": "Escape closes inspection because no export or removal is in progress.",
+				"focusRestoration": "Return focus to the frame details control."
+			},
+			"destructiveActions": {
+				"objectLabel": "Frame 042",
+				"consequence": "The frame will leave the local export sequence.",
+				"recoverability": "This specimen can restore the frame because it has no persistence.",
+				"openLabel": "Remove frame",
+				"confirmLabel": "Remove Frame 042",
+				"cancelLabel": "Keep frame",
+				"guidance": "Keep the selected frame visible in the language and state how the sequence changes."
+			}
+		},
 		"theme": {
 			"tokens": {
 				"light": {

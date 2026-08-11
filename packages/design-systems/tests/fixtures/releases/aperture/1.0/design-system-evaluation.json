@@ -366,6 +366,116 @@
 				"guidance": "Expose the current location in text and structure and preserve keyboard order."
 			}
 		},
+		"interactions": {
+			"dataDisplay": {
+				"tableCaption": "Aperture studies",
+				"columns": [
+					{ "id": "study", "label": "Study" },
+					{ "id": "opening", "label": "Opening" },
+					{ "id": "state", "label": "State" }
+				],
+				"rows": [
+					{ "id": "study-01", "label": "Study 01", "cells": ["Wide", "Ready"] },
+					{
+						"id": "study-02",
+						"label": "Study 02",
+						"cells": ["Narrow", "Review"]
+					},
+					{
+						"id": "study-03",
+						"label": "Study 03",
+						"cells": ["Focused", "Draft"]
+					}
+				],
+				"listLabel": "Aperture study details",
+				"listItems": [
+					{
+						"title": "Field",
+						"description": "A wide observational frame.",
+						"status": "Ready"
+					},
+					{
+						"title": "Focus",
+						"description": "A narrow detail frame.",
+						"status": "Review"
+					},
+					{
+						"title": "Sequence",
+						"description": "The active set order.",
+						"status": "03 studies"
+					}
+				],
+				"guidance": "Use clear headings and focal alignment to make records easy to compare.",
+				"overflowGuidance": "Preserve the table in a labelled horizontal scroll region when space narrows."
+			},
+			"feedback": {
+				"badges": [
+					{
+						"label": "Draft",
+						"meaning": "The study remains editable",
+						"tone": "neutral"
+					},
+					{
+						"label": "Review",
+						"meaning": "The study needs a decision",
+						"tone": "info"
+					},
+					{
+						"label": "Ready",
+						"meaning": "The study is complete",
+						"tone": "success"
+					},
+					{
+						"label": "Blocked",
+						"meaning": "A named issue stops progress",
+						"tone": "destructive"
+					}
+				],
+				"alerts": [
+					{
+						"title": "Study ready",
+						"description": "The selected aperture study is complete.",
+						"tone": "success"
+					},
+					{
+						"title": "Source missing",
+						"description": "Restore the source before continuing.",
+						"tone": "destructive"
+					}
+				],
+				"states": {
+					"loading": "Loading aperture studies…",
+					"empty": "No aperture studies exist yet.",
+					"filteredEmpty": "No studies match the active view.",
+					"error": "Study data could not be loaded. Try again locally.",
+					"success": "The selected study is ready.",
+					"disabled": "Export is unavailable until review completes.",
+					"destructive": "Removing this study changes the local sequence."
+				},
+				"guidance": "Keep feedback adjacent to the focused study and name the next action.",
+				"nonColorGuidance": "Pair tone with written state, symbol, and border treatment."
+			},
+			"dialogs": {
+				"title": "Inspect aperture study",
+				"description": "Review the selected study without leaving the sequence.",
+				"openLabel": "Open study details",
+				"initialFocusLabel": "Inspect study",
+				"confirmLabel": "Mark inspected",
+				"closeLabel": "Close",
+				"guidance": "Keep the focused study and its actions clear.",
+				"escapeBehavior": "Escape closes inspection because no irreversible action is pending.",
+				"focusRestoration": "Return focus to the study details control."
+			},
+			"destructiveActions": {
+				"objectLabel": "Study 03",
+				"consequence": "The study will leave the local aperture sequence.",
+				"recoverability": "This specimen can restore the study because it has no persistence.",
+				"openLabel": "Remove study",
+				"confirmLabel": "Remove Study 03",
+				"cancelLabel": "Keep study",
+				"guidance": "Name the exact study, consequence, and recovery before confirmation."
+			}
+		},
 		"theme": {
 			"tokens": {
 				"light": {

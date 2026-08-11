@@ -84,3 +84,79 @@ for (const colorScheme of ["light", "dark"] as const) {
 		}
 	});
 }
+
+for (const colorScheme of ["light", "dark"] as const) {
+	test(`every discovered interaction specimen preserves semantics and modal focus in the ${colorScheme} theme`, async ({
+		page,
+	}) => {
+		await page.emulateMedia({ colorScheme });
+		const routes = await discoverDesignSystemRoutes(page);
+
+		for (const route of routes) {
+			await page.goto(route);
+			const specimens = page.locator("[data-interactions-composition]");
+			const tableRegion = specimens.getByRole("region", {
+				name: /scroll region/i,
+			});
+			await tableRegion.focus();
+			await expect(tableRegion).toHaveCSS("outline-style", "solid");
+
+			const opener = specimens.getByRole("button", {
+				name: /open .*dialog|open .*note|open .*details|open .*summary/i,
+			});
+			await opener.click();
+			const dialog = page
+				.getByRole("dialog")
+				.filter({ hasNotText: /recover|restore|reversible|no persistence/i });
+			await expect(dialog.getByRole("button").first()).toBeFocused();
+			await page.keyboard.press("Shift+Tab");
+			expect(
+				await dialog.evaluate((element) =>
+					element.contains(document.activeElement),
+				),
+				route,
+			).toBe(true);
+			await page.keyboard.press("Escape");
+			await expect(opener).toBeFocused();
+
+			const results = await new AxeBuilder({ page })
+				.include("[data-interactions-composition]")
+				.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+				.analyze();
+
+			expect(results.violations, route).toEqual([]);
+		}
+	});
+}
+
+test("every discovered interaction specimen supports forced colors and narrow reflow", async ({
+	page,
+}) => {
+	await page.emulateMedia({ forcedColors: "active" });
+	await page.setViewportSize({ width: 320, height: 844 });
+	const routes = await discoverDesignSystemRoutes(page);
+
+	for (const route of routes) {
+		await page.goto(route);
+		const specimens = page.locator("[data-interactions-composition]");
+		const tableRegion = specimens.getByRole("region", {
+			name: /scroll region/i,
+		});
+
+		await expect(specimens).toBeVisible();
+		expect(
+			await page.evaluate(
+				() => document.documentElement.scrollWidth <= window.innerWidth,
+			),
+			route,
+		).toBe(true);
+		expect(
+			await tableRegion.evaluate(
+				(region) => region.scrollWidth > region.clientWidth,
+			),
+			route,
+		).toBe(true);
+		await tableRegion.focus();
+		await expect(tableRegion).toHaveCSS("outline-style", "solid");
+	}
+});

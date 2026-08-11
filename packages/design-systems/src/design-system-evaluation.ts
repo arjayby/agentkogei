@@ -334,6 +334,144 @@ const previewControlsSchema = z
 	})
 	.strict();
 
+const previewStatusToneSchema = z.enum([
+	"neutral",
+	"info",
+	"success",
+	"warning",
+	"destructive",
+]);
+
+const previewInteractionsSchema = z
+	.object({
+		dataDisplay: z
+			.object({
+				tableCaption: terminalTextSchema,
+				columns: z
+					.array(
+						z
+							.object({
+								id: namedSpecimenSchema,
+								label: terminalTextSchema,
+							})
+							.strict(),
+					)
+					.min(2),
+				rows: z
+					.array(
+						z
+							.object({
+								id: namedSpecimenSchema,
+								label: terminalTextSchema,
+								cells: z.array(terminalTextSchema).min(2),
+							})
+							.strict(),
+					)
+					.min(2),
+				listLabel: terminalTextSchema,
+				listItems: z
+					.array(
+						z
+							.object({
+								title: terminalTextSchema,
+								description: terminalTextSchema,
+								status: terminalTextSchema,
+							})
+							.strict(),
+					)
+					.min(3),
+				guidance: terminalTextSchema,
+				overflowGuidance: terminalTextSchema,
+			})
+			.strict()
+			.superRefine((dataDisplay, context) => {
+				if (
+					new Set(dataDisplay.columns.map(({ id }) => id)).size !==
+					dataDisplay.columns.length
+				) {
+					context.addIssue({
+						code: "custom",
+						path: ["columns"],
+						message: "table column identifiers must be unique",
+					});
+				}
+				for (const [index, row] of dataDisplay.rows.entries()) {
+					if (row.cells.length !== dataDisplay.columns.length - 1) {
+						context.addIssue({
+							code: "custom",
+							path: ["rows", index, "cells"],
+							message:
+								"table rows must define one cell for every nonheading column",
+						});
+					}
+				}
+			}),
+		feedback: z
+			.object({
+				badges: z
+					.array(
+						z
+							.object({
+								label: terminalTextSchema,
+								meaning: terminalTextSchema,
+								tone: previewStatusToneSchema,
+							})
+							.strict(),
+					)
+					.min(4),
+				alerts: z
+					.array(
+						z
+							.object({
+								title: terminalTextSchema,
+								description: terminalTextSchema,
+								tone: previewStatusToneSchema,
+							})
+							.strict(),
+					)
+					.min(2),
+				states: z
+					.object({
+						loading: terminalTextSchema,
+						empty: terminalTextSchema,
+						filteredEmpty: terminalTextSchema,
+						error: terminalTextSchema,
+						success: terminalTextSchema,
+						disabled: terminalTextSchema,
+						destructive: terminalTextSchema,
+					})
+					.strict(),
+				guidance: terminalTextSchema,
+				nonColorGuidance: terminalTextSchema,
+			})
+			.strict(),
+		dialogs: z
+			.object({
+				title: terminalTextSchema,
+				description: terminalTextSchema,
+				openLabel: terminalTextSchema,
+				initialFocusLabel: terminalTextSchema,
+				confirmLabel: terminalTextSchema,
+				closeLabel: terminalTextSchema,
+				guidance: terminalTextSchema,
+				escapeBehavior: terminalTextSchema,
+				focusRestoration: terminalTextSchema,
+			})
+			.strict(),
+		destructiveActions: z
+			.object({
+				objectLabel: terminalTextSchema,
+				consequence: terminalTextSchema,
+				recoverability: terminalTextSchema,
+				openLabel: terminalTextSchema,
+				confirmLabel: terminalTextSchema,
+				cancelLabel: terminalTextSchema,
+				guidance: terminalTextSchema,
+			})
+			.strict(),
+	})
+	.strict();
+
 export const designSystemPreviewShellSchema = z
 	.object({
 		mark: z
@@ -357,6 +495,7 @@ export const designSystemPreviewShellSchema = z
 		]),
 		foundations: previewFoundationsSchema,
 		controls: previewControlsSchema.optional(),
+		interactions: previewInteractionsSchema.optional(),
 		theme: z
 			.object({
 				tokens: previewTokensSchema,
@@ -476,6 +615,14 @@ export const designSystemEvaluationRecordSchema = z
 				code: "custom",
 				path: ["previewShell", "controls"],
 				message: "Version 4 control and container metadata is required",
+			});
+		}
+		if (!record.previewShell.interactions) {
+			context.addIssue({
+				code: "custom",
+				path: ["previewShell", "interactions"],
+				message:
+					"Version 4 data, feedback, dialog, and destructive action metadata is required",
 			});
 		}
 	});
