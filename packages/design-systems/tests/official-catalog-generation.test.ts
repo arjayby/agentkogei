@@ -49,6 +49,7 @@ describe("Official Catalog generation", () => {
 					name: "Foundation",
 					currentRelease: "1.0",
 					preview: metadata.preview,
+					previewShell: metadata.previewShell,
 					compatibility: metadata.compatibility,
 					evaluation: metadata.evaluation,
 					releases: [

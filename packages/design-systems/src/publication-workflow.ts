@@ -197,7 +197,12 @@ const requiredHumanReviewAssertions: Record<
 
 export const publicationProposalMetadataSchema =
 	designSystemEvaluationRecordSchema
-		.pick({ publisher: true, preview: true, changelog: true })
+		.pick({
+			publisher: true,
+			preview: true,
+			previewShell: true,
+			changelog: true,
+		})
 		.extend({ schemaVersion: z.literal("1.0"), publishedAt: z.iso.date() })
 		.strict();
 
@@ -553,6 +558,7 @@ export async function preparePublicationProposal(
 			evidence: allEvidence,
 		},
 		preview: proposalMetadata.data.preview,
+		previewShell: proposalMetadata.data.previewShell,
 		changelog: proposalMetadata.data.changelog,
 	});
 	const report = {

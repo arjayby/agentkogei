@@ -12,6 +12,43 @@ export type DesignSystem = Omit<PublishedCatalogEntry, "id"> & {
 	slug: string;
 };
 
+type PreviewShell = NonNullable<DesignSystem["previewShell"]>;
+
+const legacyFontChoices = {
+	sans: "humanist-sans",
+	serif: "editorial-serif",
+	mono: "technical-mono",
+} as const satisfies Record<
+	DesignSystem["preview"]["typography"]["display"],
+	PreviewShell["typography"]["display"]
+>;
+
+/**
+ * Temporary bridge for releases that still carry only the legacy Preview
+ * shape. Issue #113 removes this fallback after every specimen slice migrates.
+ */
+export function previewShellFor(designSystem: DesignSystem): PreviewShell {
+	if (designSystem.previewShell) return designSystem.previewShell;
+
+	const legacyTypography = designSystem.preview.typography;
+	return {
+		mark: {
+			recipe: "structural-planes",
+			label: `${designSystem.name} layered structural mark`,
+		},
+		typography: {
+			display: legacyFontChoices[legacyTypography.display],
+			body: legacyFontChoices[legacyTypography.body],
+			accent: legacyFontChoices[legacyTypography.accent],
+		},
+		composition: "balanced-grid",
+		theme: {
+			tokens: designSystem.preview.tokens,
+			geometry: designSystem.preview.geometry,
+		},
+	};
+}
+
 /**
  * The sections every Published Design System consolidates into its Design Contract.
  * Installation writes one root `DESIGN.md`, so this describes that document's

@@ -341,6 +341,115 @@ test("every discovered Design System route presents its complete published anato
 	}
 });
 
+test("every discovered complete Preview uses its themed shell and Design System Mark", async ({
+	page,
+}) => {
+	const routes = await discoverDesignSystemRoutes(page);
+	const initialMarkLabels = new Map([
+		["foundation", "Stable aligned structural planes"],
+		["editorial", "Layered page leaves around a reading axis"],
+		["mono", "Nested apertures reducing toward a focal point"],
+		["command", "Intersecting directional nodes"],
+	]);
+
+	for (const route of routes) {
+		const { identity, name, currentRelease } = await readPublishedDesignSystem(
+			page,
+			route,
+		);
+		const preview = page.locator(
+			`main[data-design-system-preview-page="${identity}"]`,
+		);
+		const marks = preview.getByRole("img", {
+			name: `${name} Design System Mark`,
+		});
+		const compactMark = preview.locator('[data-mark-size="compact"]');
+		const heroMark = preview.locator('[data-mark-size="hero"]');
+
+		await expect(preview).toBeVisible();
+		await expect(marks).toHaveCount(2);
+		await expect(compactMark).toBeVisible();
+		await expect(heroMark).toBeVisible();
+		await expect(heroMark).toHaveAttribute("data-mark-recipe");
+		const markSizes = await marks.evaluateAll((elements) =>
+			elements.map((element) => element.getBoundingClientRect().width),
+		);
+		expect(markSizes[0], route).toBe(32);
+		expect(markSizes[1], route).toBeGreaterThan(160);
+		const expectedMarkLabel = initialMarkLabels.get(identity);
+		if (expectedMarkLabel) {
+			await expect(heroMark).toHaveAttribute(
+				"aria-description",
+				expectedMarkLabel,
+			);
+		}
+
+		const sectionOrder = await preview
+			.locator("[data-preview-section]")
+			.evaluateAll((sections) =>
+				sections.map((section) => section.getAttribute("data-preview-section")),
+			);
+		expect(sectionOrder.slice(0, 4), route).toEqual([
+			"hero",
+			"installation",
+			"exploration",
+			"release-details",
+		]);
+
+		const command = preview
+			.getByRole("region", { name: "Installation command" })
+			.getByLabel("Generated command");
+		await expect(command).toHaveText(`npx agentkogei@latest add ${identity}`);
+		await expect(
+			preview.getByRole("heading", { name: "Release details" }),
+		).toBeVisible();
+		await expect(
+			preview.getByText(`Release ${currentRelease}`, { exact: true }).first(),
+		).toBeVisible();
+		await expect(preview.getByText(/^Published /)).toHaveCount(0);
+		await expect(
+			preview.getByRole("heading", { name: "Release history" }),
+		).toHaveCount(0);
+
+		const shellColors = await page.evaluate(() => {
+			const header = document.querySelector(".site-header");
+			const main = document.querySelector("main");
+			const footer = document.querySelector("footer");
+			if (!(header && main && footer)) return null;
+			return [header, main, footer].map(
+				(element) => getComputedStyle(element).backgroundColor,
+			);
+		});
+		expect(shellColors, route).not.toBeNull();
+		expect(new Set(shellColors).size, route).toBe(1);
+	}
+});
+
+test("a complete Preview preserves and switches the Builder's current theme", async ({
+	page,
+}) => {
+	const consoleErrors: string[] = [];
+	page.on("console", (message) => {
+		if (message.type() === "error") consoleErrors.push(message.text());
+	});
+	await page.emulateMedia({ colorScheme: "dark" });
+	await page.goto("/design-systems/foundation");
+
+	await expect(page.locator("html")).toHaveClass(/dark/);
+	const darkBackground = await page
+		.locator('main[data-design-system-preview-page="foundation"]')
+		.evaluate((main) => getComputedStyle(main).backgroundColor);
+
+	await page.getByRole("button", { name: "Toggle theme" }).click();
+	await expect(page.locator("html")).not.toHaveClass(/dark/);
+	const lightBackground = await page
+		.locator('main[data-design-system-preview-page="foundation"]')
+		.evaluate((main) => getComputedStyle(main).backgroundColor);
+
+	expect(lightBackground).not.toBe(darkBackground);
+	expect(consoleErrors).toEqual([]);
+});
+
 test("an isolated valid release reaches Design System discovery and its complete public journey", async ({
 	page,
 	request,
@@ -442,20 +551,6 @@ test("Design Systems and Design System Previews present published metadata", asy
 });
 
 /**
- * The one-command Installation flow every Builder-facing surface advertises:
- * `npx` first because it is the shortest mainstream path, then the equivalent
- * command for each other package runner AgentKogei supports.
- */
-function packageRunnerCommands(identity: string) {
-	return [
-		["npm (primary)", `npx agentkogei@latest add ${identity}`],
-		["pnpm", `pnpm dlx agentkogei@latest add ${identity}`],
-		["Yarn", `yarn dlx agentkogei@latest add ${identity}`],
-		["Bun", `bunx agentkogei@latest add ${identity}`],
-	] as const;
-}
-
-/**
  * Vocabulary these surfaces used to carry, each naming something `add` never
  * delivers. A Design System Preview that says any of it again is promising a Builder a
  * resource tree, a transport envelope, or a lifecycle that does not exist.
@@ -486,11 +581,15 @@ test("every discovered Design System Preview advertises the complete Installatio
 			name: "Installation command",
 		});
 
-		await expect(installation.getByRole("term")).toHaveText(
-			packageRunnerCommands(identity).map(([runner]) => runner),
-		);
-		await expect(installation.getByRole("definition")).toHaveText(
-			packageRunnerCommands(identity).map(([, command]) => command),
+		const generatedCommand = installation.getByLabel("Generated command");
+		await expect(installation.getByRole("tab")).toHaveText([
+			"npm",
+			"pnpm",
+			"yarn",
+			"bun",
+		]);
+		await expect(generatedCommand).toHaveText(
+			`npx agentkogei@latest add ${identity}`,
 		);
 		await expect(
 			preview.getByRole("heading", { name: "Inside the Design Contract" }),
@@ -556,14 +655,22 @@ test("the public Command Design System Preview shows complete evidence and its r
 			name: "Read the Command 1.0 Design Contract",
 		}),
 	).toHaveAttribute("href", "/contracts/command/1.0");
+	await page.getByText("View raw Design Contract", { exact: true }).click();
+	await expect(
+		page
+			.frameLocator('iframe[title="Command raw Design Contract"]')
+			.locator("body"),
+	).toContainText("# Command Design System");
 	await expect(page.getByRole("heading", { name: "Coverage" })).toBeVisible();
 	await expect(
 		page.getByRole("heading", { name: "Inside the Design Contract" }),
 	).toBeVisible();
 	await expect(
-		page.getByRole("heading", { name: "Release history" }),
+		page.getByRole("heading", { name: "Release details" }),
 	).toBeVisible();
-	await expect(page.getByRole("heading", { name: "Changelog" })).toBeVisible();
+	await expect(
+		page.getByRole("heading", { name: "Changelog", exact: true }),
+	).toBeVisible();
 	await expect(
 		page.getByText("registry payload", { exact: false }),
 	).toHaveCount(0);

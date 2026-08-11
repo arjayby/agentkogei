@@ -27,6 +27,7 @@ export async function generateOfficialCatalogArtifacts(
 			name: current.metadata.designSystem,
 			currentRelease: current.version,
 			preview: current.metadata.preview,
+			previewShell: current.metadata.previewShell,
 			compatibility: current.metadata.compatibility,
 			evaluation: current.metadata.evaluation,
 			releases: designSystem.releases

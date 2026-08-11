@@ -117,6 +117,58 @@
 			"elevation": "layered"
 		}
 	},
+	"previewShell": {
+		"mark": {
+			"recipe": "nested-apertures",
+			"label": "Nested analytical apertures"
+		},
+		"typography": {
+			"display": "geometric-sans",
+			"body": "humanist-sans",
+			"accent": "technical-mono"
+		},
+		"composition": "focal-frame",
+		"theme": {
+			"tokens": {
+				"light": {
+					"background": "#f7f9fc",
+					"foreground": "#172033",
+					"card": "#ffffff",
+					"muted": "#e8edf5",
+					"mutedForeground": "#526078",
+					"border": "#cbd5e3",
+					"primary": "#3156a3",
+					"primaryForeground": "#ffffff",
+					"destructive": "#b42332",
+					"success": "#19734a",
+					"warning": "#8a5a00",
+					"info": "#216a8f",
+					"ring": "#3156a3"
+				},
+				"dark": {
+					"background": "#111827",
+					"foreground": "#eef3fb",
+					"card": "#182235",
+					"muted": "#253149",
+					"mutedForeground": "#aab6ca",
+					"border": "#394761",
+					"primary": "#8eabf4",
+					"primaryForeground": "#111827",
+					"destructive": "#ff8a96",
+					"success": "#7bd6a9",
+					"warning": "#f3c36b",
+					"info": "#80c8ee",
+					"ring": "#8eabf4"
+				}
+			},
+			"geometry": {
+				"density": "balanced",
+				"radius": "soft",
+				"border": "defined",
+				"elevation": "layered"
+			}
+		}
+	},
 	"changelog": {
 		"summary": "Acceptance fixture proving release discovered catalog membership.",
 		"breaking": false,

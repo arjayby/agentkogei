@@ -56,6 +56,22 @@ const previewPaletteSchema = z
 	})
 	.strict();
 
+const previewTokensSchema = z
+	.object({
+		light: previewPaletteSchema,
+		dark: previewPaletteSchema,
+	})
+	.strict();
+
+const previewGeometrySchema = z
+	.object({
+		density: z.enum(["compact", "balanced", "spacious"]),
+		radius: z.enum(["square", "soft", "rounded", "pill"]),
+		border: z.enum(["subtle", "defined", "strong"]),
+		elevation: z.enum(["flat", "layered"]),
+	})
+	.strict();
+
 export const designSystemPreviewSurfaces = [
 	"marketing",
 	"authentication",
@@ -68,6 +84,53 @@ export const designSystemPreviewSurfaces = [
 ] as const;
 
 const previewSurfaceSchema = z.enum(designSystemPreviewSurfaces);
+
+export const designSystemMarkRecipes = [
+	"structural-planes",
+	"page-leaves",
+	"nested-apertures",
+	"directional-nodes",
+] as const;
+
+export const designSystemPreviewFontChoices = [
+	"geometric-sans",
+	"humanist-sans",
+	"editorial-serif",
+	"neo-grotesk",
+	"technical-mono",
+] as const;
+
+const previewFontSchema = z.enum(designSystemPreviewFontChoices);
+
+const previewShellSchema = z
+	.object({
+		mark: z
+			.object({
+				recipe: z.enum(designSystemMarkRecipes),
+				label: terminalTextSchema,
+			})
+			.strict(),
+		typography: z
+			.object({
+				display: previewFontSchema,
+				body: previewFontSchema,
+				accent: previewFontSchema,
+			})
+			.strict(),
+		composition: z.enum([
+			"balanced-grid",
+			"reading-column",
+			"focal-frame",
+			"operational-grid",
+		]),
+		theme: z
+			.object({
+				tokens: previewTokensSchema,
+				geometry: previewGeometrySchema,
+			})
+			.strict(),
+	})
+	.strict();
 
 const designSystemReleaseSchema = z
 	.object({
@@ -138,12 +201,7 @@ export const designSystemEvaluationRecordSchema = z
 						principles: z.array(terminalTextSchema).min(3).max(5),
 					})
 					.strict(),
-				tokens: z
-					.object({
-						light: previewPaletteSchema,
-						dark: previewPaletteSchema,
-					})
-					.strict(),
+				tokens: previewTokensSchema,
 				typography: z
 					.object({
 						display: z.enum(["sans", "serif", "mono"]),
@@ -152,16 +210,14 @@ export const designSystemEvaluationRecordSchema = z
 						scale: z.enum(["compact", "balanced", "expressive"]),
 					})
 					.strict(),
-				geometry: z
-					.object({
-						density: z.enum(["compact", "balanced", "spacious"]),
-						radius: z.enum(["square", "soft", "rounded", "pill"]),
-						border: z.enum(["subtle", "defined", "strong"]),
-						elevation: z.enum(["flat", "layered"]),
-					})
-					.strict(),
+				geometry: previewGeometrySchema,
 			})
 			.strict(),
+		/**
+		 * Additive metadata for the complete Preview shell. This stays optional
+		 * while the legacy Preview renderer is migrated in vertical slices.
+		 */
+		previewShell: previewShellSchema.optional(),
 		changelog: z
 			.object({
 				summary: z.string().min(1),

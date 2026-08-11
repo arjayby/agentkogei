@@ -107,8 +107,10 @@ export function InstallationCommand(props: InstallationCommandProps) {
 			{props.children ? (
 				<p
 					className={cn(
-						"max-w-3xl border-[#1f2733] border-t px-4 py-3 text-xs leading-6 sm:px-5",
-						terminalMuted,
+						"max-w-3xl border-t px-4 py-3 text-xs leading-6 sm:px-5",
+						props.designSystems
+							? "border-border text-muted-foreground"
+							: cn("border-[#1f2733]", terminalMuted),
 					)}
 				>
 					{props.children}

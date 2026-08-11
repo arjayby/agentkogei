@@ -43,6 +43,87 @@
 	color: var(--preview-primary-foreground);
 }
 
+.preview-mark-stage {
+	background:
+		linear-gradient(
+			145deg,
+			color-mix(in oklab, var(--preview-card) 96%, transparent),
+			color-mix(in oklab, var(--preview-primary) 9%, var(--preview-background))
+		),
+		var(--preview-card);
+	box-shadow: var(--preview-shadow);
+}
+
+[data-preview-composition="balanced-grid"] .preview-shell-hero-grid {
+	align-items: center;
+}
+
+[data-preview-composition="reading-column"] .preview-shell-hero-grid {
+	grid-template-columns: minmax(0, 0.85fr) minmax(18rem, 0.45fr);
+	align-items: end;
+}
+
+[data-preview-composition="reading-column"] .preview-mark-stage {
+	border-radius: 50% 50% 0 0;
+}
+
+[data-preview-composition="focal-frame"] .preview-shell-hero-grid {
+	grid-template-columns: minmax(18rem, 0.65fr) minmax(0, 1fr);
+}
+
+[data-preview-composition="focal-frame"]
+	.preview-shell-hero-grid
+	.preview-mark-stage {
+	grid-column: 1;
+	grid-row: 1;
+}
+
+[data-preview-composition="focal-frame"]
+	.preview-shell-hero-grid
+	> :first-child {
+	grid-column: 2;
+	grid-row: 1;
+}
+
+[data-preview-composition="operational-grid"] .preview-shell-hero {
+	background-image:
+		linear-gradient(
+			to right,
+			color-mix(in oklab, var(--preview-border) 44%, transparent) 1px,
+			transparent 1px
+		),
+		linear-gradient(
+			to bottom,
+			color-mix(in oklab, var(--preview-border) 44%, transparent) 1px,
+			transparent 1px
+		);
+	background-size: 2rem 2rem;
+}
+
+[data-preview-composition="operational-grid"] .preview-shell-hero-grid {
+	grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.42fr);
+}
+
+[data-preview-composition="operational-grid"] .preview-mark-stage {
+	aspect-ratio: 4 / 3;
+}
+
+@media (max-width: 63.999rem) {
+	[data-preview-composition] .preview-shell-hero-grid {
+		grid-template-columns: minmax(0, 1fr);
+	}
+
+	[data-preview-composition="focal-frame"]
+		.preview-shell-hero-grid
+		.preview-mark-stage,
+	[data-preview-composition="focal-frame"]
+		.preview-shell-hero-grid
+		> :first-child {
+		grid-column: 1;
+		grid-row: auto;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.catalog-preview-artwork,
 	.catalog-preview-surface {
