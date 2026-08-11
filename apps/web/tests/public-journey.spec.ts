@@ -461,17 +461,12 @@ test("every discovered Design System route presents its complete published anato
 			name,
 			currentRelease: release,
 		} = await readPublishedDesignSystem(page, route);
-		const preview = page.getByLabel(`${name} rendered Design System Preview`);
 		const coverage = await page
 			.getByRole("region", { name: "Coverage" })
 			.getByRole("listitem")
 			.allInnerTexts();
-		const renderedSurfaces = await preview
-			.getByRole("heading", { level: 3 })
-			.allTextContents();
 
 		expect(coverage.length, route).toBeGreaterThan(0);
-		expect(renderedSurfaces, route).toEqual(coverage);
 		await expect(
 			page.getByRole("region", { name: "Installation command" }),
 		).toBeVisible();
@@ -483,7 +478,7 @@ test("every discovered Design System route presents its complete published anato
 	}
 });
 
-test("every discovered complete Preview uses its themed shell and Design System Mark", async ({
+test("every discovered complete Preview uses a themed specimen within the AgentKogei shell", async ({
 	page,
 }) => {
 	const routes = await discoverDesignSystemRoutes(page);
@@ -499,21 +494,43 @@ test("every discovered complete Preview uses its themed shell and Design System 
 			page,
 			route,
 		);
-		const preview = page.locator(
-			`main[data-design-system-preview-page="${identity}"]`,
-		);
+		const pageMain = page.locator("main");
+		const specimen = page.locator(`[data-design-system-preview="${identity}"]`);
 		await expect(page.locator(".catalog-preview-artwork")).toHaveCount(0);
-		const marks = preview.getByRole("img", {
+		const marks = pageMain.getByRole("img", {
 			name: `${name} Design System Mark`,
 		});
-		const compactMark = preview.locator('[data-mark-size="compact"]');
-		const heroMark = preview.locator('[data-mark-size="hero"]');
+		const compactMark = pageMain.locator('[data-mark-size="compact"]');
+		const heroMark = pageMain.locator('[data-mark-size="hero"]');
+		const heroMarkStage = heroMark.locator("..");
 
-		await expect(preview).toBeVisible();
+		await expect(specimen).toBeVisible();
 		await expect(marks).toHaveCount(2);
 		await expect(compactMark).toBeVisible();
 		await expect(heroMark).toBeVisible();
 		await expect(heroMark).toHaveAttribute("data-mark-recipe");
+		const shellMarkPalettes = await marks.evaluateAll((elements) =>
+			elements.map((element) =>
+				[
+					"--preview-background",
+					"--preview-foreground",
+					"--preview-primary",
+					"--preview-primary-foreground",
+				].map((property) =>
+					getComputedStyle(element).getPropertyValue(property).trim(),
+				),
+			),
+		);
+		expect(
+			shellMarkPalettes.every((palette) => palette.every(Boolean)),
+			route,
+		).toBe(true);
+		expect(
+			await heroMarkStage.evaluate(
+				(stage) => getComputedStyle(stage).backgroundColor,
+			),
+			route,
+		).not.toBe("rgba(0, 0, 0, 0)");
 		const markSizes = await marks.evaluateAll((elements) =>
 			elements.map((element) => element.getBoundingClientRect().width),
 		);
@@ -527,7 +544,7 @@ test("every discovered complete Preview uses its themed shell and Design System 
 			);
 		}
 
-		const sectionOrder = await preview
+		const sectionOrder = await pageMain
 			.locator("[data-preview-section]")
 			.evaluateAll((sections) =>
 				sections.map((section) => section.getAttribute("data-preview-section")),
@@ -538,37 +555,33 @@ test("every discovered complete Preview uses its themed shell and Design System 
 			"exploration",
 			"release-details",
 		]);
+		await expect(
+			specimen.locator('[data-preview-section="exploration"]'),
+		).toBeVisible();
+		await expect(
+			specimen.locator(
+				'[data-preview-section="hero"], [data-preview-section="installation"], [data-preview-section="release-details"]',
+			),
+		).toHaveCount(0);
 
-		const command = preview
+		const command = pageMain
 			.getByRole("region", { name: "Installation command" })
 			.getByLabel("Generated command");
 		await expect(command).toHaveText(`npx agentkogei@latest add ${identity}`);
 		await expect(
-			preview.getByRole("heading", { name: "Release details" }),
+			pageMain.getByRole("heading", { name: "Release details" }),
 		).toBeVisible();
 		await expect(
-			preview.getByText(`Release ${currentRelease}`, { exact: true }).first(),
+			pageMain.getByText(`Release ${currentRelease}`, { exact: true }).first(),
 		).toBeVisible();
-		await expect(preview.getByText(/^Published /)).toHaveCount(0);
+		await expect(pageMain.getByText(/^Published /)).toHaveCount(0);
 		await expect(
-			preview.getByRole("heading", { name: "Release history" }),
+			pageMain.getByRole("heading", { name: "Release history" }),
 		).toHaveCount(0);
-
-		const shellColors = await page.evaluate(() => {
-			const header = document.querySelector(".site-header");
-			const main = document.querySelector("main");
-			const footer = document.querySelector("footer");
-			if (!(header && main && footer)) return null;
-			return [header, main, footer].map(
-				(element) => getComputedStyle(element).backgroundColor,
-			);
-		});
-		expect(shellColors, route).not.toBeNull();
-		expect(new Set(shellColors).size, route).toBe(1);
 	}
 });
 
-test("a complete Preview preserves and switches the Builder's current theme", async ({
+test("a complete Preview specimen preserves and switches the Builder's current theme", async ({
 	page,
 }) => {
 	const consoleErrors: string[] = [];
@@ -580,14 +593,14 @@ test("a complete Preview preserves and switches the Builder's current theme", as
 
 	await expect(page.locator("html")).toHaveClass(/dark/);
 	const darkBackground = await page
-		.locator('main[data-design-system-preview-page="foundation"]')
-		.evaluate((main) => getComputedStyle(main).backgroundColor);
+		.locator("[data-preview-themed-specimen]")
+		.evaluate((specimen) => getComputedStyle(specimen).backgroundColor);
 
 	await page.getByRole("button", { name: "Toggle theme" }).click();
 	await expect(page.locator("html")).not.toHaveClass(/dark/);
 	const lightBackground = await page
-		.locator('main[data-design-system-preview-page="foundation"]')
-		.evaluate((main) => getComputedStyle(main).backgroundColor);
+		.locator("[data-preview-themed-specimen]")
+		.evaluate((specimen) => getComputedStyle(specimen).backgroundColor);
 
 	expect(lightBackground).not.toBe(darkBackground);
 	expect(consoleErrors).toEqual([]);
@@ -611,7 +624,7 @@ test("every discovered Preview renders the complete visual foundations specimen 
 			name: `${name} visual foundations`,
 		});
 		const composition = await page
-			.getByRole("main")
+			.locator("[data-preview-themed-specimen]")
 			.getAttribute("data-preview-composition");
 
 		await expect(foundations).toBeVisible();
@@ -844,7 +857,7 @@ test("every discovered Preview exposes accessible data, feedback, dialogs, and l
 	}
 });
 
-test("every discovered Preview demonstrates motion, accessibility, illustrative product surfaces, and public evidence", async ({
+test("every discovered Preview demonstrates motion, accessibility, and public evidence without product surface examples", async ({
 	page,
 }) => {
 	const routes = await discoverDesignSystemRoutes(page);
@@ -859,17 +872,6 @@ test("every discovered Preview demonstrates motion, accessibility, illustrative 
 		"Forced colors",
 		"Status communication",
 	];
-	const productSurfaceStructures = [
-		["Marketing", "region", "Marketing action hierarchy"],
-		["Authentication", "region", "Authentication input structure"],
-		["Onboarding", "list", "Onboarding progress structure"],
-		["Dashboard", "list", "Dashboard summary regions"],
-		["Table", "table", "Table comparison structure"],
-		["Form", "region", "Form input structure"],
-		["Settings", "list", "Settings preference groups"],
-		["States", "list", "State communication examples"],
-	] as const;
-
 	for (const route of routes) {
 		const { name } = await readPublishedDesignSystem(page, route);
 		const behavior = page.getByRole("region", {
@@ -898,37 +900,14 @@ test("every discovered Preview demonstrates motion, accessibility, illustrative 
 			route,
 		).toContainText(accessibilityTopics);
 
-		const productSurfaces = page.getByRole("region", {
-			name: `${name} product surface examples`,
-		});
-		await expect(productSurfaces.getByRole("article")).toHaveCount(8);
 		await expect(
-			productSurfaces.getByText("Illustrative structure", { exact: true }),
-		).toHaveCount(8);
-		for (const [
-			index,
-			[surface, role, structureName],
-		] of productSurfaceStructures.entries()) {
-			const article = productSurfaces.getByRole("article").nth(index);
-			await expect(
-				article.getByRole("heading", {
-					level: 3,
-					name: surface,
-					exact: true,
-				}),
-				route,
-			).toBeVisible();
-			await expect(
-				article.getByRole(role, { name: structureName }),
-				route,
-			).toBeVisible();
-		}
-		await expect(productSurfaces).toContainText(
-			"Replace the illustrative copy with real Project language, workflows, and claims.",
-		);
-		await expect(productSurfaces).not.toContainText(
-			/24 active|Connect the supplied Project|Delete Project|Published · Jul/i,
-		);
+			page.getByRole("region", {
+				name: `${name} product surface examples`,
+			}),
+		).toHaveCount(0);
+		await expect(
+			page.getByText("Product surface examples", { exact: true }),
+		).toHaveCount(0);
 
 		const evidence = page.getByRole("region", {
 			name: `${name} public evaluation evidence`,
