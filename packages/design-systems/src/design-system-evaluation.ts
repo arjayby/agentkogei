@@ -247,7 +247,94 @@ const previewFoundationsSchema = z
 	})
 	.strict();
 
-const previewShellSchema = z
+const interactionStateGuidanceSchema = z
+	.object({
+		default: terminalTextSchema,
+		hover: terminalTextSchema,
+		focus: terminalTextSchema,
+		active: terminalTextSchema,
+		disabled: terminalTextSchema,
+		loading: terminalTextSchema,
+		success: terminalTextSchema,
+		error: terminalTextSchema,
+	})
+	.strict();
+
+const previewControlsSchema = z
+	.object({
+		buttons: z
+			.object({
+				primaryLabel: terminalTextSchema,
+				secondaryLabel: terminalTextSchema,
+				guidance: terminalTextSchema,
+				states: interactionStateGuidanceSchema,
+			})
+			.strict(),
+		links: z
+			.object({
+				primaryLabel: terminalTextSchema,
+				secondaryLabel: terminalTextSchema,
+				guidance: terminalTextSchema,
+				states: interactionStateGuidanceSchema,
+			})
+			.strict(),
+		forms: z
+			.object({
+				legend: terminalTextSchema,
+				guidance: terminalTextSchema,
+				submitLabel: terminalTextSchema,
+				help: terminalTextSchema,
+				error: terminalTextSchema,
+				success: terminalTextSchema,
+			})
+			.strict(),
+		inputs: z
+			.object({
+				textLabel: terminalTextSchema,
+				textPlaceholder: terminalTextSchema,
+				textareaLabel: terminalTextSchema,
+				textareaPlaceholder: terminalTextSchema,
+				disabledLabel: terminalTextSchema,
+				guidance: terminalTextSchema,
+			})
+			.strict(),
+		cards: z
+			.object({
+				title: terminalTextSchema,
+				description: terminalTextSchema,
+				metadata: terminalTextSchema,
+				actionLabel: terminalTextSchema,
+				guidance: terminalTextSchema,
+			})
+			.strict(),
+		panels: z
+			.object({
+				title: terminalTextSchema,
+				description: terminalTextSchema,
+				items: z.array(terminalTextSchema).min(2),
+				guidance: terminalTextSchema,
+			})
+			.strict(),
+		navigation: z
+			.object({
+				label: terminalTextSchema,
+				items: z
+					.array(
+						z
+							.object({
+								id: namedSpecimenSchema,
+								label: terminalTextSchema,
+							})
+							.strict(),
+					)
+					.min(3),
+				guidance: terminalTextSchema,
+			})
+			.strict(),
+	})
+	.strict();
+
+export const designSystemPreviewShellSchema = z
 	.object({
 		mark: z
 			.object({
@@ -269,6 +356,7 @@ const previewShellSchema = z
 			"operational-grid",
 		]),
 		foundations: previewFoundationsSchema,
+		controls: previewControlsSchema.optional(),
 		theme: z
 			.object({
 				tokens: previewTokensSchema,
@@ -293,7 +381,7 @@ const designSystemReleaseSchema = z
  */
 export const designSystemEvaluationRecordSchema = z
 	.object({
-		schemaVersion: z.literal("3.0"),
+		schemaVersion: z.enum(["3.0", "4.0"]),
 		id: designSystemIdentitySchema,
 		designSystem: terminalTextSchema,
 		publisher: terminalTextSchema,
@@ -363,7 +451,7 @@ export const designSystemEvaluationRecordSchema = z
 		 * Additive metadata for the complete Preview shell. This stays optional
 		 * while the legacy Preview renderer is migrated in vertical slices.
 		 */
-		previewShell: previewShellSchema.optional(),
+		previewShell: designSystemPreviewShellSchema.optional(),
 		changelog: z
 			.object({
 				summary: z.string().min(1),
@@ -372,7 +460,25 @@ export const designSystemEvaluationRecordSchema = z
 			})
 			.strict(),
 	})
-	.strict();
+	.strict()
+	.superRefine((record, context) => {
+		if (record.schemaVersion !== "4.0") return;
+		if (!record.previewShell) {
+			context.addIssue({
+				code: "custom",
+				path: ["previewShell"],
+				message: "Version 4 Preview shell metadata is required",
+			});
+			return;
+		}
+		if (!record.previewShell.controls) {
+			context.addIssue({
+				code: "custom",
+				path: ["previewShell", "controls"],
+				message: "Version 4 control and container metadata is required",
+			});
+		}
+	});
 
 export type DesignSystemEvaluationRecord = z.infer<
 	typeof designSystemEvaluationRecordSchema

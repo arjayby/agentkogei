@@ -3,6 +3,7 @@ import { cp, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import {
+	inspectPublicationProposal,
 	verifyContractRetrievalProtocol,
 	verifyPublicationAtUrl,
 } from "../src/publication-release";
@@ -40,6 +41,17 @@ const publicationSkillDirectory = path.resolve(
 	"../../../.agents/skills/publish-design-system",
 );
 const temporaryDirectories: string[] = [];
+const completePreviewShell = (
+	JSON.parse(
+		await readFile(
+			path.resolve(
+				import.meta.dirname,
+				"../releases/foundation/1.0/design-system-evaluation.json",
+			),
+			"utf8",
+		),
+	) as { previewShell: unknown }
+).previewShell;
 
 const completeDesignContract = `# Lattice Design System
 
@@ -362,6 +374,7 @@ function proposalMetadata() {
 				elevation: "flat",
 			},
 		},
+		previewShell: structuredClone(completePreviewShell),
 		changelog: {
 			summary: "Initial Lattice Design System Release.",
 			breaking: false,
@@ -814,6 +827,26 @@ describe("Design System publication workflow", () => {
 		expect(
 			await Bun.file(path.join(publishedDirectory, "lattice")).exists(),
 		).toBe(false);
+	});
+
+	test("rejects legacy Preview metadata at publication intake", async () => {
+		const { proposalDirectory } = await prepareApprovedProposal();
+		const evaluationFile = path.join(
+			proposalDirectory,
+			"design-system-evaluation.json",
+		);
+		const record = JSON.parse(await readFile(evaluationFile, "utf8")) as Record<
+			string,
+			unknown
+		>;
+		record.schemaVersion = "3.0";
+		Reflect.deleteProperty(record, "previewShell");
+		await writeFile(evaluationFile, `${JSON.stringify(record, null, "\t")}\n`);
+
+		expect(await inspectPublicationProposal(proposalDirectory)).toEqual({
+			ok: false,
+			errors: ["publication proposal requires Version 4 Preview metadata"],
+		});
 	});
 
 	test("promotes only the exact verified proposal after explicit Publication Approval", async () => {

@@ -148,10 +148,28 @@ describe("Design System Release publication validation", () => {
 		});
 
 		const legacyRecord = structuredClone(record);
+		legacyRecord.schemaVersion = "3.0";
+		const legacyPreviewShell = legacyRecord.previewShell as Record<
+			string,
+			unknown
+		>;
+		Reflect.deleteProperty(legacyPreviewShell, "controls");
+		expect(
+			designSystemEvaluationRecordSchema.safeParse(legacyRecord).success,
+		).toBe(true);
+
 		Reflect.deleteProperty(legacyRecord, "previewShell");
 		expect(
 			designSystemEvaluationRecordSchema.safeParse(legacyRecord).success,
 		).toBe(true);
+	});
+
+	test("rejects a Version 4 release without its complete Preview shell", async () => {
+		const errors = await evaluateMutatedRelease((record) => {
+			Reflect.deleteProperty(record, "previewShell");
+		});
+
+		expect(errors).toContain("previewShell");
 	});
 
 	test("rejects incomplete foundational Preview metadata with an actionable path", async () => {
@@ -170,6 +188,26 @@ describe("Design System Release publication validation", () => {
 			});
 
 			expect(errors).toContain(`previewShell.foundations.${category}`);
+		}
+	});
+
+	test("rejects incomplete control and content container Preview metadata with an actionable path", async () => {
+		for (const category of [
+			"buttons",
+			"links",
+			"forms",
+			"inputs",
+			"cards",
+			"panels",
+			"navigation",
+		]) {
+			const errors = await evaluateMutatedRelease((record) => {
+				const previewShell = record.previewShell as Record<string, unknown>;
+				const controls = previewShell.controls as Record<string, unknown>;
+				Reflect.deleteProperty(controls, category);
+			});
+
+			expect(errors).toContain(`previewShell.controls.${category}`);
 		}
 	});
 

@@ -1,5 +1,5 @@
 {
-	"schemaVersion": "3.0",
+	"schemaVersion": "4.0",
 	"id": "command",
 	"designSystem": "Command",
 	"designSystemRelease": {
@@ -313,6 +313,76 @@
 						"usage": "Dialogs, menus, and content above the working plane."
 					}
 				}
+			}
+		},
+		"controls": {
+			"buttons": {
+				"primaryLabel": "Run check",
+				"secondaryLabel": "View logs",
+				"guidance": "Keep actions compact, instrument like, and explicit about the operation they trigger.",
+				"states": {
+					"default": "Use dense geometry and an operation first label.",
+					"hover": "Increase emphasis without changing the control footprint.",
+					"focus": "Use an unmistakable focus outline outside the ruled edge.",
+					"active": "Show immediate pressed feedback without layout movement.",
+					"disabled": "Preserve the operation name while removing activation.",
+					"loading": "Keep the operation visible with an explicit running status.",
+					"success": "Report the completed operation with text and success color.",
+					"error": "Report the failed operation with text and destructive color."
+				}
+			},
+			"links": {
+				"primaryLabel": "Open run log",
+				"secondaryLabel": "Inspect configuration",
+				"guidance": "Use precise destination names, persistent underlines, and visible keyboard focus.",
+				"states": {
+					"default": "Underline the exact destination label.",
+					"hover": "Increase emphasis without moving surrounding telemetry.",
+					"focus": "Use the same high visibility outline as controls.",
+					"active": "Maintain the destination text through activation.",
+					"disabled": "Render unavailable destinations as status text.",
+					"loading": "Expose running status beside the destination.",
+					"success": "Report successful local resolution in adjacent text.",
+					"error": "Report failed local resolution in adjacent text."
+				}
+			},
+			"forms": {
+				"legend": "Check target",
+				"guidance": "Align labels, fields, help, and validation as persistent operational context.",
+				"submitLabel": "Validate target",
+				"help": "The alert address receives the local check summary.",
+				"error": "Enter a complete alert address.",
+				"success": "Target configuration is valid."
+			},
+			"inputs": {
+				"textLabel": "Alert email",
+				"textPlaceholder": "ops@example.com",
+				"textareaLabel": "Run parameters",
+				"textareaPlaceholder": "List the conditions this check should evaluate.",
+				"disabledLabel": "Runtime region",
+				"guidance": "Use compact controls, persistent labels, and reserved validation rows to prevent panel movement."
+			},
+			"cards": {
+				"title": "Current run",
+				"description": "A dense operational card keeps status, telemetry, and the next action in one scan path.",
+				"metadata": "RUN 042 · 98% healthy",
+				"actionLabel": "Inspect run",
+				"guidance": "Use cards for one operational object and keep state visible before action."
+			},
+			"panels": {
+				"title": "Execution context",
+				"description": "Persistent context stays bounded beside the changing working surface.",
+				"items": ["Region MNL", "Branch main", "Checks 24 active"],
+				"guidance": "Use ruled panels for durable context and align telemetry to predictable columns."
+			},
+			"navigation": {
+				"label": "Console sections",
+				"items": [
+					{ "id": "runs", "label": "Runs" },
+					{ "id": "checks", "label": "Checks" },
+					{ "id": "settings", "label": "Settings" }
+				],
+				"guidance": "Expose the current console section in text and aria current while preserving keyboard sequence."
 			}
 		},
 		"theme": {

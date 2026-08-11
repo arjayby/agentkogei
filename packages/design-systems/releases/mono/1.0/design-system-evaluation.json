@@ -1,5 +1,5 @@
 {
-	"schemaVersion": "3.0",
+	"schemaVersion": "4.0",
 	"id": "mono",
 	"designSystem": "Mono",
 	"designSystemRelease": {
@@ -302,6 +302,76 @@
 						"usage": "Dialogs, menus, and content above the working plane."
 					}
 				}
+			}
+		},
+		"controls": {
+			"buttons": {
+				"primaryLabel": "Export frame",
+				"secondaryLabel": "Duplicate",
+				"guidance": "Use stark value contrast and compact labels so actions remain clear around visual work.",
+				"states": {
+					"default": "Use decisive monochrome contrast and a direct verb.",
+					"hover": "Invert or strengthen value without changing geometry.",
+					"focus": "Draw a high contrast focus frame outside the edge.",
+					"active": "Compress visual emphasis without moving the layout.",
+					"disabled": "Reduce emphasis while preserving the label.",
+					"loading": "Keep the verb visible beside a compact busy indicator.",
+					"success": "Use a textual confirmation with the success role.",
+					"error": "Use a textual failure with the destructive role."
+				}
+			},
+			"links": {
+				"primaryLabel": "Inspect source",
+				"secondaryLabel": "Open contact sheet",
+				"guidance": "Underline destinations and keep them visually distinct from adjacent labels.",
+				"states": {
+					"default": "Use a persistent underline and direct destination label.",
+					"hover": "Increase contrast without changing text measure.",
+					"focus": "Draw the same high contrast frame used by buttons.",
+					"active": "Hold the destination label steady during activation.",
+					"disabled": "Render unavailable destinations as plain text.",
+					"loading": "Add a textual busy state without removing the label.",
+					"success": "Name the completed local action next to the link.",
+					"error": "Name the failed local action next to the link."
+				}
+			},
+			"forms": {
+				"legend": "Asset notes",
+				"guidance": "Keep fields sparse, labels explicit, and validation aligned to the same visual axis.",
+				"submitLabel": "Check metadata",
+				"help": "Use an address that can receive the export notice.",
+				"error": "Enter a complete notification address.",
+				"success": "Asset metadata is complete."
+			},
+			"inputs": {
+				"textLabel": "Notification email",
+				"textPlaceholder": "studio@example.com",
+				"textareaLabel": "Frame notes",
+				"textareaPlaceholder": "Describe the crop, sequence, or visual intent.",
+				"disabledLabel": "Source format",
+				"guidance": "Use hard edges, compact spacing, and labels that remain distinct from values."
+			},
+			"cards": {
+				"title": "Selected frame",
+				"description": "A focal card isolates one visual object and the minimum useful context around it.",
+				"metadata": "Frame 042 · 4:3",
+				"actionLabel": "Inspect frame",
+				"guidance": "Use strong scale shifts and clear edges to make the selected content unmistakable."
+			},
+			"panels": {
+				"title": "Contact sheet",
+				"description": "A bounded panel keeps adjacent visual records aligned and comparable.",
+				"items": ["Frame 040", "Frame 041", "Frame 042 selected"],
+				"guidance": "Use panels for comparison, with rules and alignment carrying the hierarchy."
+			},
+			"navigation": {
+				"label": "Workspace views",
+				"items": [
+					{ "id": "canvas", "label": "Canvas" },
+					{ "id": "frames", "label": "Frames" },
+					{ "id": "exports", "label": "Exports" }
+				],
+				"guidance": "Keep the selected view explicit with text, border, and programmatic current state."
 			}
 		},
 		"theme": {

@@ -44,3 +44,43 @@ for (const viewport of viewports) {
 		}
 	});
 }
+
+for (const colorScheme of ["light", "dark"] as const) {
+	test(`every discovered control specimen preserves names, focus, and validation in the ${colorScheme} theme`, async ({
+		page,
+	}) => {
+		await page.emulateMedia({ colorScheme });
+		const routes = await discoverDesignSystemRoutes(page);
+
+		for (const route of routes) {
+			await page.goto(route);
+			const specimens = page.locator("[data-controls-composition]");
+			const interactiveActions = specimens.getByRole("group", {
+				name: "Interactive actions",
+			});
+			await expect(
+				interactiveActions.getByRole("button"),
+			).not.toHaveAccessibleName("");
+			await expect(
+				interactiveActions.getByRole("link"),
+			).not.toHaveAccessibleName("");
+
+			const navigationLinks = specimens
+				.getByRole("navigation")
+				.getByRole("link");
+			await navigationLinks.last().focus();
+			await expect(navigationLinks.last()).toHaveCSS("outline-style", "solid");
+
+			const form = specimens.getByRole("form");
+			await form.getByRole("button").click();
+			await expect(form.getByRole("alert")).toBeVisible();
+
+			const results = await new AxeBuilder({ page })
+				.include("[data-controls-composition]")
+				.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+				.analyze();
+
+			expect(results.violations, route).toEqual([]);
+		}
+	});
+}

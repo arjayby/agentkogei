@@ -26,6 +26,7 @@ import {
 import {
 	designSystemEvaluationFileName,
 	designSystemEvaluationRecordSchema,
+	designSystemPreviewShellSchema,
 } from "./design-system-evaluation";
 import { validateDesignSystemRelease } from "./validator";
 
@@ -195,16 +196,18 @@ const requiredHumanReviewAssertions: Record<
 	rights: ["originality", "no-proprietary-material", "mit-permission"],
 };
 
-export const publicationProposalMetadataSchema =
-	designSystemEvaluationRecordSchema
-		.pick({
-			publisher: true,
-			preview: true,
-			previewShell: true,
-			changelog: true,
-		})
-		.extend({ schemaVersion: z.literal("1.0"), publishedAt: z.iso.date() })
-		.strict();
+export const publicationProposalMetadataSchema = z
+	.object({
+		schemaVersion: z.literal("1.0"),
+		publisher: designSystemEvaluationRecordSchema.shape.publisher,
+		publishedAt: z.iso.date(),
+		preview: designSystemEvaluationRecordSchema.shape.preview,
+		previewShell: designSystemPreviewShellSchema.extend({
+			controls: designSystemPreviewShellSchema.shape.controls.unwrap(),
+		}),
+		changelog: designSystemEvaluationRecordSchema.shape.changelog,
+	})
+	.strict();
 
 async function pathExists(target: string) {
 	try {
@@ -522,7 +525,7 @@ export async function preparePublicationProposal(
 	if (!reviewedAt) throw new Error("approved reviews have no timestamp");
 
 	const record = designSystemEvaluationRecordSchema.parse({
-		schemaVersion: "3.0",
+		schemaVersion: "4.0",
 		id: candidate.id,
 		designSystem: candidate.designSystem,
 		publisher: proposalMetadata.data.publisher,
