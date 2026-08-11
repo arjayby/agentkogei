@@ -27,6 +27,29 @@ for (const route of publicRoutes) {
 	}
 }
 
+for (const colorScheme of ["light", "dark"] as const) {
+	test(`every selected Design System identity has no detectable WCAG A or AA violations in the ${colorScheme} theme`, async ({
+		page,
+	}) => {
+		await page.emulateMedia({ colorScheme });
+		await page.goto("/design-systems");
+		const browser = page.getByRole("region", {
+			name: "Published Design Systems",
+		});
+		const tabs = browser.getByRole("tab");
+
+		for (let index = 0; index < (await tabs.count()); index += 1) {
+			await tabs.nth(index).click();
+			const results = await new AxeBuilder({ page })
+				.include('[aria-label="Published Design Systems"]')
+				.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+				.analyze();
+
+			expect(results.violations).toEqual([]);
+		}
+	});
+}
+
 for (const viewport of viewports) {
 	test(`every discovered Design System Preview has no detectable WCAG A or AA violations at the ${viewport.name} viewport`, async ({
 		page,

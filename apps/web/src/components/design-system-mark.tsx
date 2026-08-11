@@ -156,10 +156,7 @@ export function DesignSystemMark({
 }: {
 	designSystem: DesignSystem | DesignSystemDiscovery;
 } & MarkDrawingProps) {
-	const { mark } =
-		"releases" in designSystem
-			? previewShellFor(designSystem)
-			: designSystem.previewShell;
+	const { mark } = previewShellFor(designSystem);
 	const Drawing = drawings[mark.recipe];
 
 	return (

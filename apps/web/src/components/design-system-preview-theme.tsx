@@ -54,19 +54,11 @@ function paletteDeclarations(palette: PreviewPalette) {
 		.join("\n");
 }
 
-function resolvedPreviewShell(
-	designSystem: DesignSystem | DesignSystemDiscovery,
-) {
-	return "releases" in designSystem
-		? previewShellFor(designSystem)
-		: designSystem.previewShell;
-}
-
 function previewThemeStylesheet(
 	designSystem: DesignSystem | DesignSystemDiscovery,
 	page: boolean,
 ) {
-	const { theme, typography } = resolvedPreviewShell(designSystem);
+	const { theme, typography } = previewShellFor(designSystem);
 	const { geometry, tokens } = theme;
 	const selector = `[data-design-system-preview="${designSystem.slug}"]`;
 	const pageSelector = `body:has([data-design-system-preview-page="${designSystem.slug}"])`;
@@ -176,7 +168,7 @@ export function DesignSystemPreviewTheme({
 	page?: boolean;
 	includeStyles?: boolean;
 }) {
-	const { composition } = resolvedPreviewShell(designSystem);
+	const { composition } = previewShellFor(designSystem);
 	const stylesheet = previewThemeStylesheet(designSystem, page);
 
 	if (page) {

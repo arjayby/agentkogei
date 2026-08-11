@@ -338,6 +338,7 @@ test("a Builder compares Design Systems through explicit tab activation and shar
 	});
 
 	await expect(foundation).toHaveAttribute("aria-selected", "true");
+	await expect(page).toHaveURL(/\/design-systems#foundation$/);
 	const foundationPanel = browser.getByRole("tabpanel", { name: "Foundation" });
 	await expect(foundationPanel).toBeVisible();
 	await expect(
@@ -407,6 +408,12 @@ test("a Builder compares Design Systems through explicit tab activation and shar
 		browser.getByRole("tab", { name: "Mono", exact: true }),
 	).toHaveAttribute("aria-selected", "true");
 	await expect(browser.getByRole("tabpanel", { name: "Mono" })).toBeVisible();
+
+	await page.evaluate(() => {
+		window.location.hash = "unknown";
+	});
+	await expect(foundation).toHaveAttribute("aria-selected", "true");
+	await expect(page).toHaveURL(/\/design-systems#foundation$/);
 });
 
 test("the split browser uses a desktop rail and a horizontally scrollable mobile tab row", async ({

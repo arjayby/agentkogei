@@ -41,8 +41,9 @@ const legacyFontChoices = {
  * shape. Issue #113 removes this fallback after every specimen slice migrates.
  */
 export function previewShellFor(
-	designSystem: DesignSystem,
+	designSystem: DesignSystem | DesignSystemDiscovery,
 ): ResolvedPreviewShell {
+	if (!("releases" in designSystem)) return designSystem.previewShell;
 	if (designSystem.previewShell) return designSystem.previewShell;
 
 	const legacyTypography = designSystem.preview.typography;

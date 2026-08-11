@@ -36,6 +36,13 @@ function selectedSlugFromHash(designSystems: readonly DesignSystemDiscovery[]) {
 		: null;
 }
 
+function writeSelectedHash(slug: string) {
+	const hash = `#${slug}`;
+	if (window.location.hash !== hash) {
+		window.history.replaceState(null, "", hash);
+	}
+}
+
 function DesignSystemIdentityPanel({
 	designSystem,
 }: {
@@ -174,7 +181,8 @@ export function DesignSystemBrowser({
 	const foundation =
 		designSystems.find((designSystem) => designSystem.slug === "foundation") ??
 		designSystems[0];
-	const [selectedSlug, setSelectedSlug] = useState(foundation?.slug ?? "");
+	const fallbackSlug = foundation?.slug ?? "";
+	const [selectedSlug, setSelectedSlug] = useState(fallbackSlug);
 	const [isDesktop, setIsDesktop] = useState(false);
 
 	useEffect(() => {
@@ -187,20 +195,22 @@ export function DesignSystemBrowser({
 
 	useEffect(() => {
 		const restoreSelection = () => {
-			const restoredSlug = selectedSlugFromHash(designSystems);
-			if (restoredSlug) setSelectedSlug(restoredSlug);
+			const restoredSlug = selectedSlugFromHash(designSystems) ?? fallbackSlug;
+			if (!restoredSlug) return;
+			setSelectedSlug(restoredSlug);
+			writeSelectedHash(restoredSlug);
 		};
 		restoreSelection();
 		window.addEventListener("hashchange", restoreSelection);
 		return () => window.removeEventListener("hashchange", restoreSelection);
-	}, [designSystems]);
+	}, [designSystems, fallbackSlug]);
 
 	function selectDesignSystem(value: string | number) {
 		if (typeof value !== "string") return;
 		if (!designSystems.some((designSystem) => designSystem.slug === value))
 			return;
 		setSelectedSlug(value);
-		window.history.replaceState(null, "", `#${value}`);
+		writeSelectedHash(value);
 	}
 
 	return (
