@@ -52,16 +52,6 @@
 		"order": 1,
 		"summary": "Neutral, crisp, and highly legible B2B SaaS.",
 		"intendedFit": "Versatile product foundations",
-		"surfaces": [
-			"marketing",
-			"authentication",
-			"onboarding",
-			"dashboard",
-			"table",
-			"form",
-			"settings",
-			"states"
-		],
 		"route": "/design-systems/foundation",
 		"signature": {
 			"label": "System 01",
@@ -72,52 +62,6 @@
 				"Accessible by construction"
 			]
 		},
-		"tokens": {
-			"light": {
-				"background": "oklch(0.985 0.003 247)",
-				"foreground": "oklch(0.205 0.015 255)",
-				"card": "oklch(1 0 0)",
-				"muted": "oklch(0.955 0.006 247)",
-				"mutedForeground": "oklch(0.49 0.02 255)",
-				"border": "oklch(0.89 0.01 247)",
-				"primary": "oklch(0.47 0.15 255)",
-				"primaryForeground": "oklch(0.99 0.002 247)",
-				"destructive": "oklch(0.55 0.2 27)",
-				"success": "oklch(0.5 0.13 155)",
-				"warning": "oklch(0.62 0.13 75)",
-				"info": "oklch(0.55 0.12 230)",
-				"ring": "oklch(0.57 0.17 255)"
-			},
-			"dark": {
-				"background": "oklch(0.17 0.012 255)",
-				"foreground": "oklch(0.94 0.007 247)",
-				"card": "oklch(0.215 0.014 255)",
-				"muted": "oklch(0.255 0.014 255)",
-				"mutedForeground": "oklch(0.72 0.015 247)",
-				"border": "oklch(0.34 0.018 255)",
-				"primary": "oklch(0.72 0.13 255)",
-				"primaryForeground": "oklch(0.17 0.012 255)",
-				"destructive": "oklch(0.7 0.17 27)",
-				"success": "oklch(0.7 0.12 155)",
-				"warning": "oklch(0.78 0.12 75)",
-				"info": "oklch(0.74 0.1 230)",
-				"ring": "oklch(0.72 0.13 255)"
-			}
-		},
-		"typography": {
-			"display": "sans",
-			"body": "sans",
-			"accent": "mono",
-			"scale": "balanced"
-		},
-		"geometry": {
-			"density": "balanced",
-			"radius": "soft",
-			"border": "defined",
-			"elevation": "flat"
-		}
-	},
-	"previewShell": {
 		"mark": {
 			"recipe": "structural-planes",
 			"label": "Stable aligned structural planes"
@@ -147,7 +91,10 @@
 			"typographyScale": {
 				"display": {
 					"font": "display",
-					"sizeRem": { "mobile": 3, "desktop": 5 },
+					"sizeRem": {
+						"mobile": 3,
+						"desktop": 5
+					},
 					"weight": 600,
 					"lineHeight": 1,
 					"trackingEm": -0.05,
@@ -155,7 +102,10 @@
 				},
 				"heading": {
 					"font": "display",
-					"sizeRem": { "mobile": 1.75, "desktop": 2.5 },
+					"sizeRem": {
+						"mobile": 1.75,
+						"desktop": 2.5
+					},
 					"weight": 600,
 					"lineHeight": 1.15,
 					"trackingEm": -0.025,
@@ -163,7 +113,10 @@
 				},
 				"body": {
 					"font": "body",
-					"sizeRem": { "mobile": 0.875, "desktop": 1 },
+					"sizeRem": {
+						"mobile": 0.875,
+						"desktop": 1
+					},
 					"weight": 400,
 					"lineHeight": 1.6,
 					"trackingEm": 0,
@@ -171,7 +124,10 @@
 				},
 				"label": {
 					"font": "accent",
-					"sizeRem": { "mobile": 0.75, "desktop": 0.8125 },
+					"sizeRem": {
+						"mobile": 0.75,
+						"desktop": 0.8125
+					},
 					"weight": 600,
 					"lineHeight": 1.3,
 					"trackingEm": 0.08,
@@ -179,7 +135,10 @@
 				},
 				"code": {
 					"font": "accent",
-					"sizeRem": { "mobile": 0.8125, "desktop": 0.875 },
+					"sizeRem": {
+						"mobile": 0.8125,
+						"desktop": 0.875
+					},
 					"weight": 400,
 					"lineHeight": 1.5,
 					"trackingEm": 0,
@@ -199,8 +158,14 @@
 					"valueRem": 1,
 					"usage": "Related content within one component."
 				},
-				"6": { "valueRem": 1.5, "usage": "Default control and card rhythm." },
-				"8": { "valueRem": 2, "usage": "Distinct groups within a section." },
+				"6": {
+					"valueRem": 1.5,
+					"usage": "Default control and card rhythm."
+				},
+				"8": {
+					"valueRem": 2,
+					"usage": "Distinct groups within a section."
+				},
 				"12": {
 					"valueRem": 3,
 					"usage": "Major sections and page level separation."
@@ -213,8 +178,16 @@
 			"layout": {
 				"maxWidthRem": 72,
 				"contentWidthCh": 72,
-				"columns": { "mobile": 1, "tablet": 6, "desktop": 12 },
-				"gutterRem": { "mobile": 1, "tablet": 1.5, "desktop": 2 },
+				"columns": {
+					"mobile": 1,
+					"tablet": 6,
+					"desktop": 12
+				},
+				"gutterRem": {
+					"mobile": 1,
+					"tablet": 1.5,
+					"desktop": 2
+				},
 				"guidance": "Constrain reading width, align surfaces to shared columns, and let empty space preserve hierarchy."
 			},
 			"responsive": {
@@ -363,9 +336,18 @@
 			"navigation": {
 				"label": "Release sections",
 				"items": [
-					{ "id": "overview", "label": "Overview" },
-					{ "id": "components", "label": "Components" },
-					{ "id": "evidence", "label": "Evidence" }
+					{
+						"id": "overview",
+						"label": "Overview"
+					},
+					{
+						"id": "components",
+						"label": "Components"
+					},
+					{
+						"id": "evidence",
+						"label": "Evidence"
+					}
 				],
 				"guidance": "Mark the current location in text and structure, and preserve logical keyboard order."
 			}
@@ -374,9 +356,18 @@
 			"dataDisplay": {
 				"tableCaption": "Publication readiness by Design System Release",
 				"columns": [
-					{ "id": "release", "label": "Release" },
-					{ "id": "evaluation", "label": "Evaluation" },
-					{ "id": "owner", "label": "Owner" }
+					{
+						"id": "release",
+						"label": "Release"
+					},
+					{
+						"id": "evaluation",
+						"label": "Evaluation"
+					},
+					{
+						"id": "owner",
+						"label": "Owner"
+					}
 				],
 				"rows": [
 					{

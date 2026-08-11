@@ -2,11 +2,11 @@ import type { ReactNode } from "react";
 import {
 	catalogMetadataLabel,
 	type DesignSystem,
-	type PreviewShell,
-	previewShellFor,
+	type Preview,
+	previewSurfaceNames,
 } from "@/lib/catalog";
 
-type ProductSurfaces = NonNullable<PreviewShell["productSurfaces"]>;
+type ProductSurfaces = Preview["productSurfaces"];
 type ProductSurface = keyof ProductSurfaces["examples"];
 type ProductSurfaceExample = ProductSurfaces["examples"][ProductSurface];
 
@@ -197,11 +197,9 @@ export function DesignSystemPreviewEvidence({
 }: {
 	designSystem: DesignSystem;
 }) {
-	const { signature, surfaces } = designSystem.preview;
-	const { evidencePresentation, productSurfaces } =
-		previewShellFor(designSystem);
-
-	if (!(evidencePresentation && productSurfaces)) return null;
+	const { evidencePresentation, productSurfaces, signature } =
+		designSystem.preview;
+	const surfaces = previewSurfaceNames(designSystem.preview);
 
 	return (
 		<section

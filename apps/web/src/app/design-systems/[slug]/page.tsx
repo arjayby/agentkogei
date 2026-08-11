@@ -26,7 +26,7 @@ import {
 	designSystems,
 	evaluationText,
 	getDesignSystem,
-	previewShellFor,
+	previewSurfaceNames,
 } from "@/lib/catalog";
 
 type DesignSystemPageProps = {
@@ -71,7 +71,8 @@ export default async function DesignSystemPage({
 		interactions,
 		motion,
 		reducedMotion,
-	} = previewShellFor(designSystem);
+	} = designSystem.preview;
+	const previewSurfaces = previewSurfaceNames(designSystem.preview);
 	const actionHref =
 		`/contracts/${designSystem.slug}/${release.version}` as Route;
 	const actionLabel = `Read the ${designSystem.name} ${release.version} Design Contract`;
@@ -182,30 +183,24 @@ export default async function DesignSystemPage({
 					</div>
 					<div className="grid gap-12 lg:gap-20">
 						<DesignSystemFoundationsSpecimen designSystem={designSystem} />
-						{controls ? (
-							<DesignSystemControlsSpecimen
-								composition={composition}
-								controls={controls}
-								name={designSystem.name}
-								slug={designSystem.slug}
-							/>
-						) : null}
-						{interactions ? (
-							<DesignSystemInteractionsSpecimen
-								composition={composition}
-								interactions={interactions}
-								name={designSystem.name}
-							/>
-						) : null}
-						{motion && reducedMotion && accessibility ? (
-							<DesignSystemBehaviorSpecimen
-								accessibility={accessibility}
-								composition={composition}
-								motion={motion}
-								name={designSystem.name}
-								reducedMotion={reducedMotion}
-							/>
-						) : null}
+						<DesignSystemControlsSpecimen
+							composition={composition}
+							controls={controls}
+							name={designSystem.name}
+							slug={designSystem.slug}
+						/>
+						<DesignSystemInteractionsSpecimen
+							composition={composition}
+							interactions={interactions}
+							name={designSystem.name}
+						/>
+						<DesignSystemBehaviorSpecimen
+							accessibility={accessibility}
+							composition={composition}
+							motion={motion}
+							name={designSystem.name}
+							reducedMotion={reducedMotion}
+						/>
 						<DesignSystemPreviewEvidence designSystem={designSystem} />
 					</div>
 				</div>
@@ -299,7 +294,7 @@ export default async function DesignSystemPage({
 							</CardHeader>
 							<CardContent>
 								<ul className="grid gap-3 sm:grid-cols-2">
-									{designSystem.preview.surfaces.map((item) => (
+									{previewSurfaces.map((item) => (
 										<li key={item} className="flex gap-3 text-sm leading-6">
 											<Check aria-hidden="true" className="mt-1 shrink-0" />
 											{catalogMetadataLabel(item)}

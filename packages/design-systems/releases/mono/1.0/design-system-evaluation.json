@@ -52,16 +52,6 @@
 		"order": 3,
 		"summary": "Monochrome, high-contrast, and content-spotlit.",
 		"intendedFit": "Media and creative tooling",
-		"surfaces": [
-			"marketing",
-			"authentication",
-			"onboarding",
-			"dashboard",
-			"table",
-			"form",
-			"settings",
-			"states"
-		],
 		"route": "/design-systems/mono",
 		"signature": {
 			"label": "System 03",
@@ -72,52 +62,6 @@
 				"Bold typographic scale"
 			]
 		},
-		"tokens": {
-			"light": {
-				"background": "oklch(1 0 0)",
-				"foreground": "oklch(0.145 0 0)",
-				"card": "oklch(1 0 0)",
-				"muted": "oklch(0.97 0 0)",
-				"mutedForeground": "oklch(0.5 0 0)",
-				"border": "oklch(0.922 0 0)",
-				"primary": "oklch(0.205 0 0)",
-				"primaryForeground": "oklch(0.985 0 0)",
-				"destructive": "oklch(0.55 0.21 27)",
-				"success": "oklch(0.5 0.13 155)",
-				"warning": "oklch(0.6 0.13 75)",
-				"info": "oklch(0.55 0.12 230)",
-				"ring": "oklch(0.44 0 0)"
-			},
-			"dark": {
-				"background": "oklch(0.145 0 0)",
-				"foreground": "oklch(0.985 0 0)",
-				"card": "oklch(0.205 0 0)",
-				"muted": "oklch(0.269 0 0)",
-				"mutedForeground": "oklch(0.708 0 0)",
-				"border": "oklch(0.31 0 0)",
-				"primary": "oklch(0.985 0 0)",
-				"primaryForeground": "oklch(0.145 0 0)",
-				"destructive": "oklch(0.7 0.19 22)",
-				"success": "oklch(0.7 0.12 155)",
-				"warning": "oklch(0.78 0.12 75)",
-				"info": "oklch(0.74 0.1 230)",
-				"ring": "oklch(0.72 0 0)"
-			}
-		},
-		"typography": {
-			"display": "sans",
-			"body": "sans",
-			"accent": "mono",
-			"scale": "expressive"
-		},
-		"geometry": {
-			"density": "balanced",
-			"radius": "pill",
-			"border": "subtle",
-			"elevation": "flat"
-		}
-	},
-	"previewShell": {
 		"mark": {
 			"recipe": "nested-apertures",
 			"label": "Nested apertures reducing toward a focal point"
@@ -147,7 +91,10 @@
 			"typographyScale": {
 				"display": {
 					"font": "display",
-					"sizeRem": { "mobile": 3.5, "desktop": 4.5 },
+					"sizeRem": {
+						"mobile": 3.5,
+						"desktop": 4.5
+					},
 					"weight": 500,
 					"lineHeight": 1,
 					"trackingEm": -0.04,
@@ -155,7 +102,10 @@
 				},
 				"heading": {
 					"font": "display",
-					"sizeRem": { "mobile": 2.25, "desktop": 3.5 },
+					"sizeRem": {
+						"mobile": 2.25,
+						"desktop": 3.5
+					},
 					"weight": 500,
 					"lineHeight": 1.15,
 					"trackingEm": -0.025,
@@ -163,7 +113,10 @@
 				},
 				"body": {
 					"font": "body",
-					"sizeRem": { "mobile": 0.9375, "desktop": 1 },
+					"sizeRem": {
+						"mobile": 0.9375,
+						"desktop": 1
+					},
 					"weight": 400,
 					"lineHeight": 1.6,
 					"trackingEm": 0,
@@ -171,7 +124,10 @@
 				},
 				"label": {
 					"font": "accent",
-					"sizeRem": { "mobile": 0.6875, "desktop": 0.75 },
+					"sizeRem": {
+						"mobile": 0.6875,
+						"desktop": 0.75
+					},
 					"weight": 600,
 					"lineHeight": 1.3,
 					"trackingEm": 0.08,
@@ -179,7 +135,10 @@
 				},
 				"code": {
 					"font": "accent",
-					"sizeRem": { "mobile": 0.6875, "desktop": 0.75 },
+					"sizeRem": {
+						"mobile": 0.6875,
+						"desktop": 0.75
+					},
 					"weight": 400,
 					"lineHeight": 1.5,
 					"trackingEm": 0,
@@ -199,8 +158,14 @@
 					"valueRem": 1,
 					"usage": "Related content within one component."
 				},
-				"6": { "valueRem": 1.5, "usage": "Default control and card rhythm." },
-				"8": { "valueRem": 2, "usage": "Distinct groups within a section." },
+				"6": {
+					"valueRem": 1.5,
+					"usage": "Default control and card rhythm."
+				},
+				"8": {
+					"valueRem": 2,
+					"usage": "Distinct groups within a section."
+				},
 				"12": {
 					"valueRem": 3,
 					"usage": "Major sections and page level separation."
@@ -217,8 +182,16 @@
 			"layout": {
 				"maxWidthRem": 72,
 				"contentWidthCh": 72,
-				"columns": { "mobile": 1, "tablet": 6, "desktop": 12 },
-				"gutterRem": { "mobile": 1, "tablet": 1.5, "desktop": 2.5 },
+				"columns": {
+					"mobile": 1,
+					"tablet": 6,
+					"desktop": 12
+				},
+				"gutterRem": {
+					"mobile": 1,
+					"tablet": 1.5,
+					"desktop": 2.5
+				},
 				"guidance": "Frame one focal subject at a time, use stark scale changes for hierarchy, and keep chrome subordinate to content."
 			},
 			"responsive": {
@@ -367,9 +340,18 @@
 			"navigation": {
 				"label": "Workspace views",
 				"items": [
-					{ "id": "canvas", "label": "Canvas" },
-					{ "id": "frames", "label": "Frames" },
-					{ "id": "exports", "label": "Exports" }
+					{
+						"id": "canvas",
+						"label": "Canvas"
+					},
+					{
+						"id": "frames",
+						"label": "Frames"
+					},
+					{
+						"id": "exports",
+						"label": "Exports"
+					}
 				],
 				"guidance": "Keep the selected view explicit with text, border, and programmatic current state."
 			}
@@ -378,9 +360,18 @@
 			"dataDisplay": {
 				"tableCaption": "Frame inventory",
 				"columns": [
-					{ "id": "frame", "label": "Frame" },
-					{ "id": "format", "label": "Format" },
-					{ "id": "state", "label": "State" }
+					{
+						"id": "frame",
+						"label": "Frame"
+					},
+					{
+						"id": "format",
+						"label": "Format"
+					},
+					{
+						"id": "state",
+						"label": "State"
+					}
 				],
 				"rows": [
 					{

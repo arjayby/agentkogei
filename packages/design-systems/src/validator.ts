@@ -90,14 +90,6 @@ function validateReleaseRules(record: DesignSystemEvaluationRecord) {
 	if (new Set(record.evaluation.screens).size !== requiredScreens.length) {
 		errors.push("evaluation screens must be unique and complete");
 	}
-	if (
-		new Set(record.preview.surfaces).size !== requiredScreens.length ||
-		!requiredScreens.every((surface) =>
-			record.preview.surfaces.includes(surface),
-		)
-	) {
-		errors.push("preview surfaces must be unique and complete");
-	}
 	for (const viewport of ["1440x900", "390x844"]) {
 		if (!record.evaluation.viewports.includes(viewport)) {
 			errors.push(`evaluation is missing required viewport: ${viewport}`);

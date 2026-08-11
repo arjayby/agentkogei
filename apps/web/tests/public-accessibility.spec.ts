@@ -5,9 +5,14 @@ import { discoverDesignSystemRoutes } from "./support/design-systems";
 const publicRoutes = ["/", "/design-systems"] as const;
 
 const viewports = [
-	{ name: "desktop", width: 1440, height: 900 },
-	{ name: "tablet", width: 768, height: 1024 },
-	{ name: "mobile", width: 390, height: 844 },
+	{
+		name: "desktop light",
+		width: 1440,
+		height: 900,
+		colorScheme: "light",
+	},
+	{ name: "tablet dark", width: 768, height: 1024, colorScheme: "dark" },
+	{ name: "mobile light", width: 390, height: 844, colorScheme: "light" },
 ] as const;
 
 for (const route of publicRoutes) {
@@ -16,6 +21,7 @@ for (const route of publicRoutes) {
 			page,
 		}) => {
 			await page.setViewportSize(viewport);
+			await page.emulateMedia({ colorScheme: viewport.colorScheme });
 			await page.goto(route);
 
 			const results = await new AxeBuilder({ page })
@@ -55,6 +61,7 @@ for (const viewport of viewports) {
 		page,
 	}) => {
 		await page.setViewportSize(viewport);
+		await page.emulateMedia({ colorScheme: viewport.colorScheme });
 		const routes = await discoverDesignSystemRoutes(page);
 
 		for (const route of routes) {

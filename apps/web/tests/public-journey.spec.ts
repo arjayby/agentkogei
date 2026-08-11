@@ -211,12 +211,12 @@ test("public Design Systems routes replace every former Catalog route", async ({
 		page.getByRole("heading", { name: "Foundation", exact: true }),
 	).toBeVisible();
 
+	const designSystemRoutes = await discoverDesignSystemRoutes(page);
 	for (const route of [
 		"/catalog",
-		"/catalog/foundation",
-		"/catalog/editorial",
-		"/catalog/mono",
-		"/catalog/command",
+		...designSystemRoutes.map((designSystemRoute) =>
+			designSystemRoute.replace("/design-systems/", "/catalog/"),
+		),
 		"/catalog/unknown",
 		"/catalog/foundation/releases",
 	]) {
@@ -266,14 +266,8 @@ test("public navigation and calls to action expose no commercial or account jour
 test("public pages use Design System vocabulary without retired product claims", async ({
 	page,
 }) => {
-	for (const route of [
-		"/",
-		"/design-systems",
-		"/design-systems/foundation",
-		"/design-systems/editorial",
-		"/design-systems/mono",
-		"/design-systems/command",
-	]) {
+	const designSystemRoutes = await discoverDesignSystemRoutes(page);
+	for (const route of ["/", "/design-systems", ...designSystemRoutes]) {
 		await page.goto(route);
 		const visibleCopy = await page.locator("body").innerText();
 		expect(visibleCopy, route).not.toMatch(
@@ -508,6 +502,7 @@ test("every discovered complete Preview uses its themed shell and Design System 
 		const preview = page.locator(
 			`main[data-design-system-preview-page="${identity}"]`,
 		);
+		await expect(page.locator(".catalog-preview-artwork")).toHaveCount(0);
 		const marks = preview.getByRole("img", {
 			name: `${name} Design System Mark`,
 		});

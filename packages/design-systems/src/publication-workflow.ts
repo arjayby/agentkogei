@@ -26,7 +26,6 @@ import {
 import {
 	designSystemEvaluationFileName,
 	designSystemEvaluationRecordSchema,
-	designSystemPreviewShellSchema,
 } from "./design-system-evaluation";
 import { validateDesignSystemRelease } from "./validator";
 
@@ -202,9 +201,6 @@ export const publicationProposalMetadataSchema = z
 		publisher: designSystemEvaluationRecordSchema.shape.publisher,
 		publishedAt: z.iso.date(),
 		preview: designSystemEvaluationRecordSchema.shape.preview,
-		previewShell: designSystemPreviewShellSchema.extend({
-			controls: designSystemPreviewShellSchema.shape.controls.unwrap(),
-		}),
 		changelog: designSystemEvaluationRecordSchema.shape.changelog,
 	})
 	.strict();
@@ -561,7 +557,6 @@ export async function preparePublicationProposal(
 			evidence: allEvidence,
 		},
 		preview: proposalMetadata.data.preview,
-		previewShell: proposalMetadata.data.previewShell,
 		changelog: proposalMetadata.data.changelog,
 	});
 	const report = {

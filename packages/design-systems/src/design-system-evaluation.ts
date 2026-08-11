@@ -83,8 +83,6 @@ export const designSystemPreviewSurfaces = [
 	"states",
 ] as const;
 
-const previewSurfaceSchema = z.enum(designSystemPreviewSurfaces);
-
 export const designSystemMarkRecipes = [
 	"structural-planes",
 	"page-leaves",
@@ -575,8 +573,19 @@ const previewEvidencePresentationSchema = z
 	})
 	.strict();
 
-export const designSystemPreviewShellSchema = z
+export const designSystemPreviewSchema = z
 	.object({
+		order: z.number().int().positive(),
+		summary: terminalTextSchema,
+		intendedFit: terminalTextSchema,
+		route: z.string().startsWith("/"),
+		signature: z
+			.object({
+				label: terminalTextSchema,
+				headline: terminalTextSchema,
+				principles: z.array(terminalTextSchema).min(3).max(5),
+			})
+			.strict(),
 		mark: z
 			.object({
 				recipe: z.enum(designSystemMarkRecipes),
@@ -597,13 +606,13 @@ export const designSystemPreviewShellSchema = z
 			"operational-grid",
 		]),
 		foundations: previewFoundationsSchema,
-		controls: previewControlsSchema.optional(),
-		interactions: previewInteractionsSchema.optional(),
-		motion: previewMotionSchema.optional(),
-		reducedMotion: previewReducedMotionSchema.optional(),
-		accessibility: previewAccessibilitySchema.optional(),
-		productSurfaces: previewProductSurfacesSchema.optional(),
-		evidencePresentation: previewEvidencePresentationSchema.optional(),
+		controls: previewControlsSchema,
+		interactions: previewInteractionsSchema,
+		motion: previewMotionSchema,
+		reducedMotion: previewReducedMotionSchema,
+		accessibility: previewAccessibilitySchema,
+		productSurfaces: previewProductSurfacesSchema,
+		evidencePresentation: previewEvidencePresentationSchema,
 		theme: z
 			.object({
 				tokens: previewTokensSchema,
@@ -628,7 +637,7 @@ const designSystemReleaseSchema = z
  */
 export const designSystemEvaluationRecordSchema = z
 	.object({
-		schemaVersion: z.enum(["3.0", "4.0"]),
+		schemaVersion: z.literal("4.0"),
 		id: designSystemIdentitySchema,
 		designSystem: terminalTextSchema,
 		publisher: terminalTextSchema,
@@ -668,37 +677,7 @@ export const designSystemEvaluationRecordSchema = z
 				evidence: z.array(relativePathSchema).min(1),
 			})
 			.strict(),
-		preview: z
-			.object({
-				order: z.number().int().positive(),
-				summary: terminalTextSchema,
-				intendedFit: terminalTextSchema,
-				surfaces: z.array(previewSurfaceSchema).length(8),
-				route: z.string().startsWith("/"),
-				signature: z
-					.object({
-						label: terminalTextSchema,
-						headline: terminalTextSchema,
-						principles: z.array(terminalTextSchema).min(3).max(5),
-					})
-					.strict(),
-				tokens: previewTokensSchema,
-				typography: z
-					.object({
-						display: z.enum(["sans", "serif", "mono"]),
-						body: z.enum(["sans", "serif", "mono"]),
-						accent: z.enum(["sans", "serif", "mono"]),
-						scale: z.enum(["compact", "balanced", "expressive"]),
-					})
-					.strict(),
-				geometry: previewGeometrySchema,
-			})
-			.strict(),
-		/**
-		 * Additive metadata for the complete Preview shell. This stays optional
-		 * while the legacy Preview renderer is migrated in vertical slices.
-		 */
-		previewShell: designSystemPreviewShellSchema.optional(),
+		preview: designSystemPreviewSchema,
 		changelog: z
 			.object({
 				summary: z.string().min(1),
@@ -707,50 +686,7 @@ export const designSystemEvaluationRecordSchema = z
 			})
 			.strict(),
 	})
-	.strict()
-	.superRefine((record, context) => {
-		if (record.schemaVersion !== "4.0") return;
-		if (!record.previewShell) {
-			context.addIssue({
-				code: "custom",
-				path: ["previewShell"],
-				message: "Version 4 Preview shell metadata is required",
-			});
-			return;
-		}
-		if (!record.previewShell.controls) {
-			context.addIssue({
-				code: "custom",
-				path: ["previewShell", "controls"],
-				message: "Version 4 control and container metadata is required",
-			});
-		}
-		if (!record.previewShell.interactions) {
-			context.addIssue({
-				code: "custom",
-				path: ["previewShell", "interactions"],
-				message:
-					"Version 4 data, feedback, dialog, and destructive action metadata is required",
-			});
-		}
-		for (const [category, message] of [
-			["motion", "Version 4 motion metadata is required"],
-			["reducedMotion", "Version 4 reduced motion metadata is required"],
-			["accessibility", "Version 4 accessibility guidance is required"],
-			["productSurfaces", "Version 4 product surface examples are required"],
-			[
-				"evidencePresentation",
-				"Version 4 evaluation evidence presentation is required",
-			],
-		] as const) {
-			if (record.previewShell[category]) continue;
-			context.addIssue({
-				code: "custom",
-				path: ["previewShell", category],
-				message,
-			});
-		}
-	});
+	.strict();
 
 export type DesignSystemEvaluationRecord = z.infer<
 	typeof designSystemEvaluationRecordSchema

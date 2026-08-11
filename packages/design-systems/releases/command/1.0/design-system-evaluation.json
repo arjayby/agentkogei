@@ -52,16 +52,6 @@
 		"order": 4,
 		"summary": "Dark-first, dense, and technical.",
 		"intendedFit": "Developer and operations products",
-		"surfaces": [
-			"marketing",
-			"authentication",
-			"onboarding",
-			"dashboard",
-			"table",
-			"form",
-			"settings",
-			"states"
-		],
 		"route": "/design-systems/command",
 		"signature": {
 			"label": "Node 04",
@@ -72,52 +62,6 @@
 				"Dense persistent context"
 			]
 		},
-		"tokens": {
-			"light": {
-				"background": "#f3f6fa",
-				"foreground": "#111827",
-				"card": "#ffffff",
-				"muted": "#e9eef5",
-				"mutedForeground": "#526174",
-				"border": "#aebdce",
-				"primary": "#006f95",
-				"primaryForeground": "#ffffff",
-				"destructive": "#b42335",
-				"success": "#18794e",
-				"warning": "#8a6100",
-				"info": "#006f95",
-				"ring": "#006f95"
-			},
-			"dark": {
-				"background": "#080b10",
-				"foreground": "#e8edf5",
-				"card": "#0d1118",
-				"muted": "#121823",
-				"mutedForeground": "#98a4b5",
-				"border": "#283344",
-				"primary": "#55d6ff",
-				"primaryForeground": "#051015",
-				"destructive": "#ff6b7a",
-				"success": "#6ee7a8",
-				"warning": "#f6c85f",
-				"info": "#55d6ff",
-				"ring": "#55d6ff"
-			}
-		},
-		"typography": {
-			"display": "sans",
-			"body": "sans",
-			"accent": "mono",
-			"scale": "compact"
-		},
-		"geometry": {
-			"density": "compact",
-			"radius": "square",
-			"border": "strong",
-			"elevation": "layered"
-		}
-	},
-	"previewShell": {
 		"mark": {
 			"recipe": "directional-nodes",
 			"label": "Intersecting directional nodes"
@@ -147,7 +91,10 @@
 			"typographyScale": {
 				"display": {
 					"font": "display",
-					"sizeRem": { "mobile": 2.5, "desktop": 4 },
+					"sizeRem": {
+						"mobile": 2.5,
+						"desktop": 4
+					},
 					"weight": 600,
 					"lineHeight": 0.94,
 					"trackingEm": -0.04,
@@ -155,7 +102,10 @@
 				},
 				"page-title": {
 					"font": "display",
-					"sizeRem": { "mobile": 1.5, "desktop": 2 },
+					"sizeRem": {
+						"mobile": 1.5,
+						"desktop": 2
+					},
 					"weight": 600,
 					"lineHeight": 1.08,
 					"trackingEm": -0.025,
@@ -163,7 +113,10 @@
 				},
 				"body": {
 					"font": "body",
-					"sizeRem": { "mobile": 0.875, "desktop": 0.875 },
+					"sizeRem": {
+						"mobile": 0.875,
+						"desktop": 0.875
+					},
 					"weight": 400,
 					"lineHeight": 1.5,
 					"trackingEm": 0,
@@ -171,7 +124,10 @@
 				},
 				"eyebrow": {
 					"font": "accent",
-					"sizeRem": { "mobile": 0.625, "desktop": 0.6875 },
+					"sizeRem": {
+						"mobile": 0.625,
+						"desktop": 0.6875
+					},
 					"weight": 700,
 					"lineHeight": 1.35,
 					"trackingEm": 0.12,
@@ -179,7 +135,10 @@
 				},
 				"telemetry": {
 					"font": "accent",
-					"sizeRem": { "mobile": 0.6875, "desktop": 0.75 },
+					"sizeRem": {
+						"mobile": 0.6875,
+						"desktop": 0.75
+					},
 					"weight": 400,
 					"lineHeight": 1.35,
 					"trackingEm": 0,
@@ -187,7 +146,10 @@
 				},
 				"section-title": {
 					"font": "display",
-					"sizeRem": { "mobile": 1, "desktop": 1.25 },
+					"sizeRem": {
+						"mobile": 1,
+						"desktop": 1.25
+					},
 					"weight": 600,
 					"lineHeight": 1.2,
 					"trackingEm": -0.01,
@@ -195,7 +157,10 @@
 				},
 				"compact-interface": {
 					"font": "body",
-					"sizeRem": { "mobile": 0.75, "desktop": 0.8125 },
+					"sizeRem": {
+						"mobile": 0.75,
+						"desktop": 0.8125
+					},
 					"weight": 500,
 					"lineHeight": 1.4,
 					"trackingEm": 0,
@@ -215,7 +180,10 @@
 					"valueRem": 0.75,
 					"usage": "Related content within one component."
 				},
-				"4": { "valueRem": 1, "usage": "Default control and card rhythm." },
+				"4": {
+					"valueRem": 1,
+					"usage": "Default control and card rhythm."
+				},
 				"6": {
 					"valueRem": 1.5,
 					"usage": "Distinct groups within a section."
@@ -232,8 +200,16 @@
 			"layout": {
 				"maxWidthRem": 96,
 				"contentWidthCh": 72,
-				"columns": { "mobile": 1, "tablet": 8, "desktop": 16 },
-				"gutterRem": { "mobile": 0.75, "tablet": 1, "desktop": 1.25 },
+				"columns": {
+					"mobile": 1,
+					"tablet": 8,
+					"desktop": 16
+				},
+				"gutterRem": {
+					"mobile": 0.75,
+					"tablet": 1,
+					"desktop": 1.25
+				},
 				"guidance": "Keep operational context visible, align dense panels to ruled columns, and reserve open space for active work."
 			},
 			"responsive": {
@@ -378,9 +354,18 @@
 			"navigation": {
 				"label": "Console sections",
 				"items": [
-					{ "id": "runs", "label": "Runs" },
-					{ "id": "checks", "label": "Checks" },
-					{ "id": "settings", "label": "Settings" }
+					{
+						"id": "runs",
+						"label": "Runs"
+					},
+					{
+						"id": "checks",
+						"label": "Checks"
+					},
+					{
+						"id": "settings",
+						"label": "Settings"
+					}
 				],
 				"guidance": "Expose the current console section in text and aria current while preserving keyboard sequence."
 			}
@@ -389,9 +374,18 @@
 			"dataDisplay": {
 				"tableCaption": "Active checks",
 				"columns": [
-					{ "id": "check", "label": "Check" },
-					{ "id": "region", "label": "Region" },
-					{ "id": "result", "label": "Result" }
+					{
+						"id": "check",
+						"label": "Check"
+					},
+					{
+						"id": "region",
+						"label": "Region"
+					},
+					{
+						"id": "result",
+						"label": "Result"
+					}
 				],
 				"rows": [
 					{

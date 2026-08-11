@@ -7,73 +7,31 @@ type PublishedCatalogEntry = OfficialCatalog["designSystems"][number];
 
 export type DesignSystemRelease = PublishedCatalogEntry["releases"][number];
 export type PreviewPalette =
-	PublishedCatalogEntry["preview"]["tokens"]["light"];
+	PublishedCatalogEntry["preview"]["theme"]["tokens"]["light"];
 export type DesignSystem = Omit<PublishedCatalogEntry, "id"> & {
 	slug: string;
 };
 
-export type PreviewShell = NonNullable<DesignSystem["previewShell"]>;
-export type ResolvedPreviewShell = Omit<
-	PreviewShell,
-	"controls" | "foundations"
-> &
-	Partial<Pick<PreviewShell, "controls" | "foundations">>;
+export type Preview = DesignSystem["preview"];
 
-export type DesignSystemDiscovery = Pick<DesignSystem, "name" | "slug"> & {
-	preview: Pick<
-		DesignSystem["preview"],
-		"intendedFit" | "route" | "signature" | "summary"
-	>;
-	previewShell: ResolvedPreviewShell;
-};
-
-const legacyFontChoices = {
-	sans: "humanist-sans",
-	serif: "editorial-serif",
-	mono: "technical-mono",
-} as const satisfies Record<
-	DesignSystem["preview"]["typography"]["display"],
-	PreviewShell["typography"]["display"]
+export type DesignSystemDiscovery = Pick<
+	DesignSystem,
+	"name" | "preview" | "slug"
 >;
 
-/**
- * Temporary bridge for releases that still carry only the legacy Preview
- * shape. Issue #113 removes this fallback after every specimen slice migrates.
- */
-export function previewShellFor(
-	designSystem: DesignSystem | DesignSystemDiscovery,
-): ResolvedPreviewShell {
-	if (!("releases" in designSystem)) return designSystem.previewShell;
-	if (designSystem.previewShell) return designSystem.previewShell;
-
-	const legacyTypography = designSystem.preview.typography;
-	return {
-		mark: {
-			recipe: "structural-planes",
-			label: `${designSystem.name} layered structural mark`,
-		},
-		typography: {
-			display: legacyFontChoices[legacyTypography.display],
-			body: legacyFontChoices[legacyTypography.body],
-			accent: legacyFontChoices[legacyTypography.accent],
-		},
-		composition: "balanced-grid",
-		theme: {
-			tokens: designSystem.preview.tokens,
-			geometry: designSystem.preview.geometry,
-		},
-	};
+export function previewSurfaceNames(preview: Preview) {
+	return Object.keys(preview.productSurfaces.examples) as Array<
+		keyof Preview["productSurfaces"]["examples"]
+	>;
 }
 
 export function designSystemDiscoveryFor(
 	designSystem: DesignSystem,
 ): DesignSystemDiscovery {
-	const { intendedFit, route, signature, summary } = designSystem.preview;
 	return {
 		name: designSystem.name,
 		slug: designSystem.slug,
-		preview: { intendedFit, route, signature, summary },
-		previewShell: previewShellFor(designSystem),
+		preview: designSystem.preview,
 	};
 }
 
@@ -118,13 +76,6 @@ export function currentRelease(designSystem: DesignSystem) {
 	return release;
 }
 
-export function formatPublishedAt(publishedAt: string) {
-	return new Intl.DateTimeFormat("en-US", {
-		dateStyle: "long",
-		timeZone: "UTC",
-	}).format(new Date(`${publishedAt}T00:00:00Z`));
-}
-
 export function catalogMetadataLabel(value: string) {
 	return `${value.charAt(0).toUpperCase()}${value.slice(1)}`;
 }
@@ -139,21 +90,4 @@ export function evaluationText(designSystem: DesignSystem) {
 		designSystem.evaluation.status.charAt(0).toLowerCase() +
 		designSystem.evaluation.status.slice(1);
 	return `Design System Evaluation ${status} · ${designSystem.evaluation.standard} reference implementation`;
-}
-
-/**
- * The newest Design System Releases across the catalog, newest first. Only each
- * Design System's current release can qualify, and catalog order breaks date ties.
- */
-export function recentDesignSystemReleases(count: number) {
-	return designSystems
-		.map((designSystem) => ({
-			designSystem,
-			release: currentRelease(designSystem),
-		}))
-		.sort(
-			(a, b) =>
-				Date.parse(b.release.publishedAt) - Date.parse(a.release.publishedAt),
-		)
-		.slice(0, count);
 }

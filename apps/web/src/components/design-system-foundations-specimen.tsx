@@ -1,10 +1,6 @@
 import type { CSSProperties } from "react";
 
-import {
-	catalogMetadataLabel,
-	type DesignSystem,
-	previewShellFor,
-} from "@/lib/catalog";
+import { catalogMetadataLabel, type DesignSystem } from "@/lib/catalog";
 
 function entries<T extends Record<string, unknown>>(record: T) {
 	return Object.entries(record) as Array<
@@ -46,8 +42,7 @@ export function DesignSystemFoundationsSpecimen({
 }: {
 	designSystem: DesignSystem;
 }) {
-	const { composition, foundations, theme } = previewShellFor(designSystem);
-	if (!foundations) return null;
+	const { composition, foundations, theme } = designSystem.preview;
 
 	const { semanticColorUsage, typographyScale, spacingScale, layout } =
 		foundations;
