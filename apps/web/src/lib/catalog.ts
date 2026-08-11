@@ -19,6 +19,12 @@ export type DesignSystemDiscovery = Pick<
 	"name" | "preview" | "slug"
 >;
 
+export function previewSurfaceNames(preview: Preview) {
+	return Object.keys(preview.productSurfaces.examples) as Array<
+		keyof Preview["productSurfaces"]["examples"]
+	>;
+}
+
 export function designSystemDiscoveryFor(
 	designSystem: DesignSystem,
 ): DesignSystemDiscovery {

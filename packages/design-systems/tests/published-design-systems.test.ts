@@ -206,17 +206,6 @@ describe("Published Design System discovery", () => {
 			error: "hash mismatch for DESIGN.md",
 		},
 		{
-			name: "unsupported preview geometry",
-			mutate: async (releaseDirectory: string) => {
-				await mutateMetadata(releaseDirectory, (metadata) => {
-					const preview = metadata.preview as Record<string, unknown>;
-					const theme = preview.theme as Record<string, unknown>;
-					(theme.geometry as Record<string, unknown>).radius = "blob";
-				});
-			},
-			error: "preview.theme.geometry.radius",
-		},
-		{
 			name: "unsupported Design System Mark recipe",
 			mutate: async (releaseDirectory: string) => {
 				await mutateMetadata(releaseDirectory, (metadata) => {

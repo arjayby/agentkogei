@@ -3,6 +3,7 @@ import {
 	catalogMetadataLabel,
 	type DesignSystem,
 	type Preview,
+	previewSurfaceNames,
 } from "@/lib/catalog";
 
 type ProductSurfaces = Preview["productSurfaces"];
@@ -198,7 +199,7 @@ export function DesignSystemPreviewEvidence({
 }) {
 	const { evidencePresentation, productSurfaces, signature } =
 		designSystem.preview;
-	const surfaces = Object.keys(productSurfaces.examples) as ProductSurface[];
+	const surfaces = previewSurfaceNames(designSystem.preview);
 
 	return (
 		<section

@@ -26,6 +26,7 @@ import {
 	designSystems,
 	evaluationText,
 	getDesignSystem,
+	previewSurfaceNames,
 } from "@/lib/catalog";
 
 type DesignSystemPageProps = {
@@ -69,10 +70,9 @@ export default async function DesignSystemPage({
 		controls,
 		interactions,
 		motion,
-		productSurfaces,
 		reducedMotion,
 	} = designSystem.preview;
-	const previewSurfaces = Object.keys(productSurfaces.examples);
+	const previewSurfaces = previewSurfaceNames(designSystem.preview);
 	const actionHref =
 		`/contracts/${designSystem.slug}/${release.version}` as Route;
 	const actionLabel = `Read the ${designSystem.name} ${release.version} Design Contract`;
