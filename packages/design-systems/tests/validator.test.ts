@@ -127,6 +127,33 @@ describe("Design System Release publication validation", () => {
 		);
 	});
 
+	test("reads structured Preview shell metadata beside the legacy Preview form", async () => {
+		const record = await readEvaluationRecord(foundationReleaseDirectory);
+
+		expect(record.previewShell).toMatchObject({
+			mark: {
+				recipe: "structural-planes",
+				label: "Stable aligned structural planes",
+			},
+			typography: {
+				display: "geometric-sans",
+				body: "humanist-sans",
+				accent: "technical-mono",
+			},
+			composition: "balanced-grid",
+		});
+		expect(record.previewShell.theme).toEqual({
+			tokens: record.preview.tokens,
+			geometry: record.preview.geometry,
+		});
+
+		const legacyRecord = structuredClone(record);
+		Reflect.deleteProperty(legacyRecord, "previewShell");
+		expect(
+			designSystemEvaluationRecordSchema.safeParse(legacyRecord).success,
+		).toBe(true);
+	});
+
 	// Every Design System Release stays independently installable through the same
 	// compatibility and safety gate, so Design System Evaluation covers each published
 	// release rather than only the current one.

@@ -118,6 +118,58 @@
 			"elevation": "flat"
 		}
 	},
+	"previewShell": {
+		"mark": {
+			"recipe": "page-leaves",
+			"label": "Layered page leaves around a reading axis"
+		},
+		"typography": {
+			"display": "editorial-serif",
+			"body": "editorial-serif",
+			"accent": "humanist-sans"
+		},
+		"composition": "reading-column",
+		"theme": {
+			"tokens": {
+				"light": {
+					"background": "oklch(0.975 0.014 82)",
+					"foreground": "oklch(0.22 0.025 48)",
+					"card": "oklch(0.995 0.008 82)",
+					"muted": "oklch(0.935 0.02 79)",
+					"mutedForeground": "oklch(0.46 0.035 52)",
+					"border": "oklch(0.82 0.025 74)",
+					"primary": "oklch(0.38 0.095 335)",
+					"primaryForeground": "oklch(0.985 0.008 82)",
+					"destructive": "oklch(0.5 0.17 28)",
+					"success": "oklch(0.43 0.1 145)",
+					"warning": "oklch(0.55 0.11 72)",
+					"info": "oklch(0.43 0.08 245)",
+					"ring": "oklch(0.52 0.13 335)"
+				},
+				"dark": {
+					"background": "oklch(0.18 0.018 48)",
+					"foreground": "oklch(0.92 0.018 82)",
+					"card": "oklch(0.22 0.02 48)",
+					"muted": "oklch(0.265 0.025 48)",
+					"mutedForeground": "oklch(0.73 0.025 76)",
+					"border": "oklch(0.37 0.03 52)",
+					"primary": "oklch(0.76 0.09 335)",
+					"primaryForeground": "oklch(0.18 0.018 48)",
+					"destructive": "oklch(0.69 0.15 28)",
+					"success": "oklch(0.7 0.1 145)",
+					"warning": "oklch(0.76 0.1 72)",
+					"info": "oklch(0.72 0.08 245)",
+					"ring": "oklch(0.76 0.09 335)"
+				}
+			},
+			"geometry": {
+				"density": "spacious",
+				"radius": "soft",
+				"border": "subtle",
+				"elevation": "flat"
+			}
+		}
+	},
 	"changelog": {
 		"summary": "Initial Published Design System with complete cross-surface guidance, evaluated implementation direction, and WCAG 2.2 AA evidence.",
 		"breaking": false,

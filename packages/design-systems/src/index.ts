@@ -29,6 +29,8 @@ export {
 	type DesignSystemEvaluationRecord,
 	designSystemEvaluationFileName,
 	designSystemEvaluationRecordSchema,
+	designSystemMarkRecipes,
+	designSystemPreviewFontChoices,
 	designSystemPreviewSurfaces,
 } from "./design-system-evaluation";
 export type { DesignSystemIdentity } from "./design-system-identity";

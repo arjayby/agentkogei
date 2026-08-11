@@ -10,8 +10,9 @@ import { ArrowLeft, ArrowUpRight, Check } from "lucide-react";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { DesignSystemArtwork } from "@/components/design-system-artwork";
+import { DesignSystemMark } from "@/components/design-system-mark";
 import { DesignSystemPreviewEvidence } from "@/components/design-system-preview-evidence";
+import { DesignSystemPreviewTheme } from "@/components/design-system-preview-theme";
 import { InstallationCommand } from "@/components/installation-command";
 import {
 	catalogMetadataLabel,
@@ -20,7 +21,6 @@ import {
 	currentRelease,
 	designSystems,
 	evaluationText,
-	formatPublishedAt,
 	getDesignSystem,
 } from "@/lib/catalog";
 
@@ -65,55 +65,88 @@ export default async function DesignSystemPage({
 	const retrievalNote = `${designSystem.name} is retrieved anonymously from AgentKogei's public Design Systems collection. The CLI shows the absolute target and the exact change before it writes anything.`;
 
 	return (
-		<main>
-			<header className="border-b px-5 py-8 sm:px-8 lg:px-12">
-				<div className="mx-auto max-w-7xl">
-					<Link
-						href={"/design-systems" as Route}
-						className="inline-flex items-center gap-2 text-muted-foreground text-sm hover:text-foreground"
-					>
-						<ArrowLeft aria-hidden="true" className="size-4" />
-						Design Systems
-					</Link>
-				</div>
-			</header>
-
-			<section className="border-b px-5 py-12 sm:px-8 lg:px-12 lg:py-20">
-				<div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,0.7fr)] lg:items-end">
-					<div className="flex flex-col gap-8">
-						<div className="font-mono text-muted-foreground text-xs uppercase tracking-[0.2em]">
-							Design System Release {release.version}
+		<DesignSystemPreviewTheme designSystem={designSystem} page>
+			<section
+				data-preview-section="hero"
+				className="preview-shell-hero border-b px-5 py-8 sm:px-8 lg:px-12 lg:py-16"
+			>
+				<div className="mx-auto flex max-w-7xl flex-col gap-12">
+					<div className="flex items-center justify-between gap-6">
+						<Link
+							href={"/design-systems" as Route}
+							className="inline-flex w-fit items-center gap-2 text-muted-foreground text-sm hover:text-foreground"
+						>
+							<ArrowLeft aria-hidden="true" className="size-4" />
+							Design Systems
+						</Link>
+						<DesignSystemMark
+							designSystem={designSystem}
+							data-mark-size="compact"
+							className="design-system-mark size-8 shrink-0"
+						/>
+					</div>
+					<div className="preview-shell-hero-grid grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.55fr)] lg:items-center">
+						<div className="flex flex-col gap-7">
+							<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.2em]">
+								Design System Release {release.version}
+							</p>
+							<h1 className="font-medium text-6xl tracking-[-0.065em] sm:text-8xl">
+								{designSystem.name}
+							</h1>
+							<p className="max-w-2xl text-pretty text-2xl text-muted-foreground leading-9">
+								{designSystem.preview.summary} Built for{" "}
+								{designSystem.preview.intendedFit.toLowerCase()}.
+							</p>
+							<div className="flex max-w-2xl flex-col gap-3">
+								<p className="text-lg">
+									{designSystem.preview.signature.headline}
+								</p>
+								<ul className="flex flex-wrap gap-x-5 gap-y-2 text-muted-foreground text-sm">
+									{designSystem.preview.signature.principles.map(
+										(principle) => (
+											<li key={principle}>{principle}</li>
+										),
+									)}
+								</ul>
+							</div>
+							<div>
+								<Link
+									href={actionHref}
+									className={buttonVariants({ size: "lg" })}
+								>
+									{actionLabel}
+									<ArrowUpRight data-icon="inline-end" aria-hidden="true" />
+								</Link>
+							</div>
 						</div>
-						<h1 className="font-medium text-6xl tracking-[-0.065em] sm:text-8xl">
-							{designSystem.name}
-						</h1>
-						<p className="max-w-2xl text-pretty text-2xl text-muted-foreground leading-9">
-							{designSystem.preview.summary} Built for{" "}
-							{designSystem.preview.intendedFit.toLowerCase()}.
-						</p>
-						<div>
-							<Link
-								href={actionHref}
-								className={buttonVariants({ size: "lg" })}
-							>
-								{actionLabel}
-								<ArrowUpRight data-icon="inline-end" aria-hidden="true" />
-							</Link>
+						<div className="preview-mark-stage catalog-preview-panel grid aspect-square place-items-center border p-10 sm:p-14">
+							<DesignSystemMark
+								designSystem={designSystem}
+								data-mark-size="hero"
+								className="design-system-mark size-full max-h-72 max-w-72"
+							/>
 						</div>
 					</div>
-					<DesignSystemArtwork designSystem={designSystem} />
 				</div>
 			</section>
 
-			<section className="border-b px-5 py-12 sm:px-8 lg:px-12">
+			<section
+				data-preview-section="installation"
+				className="border-b px-5 py-12 sm:px-8 lg:px-12"
+			>
 				<div className="mx-auto max-w-7xl">
-					<InstallationCommand identity={designSystem.slug}>
+					<InstallationCommand
+						designSystems={[
+							{ slug: designSystem.slug, name: designSystem.name },
+						]}
+					>
 						{retrievalNote}
 					</InstallationCommand>
 				</div>
 			</section>
 
 			<section
+				data-preview-section="exploration"
 				className="border-b px-5 py-12 sm:px-8 lg:px-12 lg:py-20"
 				aria-labelledby="preview-heading"
 			>
@@ -138,149 +171,166 @@ export default async function DesignSystemPage({
 				</div>
 			</section>
 
-			<section className="px-5 py-12 sm:px-8 lg:px-12 lg:py-20">
-				<div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-2">
-					<Card>
-						<CardHeader>
-							<CardTitle>
-								<h2>Release evidence</h2>
-							</CardTitle>
-							<CardDescription>
-								Public metadata for release {release.version}.
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<dl className="grid gap-px bg-border">
-								<div className="grid gap-2 bg-background p-4 sm:grid-cols-[10rem_1fr]">
-									<dt className="font-mono text-muted-foreground text-xs uppercase">
-										Compatibility
-									</dt>
-									<dd>{compatibilityText(designSystem)}</dd>
-								</div>
-								<div className="grid gap-2 bg-background p-4 sm:grid-cols-[10rem_1fr]">
-									<dt className="font-mono text-muted-foreground text-xs uppercase">
-										Evaluation
-									</dt>
-									<dd>{evaluationText(designSystem)}</dd>
-								</div>
-								<div className="grid gap-2 bg-background p-4 sm:grid-cols-[10rem_1fr]">
-									<dt className="font-mono text-muted-foreground text-xs uppercase">
-										Evidence coverage
-									</dt>
-									<dd>
-										<ul className="flex flex-col gap-1">
-											<li>{designSystem.evaluation.viewports.join(" · ")}</li>
-											<li>
-												{designSystem.evaluation.colorSchemes
-													.map((colorScheme) =>
-														catalogMetadataLabel(colorScheme),
-													)
-													.join(" · ")}{" "}
-												· Reduced motion
-											</li>
-											<li>
-												Human review{" "}
-												{designSystem.evaluation.humanReview.status} · Rights
-												review{" "}
-												{designSystem.evaluation.humanReview.rightsReview}
-											</li>
-											<li>
-												{designSystem.evaluation.agentGenerationRuns} agent
-												generation runs
-											</li>
-											<li>
-												{designSystem.evaluation.automatedChecks.join(" · ")}
-											</li>
-											<li>{designSystem.evaluation.evidence.join(" · ")}</li>
-										</ul>
-									</dd>
-								</div>
-							</dl>
-						</CardContent>
-					</Card>
-
-					<Card role="region" aria-labelledby="coverage-heading">
-						<CardHeader>
-							<CardTitle>
-								<h2 id="coverage-heading">Coverage</h2>
-							</CardTitle>
-							<CardDescription>
-								Required surfaces and system states.
-							</CardDescription>
-						</CardHeader>
-						<CardContent>
-							<ul className="grid gap-3 sm:grid-cols-2">
-								{designSystem.preview.surfaces.map((item) => (
-									<li key={item} className="flex gap-3 text-sm leading-6">
-										<Check aria-hidden="true" className="mt-1 shrink-0" />
-										{catalogMetadataLabel(item)}
-									</li>
-								))}
-							</ul>
-						</CardContent>
-					</Card>
-
-					<Card>
-						<CardHeader>
-							<CardTitle>
-								<h2>Inside the Design Contract</h2>
-							</CardTitle>
-							<CardDescription>
-								Installation writes one root DESIGN.md and nothing beside it.
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="flex flex-col gap-6">
-							<ul className="flex flex-col gap-3">
-								{contractSections.map((section) => (
-									<li
-										key={section}
-										className="border-b pb-3 last:border-b-0 last:pb-0"
-									>
-										{section}
-									</li>
-								))}
-							</ul>
-						</CardContent>
-					</Card>
-
-					<Card>
-						<CardHeader>
-							<CardTitle>
-								<h2>Release history</h2>
-							</CardTitle>
-							<CardDescription>
-								Immutable two part Design System Releases, newest first.
-							</CardDescription>
-						</CardHeader>
-						<CardContent className="flex flex-col gap-8">
-							{designSystem.releases.map((published) => (
-								<div key={published.version} className="flex flex-col gap-2">
-									<div className="grid gap-2 sm:grid-cols-[8rem_1fr]">
-										<span className="font-mono">v{published.version}</span>
-										<span className="text-muted-foreground">
-											Published {formatPublishedAt(published.publishedAt)}
-										</span>
+			<section
+				data-preview-section="release-details"
+				className="px-5 py-12 sm:px-8 lg:px-12 lg:py-20"
+				aria-labelledby="release-details-heading"
+			>
+				<div className="mx-auto max-w-7xl">
+					<div className="mb-10 flex flex-col gap-3">
+						<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.2em]">
+							Release {release.version}
+						</p>
+						<h2
+							id="release-details-heading"
+							className="font-medium text-3xl tracking-tight sm:text-5xl"
+						>
+							Release details
+						</h2>
+					</div>
+					<div className="grid gap-5 lg:grid-cols-2">
+						<Card>
+							<CardHeader>
+								<CardTitle>
+									<h2>Release evidence</h2>
+								</CardTitle>
+								<CardDescription>
+									Public metadata for release {release.version}.
+								</CardDescription>
+							</CardHeader>
+							<CardContent>
+								<dl className="grid gap-px bg-border">
+									<div className="grid gap-2 bg-background p-4 sm:grid-cols-[10rem_1fr]">
+										<dt className="font-mono text-muted-foreground text-xs uppercase">
+											Compatibility
+										</dt>
+										<dd>{compatibilityText(designSystem)}</dd>
 									</div>
-									<div>
-										<h3 className="mb-2 font-medium text-base">Changelog</h3>
-										<p className="text-muted-foreground leading-7">
-											{published.changelog.summary}
-										</p>
+									<div className="grid gap-2 bg-background p-4 sm:grid-cols-[10rem_1fr]">
+										<dt className="font-mono text-muted-foreground text-xs uppercase">
+											Evaluation
+										</dt>
+										<dd>{evaluationText(designSystem)}</dd>
 									</div>
-									<Link
-										href={
-											`/contracts/${designSystem.slug}/${published.version}` as Route
-										}
-										className="w-fit font-medium text-sm underline underline-offset-4"
-									>
-										Read {designSystem.name} {published.version} Design Contract
-									</Link>
+									<div className="grid gap-2 bg-background p-4 sm:grid-cols-[10rem_1fr]">
+										<dt className="font-mono text-muted-foreground text-xs uppercase">
+											Evidence coverage
+										</dt>
+										<dd>
+											<ul className="flex flex-col gap-1">
+												<li>{designSystem.evaluation.viewports.join(" · ")}</li>
+												<li>
+													{designSystem.evaluation.colorSchemes
+														.map((colorScheme) =>
+															catalogMetadataLabel(colorScheme),
+														)
+														.join(" · ")}{" "}
+													· Reduced motion
+												</li>
+												<li>
+													Human review{" "}
+													{designSystem.evaluation.humanReview.status} · Rights
+													review{" "}
+													{designSystem.evaluation.humanReview.rightsReview}
+												</li>
+												<li>
+													{designSystem.evaluation.agentGenerationRuns} agent
+													generation runs
+												</li>
+												<li>
+													{designSystem.evaluation.automatedChecks.join(" · ")}
+												</li>
+												<li>{designSystem.evaluation.evidence.join(" · ")}</li>
+											</ul>
+										</dd>
+									</div>
+								</dl>
+							</CardContent>
+						</Card>
+
+						<Card role="region" aria-labelledby="coverage-heading">
+							<CardHeader>
+								<CardTitle>
+									<h2 id="coverage-heading">Coverage</h2>
+								</CardTitle>
+								<CardDescription>
+									Required surfaces and system states.
+								</CardDescription>
+							</CardHeader>
+							<CardContent>
+								<ul className="grid gap-3 sm:grid-cols-2">
+									{designSystem.preview.surfaces.map((item) => (
+										<li key={item} className="flex gap-3 text-sm leading-6">
+											<Check aria-hidden="true" className="mt-1 shrink-0" />
+											{catalogMetadataLabel(item)}
+										</li>
+									))}
+								</ul>
+							</CardContent>
+						</Card>
+
+						<Card>
+							<CardHeader>
+								<CardTitle>
+									<h2>Inside the Design Contract</h2>
+								</CardTitle>
+								<CardDescription>
+									Installation writes one root DESIGN.md and nothing beside it.
+								</CardDescription>
+							</CardHeader>
+							<CardContent className="flex flex-col gap-6">
+								<ul className="flex flex-col gap-3">
+									{contractSections.map((section) => (
+										<li
+											key={section}
+											className="border-b pb-3 last:border-b-0 last:pb-0"
+										>
+											{section}
+										</li>
+									))}
+								</ul>
+							</CardContent>
+						</Card>
+
+						<Card>
+							<CardHeader>
+								<CardTitle>
+									<h3>Design Contract and changelog</h3>
+								</CardTitle>
+								<CardDescription>
+									The complete agent direction for Release {release.version}.
+								</CardDescription>
+							</CardHeader>
+							<CardContent className="flex flex-col gap-5">
+								<p className="font-mono text-sm">Release {release.version}</p>
+								<div>
+									<h3 className="mb-2 font-medium text-base">Changelog</h3>
+									<p className="text-muted-foreground leading-7">
+										{release.changelog.summary}
+									</p>
 								</div>
-							))}
-						</CardContent>
-					</Card>
+								<Link
+									href={actionHref}
+									className="w-fit font-medium text-sm underline underline-offset-4"
+								>
+									Read {designSystem.name} {release.version} Design Contract
+								</Link>
+								<details className="border-t pt-5">
+									<summary className="cursor-pointer font-medium text-sm underline underline-offset-4">
+										View raw Design Contract
+									</summary>
+									<iframe
+										src={actionHref}
+										title={`${designSystem.name} raw Design Contract`}
+										loading="lazy"
+										className="mt-4 h-96 w-full border bg-muted"
+									/>
+								</details>
+							</CardContent>
+						</Card>
+					</div>
 				</div>
 			</section>
-		</main>
+		</DesignSystemPreviewTheme>
 	);
 }

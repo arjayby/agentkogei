@@ -1,11 +1,19 @@
 import type { ReactNode } from "react";
 
-import type { DesignSystem, PreviewPalette } from "@/lib/catalog";
+import {
+	type DesignSystem,
+	type PreviewPalette,
+	previewShellFor,
+} from "@/lib/catalog";
 
 const fontFamilies = {
-	sans: "var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif",
-	serif: "ui-serif, Georgia, Cambria, 'Times New Roman', serif",
-	mono: "var(--font-geist-mono), ui-monospace, monospace",
+	"geometric-sans":
+		"var(--font-geist-sans), Avenir Next, ui-sans-serif, system-ui, sans-serif",
+	"humanist-sans": "Avenir, Segoe UI, ui-sans-serif, system-ui, sans-serif",
+	"editorial-serif": "Iowan Old Style, Georgia, Cambria, ui-serif, serif",
+	"neo-grotesk": "Helvetica Neue, Arial, ui-sans-serif, sans-serif",
+	"technical-mono":
+		"var(--font-geist-mono), SFMono-Regular, Consolas, ui-monospace, monospace",
 } as const;
 
 const spacing = {
@@ -48,12 +56,16 @@ function paletteDeclarations(palette: PreviewPalette) {
 export function DesignSystemPreviewTheme({
 	designSystem,
 	children,
+	page = false,
 }: {
 	designSystem: DesignSystem;
 	children: ReactNode;
+	page?: boolean;
 }) {
-	const { geometry, tokens, typography } = designSystem.preview;
+	const { composition, theme, typography } = previewShellFor(designSystem);
+	const { geometry, tokens } = theme;
 	const selector = `[data-design-system-preview="${designSystem.slug}"]`;
+	const pageSelector = `body:has([data-design-system-preview-page="${designSystem.slug}"])`;
 	const sharedDeclarations = `
 		--preview-font-display: ${fontFamilies[typography.display]};
 		--preview-font-body: ${fontFamilies[typography.body]};
@@ -63,16 +75,97 @@ export function DesignSystemPreviewTheme({
 		--preview-border-width: ${borderWidths[geometry.border]};
 		--preview-shadow: ${shadows[geometry.elevation]};
 	`;
+	const semanticDeclarations = `
+		--background: var(--preview-background);
+		--foreground: var(--preview-foreground);
+		--card: var(--preview-card);
+		--card-foreground: var(--preview-foreground);
+		--popover: var(--preview-card);
+		--popover-foreground: var(--preview-foreground);
+		--primary: var(--preview-primary);
+		--primary-foreground: var(--preview-primary-foreground);
+		--secondary: var(--preview-muted);
+		--secondary-foreground: var(--preview-foreground);
+		--muted: var(--preview-muted);
+		--muted-foreground: var(--preview-muted-foreground);
+		--accent: var(--preview-muted);
+		--accent-foreground: var(--preview-foreground);
+		--destructive: var(--preview-destructive);
+		--border: var(--preview-border);
+		--input: var(--preview-border);
+		--ring: var(--preview-ring);
+		--color-background: var(--preview-background);
+		--color-foreground: var(--preview-foreground);
+		--color-card: var(--preview-card);
+		--color-card-foreground: var(--preview-foreground);
+		--color-popover: var(--preview-card);
+		--color-popover-foreground: var(--preview-foreground);
+		--color-primary: var(--preview-primary);
+		--color-primary-foreground: var(--preview-primary-foreground);
+		--color-secondary: var(--preview-muted);
+		--color-secondary-foreground: var(--preview-foreground);
+		--color-muted: var(--preview-muted);
+		--color-muted-foreground: var(--preview-muted-foreground);
+		--color-accent: var(--preview-muted);
+		--color-accent-foreground: var(--preview-foreground);
+		--color-destructive: var(--preview-destructive);
+		--color-border: var(--preview-border);
+		--color-input: var(--preview-border);
+		--color-ring: var(--preview-ring);
+	`;
+	const stylesheet = `${selector}, ${pageSelector} {
+		${paletteDeclarations(tokens.light)}
+		${sharedDeclarations}
+	}
+	.dark ${selector}, .dark ${pageSelector} {
+		${paletteDeclarations(tokens.dark)}
+	}
+	@media (prefers-color-scheme: dark) {
+		html:not(.light) ${selector}, html:not(.light) ${pageSelector} {
+			${paletteDeclarations(tokens.dark)}
+		}
+	}
+	${pageSelector} {
+		${semanticDeclarations}
+		background: var(--preview-background);
+		color: var(--preview-foreground);
+		font-family: var(--preview-font-body);
+	}
+	${pageSelector} .site-header,
+	${pageSelector} main,
+	${pageSelector} footer {
+		background: var(--preview-background);
+		color: var(--preview-foreground);
+	}
+	${pageSelector} h1,
+	${pageSelector} h2,
+	${pageSelector} h3 {
+		font-family: var(--preview-font-display);
+	}
+	${pageSelector} .site-brand,
+	${pageSelector} nav,
+	${pageSelector} footer {
+		font-family: var(--preview-font-accent);
+	}`;
+
+	if (page) {
+		return (
+			<>
+				<style>{stylesheet}</style>
+				<main
+					data-design-system-preview={designSystem.slug}
+					data-design-system-preview-page={designSystem.slug}
+					data-preview-composition={composition}
+				>
+					{children}
+				</main>
+			</>
+		);
+	}
 
 	return (
 		<>
-			<style>{`${selector} {
-				${paletteDeclarations(tokens.light)}
-				${sharedDeclarations}
-			}
-			.dark ${selector} {
-				${paletteDeclarations(tokens.dark)}
-			}`}</style>
+			<style>{stylesheet}</style>
 			<div data-design-system-preview={designSystem.slug}>{children}</div>
 		</>
 	);

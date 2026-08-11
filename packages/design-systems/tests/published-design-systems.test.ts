@@ -216,6 +216,49 @@ describe("Published Design System discovery", () => {
 			error: "preview.geometry.radius",
 		},
 		{
+			name: "unsupported Design System Mark recipe",
+			mutate: async (releaseDirectory: string) => {
+				await mutateMetadata(releaseDirectory, (metadata) => {
+					const previewShell = metadata.previewShell as Record<string, unknown>;
+					(previewShell.mark as Record<string, unknown>).recipe =
+						"borrowed-logo";
+				});
+			},
+			error: "previewShell.mark.recipe",
+		},
+		{
+			name: "unsupported Preview typography choice",
+			mutate: async (releaseDirectory: string) => {
+				await mutateMetadata(releaseDirectory, (metadata) => {
+					const previewShell = metadata.previewShell as Record<string, unknown>;
+					(previewShell.typography as Record<string, unknown>).display =
+						"runtime-vendor-font";
+				});
+			},
+			error: "previewShell.typography.display",
+		},
+		{
+			name: "unsupported Preview composition",
+			mutate: async (releaseDirectory: string) => {
+				await mutateMetadata(releaseDirectory, (metadata) => {
+					const previewShell = metadata.previewShell as Record<string, unknown>;
+					previewShell.composition = "identity-specific-page";
+				});
+			},
+			error: "previewShell.composition",
+		},
+		{
+			name: "unsupported Preview shell theme",
+			mutate: async (releaseDirectory: string) => {
+				await mutateMetadata(releaseDirectory, (metadata) => {
+					const previewShell = metadata.previewShell as Record<string, unknown>;
+					const theme = previewShell.theme as Record<string, unknown>;
+					(theme.geometry as Record<string, unknown>).radius = "blob";
+				});
+			},
+			error: "previewShell.theme.geometry.radius",
+		},
+		{
 			name: "unexpected release file",
 			mutate: async (releaseDirectory: string) => {
 				await writeFile(path.join(releaseDirectory, "extra.txt"), "surprise\n");
