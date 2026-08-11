@@ -127,8 +127,8 @@
 						"body": {
 							"font": "body",
 							"sizeRem": {
-								"mobile": 1,
-								"desktop": 1.0625
+								"mobile": 0.875,
+								"desktop": 1
 							},
 							"weight": 400,
 							"lineHeight": 1.6,
@@ -159,34 +159,38 @@
 						}
 					},
 					"spacingScale": {
-						"2xs": {
-							"valueRem": 0.25,
+						"2": {
+							"valueRem": 0.5,
 							"usage": "Tight icon and inline relationships."
 						},
-						"xs": {
-							"valueRem": 0.5,
+						"3": {
+							"valueRem": 0.75,
 							"usage": "Compact control internals and paired labels."
 						},
-						"sm": {
-							"valueRem": 0.75,
+						"4": {
+							"valueRem": 1,
 							"usage": "Related content within one component."
 						},
-						"md": {
-							"valueRem": 1,
+						"6": {
+							"valueRem": 1.5,
 							"usage": "Default control and card rhythm."
 						},
-						"lg": {
-							"valueRem": 1.5,
+						"8": {
+							"valueRem": 2,
 							"usage": "Distinct groups within a section."
 						},
-						"xl": {
-							"valueRem": 2.5,
+						"12": {
+							"valueRem": 3,
 							"usage": "Major sections and page level separation."
+						},
+						"16": {
+							"valueRem": 4,
+							"usage": "Largest page sections and major composition breaks."
 						}
 					},
 					"layout": {
-						"maxWidthRem": 80,
-						"contentWidthCh": 68,
+						"maxWidthRem": 72,
+						"contentWidthCh": 72,
 						"columns": {
 							"mobile": 1,
 							"tablet": 6,
@@ -209,7 +213,7 @@
 							"guidance": "Introduce paired regions only when each remains independently readable."
 						},
 						"desktop": {
-							"minWidthPx": 1280,
+							"minWidthPx": 1024,
 							"guidance": "Use the full grid while keeping reading lines constrained."
 						},
 						"zoom": {
@@ -224,11 +228,11 @@
 					"geometry": {
 						"radii": {
 							"subtle": {
-								"valueRem": 0.125,
+								"valueRem": 0.375,
 								"usage": "Small indicators and restrained detail."
 							},
 							"control": {
-								"valueRem": 0.375,
+								"valueRem": 0.5,
 								"usage": "Buttons, fields, and compact interactive surfaces."
 							},
 							"panel": {
@@ -472,8 +476,8 @@
 						"display": {
 							"font": "display",
 							"sizeRem": {
-								"mobile": 3.5,
-								"desktop": 6
+								"mobile": 2.25,
+								"desktop": 4.5
 							},
 							"weight": 500,
 							"lineHeight": 1,
@@ -483,8 +487,8 @@
 						"heading": {
 							"font": "display",
 							"sizeRem": {
-								"mobile": 2,
-								"desktop": 3
+								"mobile": 2.25,
+								"desktop": 4
 							},
 							"weight": 500,
 							"lineHeight": 1.15,
@@ -494,8 +498,8 @@
 						"body": {
 							"font": "body",
 							"sizeRem": {
-								"mobile": 1.125,
-								"desktop": 1.1875
+								"mobile": 1,
+								"desktop": 1.125
 							},
 							"weight": 400,
 							"lineHeight": 1.7,
@@ -526,38 +530,46 @@
 						}
 					},
 					"spacingScale": {
-						"2xs": {
-							"valueRem": 0.25,
+						"2": {
+							"valueRem": 0.5,
 							"usage": "Tight icon and inline relationships."
 						},
-						"xs": {
-							"valueRem": 0.625,
+						"4": {
+							"valueRem": 1,
 							"usage": "Compact control internals and paired labels."
 						},
-						"sm": {
-							"valueRem": 1,
+						"6": {
+							"valueRem": 1.5,
 							"usage": "Related content within one component."
 						},
-						"md": {
-							"valueRem": 1.5,
+						"8": {
+							"valueRem": 2,
 							"usage": "Default control and card rhythm."
 						},
-						"lg": {
-							"valueRem": 2.5,
+						"12": {
+							"valueRem": 3,
 							"usage": "Distinct groups within a section."
 						},
-						"xl": {
+						"16": {
 							"valueRem": 4,
 							"usage": "Major sections and page level separation."
+						},
+						"24": {
+							"valueRem": 6,
+							"usage": "Generous chapter and editorial section spacing."
+						},
+						"32": {
+							"valueRem": 8,
+							"usage": "Largest reading transitions and page openings."
 						}
 					},
 					"layout": {
-						"maxWidthRem": 76,
-						"contentWidthCh": 64,
+						"maxWidthRem": 80,
+						"contentWidthCh": 62,
 						"columns": {
 							"mobile": 1,
-							"tablet": 4,
-							"desktop": 8
+							"tablet": 6,
+							"desktop": 12
 						},
 						"gutterRem": {
 							"mobile": 1,
@@ -576,7 +588,7 @@
 							"guidance": "Introduce paired regions only when each remains independently readable."
 						},
 						"desktop": {
-							"minWidthPx": 1280,
+							"minWidthPx": 1024,
 							"guidance": "Use the full grid while keeping reading lines constrained."
 						},
 						"zoom": {
@@ -595,12 +607,16 @@
 								"usage": "Small indicators and restrained detail."
 							},
 							"control": {
-								"valueRem": 0.25,
+								"valueRem": 0.125,
 								"usage": "Buttons, fields, and compact interactive surfaces."
 							},
 							"panel": {
-								"valueRem": 0,
+								"valueRem": 0.25,
 								"usage": "Cards, panels, and larger grouped regions."
+							},
+							"pill": {
+								"valueRem": 999,
+								"usage": "Compact tags only, never ordinary cards or fields."
 							}
 						},
 						"borders": {
@@ -840,12 +856,12 @@
 						"display": {
 							"font": "display",
 							"sizeRem": {
-								"mobile": 4,
-								"desktop": 7
+								"mobile": 3.5,
+								"desktop": 4.5
 							},
-							"weight": 700,
+							"weight": 500,
 							"lineHeight": 1,
-							"trackingEm": -0.06,
+							"trackingEm": -0.04,
 							"usage": "Singular page statements and expressive product moments."
 						},
 						"heading": {
@@ -854,7 +870,7 @@
 								"mobile": 2.25,
 								"desktop": 3.5
 							},
-							"weight": 700,
+							"weight": 500,
 							"lineHeight": 1.15,
 							"trackingEm": -0.025,
 							"usage": "Section hierarchy and important grouped content."
@@ -862,8 +878,8 @@
 						"body": {
 							"font": "body",
 							"sizeRem": {
-								"mobile": 1,
-								"desktop": 1.125
+								"mobile": 0.9375,
+								"desktop": 1
 							},
 							"weight": 400,
 							"lineHeight": 1.6,
@@ -873,8 +889,8 @@
 						"label": {
 							"font": "accent",
 							"sizeRem": {
-								"mobile": 0.75,
-								"desktop": 0.8125
+								"mobile": 0.6875,
+								"desktop": 0.75
 							},
 							"weight": 600,
 							"lineHeight": 1.3,
@@ -884,8 +900,8 @@
 						"code": {
 							"font": "accent",
 							"sizeRem": {
-								"mobile": 0.8125,
-								"desktop": 0.875
+								"mobile": 0.6875,
+								"desktop": 0.75
 							},
 							"weight": 400,
 							"lineHeight": 1.5,
@@ -894,34 +910,42 @@
 						}
 					},
 					"spacingScale": {
-						"2xs": {
-							"valueRem": 0.25,
+						"2": {
+							"valueRem": 0.5,
 							"usage": "Tight icon and inline relationships."
 						},
-						"xs": {
-							"valueRem": 0.5,
+						"3": {
+							"valueRem": 0.75,
 							"usage": "Compact control internals and paired labels."
 						},
-						"sm": {
+						"4": {
 							"valueRem": 1,
 							"usage": "Related content within one component."
 						},
-						"md": {
+						"6": {
 							"valueRem": 1.5,
 							"usage": "Default control and card rhythm."
 						},
-						"lg": {
+						"8": {
 							"valueRem": 2,
 							"usage": "Distinct groups within a section."
 						},
-						"xl": {
+						"12": {
 							"valueRem": 3,
 							"usage": "Major sections and page level separation."
+						},
+						"16": {
+							"valueRem": 4,
+							"usage": "Large media group and page section separation."
+						},
+						"24": {
+							"valueRem": 6,
+							"usage": "Largest focal transitions around media and hero regions."
 						}
 					},
 					"layout": {
-						"maxWidthRem": 88,
-						"contentWidthCh": 58,
+						"maxWidthRem": 72,
+						"contentWidthCh": 72,
 						"columns": {
 							"mobile": 1,
 							"tablet": 6,
@@ -944,7 +968,7 @@
 							"guidance": "Introduce paired regions only when each remains independently readable."
 						},
 						"desktop": {
-							"minWidthPx": 1280,
+							"minWidthPx": 1024,
 							"guidance": "Use the full grid while keeping reading lines constrained."
 						},
 						"zoom": {
@@ -959,16 +983,20 @@
 					"geometry": {
 						"radii": {
 							"subtle": {
-								"valueRem": 0,
+								"valueRem": 0.5,
 								"usage": "Small indicators and restrained detail."
 							},
 							"control": {
-								"valueRem": 999,
+								"valueRem": 0.625,
 								"usage": "Buttons, fields, and compact interactive surfaces."
 							},
 							"panel": {
-								"valueRem": 0,
+								"valueRem": 1.125,
 								"usage": "Cards, panels, and larger grouped regions."
+							},
+							"pill": {
+								"valueRem": 999,
+								"usage": "Buttons and standalone inputs that form one control group."
 							}
 						},
 						"borders": {
@@ -1211,84 +1239,110 @@
 								"desktop": 4
 							},
 							"weight": 600,
-							"lineHeight": 1,
+							"lineHeight": 0.94,
 							"trackingEm": -0.04,
 							"usage": "Singular page statements and expressive product moments."
 						},
-						"heading": {
+						"page-title": {
 							"font": "display",
 							"sizeRem": {
 								"mobile": 1.5,
 								"desktop": 2
 							},
 							"weight": 600,
-							"lineHeight": 1.15,
+							"lineHeight": 1.08,
 							"trackingEm": -0.025,
 							"usage": "Section hierarchy and important grouped content."
 						},
 						"body": {
 							"font": "body",
 							"sizeRem": {
-								"mobile": 0.9375,
-								"desktop": 1
+								"mobile": 0.875,
+								"desktop": 0.875
 							},
 							"weight": 400,
 							"lineHeight": 1.5,
 							"trackingEm": 0,
 							"usage": "Reading text, explanations, and form guidance."
 						},
-						"label": {
+						"eyebrow": {
+							"font": "accent",
+							"sizeRem": {
+								"mobile": 0.625,
+								"desktop": 0.6875
+							},
+							"weight": 700,
+							"lineHeight": 1.35,
+							"trackingEm": 0.12,
+							"usage": "Compact labels, metadata, and interface wayfinding."
+						},
+						"telemetry": {
 							"font": "accent",
 							"sizeRem": {
 								"mobile": 0.6875,
 								"desktop": 0.75
 							},
-							"weight": 700,
-							"lineHeight": 1.3,
-							"trackingEm": 0.12,
-							"usage": "Compact labels, metadata, and interface wayfinding."
+							"weight": 400,
+							"lineHeight": 1.35,
+							"trackingEm": 0,
+							"usage": "Telemetry, counters, and technical evidence with tabular numerals."
 						},
-						"code": {
-							"font": "accent",
+						"section-title": {
+							"font": "display",
+							"sizeRem": {
+								"mobile": 1,
+								"desktop": 1.25
+							},
+							"weight": 600,
+							"lineHeight": 1.2,
+							"trackingEm": -0.01,
+							"usage": "Ruled panel and operational section headings."
+						},
+						"compact-interface": {
+							"font": "body",
 							"sizeRem": {
 								"mobile": 0.75,
 								"desktop": 0.8125
 							},
-							"weight": 400,
-							"lineHeight": 1.5,
+							"weight": 500,
+							"lineHeight": 1.4,
 							"trackingEm": 0,
-							"usage": "Commands, values, identifiers, and technical evidence."
+							"usage": "Dense controls, table content, and persistent operational context."
 						}
 					},
 					"spacingScale": {
-						"2xs": {
+						"1": {
 							"valueRem": 0.25,
 							"usage": "Tight icon and inline relationships."
 						},
-						"xs": {
+						"2": {
 							"valueRem": 0.5,
 							"usage": "Compact control internals and paired labels."
 						},
-						"sm": {
+						"3": {
 							"valueRem": 0.75,
 							"usage": "Related content within one component."
 						},
-						"md": {
+						"4": {
 							"valueRem": 1,
 							"usage": "Default control and card rhythm."
 						},
-						"lg": {
-							"valueRem": 1.25,
+						"6": {
+							"valueRem": 1.5,
 							"usage": "Distinct groups within a section."
 						},
-						"xl": {
+						"8": {
 							"valueRem": 2,
 							"usage": "Major sections and page level separation."
+						},
+						"12": {
+							"valueRem": 3,
+							"usage": "Marketing section spacing and the largest operational regions."
 						}
 					},
 					"layout": {
 						"maxWidthRem": 96,
-						"contentWidthCh": 78,
+						"contentWidthCh": 72,
 						"columns": {
 							"mobile": 1,
 							"tablet": 8,
@@ -1311,7 +1365,7 @@
 							"guidance": "Introduce paired regions only when each remains independently readable."
 						},
 						"desktop": {
-							"minWidthPx": 1280,
+							"minWidthPx": 1024,
 							"guidance": "Use the full grid while keeping reading lines constrained."
 						},
 						"zoom": {

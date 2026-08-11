@@ -163,7 +163,7 @@
 				},
 				"body": {
 					"font": "body",
-					"sizeRem": { "mobile": 1, "desktop": 1.0625 },
+					"sizeRem": { "mobile": 0.875, "desktop": 1 },
 					"weight": 400,
 					"lineHeight": 1.6,
 					"trackingEm": 0,
@@ -187,28 +187,32 @@
 				}
 			},
 			"spacingScale": {
-				"2xs": {
-					"valueRem": 0.25,
+				"2": {
+					"valueRem": 0.5,
 					"usage": "Tight icon and inline relationships."
 				},
-				"xs": {
-					"valueRem": 0.5,
+				"3": {
+					"valueRem": 0.75,
 					"usage": "Compact control internals and paired labels."
 				},
-				"sm": {
-					"valueRem": 0.75,
+				"4": {
+					"valueRem": 1,
 					"usage": "Related content within one component."
 				},
-				"md": { "valueRem": 1, "usage": "Default control and card rhythm." },
-				"lg": { "valueRem": 1.5, "usage": "Distinct groups within a section." },
-				"xl": {
-					"valueRem": 2.5,
+				"6": { "valueRem": 1.5, "usage": "Default control and card rhythm." },
+				"8": { "valueRem": 2, "usage": "Distinct groups within a section." },
+				"12": {
+					"valueRem": 3,
 					"usage": "Major sections and page level separation."
+				},
+				"16": {
+					"valueRem": 4,
+					"usage": "Largest page sections and major composition breaks."
 				}
 			},
 			"layout": {
-				"maxWidthRem": 80,
-				"contentWidthCh": 68,
+				"maxWidthRem": 72,
+				"contentWidthCh": 72,
 				"columns": { "mobile": 1, "tablet": 6, "desktop": 12 },
 				"gutterRem": { "mobile": 1, "tablet": 1.5, "desktop": 2 },
 				"guidance": "Constrain reading width, align surfaces to shared columns, and let empty space preserve hierarchy."
@@ -223,7 +227,7 @@
 					"guidance": "Introduce paired regions only when each remains independently readable."
 				},
 				"desktop": {
-					"minWidthPx": 1280,
+					"minWidthPx": 1024,
 					"guidance": "Use the full grid while keeping reading lines constrained."
 				},
 				"zoom": {
@@ -238,11 +242,11 @@
 			"geometry": {
 				"radii": {
 					"subtle": {
-						"valueRem": 0.125,
+						"valueRem": 0.375,
 						"usage": "Small indicators and restrained detail."
 					},
 					"control": {
-						"valueRem": 0.375,
+						"valueRem": 0.5,
 						"usage": "Buttons, fields, and compact interactive surfaces."
 					},
 					"panel": {

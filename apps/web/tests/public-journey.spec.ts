@@ -495,10 +495,19 @@ test("every discovered Preview renders the complete visual foundations specimen 
 			await expect(colors.locator("code")).toHaveCount(13);
 		}
 
-		await expect(foundations.locator("[data-type-role]")).toHaveCount(5);
-		await expect(foundations.locator("[data-spacing-step]")).toHaveCount(6);
+		expect(
+			await foundations.locator("[data-type-role]").count(),
+			route,
+		).toBeGreaterThanOrEqual(4);
+		expect(
+			await foundations.locator("[data-spacing-step]").count(),
+			route,
+		).toBeGreaterThanOrEqual(7);
 		await expect(foundations.locator("[data-responsive-mode]")).toHaveCount(5);
-		await expect(foundations.locator("[data-radius-specimen]")).toHaveCount(3);
+		expect(
+			await foundations.locator("[data-radius-specimen]").count(),
+			route,
+		).toBeGreaterThanOrEqual(3);
 		await expect(foundations.locator("[data-border-specimen]")).toHaveCount(3);
 		await expect(foundations.locator("[data-elevation-specimen]")).toHaveCount(
 			3,
@@ -1040,6 +1049,12 @@ test("every discovered Design System Preview remains evaluated across supported 
 			forcedColors: "none" as const,
 		},
 		{
+			viewport: { width: 768, height: 1024 },
+			colorScheme: "light" as const,
+			reducedMotion: "no-preference" as const,
+			forcedColors: "none" as const,
+		},
+		{
 			viewport: { width: 390, height: 844 },
 			colorScheme: "dark" as const,
 			reducedMotion: "no-preference" as const,
@@ -1063,6 +1078,13 @@ test("every discovered Design System Preview remains evaluated across supported 
 			reducedMotion: "no-preference" as const,
 			forcedColors: "active" as const,
 		},
+		{
+			viewport: { width: 1440, height: 900 },
+			colorScheme: "light" as const,
+			reducedMotion: "no-preference" as const,
+			forcedColors: "none" as const,
+			zoom: 2,
+		},
 	] as const;
 
 	const routes = await discoverDesignSystemRoutes(page);
@@ -1076,10 +1098,41 @@ test("every discovered Design System Preview remains evaluated across supported 
 				forcedColors: mode.forcedColors,
 			});
 			await page.goto(route);
+			if ("zoom" in mode) {
+				await page.evaluate((zoom) => {
+					document.documentElement.style.zoom = String(zoom);
+				}, mode.zoom);
+			}
 			const name = await page.getByRole("heading", { level: 1 }).innerText();
 			await expect(
 				page.getByLabel(`${name} rendered Design System Preview`),
 			).toBeVisible();
+			if (
+				mode.viewport.width === 320 ||
+				(mode.viewport.width === 1440 && !("zoom" in mode))
+			) {
+				const endpoint = mode.viewport.width === 320 ? "mobile" : "desktop";
+				const mismatches = await page
+					.locator("[data-type-role]")
+					.evaluateAll((specimens, sizeEndpoint) => {
+						const rootSize = Number.parseFloat(
+							getComputedStyle(document.documentElement).fontSize,
+						);
+						return specimens.flatMap((specimen) => {
+							const declared = Number(
+								specimen.getAttribute(`data-${sizeEndpoint}-size-rem`),
+							);
+							const sample = specimen.querySelector(":scope > p");
+							const rendered = sample
+								? Number.parseFloat(getComputedStyle(sample).fontSize)
+								: Number.NaN;
+							return Math.abs(rendered - declared * rootSize) <= 0.1
+								? []
+								: [{ declared, rendered }];
+						});
+					}, endpoint);
+				expect(mismatches, `${route} ${endpoint} type scale`).toEqual([]);
+			}
 
 			let accessibilityCheck = new AxeBuilder({ page }).withTags([
 				"wcag2a",

@@ -16,13 +16,30 @@ function metadataLabel(value: string) {
 	return catalogMetadataLabel(value.replace(/([a-z])([A-Z])/g, "$1 $2"));
 }
 
-const typographySamples = {
+const typographySamples: Record<string, string> = {
 	display: "A distinct point of view.",
 	heading: "Visual foundations",
+	"page-title": "Current workspace",
+	"section-title": "Release activity",
 	body: "Clear hierarchy makes complex product work easier to understand.",
 	label: "EVALUATED DIRECTION",
+	"compact-interface": "Filter results",
+	telemetry: "RUN 042 · 98% HEALTHY",
+	eyebrow: "OPERATIONAL CONTEXT",
 	code: "npx agentkogei@latest add",
-} as const;
+};
+
+function responsiveFontSize(size: { mobile: number; desktop: number }) {
+	const viewportRangeRem = 70;
+	const mobileViewportRem = 20;
+	const difference = size.desktop - size.mobile;
+	const offset =
+		size.mobile - (difference * mobileViewportRem) / viewportRangeRem;
+	const viewportCoefficient = (difference * 100) / viewportRangeRem;
+	const concise = (value: number) => Number(value.toFixed(6));
+
+	return `clamp(${size.mobile}rem, calc(${concise(offset)}rem + ${concise(viewportCoefficient)}vw), ${size.desktop}rem)`;
+}
 
 export function DesignSystemFoundationsSpecimen({
 	designSystem,
@@ -154,7 +171,7 @@ export function DesignSystemFoundationsSpecimen({
 					{entries(typographyScale).map(([role, specimen]) => {
 						const style = {
 							fontFamily: `var(--preview-font-${specimen.font})`,
-							fontSize: `clamp(${specimen.sizeRem.mobile}rem, ${specimen.sizeRem.mobile}rem + 1.5vw, ${specimen.sizeRem.desktop}rem)`,
+							fontSize: responsiveFontSize(specimen.sizeRem),
 							fontWeight: specimen.weight,
 							lineHeight: specimen.lineHeight,
 							letterSpacing: `${specimen.trackingEm}em`,
@@ -164,10 +181,12 @@ export function DesignSystemFoundationsSpecimen({
 							<article
 								key={role}
 								data-type-role={role}
+								data-mobile-size-rem={specimen.sizeRem.mobile}
+								data-desktop-size-rem={specimen.sizeRem.desktop}
 								className="grid min-w-0 gap-5 bg-[var(--preview-card)] p-4 lg:grid-cols-[minmax(0,1fr)_18rem] lg:items-end"
 							>
 								<p className="overflow-wrap-anywhere min-w-0" style={style}>
-									{typographySamples[role]}
+									{typographySamples[role] ?? metadataLabel(role)}
 								</p>
 								<div className="grid gap-1 text-xs leading-5">
 									<h4 className="font-medium text-sm">{metadataLabel(role)}</h4>

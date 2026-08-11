@@ -204,6 +204,10 @@
 				"xl": {
 					"valueRem": 3,
 					"usage": "Major sections and page level separation."
+				},
+				"2xl": {
+					"valueRem": 4,
+					"usage": "Largest analytical regions and page transitions."
 				}
 			},
 			"layout": {
@@ -223,7 +227,7 @@
 					"guidance": "Introduce paired regions only when each remains independently readable."
 				},
 				"desktop": {
-					"minWidthPx": 1280,
+					"minWidthPx": 1024,
 					"guidance": "Use the full grid while keeping reading lines constrained."
 				},
 				"zoom": {

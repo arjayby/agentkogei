@@ -148,7 +148,7 @@
 			"typographyScale": {
 				"display": {
 					"font": "display",
-					"sizeRem": { "mobile": 3.5, "desktop": 6 },
+					"sizeRem": { "mobile": 2.25, "desktop": 4.5 },
 					"weight": 500,
 					"lineHeight": 1,
 					"trackingEm": -0.04,
@@ -156,7 +156,7 @@
 				},
 				"heading": {
 					"font": "display",
-					"sizeRem": { "mobile": 2, "desktop": 3 },
+					"sizeRem": { "mobile": 2.25, "desktop": 4 },
 					"weight": 500,
 					"lineHeight": 1.15,
 					"trackingEm": -0.025,
@@ -164,7 +164,7 @@
 				},
 				"body": {
 					"font": "body",
-					"sizeRem": { "mobile": 1.125, "desktop": 1.1875 },
+					"sizeRem": { "mobile": 1, "desktop": 1.125 },
 					"weight": 400,
 					"lineHeight": 1.7,
 					"trackingEm": 0,
@@ -188,29 +188,37 @@
 				}
 			},
 			"spacingScale": {
-				"2xs": {
-					"valueRem": 0.25,
+				"2": {
+					"valueRem": 0.5,
 					"usage": "Tight icon and inline relationships."
 				},
-				"xs": {
-					"valueRem": 0.625,
+				"4": {
+					"valueRem": 1,
 					"usage": "Compact control internals and paired labels."
 				},
-				"sm": {
-					"valueRem": 1,
+				"6": {
+					"valueRem": 1.5,
 					"usage": "Related content within one component."
 				},
-				"md": { "valueRem": 1.5, "usage": "Default control and card rhythm." },
-				"lg": { "valueRem": 2.5, "usage": "Distinct groups within a section." },
-				"xl": {
+				"8": { "valueRem": 2, "usage": "Default control and card rhythm." },
+				"12": { "valueRem": 3, "usage": "Distinct groups within a section." },
+				"16": {
 					"valueRem": 4,
 					"usage": "Major sections and page level separation."
+				},
+				"24": {
+					"valueRem": 6,
+					"usage": "Generous chapter and editorial section spacing."
+				},
+				"32": {
+					"valueRem": 8,
+					"usage": "Largest reading transitions and page openings."
 				}
 			},
 			"layout": {
-				"maxWidthRem": 76,
-				"contentWidthCh": 64,
-				"columns": { "mobile": 1, "tablet": 4, "desktop": 8 },
+				"maxWidthRem": 80,
+				"contentWidthCh": 62,
+				"columns": { "mobile": 1, "tablet": 6, "desktop": 12 },
 				"gutterRem": { "mobile": 1, "tablet": 2, "desktop": 3 },
 				"guidance": "Center a generous reading column, let supporting material sit in the margins, and use whitespace as punctuation."
 			},
@@ -224,7 +232,7 @@
 					"guidance": "Introduce paired regions only when each remains independently readable."
 				},
 				"desktop": {
-					"minWidthPx": 1280,
+					"minWidthPx": 1024,
 					"guidance": "Use the full grid while keeping reading lines constrained."
 				},
 				"zoom": {
@@ -243,12 +251,16 @@
 						"usage": "Small indicators and restrained detail."
 					},
 					"control": {
-						"valueRem": 0.25,
+						"valueRem": 0.125,
 						"usage": "Buttons, fields, and compact interactive surfaces."
 					},
 					"panel": {
-						"valueRem": 0,
+						"valueRem": 0.25,
 						"usage": "Cards, panels, and larger grouped regions."
+					},
+					"pill": {
+						"valueRem": 999,
+						"usage": "Compact tags only, never ordinary cards or fields."
 					}
 				},
 				"borders": {

@@ -130,7 +130,7 @@ const typographyRoleSchema = z
 			})
 			.strict(),
 		weight: z.number().int().min(100).max(900).multipleOf(100),
-		lineHeight: z.number().min(1).max(2),
+		lineHeight: z.number().min(0.8).max(2),
 		trackingEm: z.number().min(-0.1).max(0.5),
 		usage: terminalTextSchema,
 	})
@@ -142,6 +142,23 @@ const spacingStepSchema = z
 		usage: terminalTextSchema,
 	})
 	.strict();
+
+const namedSpecimenSchema = z
+	.string()
+	.min(1)
+	.regex(/^[a-z0-9-]+$/);
+
+function specimenRecord<Value extends z.ZodType>(
+	value: Value,
+	minimum: number,
+) {
+	return z
+		.record(namedSpecimenSchema, value)
+		.refine(
+			(record) => Object.keys(record).length >= minimum,
+			`must define at least ${minimum} named specimens`,
+		);
+}
 
 const responsiveModeSchema = z
 	.object({
@@ -178,25 +195,8 @@ const elevationSpecimenSchema = z
 const previewFoundationsSchema = z
 	.object({
 		semanticColorUsage: semanticColorUsageSchema,
-		typographyScale: z
-			.object({
-				display: typographyRoleSchema,
-				heading: typographyRoleSchema,
-				body: typographyRoleSchema,
-				label: typographyRoleSchema,
-				code: typographyRoleSchema,
-			})
-			.strict(),
-		spacingScale: z
-			.object({
-				"2xs": spacingStepSchema,
-				xs: spacingStepSchema,
-				sm: spacingStepSchema,
-				md: spacingStepSchema,
-				lg: spacingStepSchema,
-				xl: spacingStepSchema,
-			})
-			.strict(),
+		typographyScale: specimenRecord(typographyRoleSchema, 4),
+		spacingScale: specimenRecord(spacingStepSchema, 6),
 		layout: z
 			.object({
 				maxWidthRem: z.number().positive(),
@@ -239,27 +239,9 @@ const previewFoundationsSchema = z
 			.strict(),
 		geometry: z
 			.object({
-				radii: z
-					.object({
-						subtle: radiusSpecimenSchema,
-						control: radiusSpecimenSchema,
-						panel: radiusSpecimenSchema,
-					})
-					.strict(),
-				borders: z
-					.object({
-						hairline: borderSpecimenSchema,
-						default: borderSpecimenSchema,
-						strong: borderSpecimenSchema,
-					})
-					.strict(),
-				elevation: z
-					.object({
-						flat: elevationSpecimenSchema,
-						raised: elevationSpecimenSchema,
-						overlay: elevationSpecimenSchema,
-					})
-					.strict(),
+				radii: specimenRecord(radiusSpecimenSchema, 1),
+				borders: specimenRecord(borderSpecimenSchema, 1),
+				elevation: specimenRecord(elevationSpecimenSchema, 1),
 			})
 			.strict(),
 	})
