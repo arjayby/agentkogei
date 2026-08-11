@@ -48,7 +48,7 @@ function DesignSystemIdentityPanel({
 }: {
 	designSystem: DesignSystemDiscovery;
 }) {
-	const { mark, typography } = designSystem.previewShell;
+	const { mark, typography } = designSystem.preview;
 	const { intendedFit, route, signature, summary } = designSystem.preview;
 
 	return (

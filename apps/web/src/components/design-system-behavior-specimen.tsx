@@ -4,11 +4,11 @@ import { Button } from "@agentkogei/ui/components/button";
 import { type CSSProperties, useState } from "react";
 
 import { DesignSystemSpecimenHeading } from "@/components/design-system-specimen-heading";
-import type { PreviewShell } from "@/lib/catalog";
+import type { Preview } from "@/lib/catalog";
 
-type Motion = NonNullable<PreviewShell["motion"]>;
-type ReducedMotion = NonNullable<PreviewShell["reducedMotion"]>;
-type Accessibility = NonNullable<PreviewShell["accessibility"]>;
+type Motion = Preview["motion"];
+type ReducedMotion = Preview["reducedMotion"];
+type Accessibility = Preview["accessibility"];
 
 const accessibilityTopics = [
 	["semantics", "Semantics"],
@@ -32,7 +32,7 @@ export function DesignSystemBehaviorSpecimen({
 	reducedMotion,
 }: {
 	accessibility: Accessibility;
-	composition: PreviewShell["composition"];
+	composition: Preview["composition"];
 	motion: Motion;
 	name: string;
 	reducedMotion: ReducedMotion;

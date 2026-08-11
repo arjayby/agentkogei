@@ -29,9 +29,9 @@ import {
 } from "react";
 
 import { DesignSystemSpecimenHeading } from "@/components/design-system-specimen-heading";
-import type { PreviewShell } from "@/lib/catalog";
+import type { Preview } from "@/lib/catalog";
 
-type Interactions = NonNullable<PreviewShell["interactions"]>;
+type Interactions = Preview["interactions"];
 type FeedbackTone = Interactions["feedback"]["badges"][number]["tone"];
 
 const badgeVariants = {
@@ -115,7 +115,7 @@ export function DesignSystemInteractionsSpecimen({
 	interactions,
 	name,
 }: {
-	composition: PreviewShell["composition"];
+	composition: Preview["composition"];
 	interactions: Interactions;
 	name: string;
 }) {

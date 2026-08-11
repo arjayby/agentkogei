@@ -127,10 +127,11 @@ describe("Design System Release publication validation", () => {
 		);
 	});
 
-	test("reads structured Preview shell metadata beside the legacy Preview form", async () => {
+	test("requires one complete structured Preview without legacy metadata", async () => {
 		const record = await readEvaluationRecord(foundationReleaseDirectory);
 
-		expect(record.previewShell).toMatchObject({
+		expect(record.schemaVersion).toBe("4.0");
+		expect(record.preview).toMatchObject({
 			mark: {
 				recipe: "structural-planes",
 				label: "Stable aligned structural planes",
@@ -142,34 +143,24 @@ describe("Design System Release publication validation", () => {
 			},
 			composition: "balanced-grid",
 		});
-		expect(record.previewShell.theme).toEqual({
-			tokens: record.preview.tokens,
-			geometry: record.preview.geometry,
-		});
+		expect(record).not.toHaveProperty("previewShell");
+		expect(record.preview).not.toHaveProperty("surfaces");
+		expect(record.preview).not.toHaveProperty("tokens");
+		expect(record.preview).not.toHaveProperty("geometry");
 
 		const legacyRecord = structuredClone(record);
 		legacyRecord.schemaVersion = "3.0";
-		const legacyPreviewShell = legacyRecord.previewShell as Record<
-			string,
-			unknown
-		>;
-		Reflect.deleteProperty(legacyPreviewShell, "controls");
 		expect(
 			designSystemEvaluationRecordSchema.safeParse(legacyRecord).success,
-		).toBe(true);
-
-		Reflect.deleteProperty(legacyRecord, "previewShell");
-		expect(
-			designSystemEvaluationRecordSchema.safeParse(legacyRecord).success,
-		).toBe(true);
+		).toBe(false);
 	});
 
-	test("rejects a Version 4 release without its complete Preview shell", async () => {
+	test("rejects a release without its complete Preview", async () => {
 		const errors = await evaluateMutatedRelease((record) => {
-			Reflect.deleteProperty(record, "previewShell");
+			Reflect.deleteProperty(record, "preview");
 		});
 
-		expect(errors).toContain("previewShell");
+		expect(errors).toContain("preview");
 	});
 
 	test("rejects incomplete foundational Preview metadata with an actionable path", async () => {
@@ -182,12 +173,12 @@ describe("Design System Release publication validation", () => {
 			"geometry",
 		]) {
 			const errors = await evaluateMutatedRelease((record) => {
-				const previewShell = record.previewShell as Record<string, unknown>;
-				const foundations = previewShell.foundations as Record<string, unknown>;
+				const preview = record.preview as Record<string, unknown>;
+				const foundations = preview.foundations as Record<string, unknown>;
 				Reflect.deleteProperty(foundations, category);
 			});
 
-			expect(errors).toContain(`previewShell.foundations.${category}`);
+			expect(errors).toContain(`preview.foundations.${category}`);
 		}
 	});
 
@@ -202,22 +193,22 @@ describe("Design System Release publication validation", () => {
 			"navigation",
 		]) {
 			const errors = await evaluateMutatedRelease((record) => {
-				const previewShell = record.previewShell as Record<string, unknown>;
-				const controls = previewShell.controls as Record<string, unknown>;
+				const preview = record.preview as Record<string, unknown>;
+				const controls = preview.controls as Record<string, unknown>;
 				Reflect.deleteProperty(controls, category);
 			});
 
-			expect(errors).toContain(`previewShell.controls.${category}`);
+			expect(errors).toContain(`preview.controls.${category}`);
 		}
 	});
 
 	test("rejects a Version 4 release without data, feedback, dialog, and destructive action Preview metadata", async () => {
 		const errors = await evaluateMutatedRelease((record) => {
-			const previewShell = record.previewShell as Record<string, unknown>;
-			Reflect.deleteProperty(previewShell, "interactions");
+			const preview = record.preview as Record<string, unknown>;
+			Reflect.deleteProperty(preview, "interactions");
 		});
 
-		expect(errors).toContain("previewShell.interactions");
+		expect(errors).toContain("preview.interactions");
 	});
 
 	test("rejects each incomplete consequential interaction category with an actionable path", async () => {
@@ -228,15 +219,12 @@ describe("Design System Release publication validation", () => {
 			"destructiveActions",
 		]) {
 			const errors = await evaluateMutatedRelease((record) => {
-				const previewShell = record.previewShell as Record<string, unknown>;
-				const interactions = previewShell.interactions as Record<
-					string,
-					unknown
-				>;
+				const preview = record.preview as Record<string, unknown>;
+				const interactions = preview.interactions as Record<string, unknown>;
 				Reflect.deleteProperty(interactions, category);
 			});
 
-			expect(errors).toContain(`previewShell.interactions.${category}`);
+			expect(errors).toContain(`preview.interactions.${category}`);
 		}
 	});
 
@@ -249,11 +237,11 @@ describe("Design System Release publication validation", () => {
 			"evidencePresentation",
 		]) {
 			const errors = await evaluateMutatedRelease((record) => {
-				const previewShell = record.previewShell as Record<string, unknown>;
-				Reflect.deleteProperty(previewShell, category);
+				const preview = record.preview as Record<string, unknown>;
+				Reflect.deleteProperty(preview, category);
 			});
 
-			expect(errors).toContain(`previewShell.${category}`);
+			expect(errors).toContain(`preview.${category}`);
 		}
 	});
 
@@ -488,13 +476,18 @@ describe("Design System Release publication validation", () => {
 		expect(errors).toContain("automated check");
 	});
 
-	test("rejects incomplete public preview surface coverage", async () => {
+	test("rejects incomplete public Preview surface coverage", async () => {
 		const errors = await evaluateMutatedRelease((record) => {
 			const preview = record.preview as Record<string, unknown>;
-			preview.surfaces = Array.from({ length: 8 }, () => "marketing");
+			const productSurfaces = preview.productSurfaces as Record<
+				string,
+				unknown
+			>;
+			const examples = productSurfaces.examples as Record<string, unknown>;
+			Reflect.deleteProperty(examples, "settings");
 		});
 
-		expect(errors).toContain("preview surfaces must be unique and complete");
+		expect(errors).toContain("preview.productSurfaces.examples.settings");
 	});
 
 	test("rejects changed bytes under an already-published Design System Release", async () => {

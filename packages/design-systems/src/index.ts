@@ -31,6 +31,7 @@ export {
 	designSystemEvaluationRecordSchema,
 	designSystemMarkRecipes,
 	designSystemPreviewFontChoices,
+	designSystemPreviewSchema,
 	designSystemPreviewSurfaces,
 } from "./design-system-evaluation";
 export type { DesignSystemIdentity } from "./design-system-identity";

@@ -1,10 +1,9 @@
 import type { ReactNode } from "react";
 
-import {
-	type DesignSystem,
-	type DesignSystemDiscovery,
-	type PreviewPalette,
-	previewShellFor,
+import type {
+	DesignSystem,
+	DesignSystemDiscovery,
+	PreviewPalette,
 } from "@/lib/catalog";
 
 const fontFamilies = {
@@ -58,7 +57,7 @@ function previewThemeStylesheet(
 	designSystem: DesignSystem | DesignSystemDiscovery,
 	page: boolean,
 ) {
-	const { theme, typography } = previewShellFor(designSystem);
+	const { theme, typography } = designSystem.preview;
 	const { geometry, tokens } = theme;
 	const selector = `[data-design-system-preview="${designSystem.slug}"]`;
 	const pageSelector = `body:has([data-design-system-preview-page="${designSystem.slug}"])`;
@@ -168,7 +167,7 @@ export function DesignSystemPreviewTheme({
 	page?: boolean;
 	includeStyles?: boolean;
 }) {
-	const { composition } = previewShellFor(designSystem);
+	const { composition } = designSystem.preview;
 	const stylesheet = previewThemeStylesheet(designSystem, page);
 
 	if (page) {

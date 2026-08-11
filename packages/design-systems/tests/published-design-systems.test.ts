@@ -210,53 +210,53 @@ describe("Published Design System discovery", () => {
 			mutate: async (releaseDirectory: string) => {
 				await mutateMetadata(releaseDirectory, (metadata) => {
 					const preview = metadata.preview as Record<string, unknown>;
-					(preview.geometry as Record<string, unknown>).radius = "blob";
+					const theme = preview.theme as Record<string, unknown>;
+					(theme.geometry as Record<string, unknown>).radius = "blob";
 				});
 			},
-			error: "preview.geometry.radius",
+			error: "preview.theme.geometry.radius",
 		},
 		{
 			name: "unsupported Design System Mark recipe",
 			mutate: async (releaseDirectory: string) => {
 				await mutateMetadata(releaseDirectory, (metadata) => {
-					const previewShell = metadata.previewShell as Record<string, unknown>;
-					(previewShell.mark as Record<string, unknown>).recipe =
-						"borrowed-logo";
+					const preview = metadata.preview as Record<string, unknown>;
+					(preview.mark as Record<string, unknown>).recipe = "borrowed-logo";
 				});
 			},
-			error: "previewShell.mark.recipe",
+			error: "preview.mark.recipe",
 		},
 		{
 			name: "unsupported Preview typography choice",
 			mutate: async (releaseDirectory: string) => {
 				await mutateMetadata(releaseDirectory, (metadata) => {
-					const previewShell = metadata.previewShell as Record<string, unknown>;
-					(previewShell.typography as Record<string, unknown>).display =
+					const preview = metadata.preview as Record<string, unknown>;
+					(preview.typography as Record<string, unknown>).display =
 						"runtime-vendor-font";
 				});
 			},
-			error: "previewShell.typography.display",
+			error: "preview.typography.display",
 		},
 		{
 			name: "unsupported Preview composition",
 			mutate: async (releaseDirectory: string) => {
 				await mutateMetadata(releaseDirectory, (metadata) => {
-					const previewShell = metadata.previewShell as Record<string, unknown>;
-					previewShell.composition = "identity-specific-page";
+					const preview = metadata.preview as Record<string, unknown>;
+					preview.composition = "identity-specific-page";
 				});
 			},
-			error: "previewShell.composition",
+			error: "preview.composition",
 		},
 		{
-			name: "unsupported Preview shell theme",
+			name: "unsupported Preview theme",
 			mutate: async (releaseDirectory: string) => {
 				await mutateMetadata(releaseDirectory, (metadata) => {
-					const previewShell = metadata.previewShell as Record<string, unknown>;
-					const theme = previewShell.theme as Record<string, unknown>;
+					const preview = metadata.preview as Record<string, unknown>;
+					const theme = preview.theme as Record<string, unknown>;
 					(theme.geometry as Record<string, unknown>).radius = "blob";
 				});
 			},
-			error: "previewShell.theme.geometry.radius",
+			error: "preview.theme.geometry.radius",
 		},
 		{
 			name: "unexpected release file",

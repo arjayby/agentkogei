@@ -26,7 +26,7 @@ import { Check, CircleAlert } from "lucide-react";
 import { type FormEvent, type ReactNode, useId, useState } from "react";
 
 import { DesignSystemSpecimenHeading } from "@/components/design-system-specimen-heading";
-import type { PreviewShell } from "@/lib/catalog";
+import type { Preview } from "@/lib/catalog";
 
 const interactionStates = [
 	"default",
@@ -69,8 +69,8 @@ export function DesignSystemControlsSpecimen({
 	name,
 	slug,
 }: {
-	composition: PreviewShell["composition"];
-	controls: NonNullable<PreviewShell["controls"]>;
+	composition: Preview["composition"];
+	controls: Preview["controls"];
 	name: string;
 	slug: string;
 }) {

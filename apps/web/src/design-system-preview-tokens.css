@@ -1,16 +1,8 @@
-.catalog-preview-artwork,
 .catalog-preview-surface {
 	border-color: var(--preview-border);
 	background: var(--preview-background);
 	color: var(--preview-foreground);
 	font-family: var(--preview-font-body);
-}
-
-.catalog-preview-artwork {
-	border-width: var(--preview-border-width);
-	border-radius: var(--preview-radius);
-	box-shadow: var(--preview-shadow);
-	padding: var(--preview-space);
 }
 
 .catalog-preview-surface {
@@ -653,7 +645,6 @@ button[data-preview-control][data-specimen-state="error"] {
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.catalog-preview-artwork,
 	.catalog-preview-surface,
 	.preview-motion-object,
 	[data-preview-control] {

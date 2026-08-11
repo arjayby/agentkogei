@@ -41,7 +41,7 @@ const publicationSkillDirectory = path.resolve(
 	"../../../.agents/skills/publish-design-system",
 );
 const temporaryDirectories: string[] = [];
-const completePreviewShell = (
+const completePreview = (
 	JSON.parse(
 		await readFile(
 			path.resolve(
@@ -50,8 +50,8 @@ const completePreviewShell = (
 			),
 			"utf8",
 		),
-	) as { previewShell: unknown }
-).previewShell;
+	) as { preview: Record<string, unknown> }
+).preview;
 
 const completeDesignContract = `# Lattice Design System
 
@@ -330,51 +330,22 @@ const rightsAssertions = [
 ];
 
 function proposalMetadata() {
-	const palette = {
-		background: "#ffffff",
-		foreground: "#111111",
-		card: "#ffffff",
-		muted: "#eeeeee",
-		mutedForeground: "#555555",
-		border: "#cccccc",
-		primary: "#2233aa",
-		primaryForeground: "#ffffff",
-		destructive: "#aa2222",
-		success: "#227744",
-		warning: "#886611",
-		info: "#225588",
-		ring: "#3344bb",
-	};
 	return {
 		schemaVersion: "1.0",
 		publisher: "AgentKogei",
 		publishedAt: "2026-08-10",
 		preview: {
+			...structuredClone(completePreview),
 			order: 5,
 			summary: "Calm, precise planning interfaces.",
 			intendedFit: "Dense collaborative planning products",
-			surfaces: evaluationPlan().screens,
 			route: "/design-systems/lattice",
 			signature: {
 				label: "Lattice 01",
 				headline: "Make the work visible.",
 				principles: ["Precise hierarchy", "Calm density", "Warm action"],
 			},
-			tokens: { light: palette, dark: palette },
-			typography: {
-				display: "sans",
-				body: "sans",
-				accent: "mono",
-				scale: "compact",
-			},
-			geometry: {
-				density: "compact",
-				radius: "soft",
-				border: "defined",
-				elevation: "flat",
-			},
 		},
-		previewShell: structuredClone(completePreviewShell),
 		changelog: {
 			summary: "Initial Lattice Design System Release.",
 			breaking: false,
@@ -840,12 +811,11 @@ describe("Design System publication workflow", () => {
 			unknown
 		>;
 		record.schemaVersion = "3.0";
-		Reflect.deleteProperty(record, "previewShell");
 		await writeFile(evaluationFile, `${JSON.stringify(record, null, "\t")}\n`);
 
 		expect(await inspectPublicationProposal(proposalDirectory)).toEqual({
 			ok: false,
-			errors: ["publication proposal requires Version 4 Preview metadata"],
+			errors: ['schemaVersion: Invalid input: expected "4.0"'],
 		});
 	});
 

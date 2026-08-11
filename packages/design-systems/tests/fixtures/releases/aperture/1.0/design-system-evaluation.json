@@ -52,16 +52,6 @@
 		"order": 5,
 		"summary": "Calm, luminous interfaces for analytical products.",
 		"intendedFit": "Analytical and decision support products",
-		"surfaces": [
-			"marketing",
-			"authentication",
-			"onboarding",
-			"dashboard",
-			"table",
-			"form",
-			"settings",
-			"states"
-		],
 		"route": "/design-systems/aperture",
 		"signature": {
 			"label": "Acceptance fixture",
@@ -72,52 +62,6 @@
 				"Explicit status"
 			]
 		},
-		"tokens": {
-			"light": {
-				"background": "#f7f9fc",
-				"foreground": "#172033",
-				"card": "#ffffff",
-				"muted": "#e8edf5",
-				"mutedForeground": "#526078",
-				"border": "#cbd5e3",
-				"primary": "#3156a3",
-				"primaryForeground": "#ffffff",
-				"destructive": "#b42332",
-				"success": "#19734a",
-				"warning": "#8a5a00",
-				"info": "#216a8f",
-				"ring": "#3156a3"
-			},
-			"dark": {
-				"background": "#111827",
-				"foreground": "#eef3fb",
-				"card": "#182235",
-				"muted": "#253149",
-				"mutedForeground": "#aab6ca",
-				"border": "#394761",
-				"primary": "#8eabf4",
-				"primaryForeground": "#111827",
-				"destructive": "#ff8a96",
-				"success": "#7bd6a9",
-				"warning": "#f3c36b",
-				"info": "#80c8ee",
-				"ring": "#8eabf4"
-			}
-		},
-		"typography": {
-			"display": "sans",
-			"body": "sans",
-			"accent": "mono",
-			"scale": "balanced"
-		},
-		"geometry": {
-			"density": "balanced",
-			"radius": "soft",
-			"border": "defined",
-			"elevation": "layered"
-		}
-	},
-	"previewShell": {
 		"mark": {
 			"recipe": "nested-apertures",
 			"label": "Nested analytical apertures"
@@ -147,7 +91,10 @@
 			"typographyScale": {
 				"display": {
 					"font": "display",
-					"sizeRem": { "mobile": 3.25, "desktop": 5.5 },
+					"sizeRem": {
+						"mobile": 3.25,
+						"desktop": 5.5
+					},
 					"weight": 600,
 					"lineHeight": 1,
 					"trackingEm": -0.05,
@@ -155,7 +102,10 @@
 				},
 				"heading": {
 					"font": "display",
-					"sizeRem": { "mobile": 1.75, "desktop": 2.75 },
+					"sizeRem": {
+						"mobile": 1.75,
+						"desktop": 2.75
+					},
 					"weight": 600,
 					"lineHeight": 1.15,
 					"trackingEm": -0.025,
@@ -163,7 +113,10 @@
 				},
 				"body": {
 					"font": "body",
-					"sizeRem": { "mobile": 1, "desktop": 1.0625 },
+					"sizeRem": {
+						"mobile": 1,
+						"desktop": 1.0625
+					},
 					"weight": 400,
 					"lineHeight": 1.6,
 					"trackingEm": 0,
@@ -171,7 +124,10 @@
 				},
 				"label": {
 					"font": "accent",
-					"sizeRem": { "mobile": 0.75, "desktop": 0.8125 },
+					"sizeRem": {
+						"mobile": 0.75,
+						"desktop": 0.8125
+					},
 					"weight": 600,
 					"lineHeight": 1.3,
 					"trackingEm": 0.08,
@@ -179,7 +135,10 @@
 				},
 				"code": {
 					"font": "accent",
-					"sizeRem": { "mobile": 0.8125, "desktop": 0.875 },
+					"sizeRem": {
+						"mobile": 0.8125,
+						"desktop": 0.875
+					},
 					"weight": 400,
 					"lineHeight": 1.5,
 					"trackingEm": 0,
@@ -199,8 +158,14 @@
 					"valueRem": 1,
 					"usage": "Related content within one component."
 				},
-				"md": { "valueRem": 1.5, "usage": "Default control and card rhythm." },
-				"lg": { "valueRem": 2, "usage": "Distinct groups within a section." },
+				"md": {
+					"valueRem": 1.5,
+					"usage": "Default control and card rhythm."
+				},
+				"lg": {
+					"valueRem": 2,
+					"usage": "Distinct groups within a section."
+				},
 				"xl": {
 					"valueRem": 3,
 					"usage": "Major sections and page level separation."
@@ -213,8 +178,16 @@
 			"layout": {
 				"maxWidthRem": 84,
 				"contentWidthCh": 70,
-				"columns": { "mobile": 1, "tablet": 6, "desktop": 12 },
-				"gutterRem": { "mobile": 1, "tablet": 1.5, "desktop": 2 },
+				"columns": {
+					"mobile": 1,
+					"tablet": 6,
+					"desktop": 12
+				},
+				"gutterRem": {
+					"mobile": 1,
+					"tablet": 1.5,
+					"desktop": 2
+				},
 				"guidance": "Frame analytical decisions with luminous working surfaces, measured whitespace, and explicit status regions."
 			},
 			"responsive": {
@@ -359,9 +332,18 @@
 			"navigation": {
 				"label": "Workspace sections",
 				"items": [
-					{ "id": "summary", "label": "Summary" },
-					{ "id": "workspace", "label": "Workspace" },
-					{ "id": "review", "label": "Review" }
+					{
+						"id": "summary",
+						"label": "Summary"
+					},
+					{
+						"id": "workspace",
+						"label": "Workspace"
+					},
+					{
+						"id": "review",
+						"label": "Review"
+					}
 				],
 				"guidance": "Expose the current location in text and structure and preserve keyboard order."
 			}
@@ -370,12 +352,25 @@
 			"dataDisplay": {
 				"tableCaption": "Aperture studies",
 				"columns": [
-					{ "id": "study", "label": "Study" },
-					{ "id": "opening", "label": "Opening" },
-					{ "id": "state", "label": "State" }
+					{
+						"id": "study",
+						"label": "Study"
+					},
+					{
+						"id": "opening",
+						"label": "Opening"
+					},
+					{
+						"id": "state",
+						"label": "State"
+					}
 				],
 				"rows": [
-					{ "id": "study-01", "label": "Study 01", "cells": ["Wide", "Ready"] },
+					{
+						"id": "study-01",
+						"label": "Study 01",
+						"cells": ["Wide", "Ready"]
+					},
 					{
 						"id": "study-02",
 						"label": "Study 02",

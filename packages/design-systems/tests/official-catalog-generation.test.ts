@@ -49,13 +49,11 @@ describe("Official Catalog generation", () => {
 					name: "Foundation",
 					currentRelease: "1.0",
 					preview: metadata.preview,
-					previewShell: metadata.previewShell,
 					compatibility: metadata.compatibility,
 					evaluation: metadata.evaluation,
 					releases: [
 						{
 							version: "1.0",
-							publishedAt: "2026-07-19",
 							changelog: metadata.changelog,
 						},
 					],
@@ -78,5 +76,35 @@ describe("Official Catalog generation", () => {
 		expect(artifacts.catalog.designSystems[0]?.preview.route).toBe(
 			"/design-systems/foundation",
 		);
+	});
+
+	test("includes every discovered valid identity without legacy generated fields", async () => {
+		const releasesDirectory = await mkdtemp(
+			path.join(tmpdir(), "agentkogei-catalog-discovery-"),
+		);
+		temporaryDirectories.push(releasesDirectory);
+		for (const [identity, source] of [
+			["foundation", publishedReleaseDirectory("foundation", "1.0")],
+			[
+				"aperture",
+				path.resolve(import.meta.dirname, "fixtures/releases/aperture/1.0"),
+			],
+		] as const) {
+			const releaseDirectory = path.join(releasesDirectory, identity, "1.0");
+			await mkdir(path.dirname(releaseDirectory), { recursive: true });
+			await cp(source, releaseDirectory, { recursive: true });
+		}
+
+		const artifacts = await generateOfficialCatalogArtifacts(releasesDirectory);
+
+		expect(artifacts.catalog.designSystems.map(({ id }) => id)).toEqual([
+			"foundation",
+			"aperture",
+		]);
+		for (const designSystem of artifacts.catalog.designSystems) {
+			expect(designSystem.preview).toHaveProperty("productSurfaces.examples");
+			expect(designSystem).not.toHaveProperty("previewShell");
+			expect(designSystem.releases[0]).not.toHaveProperty("publishedAt");
+		}
 	});
 });
