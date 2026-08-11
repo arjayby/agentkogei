@@ -12,7 +12,7 @@ Create one UTF 8 JSON file with this strict shape. It supplies public presentati
     "summary": "Public summary",
     "intendedFit": "Intended product fit",
     "surfaces": ["marketing", "authentication", "onboarding", "dashboard", "table", "form", "settings", "states"],
-    "route": "/catalog/identity",
+    "route": "/design-systems/identity",
     "signature": {
       "label": "Short label",
       "headline": "Signature headline",

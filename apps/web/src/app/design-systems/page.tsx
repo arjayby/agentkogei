@@ -4,19 +4,19 @@ import { DesignSystemCard } from "@/components/design-system-card";
 import { designSystems } from "@/lib/catalog";
 
 export const metadata: Metadata = {
-	title: "Official Catalog | AgentKogei",
+	title: "Design Systems | AgentKogei",
 	description:
-		"Browse Published Design Systems in the AgentKogei Official Catalog.",
+		"Browse Published Design Systems from AgentKogei and choose a direction for your Project.",
 };
 
-export default function CatalogPage() {
+export default function DesignSystemsPage() {
 	return (
 		<main>
 			<header className="border-b px-5 py-16 sm:px-8 lg:px-12 lg:py-24">
 				<div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-2 lg:items-end">
 					<div className="flex flex-col gap-5">
 						<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.24em]">
-							Official Catalog / Launch collection
+							Design Systems / Launch collection
 						</p>
 						<h1 className="font-medium text-5xl tracking-[-0.05em] sm:text-7xl">
 							Published systems. Distinct voices.

@@ -63,7 +63,7 @@
 			"settings",
 			"states"
 		],
-		"route": "/catalog/editorial",
+		"route": "/design-systems/editorial",
 		"signature": {
 			"label": "Volume 01",
 			"headline": "Ideas need room.",

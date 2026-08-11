@@ -53,7 +53,7 @@ export function DesignSystemPreviewTheme({
 	children: ReactNode;
 }) {
 	const { geometry, tokens, typography } = designSystem.preview;
-	const selector = `[data-catalog-preview="${designSystem.slug}"]`;
+	const selector = `[data-design-system-preview="${designSystem.slug}"]`;
 	const sharedDeclarations = `
 		--preview-font-display: ${fontFamilies[typography.display]};
 		--preview-font-body: ${fontFamilies[typography.body]};
@@ -73,7 +73,7 @@ export function DesignSystemPreviewTheme({
 			.dark ${selector} {
 				${paletteDeclarations(tokens.dark)}
 			}`}</style>
-			<div data-catalog-preview={designSystem.slug}>{children}</div>
+			<div data-design-system-preview={designSystem.slug}>{children}</div>
 		</>
 	);
 }

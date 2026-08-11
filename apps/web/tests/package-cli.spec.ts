@@ -12,12 +12,11 @@ import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, test } from "@playwright/test";
-
-import {
-	discoverCatalogRoutes,
-	readPublishedDesignSystem,
-} from "./support/catalog";
 import { runProcess } from "./support/cli";
+import {
+	discoverDesignSystemRoutes,
+	readPublishedDesignSystem,
+} from "./support/design-systems";
 import { cliTarball, packageRunners } from "./support/package-runners";
 
 /**
@@ -138,7 +137,7 @@ test("the packed CLI installs every discovered current and exact Design System R
 	const runner = packageRunners.find(({ name }) => name === "npx");
 	if (!runner) throw new Error("The npx package runner is unavailable");
 
-	const routes = await discoverCatalogRoutes(page);
+	const routes = await discoverDesignSystemRoutes(page);
 
 	for (const route of routes) {
 		const { identity, currentRelease, exactReleases } =

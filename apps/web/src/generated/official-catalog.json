@@ -19,7 +19,7 @@
 					"settings",
 					"states"
 				],
-				"route": "/catalog/foundation",
+				"route": "/design-systems/foundation",
 				"signature": {
 					"label": "System 01",
 					"headline": "Clarity before character.",
@@ -141,7 +141,7 @@
 					"settings",
 					"states"
 				],
-				"route": "/catalog/editorial",
+				"route": "/design-systems/editorial",
 				"signature": {
 					"label": "Volume 01",
 					"headline": "Ideas need room.",
@@ -264,7 +264,7 @@
 					"settings",
 					"states"
 				],
-				"route": "/catalog/mono",
+				"route": "/design-systems/mono",
 				"signature": {
 					"label": "System 03",
 					"headline": "Ink and paper.",
@@ -386,7 +386,7 @@
 					"settings",
 					"states"
 				],
-				"route": "/catalog/command",
+				"route": "/design-systems/command",
 				"signature": {
 					"label": "Node 04",
 					"headline": "Purpose-built instrument.",

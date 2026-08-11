@@ -62,7 +62,7 @@
 			"settings",
 			"states"
 		],
-		"route": "/catalog/aperture",
+		"route": "/design-systems/aperture",
 		"signature": {
 			"label": "Acceptance fixture",
 			"headline": "Frame the decision.",

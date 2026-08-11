@@ -795,15 +795,18 @@ export async function verifyPublicationAtUrl(input: {
 			throw new Error(
 				"approved identity is absent from local catalog discovery",
 			);
-		const catalogRoute = new URL("catalog", production);
+		const catalogRoute = new URL("design-systems", production);
 		const catalog = await fetch(catalogRoute, { redirect: "manual" });
 		const catalogHtml = await catalog.text();
-		if (!catalog.ok || !catalogHtml.includes(`/catalog/${promoted.id}`)) {
+		if (
+			!catalog.ok ||
+			!catalogHtml.includes(`/design-systems/${promoted.id}`)
+		) {
 			throw new Error(
 				"new Design System is absent from production catalog discovery",
 			);
 		}
-		const previewRoute = new URL(`catalog/${promoted.id}`, production);
+		const previewRoute = new URL(`design-systems/${promoted.id}`, production);
 		const preview = await fetch(previewRoute, { redirect: "manual" });
 		const previewHtml = await preview.text();
 		const currentMetadata = promoted.releases.at(-1)?.metadata;
@@ -913,8 +916,10 @@ export async function verifyPublicationAtUrl(input: {
 			identity: approval.proposal.identity,
 			version: approval.proposal.version,
 			designContractSha256: approval.proposal.designContractSha256,
-			catalogRoute: new URL(`catalog/${approval.proposal.identity}`, production)
-				.href,
+			catalogRoute: new URL(
+				`design-systems/${approval.proposal.identity}`,
+				production,
+			).href,
 			currentContractRoute: new URL(
 				`contracts/${approval.proposal.identity}`,
 				production,

@@ -4,7 +4,9 @@ import Link from "next/link";
 import { BrandMark } from "./brand-mark";
 import { ModeToggle } from "./mode-toggle";
 
-const navigation = [{ href: "/catalog" as Route, label: "Catalog" }] as const;
+const navigation = [
+	{ href: "/design-systems" as Route, label: "Design Systems" },
+] as const;
 
 export default function Header() {
 	return (

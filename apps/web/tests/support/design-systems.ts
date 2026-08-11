@@ -1,7 +1,7 @@
 import type { Page } from "@playwright/test";
 
-export async function discoverCatalogRoutes(page: Page) {
-	await page.goto("/catalog");
+export async function discoverDesignSystemRoutes(page: Page) {
+	await page.goto("/design-systems");
 	const routes = await page
 		.getByRole("region", { name: "Published Design Systems" })
 		.getByRole("link")
@@ -12,7 +12,7 @@ export async function discoverCatalogRoutes(page: Page) {
 			}),
 		);
 	if (routes.length === 0) {
-		throw new Error("The Official Catalog has no discovered routes");
+		throw new Error("The Design Systems collection has no discovered routes");
 	}
 	return [...new Set(routes)];
 }
@@ -20,7 +20,7 @@ export async function discoverCatalogRoutes(page: Page) {
 export async function readPublishedDesignSystem(page: Page, route: string) {
 	const identity = route.split("/").at(-1);
 	if (!identity) {
-		throw new Error(`Invalid catalog route: ${route}`);
+		throw new Error(`Invalid Design System route: ${route}`);
 	}
 	await page.goto(route);
 	const name = (

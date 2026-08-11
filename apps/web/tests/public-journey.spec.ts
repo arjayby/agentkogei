@@ -3,12 +3,11 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-
-import {
-	discoverCatalogRoutes,
-	readPublishedDesignSystem,
-} from "./support/catalog";
 import { runCli } from "./support/cli";
+import {
+	discoverDesignSystemRoutes,
+	readPublishedDesignSystem,
+} from "./support/design-systems";
 
 const removedNavigationDestinations = [
 	"/pricing",
@@ -47,7 +46,7 @@ test("a prospective Builder can understand what a Design System changes", async 
 	).toBeVisible();
 	await expect(
 		page.getByRole("link", { name: "Choose a design system" }),
-	).toHaveAttribute("href", "/catalog");
+	).toHaveAttribute("href", "/design-systems");
 	await expect(page.locator('a[href="/docs"]')).toHaveCount(0);
 });
 
@@ -121,20 +120,24 @@ test("the landing page presents every discovered visual direction without releas
 }) => {
 	await page.goto("/");
 
-	const catalog = page.getByRole("region", {
+	const designSystemsRegion = page.getByRole("region", {
 		name: "Choose your taste.",
 	});
-	const homeRoutes = await catalog.getByRole("link").evaluateAll((links) =>
-		links.flatMap((link) => {
-			const href = link.getAttribute("href");
-			return href?.startsWith("/catalog/") ? [href] : [];
-		}),
-	);
-	await expect(catalog.getByRole("link", { name: /Signal/i })).toHaveCount(0);
+	const homeRoutes = await designSystemsRegion
+		.getByRole("link")
+		.evaluateAll((links) =>
+			links.flatMap((link) => {
+				const href = link.getAttribute("href");
+				return href?.startsWith("/design-systems/") ? [href] : [];
+			}),
+		);
+	await expect(
+		designSystemsRegion.getByRole("link", { name: /Signal/i }),
+	).toHaveCount(0);
 	await expect(page.getByText(/Recently published/i)).toHaveCount(0);
-	const catalogRoutes = await discoverCatalogRoutes(page);
+	const designSystemRoutes = await discoverDesignSystemRoutes(page);
 	expect(homeRoutes.length).toBeGreaterThan(0);
-	expect(new Set(homeRoutes)).toEqual(new Set(catalogRoutes));
+	expect(new Set(homeRoutes)).toEqual(new Set(designSystemRoutes));
 });
 
 test("removed commercial, account, authorization, and telemetry routes are absent", async ({
@@ -176,7 +179,39 @@ test("removed commercial, account, authorization, and telemetry routes are absen
 	}
 });
 
-test("every page carries a footer naming the catalog and public product surfaces", async ({
+test("public Design Systems routes replace every former Catalog route", async ({
+	page,
+	request,
+}) => {
+	await page.goto("/design-systems");
+	await expect(
+		page.getByRole("heading", { name: "Published systems. Distinct voices." }),
+	).toBeVisible();
+	await expect(
+		page.getByRole("main").getByRole("link", { name: /Foundation/i }),
+	).toHaveAttribute("href", "/design-systems/foundation");
+
+	await page.goto("/design-systems/foundation");
+	await expect(
+		page.getByRole("heading", { name: "Foundation", exact: true }),
+	).toBeVisible();
+
+	for (const route of [
+		"/catalog",
+		"/catalog/foundation",
+		"/catalog/editorial",
+		"/catalog/mono",
+		"/catalog/command",
+		"/catalog/unknown",
+		"/catalog/foundation/releases",
+	]) {
+		const response = await request.get(route, { maxRedirects: 0 });
+		expect(response.status(), route).toBe(404);
+		expect(response.headers().location, route).toBeUndefined();
+	}
+});
+
+test("every page carries a footer naming Design Systems and public product surfaces", async ({
 	page,
 }) => {
 	await page.goto("/");
@@ -185,11 +220,11 @@ test("every page carries a footer naming the catalog and public product surfaces
 	for (const designSystem of ["Foundation", "Editorial", "Mono", "Command"]) {
 		await expect(
 			footer.getByRole("link", { name: designSystem, exact: true }),
-		).toHaveAttribute("href", `/catalog/${designSystem.toLowerCase()}`);
+		).toHaveAttribute("href", `/design-systems/${designSystem.toLowerCase()}`);
 	}
 	await expect(
-		footer.getByRole("link", { name: "Catalog", exact: true }),
-	).toHaveAttribute("href", "/catalog");
+		footer.getByRole("link", { name: "Design Systems", exact: true }),
+	).toHaveAttribute("href", "/design-systems");
 	await expect(footer.getByRole("link", { name: "Docs" })).toHaveCount(0);
 	await expect(
 		footer.getByRole("link", { name: "GitHub", exact: true }),
@@ -199,7 +234,7 @@ test("every page carries a footer naming the catalog and public product surfaces
 test("public navigation and calls to action expose no commercial or account journeys", async ({
 	page,
 }) => {
-	for (const route of ["/", "/catalog", "/catalog/foundation"]) {
+	for (const route of ["/", "/design-systems", "/design-systems/foundation"]) {
 		await page.goto(route);
 		const actionText = (await page.locator("a, button").allInnerTexts()).join(
 			" ",
@@ -218,16 +253,16 @@ test("public pages use Design System vocabulary without retired product claims",
 }) => {
 	for (const route of [
 		"/",
-		"/catalog",
-		"/catalog/foundation",
-		"/catalog/editorial",
-		"/catalog/mono",
-		"/catalog/command",
+		"/design-systems",
+		"/design-systems/foundation",
+		"/design-systems/editorial",
+		"/design-systems/mono",
+		"/design-systems/command",
 	]) {
 		await page.goto(route);
 		const visibleCopy = await page.locator("body").innerText();
 		expect(visibleCopy, route).not.toMatch(
-			/\b(?:pack|packs|premium|pricing|subscription|signal)\b/i,
+			/\b(?:catalog|pack|packs|premium|pricing|subscription|signal)\b/i,
 		);
 		expect(visibleCopy, route).not.toMatch(
 			/(^|\n)Access(?:\s*·[^\n]*)?(?=\n|$)/i,
@@ -239,8 +274,11 @@ test("public pages use Design System vocabulary without retired product claims",
 test("public page metadata uses Design System vocabulary", async ({ page }) => {
 	const expectations = [
 		["/", /Give your agents better taste.*AgentKogei/i],
-		["/catalog", /Official Catalog.*AgentKogei/i],
-		["/catalog/foundation", /Foundation Design System Preview.*AgentKogei/i],
+		["/design-systems", /Design Systems.*AgentKogei/i],
+		[
+			"/design-systems/foundation",
+			/Foundation Design System Preview.*AgentKogei/i,
+		],
 	] as const;
 
 	for (const [route, title] of expectations) {
@@ -254,26 +292,26 @@ test("public page metadata uses Design System vocabulary", async ({ page }) => {
 	}
 });
 
-test("the Official Catalog retains every launch Design System", async ({
-	page,
-}) => {
-	await page.goto("/catalog");
-	const catalog = page.getByRole("main");
+test("Design Systems retains every launch Design System", async ({ page }) => {
+	await page.goto("/design-systems");
+	const designSystems = page.getByRole("main");
 
 	for (const designSystem of ["Foundation", "Editorial", "Mono", "Command"]) {
 		await expect(
-			catalog.getByRole("link", {
+			designSystems.getByRole("link", {
 				name: new RegExp(designSystem, "i"),
 			}),
 		).toHaveCount(1);
 	}
-	await expect(catalog.getByRole("link", { name: /Signal/i })).toHaveCount(0);
+	await expect(
+		designSystems.getByRole("link", { name: /Signal/i }),
+	).toHaveCount(0);
 });
 
-test("every discovered catalog route presents its complete published anatomy", async ({
+test("every discovered Design System route presents its complete published anatomy", async ({
 	page,
 }) => {
-	const routes = await discoverCatalogRoutes(page);
+	const routes = await discoverDesignSystemRoutes(page);
 
 	for (const route of routes) {
 		const {
@@ -303,16 +341,16 @@ test("every discovered catalog route presents its complete published anatomy", a
 	}
 });
 
-test("an isolated valid release reaches catalog discovery and its complete public journey", async ({
+test("an isolated valid release reaches Design System discovery and its complete public journey", async ({
 	page,
 	request,
 }) => {
-	await page.goto("/catalog");
+	await page.goto("/design-systems");
 	await expect(
 		page.getByRole("link", { name: "Aperture", exact: true }),
-	).toHaveAttribute("href", "/catalog/aperture");
+	).toHaveAttribute("href", "/design-systems/aperture");
 
-	await page.goto("/catalog/aperture");
+	await page.goto("/design-systems/aperture");
 	await expect(
 		page.getByRole("heading", { name: "Aperture", exact: true }),
 	).toBeVisible();
@@ -331,10 +369,10 @@ test("an isolated valid release reaches catalog discovery and its complete publi
 	}
 });
 
-test("the Official Catalog and Design System Previews present published metadata", async ({
+test("Design Systems and Design System Previews present published metadata", async ({
 	page,
 }) => {
-	await page.goto("/catalog");
+	await page.goto("/design-systems");
 	await expect(
 		page.getByRole("heading", { name: "Published systems. Distinct voices." }),
 	).toBeVisible();
@@ -382,13 +420,13 @@ test("the Official Catalog and Design System Previews present published metadata
 	] as const;
 
 	for (const published of publishedMetadata) {
-		const catalogCard = page.getByRole("link", {
+		const designSystemCard = page.getByRole("link", {
 			name: new RegExp(published.name, "i"),
 		});
-		await expect(catalogCard.getByText(published.signature)).toBeVisible();
-		await expect(catalogCard.getByText(published.fit)).toBeVisible();
+		await expect(designSystemCard.getByText(published.signature)).toBeVisible();
+		await expect(designSystemCard.getByText(published.fit)).toBeVisible();
 
-		await page.goto(`/catalog/${published.identity}`);
+		await page.goto(`/design-systems/${published.identity}`);
 		const preview = page.getByRole("main");
 		await expect(preview.getByText(published.signature)).toBeVisible();
 		await expect(preview.getByText(published.viewports)).toBeVisible();
@@ -399,7 +437,7 @@ test("the Official Catalog and Design System Previews present published metadata
 		).toBeVisible();
 		await expect(preview.getByText(published.changelog)).toBeVisible();
 
-		await page.goto("/catalog");
+		await page.goto("/design-systems");
 	}
 });
 
@@ -435,7 +473,7 @@ test("every discovered Design System Preview advertises the complete Installatio
 	page,
 	request,
 }) => {
-	const routes = await discoverCatalogRoutes(page);
+	const routes = await discoverDesignSystemRoutes(page);
 
 	for (const route of routes) {
 		const {
@@ -488,7 +526,7 @@ test("every discovered Design System Preview advertises the complete Installatio
 test("the public Command Design System Preview shows complete evidence and its raw Design Contract", async ({
 	page,
 }) => {
-	await page.goto("/catalog/command");
+	await page.goto("/design-systems/command");
 
 	await expect(page.getByRole("heading", { name: "Command" })).toBeVisible();
 	await expect(
@@ -550,7 +588,7 @@ test("a Builder can anonymously retrieve the complete Foundation Design System R
 	expect(contract).toContain("# Foundation Design System");
 	expect(contract).toContain("## Final validation checklist");
 
-	await page.goto("/catalog/foundation");
+	await page.goto("/design-systems/foundation");
 	await expect(page.getByText("1440x900 · 390x844")).toBeVisible();
 	await expect(page.getByText("Light · Dark · Reduced motion")).toBeVisible();
 	await expect(
@@ -558,8 +596,10 @@ test("a Builder can anonymously retrieve the complete Foundation Design System R
 	).toBeVisible();
 });
 
-test("an unknown catalog identity returns not found", async ({ request }) => {
-	const response = await request.get("/catalog/unknown");
+test("an unknown Design System identity returns not found", async ({
+	request,
+}) => {
+	const response = await request.get("/design-systems/unknown");
 
 	expect(response.status()).toBe(404);
 });
@@ -567,7 +607,7 @@ test("an unknown catalog identity returns not found", async ({ request }) => {
 test("release details link to Foundation's sole exact Design Contract", async ({
 	page,
 }) => {
-	await page.goto("/catalog/foundation");
+	await page.goto("/design-systems/foundation");
 
 	await expect(
 		page.getByRole("link", {
@@ -580,7 +620,7 @@ test("release details link to Foundation's sole exact Design Contract", async ({
 test("a Design System Preview exposes its published evaluation provenance", async ({
 	page,
 }) => {
-	await page.goto("/catalog/editorial");
+	await page.goto("/design-systems/editorial");
 
 	await expect(
 		page.getByText(
@@ -604,7 +644,7 @@ test("a Builder can preview, retrieve, and distinguish the Editorial Design Syst
 	expect(contract).toContain("# Editorial Design System");
 	expect(contract).toContain("Warmth comes from restraint");
 
-	await page.goto("/catalog/editorial");
+	await page.goto("/design-systems/editorial");
 	await expect(page.getByRole("heading", { name: "Editorial" })).toBeVisible();
 	await expect(
 		page.getByLabel("Editorial rendered Design System Preview"),
@@ -729,7 +769,7 @@ test("every discovered release is delivered and installed through identity indep
 	page,
 	request,
 }) => {
-	const routes = await discoverCatalogRoutes(page);
+	const routes = await discoverDesignSystemRoutes(page);
 
 	for (const route of routes) {
 		const {
@@ -862,7 +902,7 @@ test("every discovered Design System Preview remains evaluated across supported 
 		},
 	] as const;
 
-	const routes = await discoverCatalogRoutes(page);
+	const routes = await discoverDesignSystemRoutes(page);
 
 	for (const route of routes) {
 		for (const mode of modes) {
@@ -921,7 +961,11 @@ test("every discovered Design System Preview remains evaluated across supported 
 	}
 });
 
-const responsiveRoutes = ["/", "/catalog", "/catalog/command"] as const;
+const responsiveRoutes = [
+	"/",
+	"/design-systems",
+	"/design-systems/command",
+] as const;
 
 for (const route of responsiveRoutes) {
 	test(`${route} remains navigable without horizontal overflow on mobile`, async ({
@@ -934,7 +978,7 @@ for (const route of responsiveRoutes) {
 			name: "Primary navigation",
 		});
 		await expect(
-			navigation.getByRole("link", { name: "Catalog", exact: true }),
+			navigation.getByRole("link", { name: "Design Systems", exact: true }),
 		).toBeVisible();
 		await expect(
 			navigation.getByRole("link", { name: "Docs", exact: true }),

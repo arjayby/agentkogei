@@ -115,7 +115,7 @@ export async function discoverPublishedDesignSystems(
 					`${identity}@${version}: metadata version ${metadata.designSystemRelease.version} does not match its release directory`,
 				);
 			}
-			const expectedRoute = `/catalog/${identity}`;
+			const expectedRoute = `/design-systems/${identity}`;
 			if (metadata.preview.route !== expectedRoute) {
 				errors.push(
 					`${identity}@${version}: preview route ${metadata.preview.route} does not match ${expectedRoute}`,
