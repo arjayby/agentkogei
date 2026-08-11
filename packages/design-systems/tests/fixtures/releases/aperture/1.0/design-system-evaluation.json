@@ -623,7 +623,7 @@
 		}
 	},
 	"changelog": {
-		"summary": "Acceptance fixture proving release discovered catalog membership.",
+		"summary": "Acceptance fixture proving identity independent release discovery.",
 		"breaking": false,
 		"migrationNotes": null
 	}
