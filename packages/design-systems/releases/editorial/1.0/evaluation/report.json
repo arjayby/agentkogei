@@ -3,7 +3,7 @@
 	"status": "passed",
 	"standard": "WCAG 2.2 Level AA",
 	"referenceImplementation": {
-		"route": "/catalog/editorial",
+		"route": "/design-systems/editorial",
 		"stack": "react-tailwind-shadcn",
 		"usesReleasedTokens": true,
 		"agentRunEvidence": "evaluation/agent-runs.md"

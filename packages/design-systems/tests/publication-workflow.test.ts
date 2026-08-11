@@ -342,7 +342,7 @@ function proposalMetadata() {
 			summary: "Calm, precise planning interfaces.",
 			intendedFit: "Dense collaborative planning products",
 			surfaces: evaluationPlan().screens,
-			route: "/catalog/lattice",
+			route: "/design-systems/lattice",
 			signature: {
 				label: "Lattice 01",
 				headline: "Make the work visible.",
@@ -989,13 +989,13 @@ describe("Design System publication workflow", () => {
 			port: 0,
 			fetch(request) {
 				const pathname = new URL(request.url).pathname;
-				if (pathname === "/catalog") {
+				if (pathname === "/design-systems") {
 					return new Response(
-						'<main><a href="/catalog/lattice">Lattice</a></main>',
+						'<main><a href="/design-systems/lattice">Lattice</a></main>',
 						{ headers: { "content-type": "text/html" } },
 					);
 				}
-				if (pathname === "/catalog/lattice") {
+				if (pathname === "/design-systems/lattice") {
 					return new Response(
 						"<main><h1>Lattice</h1><h2>Design System Preview</h2></main>",
 						{ headers: { "content-type": "text/html" } },
@@ -1047,7 +1047,7 @@ describe("Design System publication workflow", () => {
 				identity: "lattice",
 				version: "1.0",
 				designContractSha256: metadata.designContract.sha256,
-				catalogRoute: `${server.url.href}catalog/lattice`,
+				catalogRoute: `${server.url.href}design-systems/lattice`,
 				currentContractRoute: `${server.url.href}contracts/lattice`,
 				exactContractRoute: `${server.url.href}contracts/lattice/1.0`,
 				catalogDiscovery: "passed",

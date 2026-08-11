@@ -13,7 +13,7 @@ import Link from "next/link";
 import { DesignSystemArtwork } from "@/components/design-system-artwork";
 import type { DesignSystem } from "@/lib/catalog";
 
-/** The Official Catalog card for one Design System. */
+/** A discovery card for one Design System. */
 export function DesignSystemCard({
 	designSystem,
 	index,
@@ -23,7 +23,7 @@ export function DesignSystemCard({
 }) {
 	return (
 		<Link
-			href={`/catalog/${designSystem.slug}` as Route}
+			href={designSystem.preview.route as Route}
 			className="group outline-none focus-visible:ring-2 focus-visible:ring-ring"
 		>
 			<Card className="h-full transition-transform group-hover:-translate-y-1">

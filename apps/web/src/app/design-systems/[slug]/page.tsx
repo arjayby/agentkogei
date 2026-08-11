@@ -62,18 +62,18 @@ export default async function DesignSystemPage({
 	const actionHref =
 		`/contracts/${designSystem.slug}/${release.version}` as Route;
 	const actionLabel = `Read the ${designSystem.name} ${release.version} Design Contract`;
-	const retrievalNote = `${designSystem.name} is retrieved anonymously from the public Official Catalog. The CLI shows the absolute target and the exact change before it writes anything.`;
+	const retrievalNote = `${designSystem.name} is retrieved anonymously from AgentKogei's public Design Systems collection. The CLI shows the absolute target and the exact change before it writes anything.`;
 
 	return (
 		<main>
 			<header className="border-b px-5 py-8 sm:px-8 lg:px-12">
 				<div className="mx-auto max-w-7xl">
 					<Link
-						href={"/catalog" as Route}
+						href={"/design-systems" as Route}
 						className="inline-flex items-center gap-2 text-muted-foreground text-sm hover:text-foreground"
 					>
 						<ArrowLeft aria-hidden="true" className="size-4" />
-						Official Catalog
+						Design Systems
 					</Link>
 				</div>
 			</header>

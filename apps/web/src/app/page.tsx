@@ -34,7 +34,7 @@ export default function Home() {
 						</p>
 						<div className="hero-action">
 							<Link
-								href={"/catalog" as Route}
+								href={"/design-systems" as Route}
 								className={buttonVariants({ size: "lg" })}
 							>
 								Choose a design system
@@ -51,7 +51,7 @@ export default function Home() {
 
 			<section
 				className="border-b px-5 py-16 sm:px-8 lg:px-12 lg:py-24"
-				aria-labelledby="catalog-heading"
+				aria-labelledby="design-systems-heading"
 			>
 				<div className="mx-auto flex max-w-7xl flex-col gap-10">
 					<div className="flex flex-wrap items-end justify-between gap-6">
@@ -60,7 +60,7 @@ export default function Home() {
 								Published visual directions
 							</p>
 							<h2
-								id="catalog-heading"
+								id="design-systems-heading"
 								className="text-balance font-medium text-3xl tracking-tight sm:text-5xl"
 							>
 								Choose your taste.
@@ -71,7 +71,7 @@ export default function Home() {
 							</p>
 						</div>
 						<Link
-							href={"/catalog" as Route}
+							href={"/design-systems" as Route}
 							className="inline-flex items-center gap-1 font-mono text-muted-foreground text-xs uppercase tracking-[0.14em] transition-colors hover:text-foreground"
 						>
 							View all design systems

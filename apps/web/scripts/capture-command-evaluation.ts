@@ -55,7 +55,9 @@ try {
 			reducedMotion: mode.reducedMotion,
 		});
 		const page = await context.newPage();
-		await page.goto(`${origin}/catalog/command`, { waitUntil: "networkidle" });
+		await page.goto(`${origin}/design-systems/command`, {
+			waitUntil: "networkidle",
+		});
 		await page.addStyleTag({
 			content: "nextjs-portal { display: none !important; }",
 		});

@@ -1,8 +1,8 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { discoverCatalogRoutes } from "./support/catalog";
+import { discoverDesignSystemRoutes } from "./support/design-systems";
 
-const publicRoutes = ["/", "/catalog"] as const;
+const publicRoutes = ["/", "/design-systems"] as const;
 
 const viewports = [
 	{ name: "desktop", width: 1440, height: 900 },
@@ -31,7 +31,7 @@ for (const viewport of viewports) {
 		page,
 	}) => {
 		await page.setViewportSize(viewport);
-		const routes = await discoverCatalogRoutes(page);
+		const routes = await discoverDesignSystemRoutes(page);
 
 		for (const route of routes) {
 			await page.goto(route);

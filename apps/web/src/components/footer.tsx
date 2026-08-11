@@ -3,7 +3,9 @@ import Link from "next/link";
 
 import { designSystems } from "@/lib/catalog";
 
-const productLinks = [{ href: "/catalog" as Route, label: "Catalog" }] as const;
+const productLinks = [
+	{ href: "/design-systems" as Route, label: "Design Systems" },
+] as const;
 
 const repositoryUrl = "https://github.com/arjayby/agentkogei";
 
@@ -28,7 +30,7 @@ export default function Footer() {
 						{designSystems.map((designSystem) => (
 							<Link
 								key={designSystem.slug}
-								href={`/catalog/${designSystem.slug}` as Route}
+								href={designSystem.preview.route as Route}
 								className="text-muted-foreground text-sm transition-colors hover:text-foreground"
 							>
 								{designSystem.name}

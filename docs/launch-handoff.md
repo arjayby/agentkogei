@@ -11,7 +11,7 @@ bun run launch:verify
 
 `launch:verify` checks formatting, tracked release surfaces, TypeScript, production builds, and the full test suite. It requires no database, migration, or external service credential.
 
-The Playwright suite builds and starts the public Next.js catalog, creates the publishable `agentkogei` archive, and runs both against a controlled Official Catalog and temporary Projects. Every CLI journey launches the built executable on Node.js. The runner matrix installs the archive through `npx`, `pnpm dlx`, modern `yarn dlx`, and `bunx`. Request inspection runs against that packed archive and proves it sends only the anonymous Design Contract request.
+The Playwright suite builds and starts the public Next.js Design Systems application, creates the publishable `agentkogei` archive, and runs both against a controlled Official Catalog and temporary Projects. Every CLI journey launches the built executable on Node.js. The runner matrix installs the archive through `npx`, `pnpm dlx`, modern `yarn dlx`, and `bunx`. Request inspection runs against that packed archive and proves it sends only the anonymous Design Contract request.
 
 ## Launch smoke boundary
 

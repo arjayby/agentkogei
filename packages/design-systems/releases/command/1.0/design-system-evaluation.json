@@ -62,7 +62,7 @@
 			"settings",
 			"states"
 		],
-		"route": "/catalog/command",
+		"route": "/design-systems/command",
 		"signature": {
 			"label": "Node 04",
 			"headline": "Purpose-built instrument.",

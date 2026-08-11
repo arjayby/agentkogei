@@ -30,14 +30,12 @@ describe("Official Catalog generation", () => {
 		await cp(publishedReleaseDirectory("foundation", "1.0"), releaseDirectory, {
 			recursive: true,
 		});
-
 		const artifacts = await generateOfficialCatalogArtifacts(releasesDirectory);
-		const metadata = JSON.parse(
-			await readFile(
-				path.join(releaseDirectory, designSystemEvaluationFileName),
-				"utf8",
-			),
+		const metadataFile = path.join(
+			releaseDirectory,
+			designSystemEvaluationFileName,
 		);
+		const metadata = JSON.parse(await readFile(metadataFile, "utf8"));
 		const markdown = await readFile(
 			path.join(releaseDirectory, "DESIGN.md"),
 			"utf8",
@@ -76,5 +74,8 @@ describe("Official Catalog generation", () => {
 				},
 			},
 		});
+		expect(artifacts.catalog.designSystems[0]?.preview.route).toBe(
+			"/design-systems/foundation",
+		);
 	});
 });

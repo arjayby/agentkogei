@@ -15,11 +15,11 @@
 
 </div>
 
-AgentKogei publishes complete Design Systems for AI coding agents. Choose a direction from the public Official Catalog, install its Design Contract in your Project, and give every agent the same visual and behavioral guidance.
+AgentKogei publishes complete Design Systems for AI coding agents. Choose a direction from the public Design Systems collection, install its Design Contract in your Project, and give every agent the same visual and behavioral guidance.
 
-[Browse the live Official Catalog](https://agentkogei.vercel.app/catalog)
+[Browse the live Design Systems](https://agentkogei.vercel.app/design-systems)
 
-## Official Catalog
+## Design Systems
 
 | Design System | Direction |
 | --- | --- |
@@ -60,7 +60,7 @@ Every Design Contract is retrieved anonymously from the public Official Catalog.
 ```text
 agentkogei/
 ├── apps/
-│   └── web/                 # Public Official Catalog
+│   └── web/                 # Public Design Systems application
 └── packages/
     ├── ui/                  # Shared interface components and styles
     ├── design-systems/      # CLI, validation, and Design System Releases

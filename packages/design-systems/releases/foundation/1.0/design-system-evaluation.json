@@ -62,7 +62,7 @@
 			"settings",
 			"states"
 		],
-		"route": "/catalog/foundation",
+		"route": "/design-systems/foundation",
 		"signature": {
 			"label": "System 01",
 			"headline": "Clarity before character.",

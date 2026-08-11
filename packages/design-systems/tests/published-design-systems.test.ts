@@ -51,7 +51,7 @@ async function copyRelease(
 			`${separator ? " " : ""}${letter.toUpperCase()}`,
 	);
 	metadata.designSystemRelease.version = version;
-	metadata.preview.route = `/catalog/${identity}`;
+	metadata.preview.route = `/design-systems/${identity}`;
 	await writeFile(metadataPath, `${JSON.stringify(metadata, null, "\t")}\n`);
 	return releaseDirectory;
 }
@@ -139,11 +139,11 @@ describe("Published Design System discovery", () => {
 		const releaseDirectory = await copyRelease(rootDirectory, "tracer", "1.0");
 		await mutateMetadata(releaseDirectory, (metadata) => {
 			(metadata.preview as Record<string, unknown>).route =
-				"/catalog/someone-else";
+				"/design-systems/someone-else";
 		});
 
 		expect(discoverPublishedDesignSystems(rootDirectory)).rejects.toThrow(
-			"preview route /catalog/someone-else does not match /catalog/tracer",
+			"preview route /design-systems/someone-else does not match /design-systems/tracer",
 		);
 	});
 
