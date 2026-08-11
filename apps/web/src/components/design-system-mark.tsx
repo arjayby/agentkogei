@@ -4,145 +4,166 @@ import type { DesignSystem, DesignSystemDiscovery } from "@/lib/catalog";
 
 type MarkDrawingProps = SVGProps<SVGSVGElement>;
 
-function StructuralPlanes() {
+const markColors = {
+	base: "var(--preview-primary)",
+	highlight: "color-mix(in oklab, var(--preview-primary) 68%, white)",
+	shade: "color-mix(in oklab, var(--preview-primary) 72%, black)",
+	outline: "color-mix(in oklab, var(--preview-primary) 48%, black)",
+} as const;
+
+const quarterTurns = [0, 90, 180, 270] as const;
+const thirdTurns = [0, 120, 240] as const;
+const sixthTurns = [0, 60, 120, 180, 240, 300] as const;
+
+function StructuralBlocks() {
 	return (
 		<>
-			<path
-				d="M11 18 32 7l21 11-21 11L11 18Z"
-				fill="var(--preview-primary)"
-				opacity="0.92"
-			/>
-			<path
-				d="m11 29 21-11 21 11-21 11L11 29Z"
-				fill="var(--preview-foreground)"
-				opacity="0.28"
-			/>
-			<path
-				d="m11 40 21-11 21 11-21 11L11 40Z"
-				fill="var(--preview-primary)"
-				opacity="0.58"
-			/>
-			<path
-				d="m32 7 21 11-4 2-17-9-17 9-4-2L32 7Z"
-				fill="white"
-				opacity="0.22"
-			/>
+			{quarterTurns.map((rotation) => (
+				<g key={rotation} transform={`rotate(${rotation} 32 32)`}>
+					<path
+						d="M24 12 32 7l8 5v13l-8 7-8-7V12Z"
+						fill={markColors.base}
+						stroke={markColors.outline}
+						strokeWidth="1.75"
+						strokeLinejoin="round"
+					/>
+					<path d="m24 12 8 5 8-5-8-5-8 5Z" fill={markColors.highlight} />
+					<path
+						d="m32 17 8-5v13l-8 7V17Z"
+						fill={markColors.shade}
+						opacity="0.72"
+					/>
+					<path
+						d="m24 12 8 5 8-5M32 17v15"
+						fill="none"
+						stroke={markColors.outline}
+						strokeWidth="1.25"
+						strokeLinejoin="round"
+						opacity="0.72"
+					/>
+				</g>
+			))}
 		</>
 	);
 }
 
-function PageLeaves() {
+function TurningPagePetals() {
 	return (
 		<>
-			<path
-				d="M12 12c9 0 16 3 20 9v32c-5-6-12-9-20-9V12Z"
-				fill="var(--preview-primary)"
-				opacity="0.8"
-			/>
-			<path
-				d="M52 12c-9 0-16 3-20 9v32c5-6 12-9 20-9V12Z"
-				fill="var(--preview-foreground)"
-				opacity="0.32"
-			/>
-			<path
-				d="M17 8c7 1 12 4 15 9v30c-4-5-9-8-15-9V8Z"
-				fill="var(--preview-primary)"
-				opacity="0.38"
-			/>
-			<path
-				d="M32 17v36"
-				stroke="var(--preview-foreground)"
-				strokeWidth="1.5"
-				opacity="0.55"
-			/>
+			{thirdTurns.map((rotation) => (
+				<g key={rotation} transform={`rotate(${rotation} 32 32)`}>
+					<path
+						d="M32 6c9 3 14 10 13 18-1 6-6 11-13 14-4-5-8-11-8-18 0-6 3-11 8-14Z"
+						fill={markColors.base}
+						stroke={markColors.outline}
+						strokeWidth="1.75"
+						strokeLinejoin="round"
+					/>
+					<path
+						d="M32 9c6 3 10 8 10 14 0 4-3 8-8 11-2-5-4-10-4-15 0-4 1-8 2-10Z"
+						fill={markColors.highlight}
+						opacity="0.82"
+					/>
+					<path
+						d="M34 34c5-3 8-7 8-11 0-4-2-8-5-11 2 8 1 16-3 22Z"
+						fill={markColors.shade}
+						opacity="0.46"
+					/>
+					<path
+						d="M32 9c-2 9-1 18 2 25"
+						fill="none"
+						stroke={markColors.outline}
+						strokeWidth="1.25"
+						strokeLinecap="round"
+						opacity="0.68"
+					/>
+				</g>
+			))}
 		</>
 	);
 }
 
-function NestedApertures() {
+function InterwovenCells() {
 	return (
 		<>
-			<rect
-				x="8"
-				y="8"
-				width="48"
-				height="48"
-				rx="10"
-				fill="var(--preview-foreground)"
-				opacity="0.92"
-			/>
-			<rect
-				x="15"
-				y="15"
-				width="34"
-				height="34"
-				rx="8"
-				fill="var(--preview-background)"
-			/>
-			<rect
-				x="22"
-				y="22"
-				width="20"
-				height="20"
-				rx="6"
-				fill="var(--preview-primary)"
-				opacity="0.82"
-			/>
-			<rect
-				x="28"
-				y="28"
-				width="8"
-				height="8"
-				rx="3"
-				fill="var(--preview-primary-foreground)"
-			/>
-			<path d="M12 12h36" stroke="white" strokeWidth="1.5" opacity="0.2" />
+			{quarterTurns.map((rotation) => (
+				<g key={rotation} transform={`rotate(${rotation} 32 32)`}>
+					<path
+						d="M31 7c10 0 18 8 18 18 0 6-3 11-8 14 0-7-4-11-10-11-6 0-10-4-10-10 0-6 4-11 10-11Z"
+						fill={markColors.base}
+						stroke={markColors.outline}
+						strokeWidth="1.75"
+						strokeLinejoin="round"
+					/>
+					<path
+						d="M31 10c7 0 13 5 15 12 1 5-1 9-4 13-2-6-6-9-11-9-4 0-7-3-7-7 0-5 3-9 7-9Z"
+						fill={markColors.highlight}
+						opacity="0.74"
+					/>
+					<path
+						d="M41 39c0-7-4-11-10-11-6 0-10-4-10-10 0 8 5 13 12 13 4 0 7 2 9 8Z"
+						fill={markColors.shade}
+						opacity="0.58"
+					/>
+				</g>
+			))}
 		</>
 	);
 }
 
-function DirectionalNodes() {
+function DirectionalChevrons() {
 	return (
 		<>
-			<path
-				d="M13 45 31 15l20 14-18 20-20-4Z"
-				fill="none"
-				stroke="var(--preview-primary)"
-				strokeWidth="5"
-				strokeLinejoin="round"
-			/>
-			<path
-				d="m31 15 2 34M13 45l38-16"
-				stroke="var(--preview-foreground)"
-				strokeWidth="2"
-				opacity="0.48"
-			/>
-			<circle cx="31" cy="15" r="6" fill="var(--preview-primary)" />
-			<circle cx="51" cy="29" r="6" fill="var(--preview-foreground)" />
+			{sixthTurns.map((rotation) => (
+				<g key={rotation} transform={`rotate(${rotation} 32 32)`}>
+					<path
+						d="m23 8 9 8 9-8 3 5-12 12-12-12 3-5Z"
+						fill={markColors.base}
+						stroke={markColors.outline}
+						strokeWidth="1.75"
+						strokeLinejoin="round"
+					/>
+					<path
+						d="m23 8 9 8 9-8-1 4-8 8-10-9 1-3Z"
+						fill={markColors.highlight}
+						opacity="0.78"
+					/>
+					<path
+						d="m32 20 8-8 4 1-12 12v-5Z"
+						fill={markColors.shade}
+						opacity="0.72"
+					/>
+				</g>
+			))}
 			<circle
-				cx="33"
-				cy="49"
-				r="6"
-				fill="var(--preview-primary)"
-				opacity="0.72"
+				cx="32"
+				cy="32"
+				r="4.5"
+				fill={markColors.highlight}
+				stroke={markColors.outline}
+				strokeWidth="1.75"
 			/>
-			<circle
-				cx="13"
-				cy="45"
-				r="6"
-				fill="var(--preview-foreground)"
-				opacity="0.72"
-			/>
-			<circle cx="29" cy="13" r="2" fill="white" opacity="0.42" />
 		</>
 	);
 }
 
 const drawings = {
-	"structural-planes": StructuralPlanes,
-	"page-leaves": PageLeaves,
-	"nested-apertures": NestedApertures,
-	"directional-nodes": DirectionalNodes,
+	"structural-planes": {
+		Drawing: StructuralBlocks,
+		label: "Four interlocking structural blocks",
+	},
+	"page-leaves": {
+		Drawing: TurningPagePetals,
+		label: "Three turning page petals",
+	},
+	"nested-apertures": {
+		Drawing: InterwovenCells,
+		label: "Four interwoven repeating cells",
+	},
+	"directional-nodes": {
+		Drawing: DirectionalChevrons,
+		label: "Six directional chevrons converging on a core",
+	},
 } as const;
 
 export function DesignSystemMark({
@@ -153,20 +174,20 @@ export function DesignSystemMark({
 	designSystem: DesignSystem | DesignSystemDiscovery;
 } & MarkDrawingProps) {
 	const { mark } = designSystem.preview;
-	const Drawing = drawings[mark.recipe];
+	const { Drawing, label } = drawings[mark.recipe];
 
 	return (
 		<svg
 			viewBox="0 0 64 64"
 			role="img"
 			aria-label={`${designSystem.name} Design System Mark`}
-			aria-description={mark.label}
+			aria-description={label}
 			data-mark-recipe={mark.recipe}
 			className={className}
 			{...props}
 		>
 			<title>{`${designSystem.name} Design System Mark`}</title>
-			<desc>{mark.label}</desc>
+			<desc>{label}</desc>
 			<Drawing />
 		</svg>
 	);

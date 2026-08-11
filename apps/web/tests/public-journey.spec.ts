@@ -488,10 +488,10 @@ test("every discovered complete Preview uses its themed shell and Design System 
 }) => {
 	const routes = await discoverDesignSystemRoutes(page);
 	const initialMarkLabels = new Map([
-		["foundation", "Stable aligned structural planes"],
-		["editorial", "Layered page leaves around a reading axis"],
-		["mono", "Nested apertures reducing toward a focal point"],
-		["command", "Intersecting directional nodes"],
+		["foundation", "Four interlocking structural blocks"],
+		["editorial", "Three turning page petals"],
+		["mono", "Four interwoven repeating cells"],
+		["command", "Six directional chevrons converging on a core"],
 	]);
 
 	for (const route of routes) {
