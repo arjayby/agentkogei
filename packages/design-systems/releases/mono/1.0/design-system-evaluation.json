@@ -488,6 +488,116 @@
 				"guidance": "Keep the selected frame visible in the language and state how the sequence changes."
 			}
 		},
+		"motion": {
+			"durationMs": {
+				"feedback": 100,
+				"transition": 160,
+				"spatial": 240
+			},
+			"easing": {
+				"enter": "ease-out",
+				"exit": "ease-in",
+				"move": "ease-in-out"
+			},
+			"movement": {
+				"distanceRem": 1,
+				"scaleFrom": 0.95
+			},
+			"guidance": "Use direct focal movement with restrained timing and an immediately legible end state.",
+			"autoplay": false
+		},
+		"reducedMotion": {
+			"removeNonessential": true,
+			"stateChanges": "instant",
+			"guidance": "Remove translation and scaling while preserving an immediate labelled state change."
+		},
+		"accessibility": {
+			"standard": "WCAG 2.2 Level AA",
+			"semantics": "Use native landmarks, headings, controls, tables, lists, and status regions before adding ARIA.",
+			"keyboard": "Keep every action reachable and operable in a logical source and tab order.",
+			"focus": "Show a persistent high contrast focus indicator and restore focus after modal interactions.",
+			"contrast": "Meet text, icon, control boundary, and state contrast in both supported color schemes.",
+			"targetSize": "Provide targets at least 24 by 24 CSS pixels with adequate spacing between adjacent actions.",
+			"zoom": "Preserve content and operation at 200 percent page zoom without overlap or clipping.",
+			"reflow": "Reflow to a 320 CSS pixel viewport without two dimensional page scrolling.",
+			"forcedColors": "Retain boundaries, focus, selection, and status meaning when system colors replace authored colors.",
+			"statusCommunication": "Announce asynchronous and local state changes in named status or alert regions without relying on color."
+		},
+		"productSurfaces": {
+			"guidance": "These examples demonstrate adaptable interface structure only. Replace the illustrative copy with real Project language, workflows, and claims.",
+			"examples": {
+				"marketing": {
+					"title": "Outcome led introduction",
+					"description": "Illustrative hierarchy for explaining an outcome without making a product claim.",
+					"elements": [
+						"Headline and supporting proof",
+						"One clearly ranked primary action"
+					]
+				},
+				"authentication": {
+					"title": "Identity entry",
+					"description": "Illustrative sign in structure with complete labels and recovery access.",
+					"elements": [
+						"Visible field labels and help",
+						"Submit and recovery actions"
+					]
+				},
+				"onboarding": {
+					"title": "Progressive orientation",
+					"description": "Illustrative sequence that exposes progress and the current decision.",
+					"elements": [
+						"Named progress indicator",
+						"Current step guidance and actions"
+					]
+				},
+				"dashboard": {
+					"title": "Overview composition",
+					"description": "Illustrative grouping for summaries that keeps supporting context visible.",
+					"elements": [
+						"Clearly labelled summary regions",
+						"Status context beyond numeric values"
+					]
+				},
+				"table": {
+					"title": "Structured comparison",
+					"description": "Illustrative data region with meaningful headings and responsive overflow.",
+					"elements": [
+						"Caption and column headings",
+						"Row labels and keyboard scroll access"
+					]
+				},
+				"form": {
+					"title": "Guided input",
+					"description": "Illustrative form hierarchy that keeps instructions and validation adjacent.",
+					"elements": [
+						"Persistent labels and help",
+						"Error and success communication"
+					]
+				},
+				"settings": {
+					"title": "Preference grouping",
+					"description": "Illustrative settings structure with explicit values and consequences.",
+					"elements": [
+						"Named preference groups",
+						"Current values and consequence notes"
+					]
+				},
+				"states": {
+					"title": "State communication",
+					"description": "Illustrative loading, empty, error, success, disabled, and destructive states.",
+					"elements": [
+						"Visible state name and explanation",
+						"Recovery or next action when available"
+					]
+				}
+			}
+		},
+		"evidencePresentation": {
+			"preview": "The Design System Preview is a public visual and descriptive specimen of evaluated direction.",
+			"designContract": "The complete Design Contract is the public raw Markdown installed into a Project.",
+			"evaluation": "Evaluation metadata and raw evidence paths remain public so coverage can be inspected.",
+			"rawEvidencePublic": true
+		},
 		"theme": {
 			"tokens": {
 				"light": {
