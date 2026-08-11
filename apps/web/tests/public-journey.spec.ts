@@ -450,6 +450,71 @@ test("a complete Preview preserves and switches the Builder's current theme", as
 	expect(consoleErrors).toEqual([]);
 });
 
+test("every discovered Preview renders the complete visual foundations specimen in one order", async ({
+	page,
+}) => {
+	const routes = await discoverDesignSystemRoutes(page);
+	const sectionOrder = [
+		"principles",
+		"semantic-colors",
+		"typography",
+		"spacing",
+		"layout-responsive",
+		"radius-borders-elevation",
+	];
+	for (const route of routes) {
+		const { name } = await readPublishedDesignSystem(page, route);
+		const foundations = page.getByRole("region", {
+			name: `${name} visual foundations`,
+		});
+		const composition = await page
+			.getByRole("main")
+			.getAttribute("data-preview-composition");
+
+		await expect(foundations).toBeVisible();
+		await expect(foundations).toHaveAttribute(
+			"data-foundations-composition",
+			composition ?? "",
+		);
+		expect(
+			await foundations
+				.locator("[data-foundation-section]")
+				.evaluateAll((sections) =>
+					sections.map((section) =>
+						section.getAttribute("data-foundation-section"),
+					),
+				),
+			route,
+		).toEqual(sectionOrder);
+
+		for (const scheme of ["Light", "Dark"]) {
+			const colors = foundations.getByRole("region", {
+				name: `${scheme} semantic colors`,
+			});
+			await expect(colors.getByRole("listitem")).toHaveCount(13);
+			await expect(colors.locator("code")).toHaveCount(13);
+		}
+
+		expect(
+			await foundations.locator("[data-type-role]").count(),
+			route,
+		).toBeGreaterThanOrEqual(4);
+		expect(
+			await foundations.locator("[data-spacing-step]").count(),
+			route,
+		).toBeGreaterThanOrEqual(7);
+		await expect(foundations.locator("[data-responsive-mode]")).toHaveCount(5);
+		expect(
+			await foundations.locator("[data-radius-specimen]").count(),
+			route,
+		).toBeGreaterThanOrEqual(3);
+		await expect(foundations.locator("[data-border-specimen]")).toHaveCount(3);
+		await expect(foundations.locator("[data-elevation-specimen]")).toHaveCount(
+			3,
+		);
+	}
+});
+
 test("an isolated valid release reaches Design System discovery and its complete public journey", async ({
 	page,
 	request,
@@ -964,6 +1029,10 @@ test("every discovered release is delivered and installed through identity indep
 test("every discovered Design System Preview remains evaluated across supported modes", async ({
 	page,
 }) => {
+	// This journey intentionally runs Axe for every discovered Preview and mode.
+	// Keep its exhaustive coverage without constraining it to the default unit timeout.
+	test.setTimeout(120_000);
+
 	const modes = [
 		{
 			viewport: { width: 1440, height: 900 },
@@ -979,6 +1048,12 @@ test("every discovered Design System Preview remains evaluated across supported 
 		},
 		{
 			viewport: { width: 390, height: 844 },
+			colorScheme: "light" as const,
+			reducedMotion: "no-preference" as const,
+			forcedColors: "none" as const,
+		},
+		{
+			viewport: { width: 768, height: 1024 },
 			colorScheme: "light" as const,
 			reducedMotion: "no-preference" as const,
 			forcedColors: "none" as const,
@@ -1007,6 +1082,15 @@ test("every discovered Design System Preview remains evaluated across supported 
 			reducedMotion: "no-preference" as const,
 			forcedColors: "active" as const,
 		},
+		{
+			// A 1440 by 900 browser viewport at 200% page zoom exposes a
+			// 720 by 450 CSS viewport to layout and media queries.
+			viewport: { width: 720, height: 450 },
+			colorScheme: "light" as const,
+			reducedMotion: "no-preference" as const,
+			forcedColors: "none" as const,
+			scenario: "200% page zoom equivalent",
+		},
 	] as const;
 
 	const routes = await discoverDesignSystemRoutes(page);
@@ -1024,6 +1108,29 @@ test("every discovered Design System Preview remains evaluated across supported 
 			await expect(
 				page.getByLabel(`${name} rendered Design System Preview`),
 			).toBeVisible();
+			if (mode.viewport.width === 320 || mode.viewport.width === 1440) {
+				const endpoint = mode.viewport.width === 320 ? "mobile" : "desktop";
+				const mismatches = await page
+					.locator("[data-type-role]")
+					.evaluateAll((specimens, sizeEndpoint) => {
+						const rootSize = Number.parseFloat(
+							getComputedStyle(document.documentElement).fontSize,
+						);
+						return specimens.flatMap((specimen) => {
+							const declared = Number(
+								specimen.getAttribute(`data-${sizeEndpoint}-size-rem`),
+							);
+							const sample = specimen.querySelector(":scope > p");
+							const rendered = sample
+								? Number.parseFloat(getComputedStyle(sample).fontSize)
+								: Number.NaN;
+							return Math.abs(rendered - declared * rootSize) <= 0.1
+								? []
+								: [{ declared, rendered }];
+						});
+					}, endpoint);
+				expect(mismatches, `${route} ${endpoint} type scale`).toEqual([]);
+			}
 
 			let accessibilityCheck = new AxeBuilder({ page }).withTags([
 				"wcag2a",

@@ -10,6 +10,7 @@ import { ArrowLeft, ArrowUpRight, Check } from "lucide-react";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { DesignSystemFoundationsSpecimen } from "@/components/design-system-foundations-specimen";
 import { DesignSystemMark } from "@/components/design-system-mark";
 import { DesignSystemPreviewEvidence } from "@/components/design-system-preview-evidence";
 import { DesignSystemPreviewTheme } from "@/components/design-system-preview-theme";
@@ -167,7 +168,10 @@ export default async function DesignSystemPage({
 							public, so you can read every word before you add it.
 						</p>
 					</div>
-					<DesignSystemPreviewEvidence designSystem={designSystem} />
+					<div className="grid gap-12 lg:gap-20">
+						<DesignSystemFoundationsSpecimen designSystem={designSystem} />
+						<DesignSystemPreviewEvidence designSystem={designSystem} />
+					</div>
 				</div>
 			</section>
 
