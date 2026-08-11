@@ -1029,6 +1029,10 @@ test("every discovered release is delivered and installed through identity indep
 test("every discovered Design System Preview remains evaluated across supported modes", async ({
 	page,
 }) => {
+	// This journey intentionally runs Axe for every discovered Preview and mode.
+	// Keep its exhaustive coverage without constraining it to the default unit timeout.
+	test.setTimeout(120_000);
+
 	const modes = [
 		{
 			viewport: { width: 1440, height: 900 },
