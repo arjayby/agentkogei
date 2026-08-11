@@ -91,7 +91,7 @@ export const publicationEvaluationSchema = z
 			.object({
 				id: z.string(),
 				designSystem: z.string(),
-				version: z.literal("1.0.0"),
+				version: z.literal("1.0"),
 				designContractSha256: z.string().regex(/^[a-f0-9]{64}$/),
 				candidateMetadataSha256: sha256Schema,
 				authoringApprovedAt: z.iso.datetime(),
@@ -168,7 +168,7 @@ export type PublicationWorkflowResult =
 			ok: true;
 			identity: string;
 			designSystem: string;
-			version: "1.0.0";
+			version: "1.0";
 			evaluationProject: string;
 			status: "evaluating";
 	  }
@@ -378,7 +378,7 @@ export async function preparePublicationProposal(
 	| {
 			ok: true;
 			identity: string;
-			version: "1.0.0";
+			version: "1.0";
 			proposalDirectory: string;
 			productionTarget: string;
 			publicationApproval: "pending";

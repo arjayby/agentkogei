@@ -3,7 +3,7 @@
 	"id": "mono",
 	"designSystem": "Mono",
 	"designSystemRelease": {
-		"version": "1.0.0",
+		"version": "1.0",
 		"publishedAt": "2026-07-25",
 		"immutable": true
 	},

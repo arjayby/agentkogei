@@ -55,8 +55,8 @@ const surfaceEvidence: Record<DesignSystemPreviewSurface, () => ReactNode> = {
 		<div className="grid gap-px bg-[var(--preview-border)] text-xs">
 			{[
 				"Release · Status · Date",
-				"1.0.0 · Published · Jul 18",
-				"0.9.0 · Archived · Jun 10",
+				"1.0 · Published · Jul 18",
+				"0.9 · Archived · Jun 10",
 			].map((row) => (
 				<span key={row} className="bg-[var(--preview-background)] p-2">
 					{row}

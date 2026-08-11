@@ -46,7 +46,7 @@ const catalog = captureServer(
 			headers: {
 				"content-type": "text/markdown; charset=utf-8",
 				"x-agentkogei-design-system": "Foundation",
-				"x-agentkogei-design-system-release": "1.1.0",
+				"x-agentkogei-design-system-release": "1.0",
 			},
 		}),
 );

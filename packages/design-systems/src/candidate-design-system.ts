@@ -53,7 +53,7 @@ export const candidateMetadataSchema = z
 		status: z.literal("candidate"),
 		id: designSystemIdentitySchema,
 		designSystem: safeTextSchema,
-		designSystemRelease: z.object({ version: z.literal("1.0.0") }).strict(),
+		designSystemRelease: z.object({ version: z.literal("1.0") }).strict(),
 		creativeBrief: z
 			.object({
 				intendedFit: safeTextSchema,
@@ -156,7 +156,7 @@ export type CandidateValidationResult =
 			ok: true;
 			designSystem: string;
 			identity: string;
-			version: "1.0.0";
+			version: "1.0";
 			authoringApproval: "pending" | "approved";
 			mechanicalValidation: true;
 	  }
@@ -913,7 +913,7 @@ export async function validateCandidateDesignSystemRelease(
 		ok: true,
 		designSystem: metadata.designSystem,
 		identity: metadata.id,
-		version: "1.0.0",
+		version: "1.0",
 		authoringApproval: metadata.authoringApproval.status,
 		mechanicalValidation: true,
 	};

@@ -320,12 +320,12 @@ test("an isolated valid release reaches catalog discovery and its complete publi
 		page.getByLabel("Aperture rendered Design System Preview"),
 	).toBeVisible();
 
-	for (const route of ["/contracts/aperture", "/contracts/aperture/1.0.0"]) {
+	for (const route of ["/contracts/aperture", "/contracts/aperture/1.0"]) {
 		const response = await request.get(route);
 		expect(response.status(), route).toBe(200);
 		expect(response.headers()["x-agentkogei-design-system"]).toBe("Aperture");
 		expect(response.headers()["x-agentkogei-design-system-release"]).toBe(
-			"1.0.0",
+			"1.0",
 		);
 		expect(await response.text()).toContain("# Aperture Design System");
 	}
@@ -350,7 +350,7 @@ test("the Official Catalog and Design System Previews present published metadata
 			fit: "Versatile product foundations",
 			viewports: "1440x900 · 390x844",
 			changelog:
-				"Adds semantic informational-state tokens and detailed responsive pagination guidance.",
+				"Initial Published Design System with complete cross-surface guidance, semantic informational-state tokens, and responsive pagination direction.",
 		},
 		{
 			identity: "editorial",
@@ -515,9 +515,9 @@ test("the public Command Design System Preview shows complete evidence and its r
 	}
 	await expect(
 		page.getByRole("link", {
-			name: "Read the Command 1.0.0 Design Contract",
+			name: "Read the Command 1.0 Design Contract",
 		}),
-	).toHaveAttribute("href", "/contracts/command/1.0.0");
+	).toHaveAttribute("href", "/contracts/command/1.0");
 	await expect(page.getByRole("heading", { name: "Coverage" })).toBeVisible();
 	await expect(
 		page.getByRole("heading", { name: "Inside the Design Contract" }),
@@ -535,15 +535,13 @@ test("a Builder can anonymously retrieve the complete Foundation Design System R
 	page,
 	request,
 }) => {
-	const response = await request.get("/contracts/foundation/1.0.0");
+	const response = await request.get("/contracts/foundation/1.0");
 
 	expect(response.status()).toBe(200);
 	expect(response.headers()["content-type"]).toBe(
 		"text/markdown; charset=utf-8",
 	);
-	expect(response.headers()["x-agentkogei-design-system-release"]).toBe(
-		"1.0.0",
-	);
+	expect(response.headers()["x-agentkogei-design-system-release"]).toBe("1.0");
 	expect(response.headers()["x-agentkogei-design-pack"]).toBeUndefined();
 	expect(response.headers()["x-agentkogei-pack-release"]).toBeUndefined();
 	// An exact Design System Release is immutable, so it may be cached forever.
@@ -566,18 +564,17 @@ test("an unknown catalog identity returns not found", async ({ request }) => {
 	expect(response.status()).toBe(404);
 });
 
-test("release history links to every exact published Design Contract", async ({
+test("release details link to Foundation's sole exact Design Contract", async ({
 	page,
 }) => {
 	await page.goto("/catalog/foundation");
 
-	for (const release of ["1.1.0", "1.0.0"]) {
-		await expect(
-			page.getByRole("link", {
-				name: `Read Foundation ${release} Design Contract`,
-			}),
-		).toHaveAttribute("href", `/contracts/foundation/${release}`);
-	}
+	await expect(
+		page.getByRole("link", {
+			name: "Read Foundation 1.0 Design Contract",
+		}),
+	).toHaveAttribute("href", "/contracts/foundation/1.0");
+	await expect(page.getByText("1.1.0", { exact: false })).toHaveCount(0);
 });
 
 test("a Design System Preview exposes its published evaluation provenance", async ({
@@ -599,7 +596,7 @@ test("a Builder can preview, retrieve, and distinguish the Editorial Design Syst
 	page,
 	request,
 }) => {
-	const response = await request.get("/contracts/editorial/1.0.0");
+	const response = await request.get("/contracts/editorial/1.0");
 
 	expect(response.status()).toBe(200);
 	expect(response.headers()["x-agentkogei-design-system"]).toBe("Editorial");
@@ -629,7 +626,7 @@ test("a Builder can preview, retrieve, and distinguish the Editorial Design Syst
  */
 const retiredInvocations = (elsewhere: string) =>
 	[
-		["install", "foundation@1.0.0", "--yes"],
+		["install", "foundation@1.0", "--yes"],
 		["status"],
 		["update", "--yes"],
 		["detach", "--yes"],
@@ -674,7 +671,7 @@ test("an unresolved Design Contract selector is refused as plain text", async ({
 	request,
 }) => {
 	const unknown = await request.get("/contracts/fondation");
-	const unknownRelease = await request.get("/contracts/foundation/9.9.9");
+	const unknownRelease = await request.get("/contracts/foundation/9.9");
 
 	expect(unknown.status()).toBe(404);
 	expect(unknown.headers()["content-type"]).toContain("text/plain");
@@ -685,7 +682,7 @@ test("Command is public while current and exact Signal selectors are ordinarily 
 	request,
 }) => {
 	const currentCommand = await request.get("/contracts/command");
-	const exactCommand = await request.get("/contracts/command/1.0.0");
+	const exactCommand = await request.get("/contracts/command/1.0");
 
 	for (const response of [currentCommand, exactCommand]) {
 		expect(response.status()).toBe(200);
@@ -694,7 +691,7 @@ test("Command is public while current and exact Signal selectors are ordinarily 
 		);
 		expect(response.headers()["x-agentkogei-design-system"]).toBe("Command");
 		expect(response.headers()["x-agentkogei-design-system-release"]).toBe(
-			"1.0.0",
+			"1.0",
 		);
 		expect(response.headers()["cache-control"]).toContain("public");
 		expect(response.headers()["www-authenticate"]).toBeUndefined();
@@ -703,7 +700,7 @@ test("Command is public while current and exact Signal selectors are ordinarily 
 	expect(currentCommand.headers()["cache-control"]).not.toContain("immutable");
 	expect(exactCommand.headers()["cache-control"]).toContain("immutable");
 
-	for (const selector of ["signal", "signal/1.0.0"]) {
+	for (const selector of ["signal", "signal/1.0"]) {
 		const response = await request.get(`/contracts/${selector}`);
 		expect(response.status()).toBe(404);
 		expect(response.headers()["content-type"]).toContain("text/plain");
@@ -713,7 +710,7 @@ test("Command is public while current and exact Signal selectors are ordinarily 
 		);
 	}
 
-	for (const selector of ["signal", "signal@1.0.0"]) {
+	for (const selector of ["signal", "signal@1.0"]) {
 		const project = await mkdtemp(path.join(tmpdir(), "agentkogei-signal-"));
 		try {
 			const result = await runDesignContractInstallation(project, selector);

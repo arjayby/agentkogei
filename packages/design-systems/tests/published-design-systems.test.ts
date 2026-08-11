@@ -13,6 +13,7 @@ import path from "node:path";
 
 import {
 	designSystemEvaluationFileName,
+	designSystemReleaseVersionSchema,
 	discoverPublishedDesignSystems,
 	publishedDesignSystems,
 } from "../src/index";
@@ -35,7 +36,7 @@ async function copyRelease(
 ) {
 	const releaseDirectory = path.join(rootDirectory, identity, version);
 	await mkdir(path.dirname(releaseDirectory), { recursive: true });
-	await cp(publishedReleaseDirectory("foundation", "1.0.0"), releaseDirectory, {
+	await cp(publishedReleaseDirectory("foundation", "1.0"), releaseDirectory, {
 		recursive: true,
 	});
 	const metadataPath = path.join(
@@ -94,24 +95,24 @@ describe("Published Design System discovery", () => {
 
 	test("discovers identities and selects the current Design System Release", async () => {
 		const rootDirectory = await temporaryReleaseRoot();
-		await copyRelease(rootDirectory, "tracer", "1.9.0");
-		await copyRelease(rootDirectory, "tracer", "1.10.0");
-		await copyRelease(rootDirectory, "second-system", "2.0.0");
+		await copyRelease(rootDirectory, "tracer", "1.9");
+		await copyRelease(rootDirectory, "tracer", "1.10");
+		await copyRelease(rootDirectory, "second-system", "2.0");
 
 		const discovered = await discoverPublishedDesignSystems(rootDirectory);
 
 		expect(discovered.map(({ id }) => id)).toEqual(["second-system", "tracer"]);
-		expect(discovered[1]?.versions).toEqual(["1.9.0", "1.10.0"]);
-		expect(discovered[1]?.currentRelease).toBe("1.10.0");
-		expect(discovered[1]?.directoryFor("1.9.0")).toBe(
-			path.join(rootDirectory, "tracer", "1.9.0"),
+		expect(discovered[1]?.versions).toEqual(["1.9", "1.10"]);
+		expect(discovered[1]?.currentRelease).toBe("1.10");
+		expect(discovered[1]?.directoryFor("1.9")).toBe(
+			path.join(rootDirectory, "tracer", "1.9"),
 		);
 	});
 
-	test("selects the current Design System Release without losing semantic version precision", async () => {
+	test("selects the current Design System Release without losing version precision", async () => {
 		const rootDirectory = await temporaryReleaseRoot();
-		const lowerVersion = "999999999999999999999999999999.0.0";
-		const higherVersion = "1000000000000000000000000000000.0.0";
+		const lowerVersion = "999999999999999999999999999999.0";
+		const higherVersion = "1000000000000000000000000000000.0";
 		await copyRelease(rootDirectory, "tracer", lowerVersion);
 		await copyRelease(rootDirectory, "tracer", higherVersion);
 
@@ -121,13 +122,21 @@ describe("Published Design System discovery", () => {
 		expect(designSystem?.currentRelease).toBe(higherVersion);
 	});
 
+	test("accepts only canonical two part Design System Release identities", () => {
+		expect(designSystemReleaseVersionSchema.safeParse("1.0").success).toBe(
+			true,
+		);
+		for (const version of ["1", "1.0.0", "01.0", "1.01", "v1.0"]) {
+			expect(
+				designSystemReleaseVersionSchema.safeParse(version).success,
+				version,
+			).toBe(false);
+		}
+	});
+
 	test("rejects a public route that does not match the discovered identity", async () => {
 		const rootDirectory = await temporaryReleaseRoot();
-		const releaseDirectory = await copyRelease(
-			rootDirectory,
-			"tracer",
-			"1.0.0",
-		);
+		const releaseDirectory = await copyRelease(rootDirectory, "tracer", "1.0");
 		await mutateMetadata(releaseDirectory, (metadata) => {
 			(metadata.preview as Record<string, unknown>).route =
 				"/catalog/someone-else";
@@ -140,11 +149,11 @@ describe("Published Design System discovery", () => {
 
 	test("rejects duplicate identities from different identity directories", async () => {
 		const rootDirectory = await temporaryReleaseRoot();
-		await copyRelease(rootDirectory, "first", "1.0.0");
+		await copyRelease(rootDirectory, "first", "1.0");
 		const duplicateDirectory = await copyRelease(
 			rootDirectory,
 			"second",
-			"1.0.0",
+			"1.0",
 		);
 		await mutateMetadata(duplicateDirectory, (metadata) => {
 			metadata.id = "first";
@@ -221,7 +230,7 @@ describe("Published Design System discovery", () => {
 			const releaseDirectory = await copyRelease(
 				rootDirectory,
 				"tracer",
-				"1.0.0",
+				"1.0",
 			);
 			await invalidCase.mutate(releaseDirectory);
 
@@ -240,7 +249,7 @@ describe("Published Design System discovery", () => {
 			"tracer/not-semver: invalid Design System Release directory name",
 		);
 		await expect(discovery).rejects.toThrow(
-			"tracer: no valid semantic Design System Release",
+			"tracer: no valid Design System Release",
 		);
 	});
 });

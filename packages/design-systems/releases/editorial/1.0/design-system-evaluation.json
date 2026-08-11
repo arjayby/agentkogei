@@ -3,7 +3,7 @@
 	"id": "editorial",
 	"designSystem": "Editorial",
 	"designSystemRelease": {
-		"version": "1.0.0",
+		"version": "1.0",
 		"publishedAt": "2026-07-19",
 		"immutable": true
 	},
