@@ -1079,11 +1079,13 @@ test("every discovered Design System Preview remains evaluated across supported 
 			forcedColors: "active" as const,
 		},
 		{
-			viewport: { width: 1440, height: 900 },
+			// A 1440 by 900 browser viewport at 200% page zoom exposes a
+			// 720 by 450 CSS viewport to layout and media queries.
+			viewport: { width: 720, height: 450 },
 			colorScheme: "light" as const,
 			reducedMotion: "no-preference" as const,
 			forcedColors: "none" as const,
-			zoom: 2,
+			scenario: "200% page zoom equivalent",
 		},
 	] as const;
 
@@ -1098,19 +1100,11 @@ test("every discovered Design System Preview remains evaluated across supported 
 				forcedColors: mode.forcedColors,
 			});
 			await page.goto(route);
-			if ("zoom" in mode) {
-				await page.evaluate((zoom) => {
-					document.documentElement.style.zoom = String(zoom);
-				}, mode.zoom);
-			}
 			const name = await page.getByRole("heading", { level: 1 }).innerText();
 			await expect(
 				page.getByLabel(`${name} rendered Design System Preview`),
 			).toBeVisible();
-			if (
-				mode.viewport.width === 320 ||
-				(mode.viewport.width === 1440 && !("zoom" in mode))
-			) {
+			if (mode.viewport.width === 320 || mode.viewport.width === 1440) {
 				const endpoint = mode.viewport.width === 320 ? "mobile" : "desktop";
 				const mismatches = await page
 					.locator("[data-type-role]")
