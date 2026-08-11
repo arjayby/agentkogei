@@ -240,6 +240,23 @@ describe("Design System Release publication validation", () => {
 		}
 	});
 
+	test("rejects incomplete behavior, accessibility, product surface, and evidence Preview metadata", async () => {
+		for (const category of [
+			"motion",
+			"reducedMotion",
+			"accessibility",
+			"productSurfaces",
+			"evidencePresentation",
+		]) {
+			const errors = await evaluateMutatedRelease((record) => {
+				const previewShell = record.previewShell as Record<string, unknown>;
+				Reflect.deleteProperty(previewShell, category);
+			});
+
+			expect(errors).toContain(`previewShell.${category}`);
+		}
+	});
+
 	// Every Design System Release stays independently installable through the same
 	// compatibility and safety gate, so Design System Evaluation covers each published
 	// release rather than only the current one.

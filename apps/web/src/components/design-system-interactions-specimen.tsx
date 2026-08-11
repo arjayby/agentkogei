@@ -28,6 +28,7 @@ import {
 	useState,
 } from "react";
 
+import { DesignSystemSpecimenHeading } from "@/components/design-system-specimen-heading";
 import type { PreviewShell } from "@/lib/catalog";
 
 type Interactions = NonNullable<PreviewShell["interactions"]>;
@@ -43,24 +44,6 @@ const badgeVariants = {
 	FeedbackTone,
 	ComponentProps<typeof Badge>["variant"]
 >;
-
-function SpecimenHeading({
-	number,
-	title,
-	description,
-}: {
-	number: string;
-	title: string;
-	description: string;
-}) {
-	return (
-		<div className="preview-control-heading">
-			<p>{number}</p>
-			<h3>{title}</h3>
-			<span>{description}</span>
-		</div>
-	);
-}
 
 function ToneIcon({ tone }: { tone: FeedbackTone }) {
 	if (tone === "success") return <Check aria-hidden="true" />;
@@ -193,10 +176,11 @@ export function DesignSystemInteractionsSpecimen({
 			aria-label={`${name} data, feedback, and consequential interactions`}
 			data-interactions-composition={composition}
 			data-controls-composition={composition}
+			data-specimen-composition={composition}
 			className="preview-controls-grid"
 		>
 			<section className="preview-control-section">
-				<SpecimenHeading
+				<DesignSystemSpecimenHeading
 					number="11 / Data"
 					title="Tables, lists, and data display"
 					description={`${dataDisplay.guidance} ${dataDisplay.overflowGuidance}`}
@@ -255,7 +239,7 @@ export function DesignSystemInteractionsSpecimen({
 			</section>
 
 			<section className="preview-control-section">
-				<SpecimenHeading
+				<DesignSystemSpecimenHeading
 					number="12 / Feedback"
 					title="Badges, alerts, and feedback states"
 					description={`${feedback.guidance} ${feedback.nonColorGuidance}`}
@@ -309,7 +293,7 @@ export function DesignSystemInteractionsSpecimen({
 			</section>
 
 			<section className="preview-control-section">
-				<SpecimenHeading
+				<DesignSystemSpecimenHeading
 					number="13 / Consequence"
 					title="Dialogs and destructive actions"
 					description={`${dialogs.guidance} ${destructiveActions.guidance}`}

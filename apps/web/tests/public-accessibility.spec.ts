@@ -160,3 +160,34 @@ test("every discovered interaction specimen supports forced colors and narrow re
 		await expect(tableRegion).toHaveCSS("outline-style", "solid");
 	}
 });
+
+test("every discovered behavior specimen removes nonessential reduced motion while preserving state changes", async ({
+	page,
+}) => {
+	await page.emulateMedia({ reducedMotion: "reduce" });
+	const routes = await discoverDesignSystemRoutes(page);
+
+	for (const route of routes) {
+		await page.goto(route);
+		const specimen = page.getByRole("group", { name: "Motion specimen" });
+		const state = specimen.getByRole("status", {
+			name: "Motion specimen state",
+		});
+		const movingExample = specimen.getByText("Ready to move", { exact: true });
+
+		await expect(state).toContainText(/does not autoplay/i);
+		await expect(movingExample).toHaveCSS("transform", "none");
+		await specimen.getByRole("button", { name: "Demonstrate motion" }).click();
+		await expect(state).toContainText(/settled/i);
+		await expect(
+			specimen.getByText("State settled", { exact: true }),
+		).toHaveCSS("transform", "none");
+
+		const results = await new AxeBuilder({ page })
+			.include("[data-behavior-composition]")
+			.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+			.analyze();
+
+		expect(results.violations, route).toEqual([]);
+	}
+});

@@ -25,6 +25,7 @@ import { Textarea } from "@agentkogei/ui/components/textarea";
 import { Check, CircleAlert } from "lucide-react";
 import { type FormEvent, type ReactNode, useId, useState } from "react";
 
+import { DesignSystemSpecimenHeading } from "@/components/design-system-specimen-heading";
 import type { PreviewShell } from "@/lib/catalog";
 
 const interactionStates = [
@@ -40,24 +41,6 @@ const interactionStates = [
 
 function stateLabel(state: (typeof interactionStates)[number]) {
 	return `${state.charAt(0).toUpperCase()}${state.slice(1)}`;
-}
-
-function SpecimenHeading({
-	number,
-	title,
-	description,
-}: {
-	number: string;
-	title: string;
-	description: string;
-}) {
-	return (
-		<div className="preview-control-heading">
-			<p>{number}</p>
-			<h3>{title}</h3>
-			<span>{description}</span>
-		</div>
-	);
 }
 
 function ControlStateGroup({
@@ -110,10 +93,11 @@ export function DesignSystemControlsSpecimen({
 		<section
 			aria-label={`${name} controls and content containers`}
 			data-controls-composition={composition}
+			data-specimen-composition={composition}
 			className="preview-controls-grid"
 		>
 			<section className="preview-control-section">
-				<SpecimenHeading
+				<DesignSystemSpecimenHeading
 					number="07 / Controls"
 					title="Buttons and links"
 					description={`${controls.buttons.guidance} ${controls.links.guidance}`}
@@ -203,7 +187,7 @@ export function DesignSystemControlsSpecimen({
 			</section>
 
 			<section className="preview-control-section">
-				<SpecimenHeading
+				<DesignSystemSpecimenHeading
 					number="08 / Fields"
 					title="Forms and inputs"
 					description={`${controls.forms.guidance} ${controls.inputs.guidance}`}
@@ -273,7 +257,7 @@ export function DesignSystemControlsSpecimen({
 			</section>
 
 			<section className="preview-control-section">
-				<SpecimenHeading
+				<DesignSystemSpecimenHeading
 					number="09 / Containers"
 					title="Cards and panels"
 					description={`${controls.cards.guidance} ${controls.panels.guidance}`}
@@ -324,7 +308,7 @@ export function DesignSystemControlsSpecimen({
 			</section>
 
 			<section className="preview-control-section">
-				<SpecimenHeading
+				<DesignSystemSpecimenHeading
 					number="10 / Wayfinding"
 					title="Navigation"
 					description={controls.navigation.guidance}

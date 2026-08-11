@@ -701,6 +701,107 @@ test("every discovered Preview exposes accessible data, feedback, dialogs, and l
 	}
 });
 
+test("every discovered Preview demonstrates motion, accessibility, illustrative product surfaces, and public evidence", async ({
+	page,
+}) => {
+	const routes = await discoverDesignSystemRoutes(page);
+	const accessibilityTopics = [
+		"Semantics",
+		"Keyboard",
+		"Focus",
+		"Contrast",
+		"Target size",
+		"Zoom",
+		"Reflow",
+		"Forced colors",
+		"Status communication",
+	];
+	const productSurfaceStructures = [
+		["Marketing", "region", "Marketing action hierarchy"],
+		["Authentication", "region", "Authentication input structure"],
+		["Onboarding", "list", "Onboarding progress structure"],
+		["Dashboard", "list", "Dashboard summary regions"],
+		["Table", "table", "Table comparison structure"],
+		["Form", "region", "Form input structure"],
+		["Settings", "list", "Settings preference groups"],
+		["States", "list", "State communication examples"],
+	] as const;
+
+	for (const route of routes) {
+		const { name } = await readPublishedDesignSystem(page, route);
+		const behavior = page.getByRole("region", {
+			name: `${name} motion and accessibility`,
+		});
+		const motion = behavior.getByRole("group", {
+			name: "Motion specimen",
+		});
+
+		await expect(behavior).toBeVisible();
+		await expect(behavior.getByRole("heading", { level: 3 })).toHaveText([
+			"Motion and reduced motion",
+			"Accessibility guidance",
+		]);
+		await expect(
+			motion.getByRole("button", { name: "Demonstrate motion" }),
+		).toBeVisible();
+		await motion.getByRole("button", { name: "Demonstrate motion" }).click();
+		await expect(
+			motion.getByRole("status", { name: "Motion specimen state" }),
+		).toContainText(/settled/i);
+		await expect(
+			behavior
+				.getByRole("list", { name: "Accessibility guidance topics" })
+				.getByRole("listitem"),
+			route,
+		).toContainText(accessibilityTopics);
+
+		const productSurfaces = page.getByRole("region", {
+			name: `${name} product surface examples`,
+		});
+		await expect(productSurfaces.getByRole("article")).toHaveCount(8);
+		await expect(
+			productSurfaces.getByText("Illustrative structure", { exact: true }),
+		).toHaveCount(8);
+		for (const [
+			index,
+			[surface, role, structureName],
+		] of productSurfaceStructures.entries()) {
+			const article = productSurfaces.getByRole("article").nth(index);
+			await expect(
+				article.getByRole("heading", {
+					level: 3,
+					name: surface,
+					exact: true,
+				}),
+				route,
+			).toBeVisible();
+			await expect(
+				article.getByRole(role, { name: structureName }),
+				route,
+			).toBeVisible();
+		}
+		await expect(productSurfaces).toContainText(
+			"Replace the illustrative copy with real Project language, workflows, and claims.",
+		);
+		await expect(productSurfaces).not.toContainText(
+			/24 active|Connect the supplied Project|Delete Project|Published · Jul/i,
+		);
+
+		const evidence = page.getByRole("region", {
+			name: `${name} public evaluation evidence`,
+		});
+		await expect(evidence).toContainText(
+			"The Design System Preview is a public visual and descriptive specimen",
+		);
+		await expect(evidence).toContainText(
+			"The complete Design Contract is the public raw Markdown",
+		);
+		await expect(evidence).toContainText(
+			"Evaluation metadata and raw evidence paths remain public",
+		);
+	}
+});
+
 test("an isolated valid release reaches Design System discovery and its complete public journey", async ({
 	page,
 	request,

@@ -472,6 +472,109 @@ const previewInteractionsSchema = z
 	})
 	.strict();
 
+const previewMotionEasingSchema = z.enum([
+	"linear",
+	"ease-in",
+	"ease-out",
+	"ease-in-out",
+]);
+
+const previewMotionSchema = z
+	.object({
+		durationMs: z
+			.object({
+				feedback: z.number().int().min(50).max(1000),
+				transition: z.number().int().min(50).max(1000),
+				spatial: z.number().int().min(50).max(1000),
+			})
+			.strict(),
+		easing: z
+			.object({
+				enter: previewMotionEasingSchema,
+				exit: previewMotionEasingSchema,
+				move: previewMotionEasingSchema,
+			})
+			.strict(),
+		movement: z
+			.object({
+				distanceRem: z.number().positive().max(4),
+				scaleFrom: z.number().min(0.8).max(1),
+			})
+			.strict(),
+		guidance: terminalTextSchema,
+		autoplay: z.literal(false),
+	})
+	.strict()
+	.superRefine((motion, context) => {
+		const { feedback, transition, spatial } = motion.durationMs;
+		if (!(feedback <= transition && transition <= spatial)) {
+			context.addIssue({
+				code: "custom",
+				path: ["durationMs"],
+				message:
+					"motion durations must progress from feedback through transition to spatial movement",
+			});
+		}
+	});
+
+const previewReducedMotionSchema = z
+	.object({
+		removeNonessential: z.literal(true),
+		stateChanges: z.literal("instant"),
+		guidance: terminalTextSchema,
+	})
+	.strict();
+
+const previewAccessibilitySchema = z
+	.object({
+		standard: z.literal("WCAG 2.2 Level AA"),
+		semantics: terminalTextSchema,
+		keyboard: terminalTextSchema,
+		focus: terminalTextSchema,
+		contrast: terminalTextSchema,
+		targetSize: terminalTextSchema,
+		zoom: terminalTextSchema,
+		reflow: terminalTextSchema,
+		forcedColors: terminalTextSchema,
+		statusCommunication: terminalTextSchema,
+	})
+	.strict();
+
+const previewProductSurfaceExampleSchema = z
+	.object({
+		title: terminalTextSchema,
+		description: terminalTextSchema,
+		elements: z.array(terminalTextSchema).min(2),
+	})
+	.strict();
+
+const previewProductSurfacesSchema = z
+	.object({
+		guidance: terminalTextSchema,
+		examples: z
+			.object({
+				marketing: previewProductSurfaceExampleSchema,
+				authentication: previewProductSurfaceExampleSchema,
+				onboarding: previewProductSurfaceExampleSchema,
+				dashboard: previewProductSurfaceExampleSchema,
+				table: previewProductSurfaceExampleSchema,
+				form: previewProductSurfaceExampleSchema,
+				settings: previewProductSurfaceExampleSchema,
+				states: previewProductSurfaceExampleSchema,
+			})
+			.strict(),
+	})
+	.strict();
+
+const previewEvidencePresentationSchema = z
+	.object({
+		preview: terminalTextSchema,
+		designContract: terminalTextSchema,
+		evaluation: terminalTextSchema,
+		rawEvidencePublic: z.literal(true),
+	})
+	.strict();
+
 export const designSystemPreviewShellSchema = z
 	.object({
 		mark: z
@@ -496,6 +599,11 @@ export const designSystemPreviewShellSchema = z
 		foundations: previewFoundationsSchema,
 		controls: previewControlsSchema.optional(),
 		interactions: previewInteractionsSchema.optional(),
+		motion: previewMotionSchema.optional(),
+		reducedMotion: previewReducedMotionSchema.optional(),
+		accessibility: previewAccessibilitySchema.optional(),
+		productSurfaces: previewProductSurfacesSchema.optional(),
+		evidencePresentation: previewEvidencePresentationSchema.optional(),
 		theme: z
 			.object({
 				tokens: previewTokensSchema,
@@ -623,6 +731,23 @@ export const designSystemEvaluationRecordSchema = z
 				path: ["previewShell", "interactions"],
 				message:
 					"Version 4 data, feedback, dialog, and destructive action metadata is required",
+			});
+		}
+		for (const [category, message] of [
+			["motion", "Version 4 motion metadata is required"],
+			["reducedMotion", "Version 4 reduced motion metadata is required"],
+			["accessibility", "Version 4 accessibility guidance is required"],
+			["productSurfaces", "Version 4 product surface examples are required"],
+			[
+				"evidencePresentation",
+				"Version 4 evaluation evidence presentation is required",
+			],
+		] as const) {
+			if (record.previewShell[category]) continue;
+			context.addIssue({
+				code: "custom",
+				path: ["previewShell", category],
+				message,
 			});
 		}
 	});

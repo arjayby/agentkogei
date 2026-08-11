@@ -10,6 +10,7 @@ import { ArrowLeft, ArrowUpRight, Check } from "lucide-react";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { DesignSystemBehaviorSpecimen } from "@/components/design-system-behavior-specimen";
 import { DesignSystemControlsSpecimen } from "@/components/design-system-controls-specimen";
 import { DesignSystemFoundationsSpecimen } from "@/components/design-system-foundations-specimen";
 import { DesignSystemInteractionsSpecimen } from "@/components/design-system-interactions-specimen";
@@ -63,7 +64,14 @@ export default async function DesignSystemPage({
 	}
 
 	const release = currentRelease(designSystem);
-	const { composition, controls, interactions } = previewShellFor(designSystem);
+	const {
+		accessibility,
+		composition,
+		controls,
+		interactions,
+		motion,
+		reducedMotion,
+	} = previewShellFor(designSystem);
 	const actionHref =
 		`/contracts/${designSystem.slug}/${release.version}` as Route;
 	const actionLabel = `Read the ${designSystem.name} ${release.version} Design Contract`;
@@ -187,6 +195,15 @@ export default async function DesignSystemPage({
 								composition={composition}
 								interactions={interactions}
 								name={designSystem.name}
+							/>
+						) : null}
+						{motion && reducedMotion && accessibility ? (
+							<DesignSystemBehaviorSpecimen
+								accessibility={accessibility}
+								composition={composition}
+								motion={motion}
+								name={designSystem.name}
+								reducedMotion={reducedMotion}
 							/>
 						) : null}
 						<DesignSystemPreviewEvidence designSystem={designSystem} />
