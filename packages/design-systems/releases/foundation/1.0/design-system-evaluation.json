@@ -370,6 +370,120 @@
 				"guidance": "Mark the current location in text and structure, and preserve logical keyboard order."
 			}
 		},
+		"interactions": {
+			"dataDisplay": {
+				"tableCaption": "Publication readiness by Design System Release",
+				"columns": [
+					{ "id": "release", "label": "Release" },
+					{ "id": "evaluation", "label": "Evaluation" },
+					{ "id": "owner", "label": "Owner" }
+				],
+				"rows": [
+					{
+						"id": "foundation",
+						"label": "Foundation 1.0",
+						"cells": ["Passed", "Design systems"]
+					},
+					{
+						"id": "editorial",
+						"label": "Editorial 1.0",
+						"cells": ["Reviewing", "Content systems"]
+					},
+					{
+						"id": "command",
+						"label": "Command 1.0",
+						"cells": ["Queued", "Product systems"]
+					}
+				],
+				"listLabel": "Release readiness summary",
+				"listItems": [
+					{
+						"title": "Design Contract",
+						"description": "Immutable release document is pinned.",
+						"status": "Complete"
+					},
+					{
+						"title": "Evaluation",
+						"description": "Keyboard, reflow, and both themes are covered.",
+						"status": "Passed"
+					},
+					{
+						"title": "Publication",
+						"description": "Maintainer approval remains explicit.",
+						"status": "Waiting"
+					}
+				],
+				"guidance": "Use quiet alignment, clear row headings, and stable columns for structured product data.",
+				"overflowGuidance": "Keep the table intact inside a labelled horizontal scroll region when columns do not fit."
+			},
+			"feedback": {
+				"badges": [
+					{
+						"label": "Draft",
+						"meaning": "Work is still editable",
+						"tone": "neutral"
+					},
+					{
+						"label": "In review",
+						"meaning": "A maintainer is checking the release",
+						"tone": "info"
+					},
+					{
+						"label": "Passed",
+						"meaning": "Required evaluation is complete",
+						"tone": "success"
+					},
+					{
+						"label": "Blocked",
+						"meaning": "A named requirement prevents publication",
+						"tone": "destructive"
+					}
+				],
+				"alerts": [
+					{
+						"title": "Evaluation complete",
+						"description": "All automated checks and required reviews passed.",
+						"tone": "success"
+					},
+					{
+						"title": "Publication blocked",
+						"description": "Resolve the missing accessibility evidence before continuing.",
+						"tone": "destructive"
+					}
+				],
+				"states": {
+					"loading": "Loading release evidence…",
+					"empty": "No releases have been proposed yet.",
+					"filteredEmpty": "No releases match the active filters.",
+					"error": "Release evidence could not be read. Try again locally.",
+					"success": "Release evidence is complete and ready for review.",
+					"disabled": "Publication is unavailable until every review passes.",
+					"destructive": "Removing this candidate discards its local evaluation record."
+				},
+				"guidance": "Place status beside the object it describes and keep recovery information in the same reading path.",
+				"nonColorGuidance": "Pair every tone with a plain language label, symbol, or structural treatment."
+			},
+			"dialogs": {
+				"title": "Review release evidence",
+				"description": "Inspect the local summary before returning to the publication checklist.",
+				"openLabel": "Open evidence dialog",
+				"initialFocusLabel": "Review summary",
+				"confirmLabel": "Mark reviewed",
+				"closeLabel": "Close",
+				"guidance": "Name the dialog, describe its purpose, and keep actions in a predictable order.",
+				"escapeBehavior": "Escape closes the review dialog because no irreversible work is in progress.",
+				"focusRestoration": "Return focus to the control that opened the dialog."
+			},
+			"destructiveActions": {
+				"objectLabel": "Foundation 1.0 candidate",
+				"consequence": "Its local evaluation record and review progress will be removed.",
+				"recoverability": "This specimen is reversible and changes only local component state.",
+				"openLabel": "Remove candidate",
+				"confirmLabel": "Remove Foundation 1.0 candidate",
+				"cancelLabel": "Keep candidate",
+				"guidance": "Repeat the affected object in the confirmation and state both consequence and recoverability before the action."
+			}
+		},
 		"theme": {
 			"tokens": {
 				"light": {

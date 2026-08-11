@@ -211,6 +211,35 @@ describe("Design System Release publication validation", () => {
 		}
 	});
 
+	test("rejects a Version 4 release without data, feedback, dialog, and destructive action Preview metadata", async () => {
+		const errors = await evaluateMutatedRelease((record) => {
+			const previewShell = record.previewShell as Record<string, unknown>;
+			Reflect.deleteProperty(previewShell, "interactions");
+		});
+
+		expect(errors).toContain("previewShell.interactions");
+	});
+
+	test("rejects each incomplete consequential interaction category with an actionable path", async () => {
+		for (const category of [
+			"dataDisplay",
+			"feedback",
+			"dialogs",
+			"destructiveActions",
+		]) {
+			const errors = await evaluateMutatedRelease((record) => {
+				const previewShell = record.previewShell as Record<string, unknown>;
+				const interactions = previewShell.interactions as Record<
+					string,
+					unknown
+				>;
+				Reflect.deleteProperty(interactions, category);
+			});
+
+			expect(errors).toContain(`previewShell.interactions.${category}`);
+		}
+	});
+
 	// Every Design System Release stays independently installable through the same
 	// compatibility and safety gate, so Design System Evaluation covers each published
 	// release rather than only the current one.

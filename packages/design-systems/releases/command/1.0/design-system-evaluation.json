@@ -385,6 +385,120 @@
 				"guidance": "Expose the current console section in text and aria current while preserving keyboard sequence."
 			}
 		},
+		"interactions": {
+			"dataDisplay": {
+				"tableCaption": "Active checks",
+				"columns": [
+					{ "id": "check", "label": "Check" },
+					{ "id": "region", "label": "Region" },
+					{ "id": "result", "label": "Result" }
+				],
+				"rows": [
+					{
+						"id": "api-latency",
+						"label": "API latency",
+						"cells": ["MNL", "Passing"]
+					},
+					{
+						"id": "queue-depth",
+						"label": "Queue depth",
+						"cells": ["SIN", "Warning"]
+					},
+					{
+						"id": "job-errors",
+						"label": "Job errors",
+						"cells": ["NRT", "Failed"]
+					}
+				],
+				"listLabel": "Run context",
+				"listItems": [
+					{
+						"title": "Runtime",
+						"description": "Production edge checks.",
+						"status": "Active"
+					},
+					{
+						"title": "Interval",
+						"description": "Checks execute on a fixed local specimen clock.",
+						"status": "5 min"
+					},
+					{
+						"title": "Escalation",
+						"description": "Failures require an operator decision.",
+						"status": "Manual"
+					}
+				],
+				"guidance": "Align operational values into dense ruled columns with persistent row headings.",
+				"overflowGuidance": "Expose horizontal overflow on a labelled region while preserving every operational column."
+			},
+			"feedback": {
+				"badges": [
+					{
+						"label": "Idle",
+						"meaning": "The check is not currently running",
+						"tone": "neutral"
+					},
+					{
+						"label": "Running",
+						"meaning": "The check is actively evaluating",
+						"tone": "info"
+					},
+					{
+						"label": "Passing",
+						"meaning": "The latest result met its threshold",
+						"tone": "success"
+					},
+					{
+						"label": "Failed",
+						"meaning": "The latest result crossed its failure threshold",
+						"tone": "destructive"
+					}
+				],
+				"alerts": [
+					{
+						"title": "All checks recovered",
+						"description": "The current run has returned to healthy thresholds.",
+						"tone": "success"
+					},
+					{
+						"title": "Job error rate failed",
+						"description": "Inspect Run 042 before acknowledging the incident.",
+						"tone": "destructive"
+					}
+				],
+				"states": {
+					"loading": "Running operational checks…",
+					"empty": "No checks are configured for this target.",
+					"filteredEmpty": "No checks match the active result filter.",
+					"error": "Check results could not be read. Retry the local run.",
+					"success": "Every active check is passing.",
+					"disabled": "Acknowledge is unavailable until the run completes.",
+					"destructive": "Deleting this check removes it from the local run plan."
+				},
+				"guidance": "Report the operation, result, and next action in one compact scan path.",
+				"nonColorGuidance": "Pair semantic color with a written result, symbol, and ruled treatment."
+			},
+			"dialogs": {
+				"title": "Inspect run summary",
+				"description": "Review Run 042 telemetry before returning to the checks grid.",
+				"openLabel": "Open run summary",
+				"initialFocusLabel": "Inspect telemetry",
+				"confirmLabel": "Acknowledge summary",
+				"closeLabel": "Close",
+				"guidance": "Keep the operation and current run identifier visible throughout the dialog.",
+				"escapeBehavior": "Escape closes inspection because no operational change is pending.",
+				"focusRestoration": "Return focus to the run summary control."
+			},
+			"destructiveActions": {
+				"objectLabel": "Job errors check",
+				"consequence": "The check will be removed from the local Run 042 plan.",
+				"recoverability": "This specimen can restore the check because it performs no external operation.",
+				"openLabel": "Delete check",
+				"confirmLabel": "Delete Job errors check",
+				"cancelLabel": "Keep check",
+				"guidance": "Repeat the exact check name and operational consequence before confirmation."
+			}
+		},
 		"theme": {
 			"tokens": {
 				"light": {

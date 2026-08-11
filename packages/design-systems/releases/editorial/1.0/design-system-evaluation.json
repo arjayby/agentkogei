@@ -375,6 +375,120 @@
 				"guidance": "Name the current reading location and keep navigation in document order."
 			}
 		},
+		"interactions": {
+			"dataDisplay": {
+				"tableCaption": "Editorial calendar",
+				"columns": [
+					{ "id": "story", "label": "Story" },
+					{ "id": "stage", "label": "Stage" },
+					{ "id": "edition", "label": "Edition" }
+				],
+				"rows": [
+					{
+						"id": "field-notes",
+						"label": "Field notes",
+						"cells": ["Copy edit", "June journal"]
+					},
+					{
+						"id": "long-view",
+						"label": "The long view",
+						"cells": ["Ready", "June journal"]
+					},
+					{
+						"id": "opening-note",
+						"label": "Opening note",
+						"cells": ["Draft", "July journal"]
+					}
+				],
+				"listLabel": "Issue production summary",
+				"listItems": [
+					{
+						"title": "Opening note",
+						"description": "A short orientation for the issue.",
+						"status": "Ready"
+					},
+					{
+						"title": "Feature essay",
+						"description": "The central long form argument.",
+						"status": "Copy edit"
+					},
+					{
+						"title": "Field observations",
+						"description": "Brief reports from contributors.",
+						"status": "Draft"
+					}
+				],
+				"guidance": "Let typography, generous measure, and aligned headings make dense editorial data readable.",
+				"overflowGuidance": "Preserve every column in a labelled horizontal scroll region and never compress copy below a readable measure."
+			},
+			"feedback": {
+				"badges": [
+					{
+						"label": "Draft",
+						"meaning": "The story remains open for writing",
+						"tone": "neutral"
+					},
+					{
+						"label": "Copy edit",
+						"meaning": "The story is under editorial review",
+						"tone": "info"
+					},
+					{
+						"label": "Ready",
+						"meaning": "The story can enter the edition",
+						"tone": "success"
+					},
+					{
+						"label": "Held",
+						"meaning": "A named concern blocks publication",
+						"tone": "warning"
+					}
+				],
+				"alerts": [
+					{
+						"title": "Issue ready for proofing",
+						"description": "Every story has completed its editorial review.",
+						"tone": "success"
+					},
+					{
+						"title": "Contributor credit missing",
+						"description": "Add the author credit before this story can be published.",
+						"tone": "destructive"
+					}
+				],
+				"states": {
+					"loading": "Preparing the issue contents…",
+					"empty": "This edition has no stories yet.",
+					"filteredEmpty": "No stories match this section and stage.",
+					"error": "The issue contents could not be prepared. Try again locally.",
+					"success": "The issue is complete and ready for proofing.",
+					"disabled": "Publication remains unavailable until credits are complete.",
+					"destructive": "Removing this story also removes it from the local issue order."
+				},
+				"guidance": "Write feedback as a calm editorial note with the next useful action close by.",
+				"nonColorGuidance": "Use explicit stage names, readable symbols, and borders so status never depends on hue."
+			},
+			"dialogs": {
+				"title": "Review issue note",
+				"description": "Read the local editorial note before returning to the issue.",
+				"openLabel": "Open issue note",
+				"initialFocusLabel": "Read editorial note",
+				"confirmLabel": "Mark note read",
+				"closeLabel": "Close",
+				"guidance": "Keep the dialog in the reading flow with a clear title and restrained actions.",
+				"escapeBehavior": "Escape closes the note because it does not commit publication work.",
+				"focusRestoration": "Return focus to the issue note control."
+			},
+			"destructiveActions": {
+				"objectLabel": "The long view",
+				"consequence": "The story will be removed from the local June journal order.",
+				"recoverability": "This specimen can restore the story because it changes only local component state.",
+				"openLabel": "Remove story",
+				"confirmLabel": "Remove The long view",
+				"cancelLabel": "Keep story",
+				"guidance": "Name the story and explain its place in the edition before asking for confirmation."
+			}
+		},
 		"theme": {
 			"tokens": {
 				"light": {

@@ -365,6 +365,129 @@
 						"guidance": "Mark the current location in text and structure, and preserve logical keyboard order."
 					}
 				},
+				"interactions": {
+					"dataDisplay": {
+						"tableCaption": "Publication readiness by Design System Release",
+						"columns": [
+							{
+								"id": "release",
+								"label": "Release"
+							},
+							{
+								"id": "evaluation",
+								"label": "Evaluation"
+							},
+							{
+								"id": "owner",
+								"label": "Owner"
+							}
+						],
+						"rows": [
+							{
+								"id": "foundation",
+								"label": "Foundation 1.0",
+								"cells": ["Passed", "Design systems"]
+							},
+							{
+								"id": "editorial",
+								"label": "Editorial 1.0",
+								"cells": ["Reviewing", "Content systems"]
+							},
+							{
+								"id": "command",
+								"label": "Command 1.0",
+								"cells": ["Queued", "Product systems"]
+							}
+						],
+						"listLabel": "Release readiness summary",
+						"listItems": [
+							{
+								"title": "Design Contract",
+								"description": "Immutable release document is pinned.",
+								"status": "Complete"
+							},
+							{
+								"title": "Evaluation",
+								"description": "Keyboard, reflow, and both themes are covered.",
+								"status": "Passed"
+							},
+							{
+								"title": "Publication",
+								"description": "Maintainer approval remains explicit.",
+								"status": "Waiting"
+							}
+						],
+						"guidance": "Use quiet alignment, clear row headings, and stable columns for structured product data.",
+						"overflowGuidance": "Keep the table intact inside a labelled horizontal scroll region when columns do not fit."
+					},
+					"feedback": {
+						"badges": [
+							{
+								"label": "Draft",
+								"meaning": "Work is still editable",
+								"tone": "neutral"
+							},
+							{
+								"label": "In review",
+								"meaning": "A maintainer is checking the release",
+								"tone": "info"
+							},
+							{
+								"label": "Passed",
+								"meaning": "Required evaluation is complete",
+								"tone": "success"
+							},
+							{
+								"label": "Blocked",
+								"meaning": "A named requirement prevents publication",
+								"tone": "destructive"
+							}
+						],
+						"alerts": [
+							{
+								"title": "Evaluation complete",
+								"description": "All automated checks and required reviews passed.",
+								"tone": "success"
+							},
+							{
+								"title": "Publication blocked",
+								"description": "Resolve the missing accessibility evidence before continuing.",
+								"tone": "destructive"
+							}
+						],
+						"states": {
+							"loading": "Loading release evidence…",
+							"empty": "No releases have been proposed yet.",
+							"filteredEmpty": "No releases match the active filters.",
+							"error": "Release evidence could not be read. Try again locally.",
+							"success": "Release evidence is complete and ready for review.",
+							"disabled": "Publication is unavailable until every review passes.",
+							"destructive": "Removing this candidate discards its local evaluation record."
+						},
+						"guidance": "Place status beside the object it describes and keep recovery information in the same reading path.",
+						"nonColorGuidance": "Pair every tone with a plain language label, symbol, or structural treatment."
+					},
+					"dialogs": {
+						"title": "Review release evidence",
+						"description": "Inspect the local summary before returning to the publication checklist.",
+						"openLabel": "Open evidence dialog",
+						"initialFocusLabel": "Review summary",
+						"confirmLabel": "Mark reviewed",
+						"closeLabel": "Close",
+						"guidance": "Name the dialog, describe its purpose, and keep actions in a predictable order.",
+						"escapeBehavior": "Escape closes the review dialog because no irreversible work is in progress.",
+						"focusRestoration": "Return focus to the control that opened the dialog."
+					},
+					"destructiveActions": {
+						"objectLabel": "Foundation 1.0 candidate",
+						"consequence": "Its local evaluation record and review progress will be removed.",
+						"recoverability": "This specimen is reversible and changes only local component state.",
+						"openLabel": "Remove candidate",
+						"confirmLabel": "Remove Foundation 1.0 candidate",
+						"cancelLabel": "Keep candidate",
+						"guidance": "Repeat the affected object in the confirmation and state both consequence and recoverability before the action."
+					}
+				},
 				"theme": {
 					"tokens": {
 						"light": {
@@ -821,6 +944,129 @@
 							}
 						],
 						"guidance": "Name the current reading location and keep navigation in document order."
+					}
+				},
+				"interactions": {
+					"dataDisplay": {
+						"tableCaption": "Editorial calendar",
+						"columns": [
+							{
+								"id": "story",
+								"label": "Story"
+							},
+							{
+								"id": "stage",
+								"label": "Stage"
+							},
+							{
+								"id": "edition",
+								"label": "Edition"
+							}
+						],
+						"rows": [
+							{
+								"id": "field-notes",
+								"label": "Field notes",
+								"cells": ["Copy edit", "June journal"]
+							},
+							{
+								"id": "long-view",
+								"label": "The long view",
+								"cells": ["Ready", "June journal"]
+							},
+							{
+								"id": "opening-note",
+								"label": "Opening note",
+								"cells": ["Draft", "July journal"]
+							}
+						],
+						"listLabel": "Issue production summary",
+						"listItems": [
+							{
+								"title": "Opening note",
+								"description": "A short orientation for the issue.",
+								"status": "Ready"
+							},
+							{
+								"title": "Feature essay",
+								"description": "The central long form argument.",
+								"status": "Copy edit"
+							},
+							{
+								"title": "Field observations",
+								"description": "Brief reports from contributors.",
+								"status": "Draft"
+							}
+						],
+						"guidance": "Let typography, generous measure, and aligned headings make dense editorial data readable.",
+						"overflowGuidance": "Preserve every column in a labelled horizontal scroll region and never compress copy below a readable measure."
+					},
+					"feedback": {
+						"badges": [
+							{
+								"label": "Draft",
+								"meaning": "The story remains open for writing",
+								"tone": "neutral"
+							},
+							{
+								"label": "Copy edit",
+								"meaning": "The story is under editorial review",
+								"tone": "info"
+							},
+							{
+								"label": "Ready",
+								"meaning": "The story can enter the edition",
+								"tone": "success"
+							},
+							{
+								"label": "Held",
+								"meaning": "A named concern blocks publication",
+								"tone": "warning"
+							}
+						],
+						"alerts": [
+							{
+								"title": "Issue ready for proofing",
+								"description": "Every story has completed its editorial review.",
+								"tone": "success"
+							},
+							{
+								"title": "Contributor credit missing",
+								"description": "Add the author credit before this story can be published.",
+								"tone": "destructive"
+							}
+						],
+						"states": {
+							"loading": "Preparing the issue contents…",
+							"empty": "This edition has no stories yet.",
+							"filteredEmpty": "No stories match this section and stage.",
+							"error": "The issue contents could not be prepared. Try again locally.",
+							"success": "The issue is complete and ready for proofing.",
+							"disabled": "Publication remains unavailable until credits are complete.",
+							"destructive": "Removing this story also removes it from the local issue order."
+						},
+						"guidance": "Write feedback as a calm editorial note with the next useful action close by.",
+						"nonColorGuidance": "Use explicit stage names, readable symbols, and borders so status never depends on hue."
+					},
+					"dialogs": {
+						"title": "Review issue note",
+						"description": "Read the local editorial note before returning to the issue.",
+						"openLabel": "Open issue note",
+						"initialFocusLabel": "Read editorial note",
+						"confirmLabel": "Mark note read",
+						"closeLabel": "Close",
+						"guidance": "Keep the dialog in the reading flow with a clear title and restrained actions.",
+						"escapeBehavior": "Escape closes the note because it does not commit publication work.",
+						"focusRestoration": "Return focus to the issue note control."
+					},
+					"destructiveActions": {
+						"objectLabel": "The long view",
+						"consequence": "The story will be removed from the local June journal order.",
+						"recoverability": "This specimen can restore the story because it changes only local component state.",
+						"openLabel": "Remove story",
+						"confirmLabel": "Remove The long view",
+						"cancelLabel": "Keep story",
+						"guidance": "Name the story and explain its place in the edition before asking for confirmation."
 					}
 				},
 				"theme": {
@@ -1280,6 +1526,129 @@
 							}
 						],
 						"guidance": "Keep the selected view explicit with text, border, and programmatic current state."
+					}
+				},
+				"interactions": {
+					"dataDisplay": {
+						"tableCaption": "Frame inventory",
+						"columns": [
+							{
+								"id": "frame",
+								"label": "Frame"
+							},
+							{
+								"id": "format",
+								"label": "Format"
+							},
+							{
+								"id": "state",
+								"label": "State"
+							}
+						],
+						"rows": [
+							{
+								"id": "frame-040",
+								"label": "Frame 040",
+								"cells": ["4:3", "Archived"]
+							},
+							{
+								"id": "frame-041",
+								"label": "Frame 041",
+								"cells": ["4:3", "Review"]
+							},
+							{
+								"id": "frame-042",
+								"label": "Frame 042",
+								"cells": ["16:9", "Selected"]
+							}
+						],
+						"listLabel": "Selected frame details",
+						"listItems": [
+							{
+								"title": "Crop",
+								"description": "Wide focal composition.",
+								"status": "16:9"
+							},
+							{
+								"title": "Sequence",
+								"description": "Third frame in the working set.",
+								"status": "03 of 12"
+							},
+							{
+								"title": "Export",
+								"description": "Print ready monochrome output.",
+								"status": "Ready"
+							}
+						],
+						"guidance": "Use hard rules, stark alignment, and compact labels to make visual records comparable.",
+						"overflowGuidance": "Keep the comparison grid whole inside a labelled horizontal scroll region at narrow widths."
+					},
+					"feedback": {
+						"badges": [
+							{
+								"label": "Archived",
+								"meaning": "The frame is retained outside the active set",
+								"tone": "neutral"
+							},
+							{
+								"label": "Review",
+								"meaning": "The frame needs a visual decision",
+								"tone": "info"
+							},
+							{
+								"label": "Selected",
+								"meaning": "The frame is in the active export",
+								"tone": "success"
+							},
+							{
+								"label": "Missing",
+								"meaning": "The source frame is unavailable",
+								"tone": "destructive"
+							}
+						],
+						"alerts": [
+							{
+								"title": "Export ready",
+								"description": "Every selected frame has complete metadata.",
+								"tone": "success"
+							},
+							{
+								"title": "Source frame missing",
+								"description": "Restore Frame 017 before exporting this sequence.",
+								"tone": "destructive"
+							}
+						],
+						"states": {
+							"loading": "Loading frame inventory…",
+							"empty": "No frames are in this contact sheet.",
+							"filteredEmpty": "No frames match the selected format.",
+							"error": "Frame metadata could not be loaded. Try again locally.",
+							"success": "The selected frames are ready to export.",
+							"disabled": "Export is unavailable while a source frame is missing.",
+							"destructive": "Removing this frame changes the local sequence."
+						},
+						"guidance": "Keep status terse, adjacent to the frame, and explicit about what changed.",
+						"nonColorGuidance": "Combine each tone with a written state, distinct border, and recognizable symbol."
+					},
+					"dialogs": {
+						"title": "Inspect frame details",
+						"description": "Review the selected frame metadata without leaving the contact sheet.",
+						"openLabel": "Open frame details",
+						"initialFocusLabel": "Inspect metadata",
+						"confirmLabel": "Mark inspected",
+						"closeLabel": "Close",
+						"guidance": "Frame the focused object clearly and keep the dialog actions compact.",
+						"escapeBehavior": "Escape closes inspection because no export or removal is in progress.",
+						"focusRestoration": "Return focus to the frame details control."
+					},
+					"destructiveActions": {
+						"objectLabel": "Frame 042",
+						"consequence": "The frame will leave the local export sequence.",
+						"recoverability": "This specimen can restore the frame because it has no persistence.",
+						"openLabel": "Remove frame",
+						"confirmLabel": "Remove Frame 042",
+						"cancelLabel": "Keep frame",
+						"guidance": "Keep the selected frame visible in the language and state how the sequence changes."
 					}
 				},
 				"theme": {
@@ -1752,6 +2121,129 @@
 							}
 						],
 						"guidance": "Expose the current console section in text and aria current while preserving keyboard sequence."
+					}
+				},
+				"interactions": {
+					"dataDisplay": {
+						"tableCaption": "Active checks",
+						"columns": [
+							{
+								"id": "check",
+								"label": "Check"
+							},
+							{
+								"id": "region",
+								"label": "Region"
+							},
+							{
+								"id": "result",
+								"label": "Result"
+							}
+						],
+						"rows": [
+							{
+								"id": "api-latency",
+								"label": "API latency",
+								"cells": ["MNL", "Passing"]
+							},
+							{
+								"id": "queue-depth",
+								"label": "Queue depth",
+								"cells": ["SIN", "Warning"]
+							},
+							{
+								"id": "job-errors",
+								"label": "Job errors",
+								"cells": ["NRT", "Failed"]
+							}
+						],
+						"listLabel": "Run context",
+						"listItems": [
+							{
+								"title": "Runtime",
+								"description": "Production edge checks.",
+								"status": "Active"
+							},
+							{
+								"title": "Interval",
+								"description": "Checks execute on a fixed local specimen clock.",
+								"status": "5 min"
+							},
+							{
+								"title": "Escalation",
+								"description": "Failures require an operator decision.",
+								"status": "Manual"
+							}
+						],
+						"guidance": "Align operational values into dense ruled columns with persistent row headings.",
+						"overflowGuidance": "Expose horizontal overflow on a labelled region while preserving every operational column."
+					},
+					"feedback": {
+						"badges": [
+							{
+								"label": "Idle",
+								"meaning": "The check is not currently running",
+								"tone": "neutral"
+							},
+							{
+								"label": "Running",
+								"meaning": "The check is actively evaluating",
+								"tone": "info"
+							},
+							{
+								"label": "Passing",
+								"meaning": "The latest result met its threshold",
+								"tone": "success"
+							},
+							{
+								"label": "Failed",
+								"meaning": "The latest result crossed its failure threshold",
+								"tone": "destructive"
+							}
+						],
+						"alerts": [
+							{
+								"title": "All checks recovered",
+								"description": "The current run has returned to healthy thresholds.",
+								"tone": "success"
+							},
+							{
+								"title": "Job error rate failed",
+								"description": "Inspect Run 042 before acknowledging the incident.",
+								"tone": "destructive"
+							}
+						],
+						"states": {
+							"loading": "Running operational checks…",
+							"empty": "No checks are configured for this target.",
+							"filteredEmpty": "No checks match the active result filter.",
+							"error": "Check results could not be read. Retry the local run.",
+							"success": "Every active check is passing.",
+							"disabled": "Acknowledge is unavailable until the run completes.",
+							"destructive": "Deleting this check removes it from the local run plan."
+						},
+						"guidance": "Report the operation, result, and next action in one compact scan path.",
+						"nonColorGuidance": "Pair semantic color with a written result, symbol, and ruled treatment."
+					},
+					"dialogs": {
+						"title": "Inspect run summary",
+						"description": "Review Run 042 telemetry before returning to the checks grid.",
+						"openLabel": "Open run summary",
+						"initialFocusLabel": "Inspect telemetry",
+						"confirmLabel": "Acknowledge summary",
+						"closeLabel": "Close",
+						"guidance": "Keep the operation and current run identifier visible throughout the dialog.",
+						"escapeBehavior": "Escape closes inspection because no operational change is pending.",
+						"focusRestoration": "Return focus to the run summary control."
+					},
+					"destructiveActions": {
+						"objectLabel": "Job errors check",
+						"consequence": "The check will be removed from the local Run 042 plan.",
+						"recoverability": "This specimen can restore the check because it performs no external operation.",
+						"openLabel": "Delete check",
+						"confirmLabel": "Delete Job errors check",
+						"cancelLabel": "Keep check",
+						"guidance": "Repeat the exact check name and operational consequence before confirmation."
 					}
 				},
 				"theme": {

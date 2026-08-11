@@ -601,6 +601,106 @@ test("every discovered Preview exposes self contained controls and content conta
 	}
 });
 
+test("every discovered Preview exposes accessible data, feedback, dialogs, and local destructive actions", async ({
+	page,
+}) => {
+	const routes = await discoverDesignSystemRoutes(page);
+	const feedbackStates = [
+		"Loading",
+		"Empty",
+		"Filtered empty",
+		"Error",
+		"Success",
+		"Disabled",
+		"Destructive",
+	];
+
+	for (const route of routes) {
+		const { name } = await readPublishedDesignSystem(page, route);
+		const externalRequests: string[] = [];
+		const captureSpecimenRequest = (request: {
+			resourceType(): string;
+			url(): string;
+		}) => {
+			const url = new URL(request.url());
+			if (
+				["fetch", "xhr"].includes(request.resourceType()) &&
+				!url.searchParams.has("_rsc")
+			) {
+				externalRequests.push(request.url());
+			}
+		};
+		page.on("request", captureSpecimenRequest);
+		const specimens = page.getByRole("region", {
+			name: `${name} data, feedback, and consequential interactions`,
+		});
+
+		await expect(specimens).toBeVisible();
+		await expect(specimens.getByRole("heading", { level: 3 })).toHaveText([
+			"Tables, lists, and data display",
+			"Badges, alerts, and feedback states",
+			"Dialogs and destructive actions",
+		]);
+
+		const table = specimens.getByRole("table");
+		await expect(table.getByRole("columnheader")).toHaveCount(3);
+		await expect(table.getByRole("rowheader")).toHaveCount(3);
+		await expect(
+			specimens.getByRole("region", { name: /scroll region/i }),
+		).toHaveAttribute("tabindex", "0");
+		await expect(
+			specimens.getByRole("list", { name: /summary|details|context/i }),
+		).toBeVisible();
+
+		const states = specimens.getByRole("group", { name: "Feedback states" });
+		for (const state of feedbackStates) {
+			await expect(states.getByText(state, { exact: true })).toBeVisible();
+		}
+
+		const dialogOpener = specimens.getByRole("button", {
+			name: /open .*dialog|open .*note|open .*details|open .*summary/i,
+		});
+		await dialogOpener.click();
+		const dialog = page
+			.getByRole("dialog")
+			.filter({ hasNotText: /cannot be undone/i });
+		await expect(dialog).toBeVisible();
+		await expect(dialog.getByRole("button").first()).toBeFocused();
+		await page.keyboard.press("Escape");
+		await expect(dialog).not.toBeVisible();
+		await expect(dialogOpener).toBeFocused();
+
+		const destructiveOpener = specimens.getByRole("button", {
+			name: /remove|delete/i,
+		});
+		await destructiveOpener.click();
+		const destructiveDialog = page
+			.getByRole("dialog")
+			.filter({ hasText: /recover|restore|reversible|no persistence/i });
+		await expect(destructiveDialog).toBeVisible();
+		await expect(destructiveDialog.getByRole("button").first()).toBeFocused();
+		await page.keyboard.press("Escape");
+		await expect(destructiveDialog).not.toBeVisible();
+		await expect(destructiveOpener).toBeFocused();
+
+		await destructiveOpener.click();
+		await destructiveDialog
+			.getByRole("button", { name: /remove|delete/i })
+			.click();
+		const restoreAction = specimens.getByRole("button", { name: /^restore/i });
+		await expect(restoreAction).toBeFocused();
+		await expect(
+			specimens.getByRole("status", { name: "Destructive action result" }),
+		).toContainText(/removed|deleted/i);
+		await restoreAction.click();
+		await expect(
+			specimens.getByRole("status", { name: "Destructive action result" }),
+		).toContainText(/remains available/i);
+		expect(externalRequests, route).toEqual([]);
+		page.off("request", captureSpecimenRequest);
+	}
+});
+
 test("an isolated valid release reaches Design System discovery and its complete public journey", async ({
 	page,
 	request,
@@ -1238,12 +1338,26 @@ test("every discovered Design System Preview remains evaluated across supported 
 					scrollWidth: document.documentElement.scrollWidth,
 				},
 				elements: [...document.querySelectorAll("body *")]
-					.filter(
-						(element) =>
-							element instanceof HTMLElement &&
-							element.getBoundingClientRect().right >
-								document.documentElement.clientWidth,
-					)
+					.filter((element) => {
+						if (!(element instanceof HTMLElement)) return false;
+						if (
+							element.getBoundingClientRect().right <=
+							document.documentElement.clientWidth
+						) {
+							return false;
+						}
+						const overflowRegion = element.closest(
+							".preview-data-table-region",
+						);
+						return !(
+							overflowRegion instanceof HTMLElement &&
+							overflowRegion.getBoundingClientRect().right <=
+								document.documentElement.clientWidth &&
+							["auto", "scroll"].includes(
+								getComputedStyle(overflowRegion).overflowX,
+							)
+						);
+					})
 					.slice(0, 5)
 					.map((element) => ({
 						className: element.getAttribute("class"),

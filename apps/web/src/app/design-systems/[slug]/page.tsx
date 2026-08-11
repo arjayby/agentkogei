@@ -12,6 +12,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DesignSystemControlsSpecimen } from "@/components/design-system-controls-specimen";
 import { DesignSystemFoundationsSpecimen } from "@/components/design-system-foundations-specimen";
+import { DesignSystemInteractionsSpecimen } from "@/components/design-system-interactions-specimen";
 import { DesignSystemMark } from "@/components/design-system-mark";
 import { DesignSystemPreviewEvidence } from "@/components/design-system-preview-evidence";
 import { DesignSystemPreviewTheme } from "@/components/design-system-preview-theme";
@@ -62,7 +63,7 @@ export default async function DesignSystemPage({
 	}
 
 	const release = currentRelease(designSystem);
-	const { composition, controls } = previewShellFor(designSystem);
+	const { composition, controls, interactions } = previewShellFor(designSystem);
 	const actionHref =
 		`/contracts/${designSystem.slug}/${release.version}` as Route;
 	const actionLabel = `Read the ${designSystem.name} ${release.version} Design Contract`;
@@ -179,6 +180,13 @@ export default async function DesignSystemPage({
 								controls={controls}
 								name={designSystem.name}
 								slug={designSystem.slug}
+							/>
+						) : null}
+						{interactions ? (
+							<DesignSystemInteractionsSpecimen
+								composition={composition}
+								interactions={interactions}
+								name={designSystem.name}
 							/>
 						) : null}
 						<DesignSystemPreviewEvidence designSystem={designSystem} />
