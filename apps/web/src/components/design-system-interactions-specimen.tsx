@@ -330,6 +330,7 @@ export function DesignSystemInteractionsSpecimen({
 						<Button
 							ref={dialogOpenerRef}
 							type="button"
+							variant="outline"
 							data-preview-control="button"
 							onClick={() => dialogRef.current?.showModal()}
 						>
