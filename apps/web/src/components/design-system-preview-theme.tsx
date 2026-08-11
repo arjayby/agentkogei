@@ -55,19 +55,10 @@ function paletteDeclarations(palette: PreviewPalette) {
 
 function previewThemeStylesheet(
 	designSystem: DesignSystem | DesignSystemDiscovery,
-	page: boolean,
 ) {
 	const { theme, typography } = designSystem.preview;
 	const { geometry, tokens } = theme;
 	const selector = `[data-design-system-preview="${designSystem.slug}"]`;
-	const pageSelector = `body:has([data-design-system-preview-page="${designSystem.slug}"])`;
-	const scope = page ? `${selector}, ${pageSelector}` : selector;
-	const darkScope = page
-		? `.dark ${selector}, .dark ${pageSelector}`
-		: `.dark ${selector}`;
-	const preferredDarkScope = page
-		? `html:not(.light) ${selector}, html:not(.light) ${pageSelector}`
-		: `html:not(.light) ${selector}`;
 	const sharedDeclarations = `
 		--preview-font-display: ${fontFamilies[typography.display]};
 		--preview-font-body: ${fontFamilies[typography.body]};
@@ -116,74 +107,41 @@ function previewThemeStylesheet(
 		--color-ring: var(--preview-ring);
 	`;
 
-	return `${scope} {
+	return `${selector} {
 		${paletteDeclarations(tokens.light)}
 		${sharedDeclarations}
 		${semanticDeclarations}
 	}
-	${darkScope} {
+	.dark ${selector} {
 		${paletteDeclarations(tokens.dark)}
 	}
 	@media (prefers-color-scheme: dark) {
-		${preferredDarkScope} {
+		html:not(.light) ${selector} {
 			${paletteDeclarations(tokens.dark)}
 		}
 	}
-	${
-		page
-			? `${pageSelector} {
+	${selector} [data-preview-themed-specimen] {
 		background: var(--preview-background);
 		color: var(--preview-foreground);
 		font-family: var(--preview-font-body);
 	}
-	${pageSelector} .site-header,
-	${pageSelector} main,
-	${pageSelector} footer {
-		background: var(--preview-background);
-		color: var(--preview-foreground);
-	}
-	${pageSelector} h1,
-	${pageSelector} h2,
-	${pageSelector} h3 {
+	${selector} [data-preview-themed-specimen] h1,
+	${selector} [data-preview-themed-specimen] h2,
+	${selector} [data-preview-themed-specimen] h3 {
 		font-family: var(--preview-font-display);
-	}
-	${pageSelector} .site-brand,
-	${pageSelector} nav,
-	${pageSelector} footer {
-		font-family: var(--preview-font-accent);
-	}`
-			: ""
 	}`;
 }
 
 export function DesignSystemPreviewTheme({
 	designSystem,
 	children,
-	page = false,
 	includeStyles = true,
 }: {
 	designSystem: DesignSystem | DesignSystemDiscovery;
 	children: ReactNode;
-	page?: boolean;
 	includeStyles?: boolean;
 }) {
-	const { composition } = designSystem.preview;
-	const stylesheet = previewThemeStylesheet(designSystem, page);
-
-	if (page) {
-		return (
-			<>
-				{includeStyles ? <style>{stylesheet}</style> : null}
-				<main
-					data-design-system-preview={designSystem.slug}
-					data-design-system-preview-page={designSystem.slug}
-					data-preview-composition={composition}
-				>
-					{children}
-				</main>
-			</>
-		);
-	}
+	const stylesheet = previewThemeStylesheet(designSystem);
 
 	return (
 		<>
@@ -198,5 +156,5 @@ export function DesignSystemPreviewThemeStyles({
 }: {
 	designSystem: DesignSystem | DesignSystemDiscovery;
 }) {
-	return <style>{previewThemeStylesheet(designSystem, false)}</style>;
+	return <style>{previewThemeStylesheet(designSystem)}</style>;
 }

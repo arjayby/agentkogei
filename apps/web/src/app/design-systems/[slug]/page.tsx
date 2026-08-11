@@ -12,10 +12,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { DesignSystemBehaviorSpecimen } from "@/components/design-system-behavior-specimen";
 import { DesignSystemControlsSpecimen } from "@/components/design-system-controls-specimen";
+import { DesignSystemEvaluationEvidence } from "@/components/design-system-evaluation-evidence";
 import { DesignSystemFoundationsSpecimen } from "@/components/design-system-foundations-specimen";
 import { DesignSystemInteractionsSpecimen } from "@/components/design-system-interactions-specimen";
 import { DesignSystemMark } from "@/components/design-system-mark";
-import { DesignSystemPreviewEvidence } from "@/components/design-system-preview-evidence";
 import { DesignSystemPreviewTheme } from "@/components/design-system-preview-theme";
 import { InstallationCommand } from "@/components/installation-command";
 import {
@@ -79,10 +79,10 @@ export default async function DesignSystemPage({
 	const retrievalNote = `${designSystem.name} is retrieved anonymously from AgentKogei's public Design Systems collection. The CLI shows the absolute target and the exact change before it writes anything.`;
 
 	return (
-		<DesignSystemPreviewTheme designSystem={designSystem} page>
+		<main>
 			<section
 				data-preview-section="hero"
-				className="preview-shell-hero border-b px-5 py-8 sm:px-8 lg:px-12 lg:py-16"
+				className="border-b px-5 py-8 sm:px-8 lg:px-12 lg:py-16"
 			>
 				<div className="mx-auto flex max-w-7xl flex-col gap-12">
 					<div className="flex items-center justify-between gap-6">
@@ -96,10 +96,10 @@ export default async function DesignSystemPage({
 						<DesignSystemMark
 							designSystem={designSystem}
 							data-mark-size="compact"
-							className="design-system-mark size-8 shrink-0"
+							className="design-system-mark-shell size-8 shrink-0"
 						/>
 					</div>
-					<div className="preview-shell-hero-grid grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.55fr)] lg:items-center">
+					<div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.55fr)] lg:items-center">
 						<div className="flex flex-col gap-7">
 							<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.2em]">
 								Design System Release {release.version}
@@ -133,11 +133,11 @@ export default async function DesignSystemPage({
 								</Link>
 							</div>
 						</div>
-						<div className="preview-mark-stage catalog-preview-panel grid aspect-square place-items-center border p-10 sm:p-14">
+						<div className="grid aspect-square place-items-center border bg-card p-10 sm:p-14">
 							<DesignSystemMark
 								designSystem={designSystem}
 								data-mark-size="hero"
-								className="design-system-mark size-full max-h-72 max-w-72"
+								className="design-system-mark-shell size-full max-h-72 max-w-72"
 							/>
 						</div>
 					</div>
@@ -159,52 +159,53 @@ export default async function DesignSystemPage({
 				</div>
 			</section>
 
-			<section
-				data-preview-section="exploration"
-				className="border-b px-5 py-12 sm:px-8 lg:px-12 lg:py-20"
-				aria-labelledby="preview-heading"
-			>
-				<div className="mx-auto max-w-7xl">
-					<div className="mb-10 flex flex-col gap-3">
-						<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.2em]">
-							Design System Preview / Rendered evidence
-						</p>
-						<h2
-							id="preview-heading"
-							className="font-medium text-3xl tracking-tight sm:text-5xl"
-						>
-							One direction across the whole product.
-						</h2>
-						<p className="max-w-2xl text-muted-foreground">
-							Preview is evidence, not the Design Contract. It demonstrates
-							direction and evaluated coverage; the Design Contract itself is
-							public, so you can read every word before you add it.
-						</p>
+			<DesignSystemPreviewTheme designSystem={designSystem}>
+				<section
+					data-preview-section="exploration"
+					data-preview-themed-specimen
+					data-preview-composition={composition}
+					className="border-b px-5 py-12 sm:px-8 lg:px-12 lg:py-20"
+					aria-label={`${designSystem.name} rendered Design System Preview`}
+				>
+					<div className="mx-auto max-w-7xl">
+						<div className="mb-10 flex flex-col gap-3">
+							<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.2em]">
+								Design System Preview / Rendered evidence
+							</p>
+							<h2 className="font-medium text-3xl tracking-tight sm:text-5xl">
+								One direction across the whole product.
+							</h2>
+							<p className="max-w-2xl text-muted-foreground">
+								Preview is evidence, not the Design Contract. It demonstrates
+								direction and evaluated coverage; the Design Contract itself is
+								public, so you can read every word before you add it.
+							</p>
+						</div>
+						<div className="grid gap-12 lg:gap-20">
+							<DesignSystemFoundationsSpecimen designSystem={designSystem} />
+							<DesignSystemControlsSpecimen
+								composition={composition}
+								controls={controls}
+								name={designSystem.name}
+								slug={designSystem.slug}
+							/>
+							<DesignSystemInteractionsSpecimen
+								composition={composition}
+								interactions={interactions}
+								name={designSystem.name}
+							/>
+							<DesignSystemBehaviorSpecimen
+								accessibility={accessibility}
+								composition={composition}
+								motion={motion}
+								name={designSystem.name}
+								reducedMotion={reducedMotion}
+							/>
+							<DesignSystemEvaluationEvidence designSystem={designSystem} />
+						</div>
 					</div>
-					<div className="grid gap-12 lg:gap-20">
-						<DesignSystemFoundationsSpecimen designSystem={designSystem} />
-						<DesignSystemControlsSpecimen
-							composition={composition}
-							controls={controls}
-							name={designSystem.name}
-							slug={designSystem.slug}
-						/>
-						<DesignSystemInteractionsSpecimen
-							composition={composition}
-							interactions={interactions}
-							name={designSystem.name}
-						/>
-						<DesignSystemBehaviorSpecimen
-							accessibility={accessibility}
-							composition={composition}
-							motion={motion}
-							name={designSystem.name}
-							reducedMotion={reducedMotion}
-						/>
-						<DesignSystemPreviewEvidence designSystem={designSystem} />
-					</div>
-				</div>
-			</section>
+				</section>
+			</DesignSystemPreviewTheme>
 
 			<section
 				data-preview-section="release-details"
@@ -366,6 +367,6 @@ export default async function DesignSystemPage({
 					</div>
 				</div>
 			</section>
-		</DesignSystemPreviewTheme>
+		</main>
 	);
 }
