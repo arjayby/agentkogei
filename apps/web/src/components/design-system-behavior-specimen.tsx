@@ -75,6 +75,7 @@ export function DesignSystemBehaviorSpecimen({
 						</div>
 						<div className="flex flex-wrap items-center gap-3">
 							<Button
+								variant="outline"
 								type="button"
 								onClick={() => setMotionComplete((complete) => !complete)}
 							>
