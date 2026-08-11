@@ -10,7 +10,7 @@ import {
 import { publishedReleaseDirectory } from "./support/published-release";
 
 const foundation = () =>
-	readDesignContract(publishedReleaseDirectory("foundation", "1.1.0"));
+	readDesignContract(publishedReleaseDirectory("foundation", "1.0"));
 
 const publishedReleases = publishedDesignSystems.flatMap((designSystem) =>
 	designSystem.versions.map(
@@ -29,12 +29,9 @@ describe("Design Contract delivery", () => {
 		expect(contract).toEqual({
 			identity: "foundation",
 			designSystem: "Foundation",
-			designSystemRelease: "1.1.0",
+			designSystemRelease: "1.0",
 			markdown: await readFile(
-				path.join(
-					publishedReleaseDirectory("foundation", "1.1.0"),
-					"DESIGN.md",
-				),
+				path.join(publishedReleaseDirectory("foundation", "1.0"), "DESIGN.md"),
 				"utf8",
 			),
 		});
@@ -47,7 +44,7 @@ describe("Design Contract delivery", () => {
 	});
 
 	test("delivers the published Markdown byte for byte", async () => {
-		const directory = publishedReleaseDirectory("foundation", "1.1.0");
+		const directory = publishedReleaseDirectory("foundation", "1.0");
 
 		expect((await foundation()).markdown).toBe(
 			await readFile(path.join(directory, "DESIGN.md"), "utf8"),
@@ -102,7 +99,7 @@ describe("Design Contract delivery", () => {
 
 	test("leaves publication evidence out of the direction a Project installs", async () => {
 		const { markdown } = await readDesignContract(
-			publishedReleaseDirectory("editorial", "1.0.0"),
+			publishedReleaseDirectory("editorial", "1.0"),
 		);
 
 		expect(markdown).toContain("# Editorial Design System");
@@ -110,16 +107,11 @@ describe("Design Contract delivery", () => {
 		expect(markdown).not.toContain("agent-generation evidence");
 	});
 
-	test("delivers each Design System Release as its own immutable document", async () => {
-		const [current, previous, repeated] = await Promise.all([
-			foundation(),
-			readDesignContract(publishedReleaseDirectory("foundation", "1.0.0")),
-			foundation(),
-		]);
+	test("repeatedly delivers the immutable Design System Release", async () => {
+		const [current, repeated] = await Promise.all([foundation(), foundation()]);
 
 		expect(current.markdown).toBe(repeated.markdown);
-		expect(previous.designSystemRelease).toBe("1.0.0");
-		expect(previous.markdown).not.toBe(current.markdown);
+		expect(current.designSystemRelease).toBe("1.0");
 	});
 
 	test("refuses an incomplete Design Contract", async () => {
@@ -127,7 +119,7 @@ describe("Design Contract delivery", () => {
 			designContractSchema.safeParse({
 				identity: "foundation",
 				designSystem: "Foundation",
-				designSystemRelease: "1.1.0",
+				designSystemRelease: "1.0",
 				markdown: "",
 			}).success,
 		).toBe(false);

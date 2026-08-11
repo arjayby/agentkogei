@@ -4,7 +4,7 @@
 		{
 			"id": "foundation",
 			"name": "Foundation",
-			"currentRelease": "1.1.0",
+			"currentRelease": "1.0",
 			"preview": {
 				"order": 1,
 				"summary": "Neutral, crisp, and highly legible B2B SaaS.",
@@ -113,19 +113,10 @@
 			},
 			"releases": [
 				{
-					"version": "1.1.0",
+					"version": "1.0",
 					"publishedAt": "2026-07-19",
 					"changelog": {
-						"summary": "Adds semantic informational-state tokens and detailed responsive pagination guidance.",
-						"breaking": false,
-						"migrationNotes": null
-					}
-				},
-				{
-					"version": "1.0.0",
-					"publishedAt": "2026-07-18",
-					"changelog": {
-						"summary": "Initial Published Design System with complete cross-surface guidance, implementation direction, and Design System Evaluation evidence.",
+						"summary": "Initial Published Design System with complete cross-surface guidance, semantic informational-state tokens, and responsive pagination direction.",
 						"breaking": false,
 						"migrationNotes": null
 					}
@@ -135,7 +126,7 @@
 		{
 			"id": "editorial",
 			"name": "Editorial",
-			"currentRelease": "1.0.0",
+			"currentRelease": "1.0",
 			"preview": {
 				"order": 2,
 				"summary": "Warm, spacious, and content-forward SaaS.",
@@ -245,7 +236,7 @@
 			},
 			"releases": [
 				{
-					"version": "1.0.0",
+					"version": "1.0",
 					"publishedAt": "2026-07-19",
 					"changelog": {
 						"summary": "Initial Published Design System with complete cross-surface guidance, evaluated implementation direction, and WCAG 2.2 AA evidence.",
@@ -258,7 +249,7 @@
 		{
 			"id": "mono",
 			"name": "Mono",
-			"currentRelease": "1.0.0",
+			"currentRelease": "1.0",
 			"preview": {
 				"order": 3,
 				"summary": "Monochrome, high-contrast, and content-spotlit.",
@@ -367,7 +358,7 @@
 			},
 			"releases": [
 				{
-					"version": "1.0.0",
+					"version": "1.0",
 					"publishedAt": "2026-07-25",
 					"changelog": {
 						"summary": "Initial Published Design System with complete cross-surface coverage and evaluation evidence.",
@@ -380,7 +371,7 @@
 		{
 			"id": "command",
 			"name": "Command",
-			"currentRelease": "1.0.0",
+			"currentRelease": "1.0",
 			"preview": {
 				"order": 4,
 				"summary": "Dark-first, dense, and technical.",
@@ -489,7 +480,7 @@
 			},
 			"releases": [
 				{
-					"version": "1.0.0",
+					"version": "1.0",
 					"publishedAt": "2026-07-18",
 					"changelog": {
 						"summary": "Initial Published Design System with dense technical patterns and complete state coverage.",

@@ -1,5 +1,5 @@
 {
-	"version": "1.0.0",
+	"version": "1.0",
 	"status": "passed",
 	"standard": "WCAG 2.2 Level AA",
 	"screens": [
@@ -24,12 +24,12 @@
 		"color contrast",
 		"responsive overflow"
 	],
-	"agentGenerationRuns": 4,
+	"agentGenerationRuns": 3,
 	"humanReview": {
 		"visual": "passed",
 		"accessibility": "passed",
 		"rights": "passed",
 		"reviewedAt": "2026-07-18"
 	},
-	"designSystem": "command"
+	"designSystem": "foundation"
 }

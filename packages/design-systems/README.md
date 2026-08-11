@@ -22,7 +22,7 @@ yarn dlx agentkogei@latest add foundation
 bunx agentkogei@latest add foundation
 ```
 
-`agentkogei@latest` selects the newest CLI. A bare identity such as `foundation` selects the current Design System Release. An exact selector such as `foundation@1.1.0` selects that immutable release.
+`agentkogei@latest` selects the newest CLI. A bare identity such as `foundation` selects the current Design System Release. An exact selector such as `foundation@1.0` selects that immutable release.
 
 The CLI previews the Design System Release and absolute files it will write, then asks before changing anything. Pass `--yes` for unattended consent. Replacing an existing `DESIGN.md` unattended requires `--yes --force`.
 

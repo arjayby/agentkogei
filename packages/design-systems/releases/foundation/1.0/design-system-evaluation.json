@@ -3,13 +3,13 @@
 	"id": "foundation",
 	"designSystem": "Foundation",
 	"designSystemRelease": {
-		"version": "1.0.0",
-		"publishedAt": "2026-07-18",
+		"version": "1.0",
+		"publishedAt": "2026-07-19",
 		"immutable": true
 	},
 	"publisher": "AgentKogei",
 	"designContract": {
-		"sha256": "d69e9c53b7261e488320fb21289a733b1929ed8f98f9c1de6462accd38740bb6"
+		"sha256": "3de5fb5ba9000d6bab0a76ebfc05d0fdeaad505799e1027bcf2a2a299709400b"
 	},
 	"compatibility": {
 		"frameworks": ["react", "nextjs"],
@@ -118,7 +118,7 @@
 		}
 	},
 	"changelog": {
-		"summary": "Initial Published Design System with complete cross-surface guidance, implementation direction, and Design System Evaluation evidence.",
+		"summary": "Initial Published Design System with complete cross-surface guidance, semantic informational-state tokens, and responsive pagination direction.",
 		"breaking": false,
 		"migrationNotes": null
 	}

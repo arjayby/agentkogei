@@ -3,7 +3,7 @@
 	"id": "command",
 	"designSystem": "Command",
 	"designSystemRelease": {
-		"version": "1.0.0",
+		"version": "1.0",
 		"publishedAt": "2026-07-18",
 		"immutable": true
 	},

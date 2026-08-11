@@ -1,5 +1,5 @@
 {
-	"version": "1.0.0",
+	"version": "1.0",
 	"status": "passed",
 	"standard": "WCAG 2.2 Level AA",
 	"screens": [
@@ -29,7 +29,7 @@
 		"visual": "passed",
 		"accessibility": "passed",
 		"rights": "passed",
-		"reviewedAt": "2026-07-18"
+		"reviewedAt": "2026-07-25"
 	},
-	"designSystem": "foundation"
+	"designSystem": "mono"
 }

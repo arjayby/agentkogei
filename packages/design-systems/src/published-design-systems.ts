@@ -129,7 +129,7 @@ export async function discoverPublishedDesignSystems(
 		);
 		const current = releases.at(-1);
 		if (!current) {
-			errors.push(`${identity}: no valid semantic Design System Release`);
+			errors.push(`${identity}: no valid Design System Release`);
 			continue;
 		}
 		const versions = releases.map(({ version }) => version);

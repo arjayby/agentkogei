@@ -17,7 +17,7 @@ type CandidateValidationResult =
 			ok: true;
 			designSystem: string;
 			identity: string;
-			version: "1.0.0";
+			version: "1.0";
 			authoringApproval: "pending" | "approved";
 			mechanicalValidation: true;
 	  }
@@ -92,7 +92,7 @@ function candidateMetadata() {
 		status: "candidate",
 		id: "lattice",
 		designSystem: "Lattice",
-		designSystemRelease: { version: "1.0.0" },
+		designSystemRelease: { version: "1.0" },
 		creativeBrief: {
 			intendedFit: "Dense collaborative planning products",
 			systemSignature:
@@ -282,7 +282,7 @@ describe("Candidate Design System Release validation", () => {
 				ok: true,
 				designSystem: "Lattice",
 				identity: "lattice",
-				version: "1.0.0",
+				version: "1.0",
 				authoringApproval: "pending",
 				mechanicalValidation: true,
 			},
@@ -392,19 +392,14 @@ describe("Candidate Design System Release validation", () => {
 		temporaryDirectories.push(stateRoot);
 		const candidatesDirectory = path.join(stateRoot, "candidates");
 		const publishedDirectory = path.join(stateRoot, "releases");
-		await mkdir(path.join(candidatesDirectory, "different-name", "1.0.0"), {
+		await mkdir(path.join(candidatesDirectory, "different-name", "1.0"), {
 			recursive: true,
 		});
 		await writeFile(
-			path.join(
-				candidatesDirectory,
-				"different-name",
-				"1.0.0",
-				"candidate.json",
-			),
+			path.join(candidatesDirectory, "different-name", "1.0", "candidate.json"),
 			JSON.stringify({ id: "lattice" }),
 		);
-		await mkdir(path.join(publishedDirectory, "lattice", "1.0.0"), {
+		await mkdir(path.join(publishedDirectory, "lattice", "1.0"), {
 			recursive: true,
 		});
 
@@ -430,7 +425,7 @@ describe("Candidate Design System Release validation", () => {
 		temporaryDirectories.push(stateRoot);
 		const candidatesDirectory = path.join(stateRoot, "candidates");
 		const publishedDirectory = path.join(stateRoot, "releases");
-		const currentDirectory = path.join(candidatesDirectory, "lattice", "1.0.0");
+		const currentDirectory = path.join(candidatesDirectory, "lattice", "1.0");
 		await mkdir(path.dirname(currentDirectory), { recursive: true });
 		const stagedDirectory = await createCandidateFixture();
 		await rename(stagedDirectory, currentDirectory);
@@ -447,7 +442,7 @@ describe("Candidate Design System Release validation", () => {
 		const duplicateNameDirectory = path.join(
 			candidatesDirectory,
 			"another-identity",
-			"1.0.0",
+			"1.0",
 		);
 		await mkdir(duplicateNameDirectory, { recursive: true });
 		await writeFile(
@@ -474,7 +469,7 @@ describe("Candidate Design System Release validation", () => {
 		const rootDirectory = await createCandidateFixture();
 		await mutateJson(rootDirectory, "candidate.json", (metadata) => {
 			(metadata.designSystemRelease as Record<string, unknown>).version =
-				"1.1.0";
+				"1.0.0";
 			Reflect.deleteProperty(metadata, "authoringApproval");
 		});
 		await mutateJson(rootDirectory, "evaluation/plan.json", (plan) => {
@@ -836,12 +831,12 @@ describe("Candidate Design System Release validation", () => {
 			exitCode: 0,
 			result: {
 				ok: true,
-				candidateDirectory: path.join(candidatesDirectory, "lattice", "1.0.0"),
+				candidateDirectory: path.join(candidatesDirectory, "lattice", "1.0"),
 			},
 		});
 		expect(
 			(
-				await readdir(path.join(candidatesDirectory, "lattice", "1.0.0"), {
+				await readdir(path.join(candidatesDirectory, "lattice", "1.0"), {
 					recursive: true,
 				})
 			).sort(),

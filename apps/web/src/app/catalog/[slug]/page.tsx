@@ -249,7 +249,7 @@ export default async function DesignSystemPage({
 								<h2>Release history</h2>
 							</CardTitle>
 							<CardDescription>
-								Immutable semantic Design System Releases, newest first.
+								Immutable two part Design System Releases, newest first.
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="flex flex-col gap-8">

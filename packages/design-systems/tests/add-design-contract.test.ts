@@ -29,11 +29,8 @@ type CatalogResponse = {
 };
 
 const contracts = {
-	"1.0.0": await readDesignContract(
-		publishedReleaseDirectory("foundation", "1.0.0"),
-	),
-	"1.1.0": await readDesignContract(
-		publishedReleaseDirectory("foundation", "1.1.0"),
+	"1.0": await readDesignContract(
+		publishedReleaseDirectory("foundation", "1.0"),
 	),
 };
 
@@ -64,12 +61,10 @@ const catalog = Bun.serve({
 		}
 		const release =
 			pathname === "/contracts/foundation"
-				? contracts["1.1.0"]
-				: pathname === "/contracts/foundation/1.1.0"
-					? contracts["1.1.0"]
-					: pathname === "/contracts/foundation/1.0.0"
-						? contracts["1.0.0"]
-						: null;
+				? contracts["1.0"]
+				: pathname === "/contracts/foundation/1.0"
+					? contracts["1.0"]
+					: null;
 		if (!release) {
 			return new Response(
 				"not a Design System Release in the Official Catalog\n",
@@ -155,7 +150,7 @@ describe("agentkogei add", () => {
 
 		expect(result.exitCode).toBe(2);
 		expect(result.stdout).toContain("Design System: Foundation (foundation)");
-		expect(result.stdout).toContain("Design System Release: 1.1.0");
+		expect(result.stdout).toContain("Design System Release: 1.0");
 		expect(result.stdout).toContain(
 			`Create ${path.join(project, "DESIGN.md")}`,
 		);
@@ -173,10 +168,10 @@ describe("agentkogei add", () => {
 
 		expect(result.exitCode, result.stderr).toBe(0);
 		expect(result.stdout).toContain(
-			"Installed Foundation Design System Release 1.1.0",
+			"Installed Foundation Design System Release 1.0",
 		);
 		expect(await projectFile(project, "DESIGN.md")).toBe(
-			contracts["1.1.0"].markdown,
+			contracts["1.0"].markdown,
 		);
 		expect(await projectFile(project, "DESIGN.md")).not.toContain(
 			"## Provenance",
@@ -187,14 +182,14 @@ describe("agentkogei add", () => {
 	test("installs an explicitly selected immutable Design System Release", async () => {
 		const project = await temporaryProject();
 
-		const result = await runAdd(project, ["add", "foundation@1.0.0", "--yes"]);
+		const result = await runAdd(project, ["add", "foundation@1.0", "--yes"]);
 
 		expect(result.exitCode, result.stderr).toBe(0);
 		expect(result.stdout).toContain(
-			"Installed Foundation Design System Release 1.0.0",
+			"Installed Foundation Design System Release 1.0",
 		);
 		expect(await projectFile(project, "DESIGN.md")).toBe(
-			contracts["1.0.0"].markdown,
+			contracts["1.0"].markdown,
 		);
 	});
 
@@ -208,7 +203,7 @@ describe("agentkogei add", () => {
 		const afterFirst = await projectFile(project, "AGENTS.md");
 		const second = await runAdd(project, [
 			"add",
-			"foundation@1.0.0",
+			"foundation@1.0",
 			"--yes",
 			"--force",
 		]);
@@ -257,7 +252,7 @@ describe("agentkogei add", () => {
 		expect(result.stdout).toContain("-Keep every button square.");
 		expect(result.stdout).toContain("+# Foundation Design System");
 		expect(await projectFile(project, "DESIGN.md")).toBe(
-			contracts["1.1.0"].markdown,
+			contracts["1.0"].markdown,
 		);
 	});
 
@@ -291,7 +286,7 @@ describe("agentkogei add", () => {
 		overrides.set("/contracts/foundation", {
 			body: new Uint8Array([0x23, 0x20, 0xff, 0xfe, 0x0a]),
 			designSystem: "Foundation",
-			designSystemRelease: "1.1.0",
+			designSystemRelease: "1.0",
 		});
 
 		const result = await runAdd(project, ["add", "foundation", "--yes"]);
@@ -307,7 +302,7 @@ describe("agentkogei add", () => {
 			body: '{"name":"foundation","type":"registry:item"}',
 			contentType: "application/json",
 			designSystem: "Foundation",
-			designSystemRelease: "1.1.0",
+			designSystemRelease: "1.0",
 		});
 
 		const result = await runAdd(project, ["add", "foundation", "--yes"]);
@@ -319,16 +314,16 @@ describe("agentkogei add", () => {
 
 	test("rejects a Design System Release that does not match the selected version", async () => {
 		const project = await temporaryProject();
-		overrides.set("/contracts/foundation/1.0.0", {
-			body: contracts["1.1.0"].markdown,
+		overrides.set("/contracts/foundation/1.0", {
+			body: contracts["1.0"].markdown,
 			designSystem: "Foundation",
-			designSystemRelease: "1.1.0",
+			designSystemRelease: "2.0",
 		});
 
-		const result = await runAdd(project, ["add", "foundation@1.0.0", "--yes"]);
+		const result = await runAdd(project, ["add", "foundation@1.0", "--yes"]);
 
 		expect(result.exitCode).toBe(1);
-		expect(result.stderr).toContain("1.0.0");
+		expect(result.stderr).toContain("1.0");
 		expect(await projectEntries(project)).toEqual([]);
 	});
 

@@ -301,8 +301,7 @@ describe("Design System Release publication validation", () => {
 
 	test("rejects an invalid Design System Release version", async () => {
 		const errors = await evaluateMutatedRelease((record) => {
-			(record.designSystemRelease as Record<string, unknown>).version =
-				"01.0.0";
+			(record.designSystemRelease as Record<string, unknown>).version = "01.0";
 		});
 
 		expect(errors).toContain("designSystemRelease.version");

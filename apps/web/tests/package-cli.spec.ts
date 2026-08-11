@@ -29,7 +29,7 @@ test.setTimeout(180_000);
 const contractCatalogUrl = "http://localhost:3011/contracts/";
 const apertureContractPath = path.resolve(
 	process.cwd(),
-	"../../packages/design-systems/tests/fixtures/releases/aperture/1.0.0/DESIGN.md",
+	"../../packages/design-systems/tests/fixtures/releases/aperture/1.0/DESIGN.md",
 );
 
 type CapturedRequest = {
@@ -54,7 +54,7 @@ async function requestInspectionCatalog() {
 			response.writeHead(200, {
 				"content-type": "text/markdown; charset=utf-8",
 				"x-agentkogei-design-system": "Foundation",
-				"x-agentkogei-design-system-release": "1.1.0",
+				"x-agentkogei-design-system-release": "1.0",
 			});
 			response.end("# Foundation Design System\n\nPublic direction.\n");
 		});
@@ -116,7 +116,7 @@ for (const runner of packageRunners) {
 
 			expect(added.exitCode, added.stderr).toBe(0);
 			expect(added.stdout).toContain(
-				"Installed Aperture Design System Release 1.0.0",
+				"Installed Aperture Design System Release 1.0",
 			);
 			const delivered = await request.get("/contracts/aperture");
 			const installed = await readFile(path.join(project, "DESIGN.md"), "utf8");
@@ -230,7 +230,7 @@ test("the packed CLI preserves consent, replacement, and failure rollback", asyn
 		expect(await readFile(contractPath, "utf8")).toBe(handWrittenContract);
 		expect(await readFile(agentsPath, "utf8")).toBe(existingInstructions);
 
-		const failed = await runPackedAdd(["foundation@9.9.9", "--yes", "--force"]);
+		const failed = await runPackedAdd(["foundation@9.9", "--yes", "--force"]);
 		expect(failed.exitCode).toBe(1);
 		expect(await readFile(contractPath, "utf8")).toBe(handWrittenContract);
 		expect(await readFile(agentsPath, "utf8")).toBe(existingInstructions);

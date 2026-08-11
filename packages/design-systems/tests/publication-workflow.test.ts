@@ -96,7 +96,7 @@ function candidateMetadata(approved: boolean) {
 		status: "candidate",
 		id: "lattice",
 		designSystem: "Lattice",
-		designSystemRelease: { version: "1.0.0" },
+		designSystemRelease: { version: "1.0" },
 		creativeBrief: {
 			intendedFit: "Dense collaborative planning products",
 			systemSignature:
@@ -788,7 +788,7 @@ describe("Design System publication workflow", () => {
 		expect(prepared.result).toMatchObject({
 			ok: true,
 			identity: "lattice",
-			version: "1.0.0",
+			version: "1.0",
 			publicationApproval: "pending",
 			live: false,
 			releaseValidated: true,
@@ -896,7 +896,7 @@ describe("Design System publication workflow", () => {
 			await Bun.file(
 				path.join(
 					repository,
-					"packages/design-systems/releases/lattice/1.0.0/DESIGN.md",
+					"packages/design-systems/releases/lattice/1.0/DESIGN.md",
 				),
 			).exists(),
 		).toBe(false);
@@ -915,7 +915,7 @@ describe("Design System publication workflow", () => {
 		expect(promoted.result).toMatchObject({
 			ok: true,
 			identity: "lattice",
-			version: "1.0.0",
+			version: "1.0",
 			publicationApproval: "approved",
 			catalogGeneration: "passed",
 			launchVerify: "passed",
@@ -927,7 +927,7 @@ describe("Design System publication workflow", () => {
 			await readFile(
 				path.join(
 					repository,
-					"packages/design-systems/releases/lattice/1.0.0/DESIGN.md",
+					"packages/design-systems/releases/lattice/1.0/DESIGN.md",
 				),
 				"utf8",
 			),
@@ -1003,7 +1003,7 @@ describe("Design System publication workflow", () => {
 				}
 				if (
 					pathname === "/contracts/lattice" ||
-					pathname === "/contracts/lattice/1.0.0"
+					pathname === "/contracts/lattice/1.0"
 				) {
 					return new Response(
 						tampered
@@ -1013,7 +1013,7 @@ describe("Design System publication workflow", () => {
 							headers: {
 								"content-type": "text/markdown; charset=utf-8",
 								"x-agentkogei-design-system": "Lattice",
-								"x-agentkogei-design-system-release": "1.0.0",
+								"x-agentkogei-design-system-release": "1.0",
 							},
 						},
 					);
@@ -1035,7 +1035,7 @@ describe("Design System publication workflow", () => {
 			expect(mismatch).toEqual({
 				ok: false,
 				errors: [
-					"production Design Contract digest differs from Publication Approval: lattice@1.0.0",
+					"production Design Contract digest differs from Publication Approval: lattice@1.0",
 				],
 				live: false,
 			});
@@ -1045,11 +1045,11 @@ describe("Design System publication workflow", () => {
 			expect(verified).toMatchObject({
 				ok: true,
 				identity: "lattice",
-				version: "1.0.0",
+				version: "1.0",
 				designContractSha256: metadata.designContract.sha256,
 				catalogRoute: `${server.url.href}catalog/lattice`,
 				currentContractRoute: `${server.url.href}contracts/lattice`,
-				exactContractRoute: `${server.url.href}contracts/lattice/1.0.0`,
+				exactContractRoute: `${server.url.href}contracts/lattice/1.0`,
 				catalogDiscovery: "passed",
 				preview: "passed",
 				currentAndHistoricalContracts: "passed",

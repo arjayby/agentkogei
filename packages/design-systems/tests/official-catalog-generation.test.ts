@@ -25,19 +25,11 @@ describe("Official Catalog generation", () => {
 			path.join(tmpdir(), "agentkogei-catalog-generation-"),
 		);
 		temporaryDirectories.push(releasesDirectory);
-		const releaseDirectory = path.join(
-			releasesDirectory,
-			"foundation",
-			"1.0.0",
-		);
+		const releaseDirectory = path.join(releasesDirectory, "foundation", "1.0");
 		await mkdir(path.dirname(releaseDirectory), { recursive: true });
-		await cp(
-			publishedReleaseDirectory("foundation", "1.0.0"),
-			releaseDirectory,
-			{
-				recursive: true,
-			},
-		);
+		await cp(publishedReleaseDirectory("foundation", "1.0"), releaseDirectory, {
+			recursive: true,
+		});
 
 		const artifacts = await generateOfficialCatalogArtifacts(releasesDirectory);
 		const metadata = JSON.parse(
@@ -57,14 +49,14 @@ describe("Official Catalog generation", () => {
 				{
 					id: "foundation",
 					name: "Foundation",
-					currentRelease: "1.0.0",
+					currentRelease: "1.0",
 					preview: metadata.preview,
 					compatibility: metadata.compatibility,
 					evaluation: metadata.evaluation,
 					releases: [
 						{
-							version: "1.0.0",
-							publishedAt: "2026-07-18",
+							version: "1.0",
+							publishedAt: "2026-07-19",
 							changelog: metadata.changelog,
 						},
 					],
@@ -73,12 +65,12 @@ describe("Official Catalog generation", () => {
 		});
 		expect(artifacts.designContracts).toEqual({
 			foundation: {
-				currentRelease: "1.0.0",
+				currentRelease: "1.0",
 				releases: {
-					"1.0.0": {
+					"1.0": {
 						identity: "foundation",
 						designSystem: "Foundation",
-						designSystemRelease: "1.0.0",
+						designSystemRelease: "1.0",
 						markdown,
 					},
 				},

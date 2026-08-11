@@ -4,7 +4,7 @@
 	"designSystem": "Aperture",
 	"publisher": "AgentKogei acceptance fixture",
 	"designSystemRelease": {
-		"version": "1.0.0",
+		"version": "1.0",
 		"publishedAt": "2026-08-10",
 		"immutable": true
 	},
