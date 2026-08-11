@@ -129,6 +129,170 @@
 			"accent": "humanist-sans"
 		},
 		"composition": "reading-column",
+		"foundations": {
+			"semanticColorUsage": {
+				"background": "The page canvas behind every surface.",
+				"foreground": "Primary text and high emphasis symbols.",
+				"card": "Grouped content and raised working surfaces.",
+				"muted": "Subdued regions, secondary controls, and quiet fills.",
+				"mutedForeground": "Supporting copy that remains readable.",
+				"border": "Separators, control outlines, and structural rules.",
+				"primary": "Primary actions, selection, and active emphasis.",
+				"primaryForeground": "Content placed on the primary color.",
+				"destructive": "Irreversible actions and critical errors.",
+				"success": "Confirmed completion and healthy status.",
+				"warning": "Caution that needs attention without blocking work.",
+				"info": "Neutral guidance and informational status.",
+				"ring": "Keyboard focus indication around interactive controls."
+			},
+			"typographyScale": {
+				"display": {
+					"font": "display",
+					"sizeRem": { "mobile": 3.5, "desktop": 6 },
+					"weight": 500,
+					"lineHeight": 1,
+					"trackingEm": -0.04,
+					"usage": "Singular page statements and expressive product moments."
+				},
+				"heading": {
+					"font": "display",
+					"sizeRem": { "mobile": 2, "desktop": 3 },
+					"weight": 500,
+					"lineHeight": 1.15,
+					"trackingEm": -0.025,
+					"usage": "Section hierarchy and important grouped content."
+				},
+				"body": {
+					"font": "body",
+					"sizeRem": { "mobile": 1.125, "desktop": 1.1875 },
+					"weight": 400,
+					"lineHeight": 1.7,
+					"trackingEm": 0,
+					"usage": "Reading text, explanations, and form guidance."
+				},
+				"label": {
+					"font": "accent",
+					"sizeRem": { "mobile": 0.75, "desktop": 0.8125 },
+					"weight": 600,
+					"lineHeight": 1.3,
+					"trackingEm": 0.08,
+					"usage": "Compact labels, metadata, and interface wayfinding."
+				},
+				"code": {
+					"font": "accent",
+					"sizeRem": { "mobile": 0.8125, "desktop": 0.875 },
+					"weight": 400,
+					"lineHeight": 1.5,
+					"trackingEm": 0,
+					"usage": "Commands, values, identifiers, and technical evidence."
+				}
+			},
+			"spacingScale": {
+				"2xs": {
+					"valueRem": 0.25,
+					"usage": "Tight icon and inline relationships."
+				},
+				"xs": {
+					"valueRem": 0.625,
+					"usage": "Compact control internals and paired labels."
+				},
+				"sm": {
+					"valueRem": 1,
+					"usage": "Related content within one component."
+				},
+				"md": { "valueRem": 1.5, "usage": "Default control and card rhythm." },
+				"lg": { "valueRem": 2.5, "usage": "Distinct groups within a section." },
+				"xl": {
+					"valueRem": 4,
+					"usage": "Major sections and page level separation."
+				}
+			},
+			"layout": {
+				"maxWidthRem": 76,
+				"contentWidthCh": 64,
+				"columns": { "mobile": 1, "tablet": 4, "desktop": 8 },
+				"gutterRem": { "mobile": 1, "tablet": 2, "desktop": 3 },
+				"guidance": "Center a generous reading column, let supporting material sit in the margins, and use whitespace as punctuation."
+			},
+			"responsive": {
+				"mobile": {
+					"minWidthPx": 320,
+					"guidance": "Use one content column and preserve source order."
+				},
+				"tablet": {
+					"minWidthPx": 768,
+					"guidance": "Introduce paired regions only when each remains independently readable."
+				},
+				"desktop": {
+					"minWidthPx": 1280,
+					"guidance": "Use the full grid while keeping reading lines constrained."
+				},
+				"zoom": {
+					"scalePercent": 200,
+					"guidance": "Allow controls and content to wrap without clipping or overlap."
+				},
+				"reflow": {
+					"widthPx": 320,
+					"guidance": "Retain every action and meaning in a single logical flow."
+				}
+			},
+			"geometry": {
+				"radii": {
+					"subtle": {
+						"valueRem": 0.125,
+						"usage": "Small indicators and restrained detail."
+					},
+					"control": {
+						"valueRem": 0.25,
+						"usage": "Buttons, fields, and compact interactive surfaces."
+					},
+					"panel": {
+						"valueRem": 0,
+						"usage": "Cards, panels, and larger grouped regions."
+					}
+				},
+				"borders": {
+					"hairline": {
+						"widthPx": 1,
+						"style": "solid",
+						"usage": "Quiet dividers and table structure."
+					},
+					"default": {
+						"widthPx": 1,
+						"style": "solid",
+						"usage": "Controls and ordinary surface boundaries."
+					},
+					"strong": {
+						"widthPx": 1,
+						"style": "solid",
+						"usage": "Selected, focused, or strongly separated regions."
+					}
+				},
+				"elevation": {
+					"flat": {
+						"offsetYRem": 0,
+						"blurRem": 0,
+						"spreadRem": 0,
+						"opacity": 0,
+						"usage": "Default surfaces separated by spacing or borders."
+					},
+					"raised": {
+						"offsetYRem": 0.125,
+						"blurRem": 0.5,
+						"spreadRem": -0.25,
+						"opacity": 0.08,
+						"usage": "Temporary emphasis and movable content."
+					},
+					"overlay": {
+						"offsetYRem": 0.5,
+						"blurRem": 1.5,
+						"spreadRem": -0.5,
+						"opacity": 0.14,
+						"usage": "Dialogs, menus, and content above the working plane."
+					}
+				}
+			}
+		},
 		"theme": {
 			"tokens": {
 				"light": {

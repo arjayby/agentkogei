@@ -450,6 +450,62 @@ test("a complete Preview preserves and switches the Builder's current theme", as
 	expect(consoleErrors).toEqual([]);
 });
 
+test("every discovered Preview renders the complete visual foundations specimen in one order", async ({
+	page,
+}) => {
+	const routes = await discoverDesignSystemRoutes(page);
+	const sectionOrder = [
+		"principles",
+		"semantic-colors",
+		"typography",
+		"spacing",
+		"layout-responsive",
+		"radius-borders-elevation",
+	];
+	for (const route of routes) {
+		const { name } = await readPublishedDesignSystem(page, route);
+		const foundations = page.getByRole("region", {
+			name: `${name} visual foundations`,
+		});
+		const composition = await page
+			.getByRole("main")
+			.getAttribute("data-preview-composition");
+
+		await expect(foundations).toBeVisible();
+		await expect(foundations).toHaveAttribute(
+			"data-foundations-composition",
+			composition ?? "",
+		);
+		expect(
+			await foundations
+				.locator("[data-foundation-section]")
+				.evaluateAll((sections) =>
+					sections.map((section) =>
+						section.getAttribute("data-foundation-section"),
+					),
+				),
+			route,
+		).toEqual(sectionOrder);
+
+		for (const scheme of ["Light", "Dark"]) {
+			const colors = foundations.getByRole("region", {
+				name: `${scheme} semantic colors`,
+			});
+			await expect(colors.getByRole("listitem")).toHaveCount(13);
+			await expect(colors.locator("code")).toHaveCount(13);
+		}
+
+		await expect(foundations.locator("[data-type-role]")).toHaveCount(5);
+		await expect(foundations.locator("[data-spacing-step]")).toHaveCount(6);
+		await expect(foundations.locator("[data-responsive-mode]")).toHaveCount(5);
+		await expect(foundations.locator("[data-radius-specimen]")).toHaveCount(3);
+		await expect(foundations.locator("[data-border-specimen]")).toHaveCount(3);
+		await expect(foundations.locator("[data-elevation-specimen]")).toHaveCount(
+			3,
+		);
+	}
+});
+
 test("an isolated valid release reaches Design System discovery and its complete public journey", async ({
 	page,
 	request,

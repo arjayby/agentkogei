@@ -102,6 +102,169 @@ export const designSystemPreviewFontChoices = [
 
 const previewFontSchema = z.enum(designSystemPreviewFontChoices);
 
+const semanticColorUsageSchema = z
+	.object({
+		background: terminalTextSchema,
+		foreground: terminalTextSchema,
+		card: terminalTextSchema,
+		muted: terminalTextSchema,
+		mutedForeground: terminalTextSchema,
+		border: terminalTextSchema,
+		primary: terminalTextSchema,
+		primaryForeground: terminalTextSchema,
+		destructive: terminalTextSchema,
+		success: terminalTextSchema,
+		warning: terminalTextSchema,
+		info: terminalTextSchema,
+		ring: terminalTextSchema,
+	})
+	.strict();
+
+const typographyRoleSchema = z
+	.object({
+		font: z.enum(["display", "body", "accent"]),
+		sizeRem: z
+			.object({
+				mobile: z.number().positive(),
+				desktop: z.number().positive(),
+			})
+			.strict(),
+		weight: z.number().int().min(100).max(900).multipleOf(100),
+		lineHeight: z.number().min(1).max(2),
+		trackingEm: z.number().min(-0.1).max(0.5),
+		usage: terminalTextSchema,
+	})
+	.strict();
+
+const spacingStepSchema = z
+	.object({
+		valueRem: z.number().nonnegative(),
+		usage: terminalTextSchema,
+	})
+	.strict();
+
+const responsiveModeSchema = z
+	.object({
+		minWidthPx: z.number().int().positive(),
+		guidance: terminalTextSchema,
+	})
+	.strict();
+
+const radiusSpecimenSchema = z
+	.object({
+		valueRem: z.number().nonnegative(),
+		usage: terminalTextSchema,
+	})
+	.strict();
+
+const borderSpecimenSchema = z
+	.object({
+		widthPx: z.number().nonnegative(),
+		style: z.enum(["solid", "dashed"]),
+		usage: terminalTextSchema,
+	})
+	.strict();
+
+const elevationSpecimenSchema = z
+	.object({
+		offsetYRem: z.number().nonnegative(),
+		blurRem: z.number().nonnegative(),
+		spreadRem: z.number().max(0),
+		opacity: z.number().min(0).max(1),
+		usage: terminalTextSchema,
+	})
+	.strict();
+
+const previewFoundationsSchema = z
+	.object({
+		semanticColorUsage: semanticColorUsageSchema,
+		typographyScale: z
+			.object({
+				display: typographyRoleSchema,
+				heading: typographyRoleSchema,
+				body: typographyRoleSchema,
+				label: typographyRoleSchema,
+				code: typographyRoleSchema,
+			})
+			.strict(),
+		spacingScale: z
+			.object({
+				"2xs": spacingStepSchema,
+				xs: spacingStepSchema,
+				sm: spacingStepSchema,
+				md: spacingStepSchema,
+				lg: spacingStepSchema,
+				xl: spacingStepSchema,
+			})
+			.strict(),
+		layout: z
+			.object({
+				maxWidthRem: z.number().positive(),
+				contentWidthCh: z.number().positive(),
+				columns: z
+					.object({
+						mobile: z.number().int().positive(),
+						tablet: z.number().int().positive(),
+						desktop: z.number().int().positive(),
+					})
+					.strict(),
+				gutterRem: z
+					.object({
+						mobile: z.number().positive(),
+						tablet: z.number().positive(),
+						desktop: z.number().positive(),
+					})
+					.strict(),
+				guidance: terminalTextSchema,
+			})
+			.strict(),
+		responsive: z
+			.object({
+				mobile: responsiveModeSchema,
+				tablet: responsiveModeSchema,
+				desktop: responsiveModeSchema,
+				zoom: z
+					.object({
+						scalePercent: z.literal(200),
+						guidance: terminalTextSchema,
+					})
+					.strict(),
+				reflow: z
+					.object({
+						widthPx: z.literal(320),
+						guidance: terminalTextSchema,
+					})
+					.strict(),
+			})
+			.strict(),
+		geometry: z
+			.object({
+				radii: z
+					.object({
+						subtle: radiusSpecimenSchema,
+						control: radiusSpecimenSchema,
+						panel: radiusSpecimenSchema,
+					})
+					.strict(),
+				borders: z
+					.object({
+						hairline: borderSpecimenSchema,
+						default: borderSpecimenSchema,
+						strong: borderSpecimenSchema,
+					})
+					.strict(),
+				elevation: z
+					.object({
+						flat: elevationSpecimenSchema,
+						raised: elevationSpecimenSchema,
+						overlay: elevationSpecimenSchema,
+					})
+					.strict(),
+			})
+			.strict(),
+	})
+	.strict();
+
 const previewShellSchema = z
 	.object({
 		mark: z
@@ -123,6 +286,7 @@ const previewShellSchema = z
 			"focal-frame",
 			"operational-grid",
 		]),
+		foundations: previewFoundationsSchema,
 		theme: z
 			.object({
 				tokens: previewTokensSchema,

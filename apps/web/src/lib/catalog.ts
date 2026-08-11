@@ -12,7 +12,9 @@ export type DesignSystem = Omit<PublishedCatalogEntry, "id"> & {
 	slug: string;
 };
 
-type PreviewShell = NonNullable<DesignSystem["previewShell"]>;
+export type PreviewShell = NonNullable<DesignSystem["previewShell"]>;
+type ResolvedPreviewShell = Omit<PreviewShell, "foundations"> &
+	Partial<Pick<PreviewShell, "foundations">>;
 
 const legacyFontChoices = {
 	sans: "humanist-sans",
@@ -27,7 +29,9 @@ const legacyFontChoices = {
  * Temporary bridge for releases that still carry only the legacy Preview
  * shape. Issue #113 removes this fallback after every specimen slice migrates.
  */
-export function previewShellFor(designSystem: DesignSystem): PreviewShell {
+export function previewShellFor(
+	designSystem: DesignSystem,
+): ResolvedPreviewShell {
 	if (designSystem.previewShell) return designSystem.previewShell;
 
 	const legacyTypography = designSystem.preview.typography;

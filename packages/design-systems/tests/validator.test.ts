@@ -154,6 +154,25 @@ describe("Design System Release publication validation", () => {
 		).toBe(true);
 	});
 
+	test("rejects incomplete foundational Preview metadata with an actionable path", async () => {
+		for (const category of [
+			"semanticColorUsage",
+			"typographyScale",
+			"spacingScale",
+			"layout",
+			"responsive",
+			"geometry",
+		]) {
+			const errors = await evaluateMutatedRelease((record) => {
+				const previewShell = record.previewShell as Record<string, unknown>;
+				const foundations = previewShell.foundations as Record<string, unknown>;
+				Reflect.deleteProperty(foundations, category);
+			});
+
+			expect(errors).toContain(`previewShell.foundations.${category}`);
+		}
+	});
+
 	// Every Design System Release stays independently installable through the same
 	// compatibility and safety gate, so Design System Evaluation covers each published
 	// release rather than only the current one.

@@ -54,6 +54,84 @@
 	box-shadow: var(--preview-shadow);
 }
 
+.preview-foundations-grid {
+	display: grid;
+	gap: clamp(3rem, 7vw, 6rem);
+}
+
+.preview-foundation-section {
+	display: grid;
+	min-width: 0;
+	gap: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+.preview-foundation-heading {
+	display: grid;
+	gap: 0.5rem;
+}
+
+.preview-foundation-heading p {
+	color: var(--preview-muted-foreground);
+	font-family: var(--preview-font-accent);
+	font-size: 0.75rem;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+
+.preview-foundation-heading h3 {
+	font-family: var(--preview-font-display);
+	font-size: clamp(1.75rem, 4vw, 3rem);
+	font-weight: 600;
+	letter-spacing: -0.035em;
+	line-height: 1.1;
+}
+
+[data-preview-composition="balanced-grid"] .preview-foundation-section {
+	border-inline-start: var(--preview-border-width) solid var(--preview-border);
+	padding-inline-start: clamp(1rem, 3vw, 2rem);
+}
+
+[data-preview-composition="reading-column"] .preview-foundations-grid {
+	max-width: 68rem;
+	margin-inline: auto;
+}
+
+[data-preview-composition="reading-column"] .preview-foundation-section {
+	gap: clamp(2rem, 4vw, 3.5rem);
+}
+
+[data-preview-composition="focal-frame"] .preview-foundation-section {
+	border: var(--preview-border-width) solid var(--preview-border);
+	padding: clamp(1rem, 3vw, 2.5rem);
+}
+
+[data-preview-composition="focal-frame"]
+	.preview-foundation-section:nth-child(even) {
+	margin-inline-start: clamp(0rem, 6vw, 6rem);
+}
+
+[data-preview-composition="operational-grid"] .preview-foundations-grid {
+	gap: 1px;
+	background: var(--preview-border);
+}
+
+[data-preview-composition="operational-grid"] .preview-foundation-section {
+	background-color: var(--preview-background);
+	background-image:
+		linear-gradient(
+			to right,
+			color-mix(in oklab, var(--preview-border) 32%, transparent) 1px,
+			transparent 1px
+		),
+		linear-gradient(
+			to bottom,
+			color-mix(in oklab, var(--preview-border) 32%, transparent) 1px,
+			transparent 1px
+		);
+	background-size: 2rem 2rem;
+	padding: clamp(1rem, 3vw, 2rem);
+}
+
 [data-preview-composition="balanced-grid"] .preview-shell-hero-grid {
 	align-items: center;
 }
@@ -121,6 +199,11 @@
 		> :first-child {
 		grid-column: 1;
 		grid-row: auto;
+	}
+
+	[data-preview-composition="focal-frame"]
+		.preview-foundation-section:nth-child(even) {
+		margin-inline-start: 0;
 	}
 }
 
