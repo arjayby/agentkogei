@@ -41,6 +41,12 @@ const shadows = {
 		"0 1rem 2.5rem color-mix(in oklab, var(--preview-foreground) 14%, transparent)",
 } as const;
 
+function roleRadius(defaultRadius: string, valueRem: number | undefined) {
+	return defaultRadius === radii.pill && valueRem !== undefined
+		? `${valueRem}rem`
+		: defaultRadius;
+}
+
 function paletteDeclarations(palette: PreviewPalette) {
 	return Object.entries(palette)
 		.map(([name, value]) => {
@@ -58,13 +64,31 @@ function previewThemeStylesheet(
 ) {
 	const { theme, typography } = designSystem.preview;
 	const { geometry, tokens } = theme;
+	const defaultRadius = radii[geometry.radius];
+	const foundationRadii = designSystem.preview.foundations.geometry.radii;
+	const surfaceRadius = roleRadius(
+		defaultRadius,
+		foundationRadii.panel?.valueRem,
+	);
+	const fieldRadius = roleRadius(
+		defaultRadius,
+		foundationRadii.control?.valueRem,
+	);
+	const compactRadius = roleRadius(
+		defaultRadius,
+		foundationRadii.subtle?.valueRem,
+	);
 	const selector = `[data-design-system-preview="${designSystem.slug}"]`;
 	const sharedDeclarations = `
 		--preview-font-display: ${fontFamilies[typography.display]};
 		--preview-font-body: ${fontFamilies[typography.body]};
 		--preview-font-accent: ${fontFamilies[typography.accent]};
 		--preview-space: ${spacing[geometry.density]};
-		--preview-radius: ${radii[geometry.radius]};
+		--preview-radius: ${defaultRadius};
+		--preview-surface-radius: ${surfaceRadius};
+		--preview-field-radius: ${fieldRadius};
+		--preview-compact-radius: ${compactRadius};
+		--preview-control-radius: ${defaultRadius};
 		--preview-border-width: ${borderWidths[geometry.border]};
 		--preview-shadow: ${shadows[geometry.elevation]};
 	`;

@@ -7,7 +7,7 @@
 
 .catalog-preview-surface {
 	border-width: var(--preview-border-width);
-	border-radius: var(--preview-radius);
+	border-radius: var(--preview-surface-radius);
 	box-shadow: var(--preview-shadow);
 }
 
@@ -26,7 +26,7 @@
 .catalog-preview-panel {
 	border-width: var(--preview-border-width);
 	border-color: var(--preview-border);
-	border-radius: var(--preview-radius);
+	border-radius: var(--preview-surface-radius);
 	background: var(--preview-card);
 }
 
@@ -141,21 +141,21 @@
 	text-transform: uppercase;
 }
 
-[data-preview-control="button"],
-[data-preview-control="input"],
 [data-preview-container] {
-	border-radius: var(--preview-radius);
+	border-radius: var(--preview-surface-radius);
 }
 
 [data-preview-control="button"] {
 	min-height: 2.5rem;
 	border-width: var(--preview-border-width);
+	border-radius: var(--preview-control-radius);
 	font-family: var(--preview-font-accent);
 }
 
 [data-preview-control="input"] {
 	min-height: 2.75rem;
 	border-width: var(--preview-border-width);
+	border-radius: var(--preview-field-radius);
 	font-family: var(--preview-font-body);
 }
 
@@ -173,7 +173,7 @@
 
 [data-preview-control="link"]:focus-visible,
 [data-preview-control="navigation"]:focus-visible {
-	border-radius: calc(var(--preview-radius) / 2);
+	border-radius: calc(var(--preview-compact-radius) / 2);
 	outline: 2px solid var(--preview-ring);
 	outline-offset: 3px;
 }
@@ -352,7 +352,7 @@ button[data-preview-control][data-specimen-state="error"] {
 }
 
 .preview-badge-list [data-slot="badge"] {
-	border-radius: var(--preview-radius);
+	border-radius: var(--preview-compact-radius);
 	font-family: var(--preview-font-accent);
 }
 
@@ -415,7 +415,7 @@ button[data-preview-control][data-specimen-state="error"] {
 
 .preview-destructive-card {
 	border-color: var(--preview-destructive);
-	border-radius: var(--preview-radius);
+	border-radius: var(--preview-surface-radius);
 	background: color-mix(
 		in oklab,
 		var(--preview-destructive) 7%,
@@ -435,7 +435,7 @@ button[data-preview-control][data-specimen-state="error"] {
 	margin: auto;
 	padding: clamp(1.25rem, 4vw, 2rem);
 	border: var(--preview-border-width) solid var(--preview-border);
-	border-radius: var(--preview-radius);
+	border-radius: var(--preview-surface-radius);
 	background: var(--preview-card);
 	color: var(--preview-foreground);
 	box-shadow: var(--preview-shadow);

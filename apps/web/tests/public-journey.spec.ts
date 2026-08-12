@@ -606,6 +606,31 @@ test("a complete Preview specimen preserves and switches the Builder's current t
 	expect(consoleErrors).toEqual([]);
 });
 
+test("Mono Design System Preview assigns radius by interface role", async ({
+	page,
+}) => {
+	await page.goto("/design-systems/mono");
+
+	const preview = page.locator('[data-design-system-preview="mono"]');
+	await expect(
+		preview.getByRole("region", { name: "Frame inventory scroll region" }),
+	).toHaveCSS("border-radius", "18px");
+	await expect(preview.locator('[data-preview-container="card"]')).toHaveCSS(
+		"border-radius",
+		"18px",
+	);
+	await expect(
+		preview.locator('[data-preview-control="input"]').first(),
+	).toHaveCSS("border-radius", "10px");
+	await expect(
+		preview.locator('[data-preview-control="button"]').first(),
+	).toHaveCSS("border-radius", "9999px");
+	await expect(preview.locator('[data-slot="badge"]').first()).toHaveCSS(
+		"border-radius",
+		"8px",
+	);
+});
+
 test("every discovered Preview renders the complete visual foundations specimen in one order", async ({
 	page,
 }) => {
