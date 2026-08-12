@@ -11,13 +11,13 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-10b981?style=classic)](LICENSE)
 ![Design Contract](https://img.shields.io/badge/Design%20Contract-DESIGN.md-10b981?style=classic)
 [![Last Update](https://img.shields.io/github/last-commit/arjayby/agentkogei?label=Last%20update&style=classic)](https://github.com/arjayby/agentkogei)
-[![Live App](https://img.shields.io/badge/live-agentkogei.vercel.app-10b981?style=classic)](https://agentkogei.vercel.app)
+[![Live App](https://img.shields.io/badge/live-agentkogei.dev-10b981?style=classic)](https://agentkogei.dev)
 
 </div>
 
 AgentKogei publishes complete Design Systems for AI coding agents. Choose a direction from the public Design Systems collection, install its Design Contract in your Project, and give every agent the same visual and behavioral guidance.
 
-[Browse the live Design Systems](https://agentkogei.vercel.app/design-systems)
+[Browse the live Design Systems](https://agentkogei.dev/design-systems)
 
 ## Design Systems
 
@@ -53,7 +53,7 @@ Equivalent `pnpm dlx`, `yarn dlx`, and `bunx` commands are also supported. A bar
 
 Before changing the Project, the CLI previews the selected release and the files it will write. Installation writes one root `DESIGN.md` and one marked reference in `AGENTS.md`. It never executes supplied code, installs dependencies, creates hidden state, or replaces an existing Design Contract without explicit consent.
 
-Every Design Contract is retrieved anonymously from the public Official Catalog. The application has no authentication, billing, database, or persistent application state.
+Every Design Contract is retrieved anonymously from the public AgentKogei Design Systems. The application has no authentication, billing, database, or persistent application state.
 
 ## Project structure
 
@@ -89,7 +89,7 @@ This checks formatting, types, production builds, the distributable CLI, and the
 
 ## Deployment
 
-The public catalog is configured for Vercel through `vercel.json`. Pull requests receive preview deployments, and merging `main` triggers the production deployment through the connected Vercel Git integration.
+The public Design Systems application is configured for Vercel through `vercel.json`. Pull requests receive preview deployments, and merging `main` triggers the production deployment through the connected Vercel Git integration.
 
 The CLI commands remain available for local deployment diagnostics and exceptional manual operation:
 
