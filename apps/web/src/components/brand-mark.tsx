@@ -6,16 +6,16 @@ export function BrandMark({ className }: { className?: string }) {
 			aria-hidden="true"
 			focusable="false"
 		>
-			<path d="M5 6.5 93 4l3 88-89 4L4 41Z" fill="var(--brand-seal-ink)" />
+			<path d="M5 6.5 93 4l3 88-89 4L4 41Z" fill="var(--foreground)" />
 			<path
 				d="m10 11 78-1.5 2.5 77L12 90Z"
 				fill="none"
-				stroke="var(--brand-paper)"
+				stroke="var(--background)"
 				strokeWidth="2.5"
 				strokeLinecap="square"
 			/>
 			<g
-				fill="var(--brand-paper)"
+				fill="var(--background)"
 				fontFamily="Yu Mincho, Hiragino Mincho ProN, serif"
 				fontWeight="700"
 				textAnchor="middle"

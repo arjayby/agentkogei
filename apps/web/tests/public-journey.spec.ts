@@ -50,9 +50,7 @@ test("a prospective Builder can understand what a Design System changes", async 
 	await expect(page.locator('a[href="/docs"]')).toHaveCount(0);
 });
 
-test("the landing page locks its brand artwork without URL evaluation options", async ({
-	page,
-}) => {
+test("the landing page centers its hero without artwork", async ({ page }) => {
 	await page.goto(
 		"/?hero=paper&motion=ambient&mobile=hide&mark=horizontal&header=mark",
 	);
@@ -60,27 +58,71 @@ test("the landing page locks its brand artwork without URL evaluation options", 
 	await expect(page.locator("main[data-mark], main[data-header]")).toHaveCount(
 		0,
 	);
-	await expect(page.locator(".hero-artwork")).toBeVisible();
-	await expect(page.locator(".hero-field-mark")).toHaveCount(9);
-	await expect(page.locator(".site-brand-mark")).toBeVisible();
+	await expect(page.locator(".hero-artwork")).toHaveCount(0);
+
+	const hero = page.getByRole("region", {
+		name: "Give your agents better taste.",
+	});
+	const centeredContent = [
+		hero.getByText("Complete design systems for coding agents"),
+		hero.getByRole("heading", { name: "Give your agents better taste." }),
+		hero.getByText("Without clear direction", { exact: false }),
+		hero.getByRole("link", { name: "Choose a design system" }),
+		hero.getByRole("region", { name: "Installation command" }),
+	];
+	const heroBox = await hero.boundingBox();
+	expect(heroBox).not.toBeNull();
+	for (const content of centeredContent) {
+		const contentBox = await content.boundingBox();
+		expect(contentBox).not.toBeNull();
+		expect((contentBox?.x ?? 0) + (contentBox?.width ?? 0) / 2).toBeCloseTo(
+			(heroBox?.x ?? 0) + (heroBox?.width ?? 0) / 2,
+			0,
+		);
+	}
+	await expect(centeredContent[0]).toHaveCSS("text-align", "center");
+	await expect(centeredContent[1]).toHaveCSS("text-align", "center");
+	await expect(centeredContent[2]).toHaveCSS("text-align", "center");
+	await expect(centeredContent[4]).toHaveCSS("text-align", "left");
+});
+
+test("the AgentKogei logo and favicon are monochrome", async ({
+	page,
+	request,
+}) => {
+	await page.goto("/");
+
+	const brand = page.locator(".site-brand-mark");
+	await expect(brand).toBeVisible();
 	await expect(page.locator(".site-brand-wordmark")).toBeVisible();
-	await expect(page.locator(".hero-artwork")).toHaveCSS(
-		"background-color",
-		"rgba(0, 0, 0, 0)",
-	);
+	const palette = await brand.locator("svg").evaluate((mark) => {
+		const [ink, outline] = mark.querySelectorAll("path");
+		const lettering = mark.querySelector("g");
+		if (!ink || !outline || !lettering) {
+			throw new Error("Expected the complete AgentKogei brand mark");
+		}
+		const pageStyle = getComputedStyle(document.body);
+
+		return {
+			ink: getComputedStyle(ink).fill,
+			outline: getComputedStyle(outline).stroke,
+			lettering: getComputedStyle(lettering).fill,
+			foreground: pageStyle.color,
+			background: pageStyle.backgroundColor,
+		};
+	});
+	expect(palette.ink).toBe(palette.foreground);
+	expect(palette.outline).toBe(palette.background);
+	expect(palette.lettering).toBe(palette.background);
+
 	await expect(page.locator('link[rel="icon"][href*="icon.svg"]')).toHaveCount(
 		1,
 	);
-});
-
-test("hero artwork honors reduced motion", async ({ page }) => {
-	await page.emulateMedia({ reducedMotion: "reduce" });
-	await page.goto("/");
-
-	await expect(page.locator(".hero-field-mark").first()).toHaveCSS(
-		"animation-name",
-		"none",
-	);
+	const favicon = await request.get("/icon.svg");
+	expect(favicon.status()).toBe(200);
+	const faviconSource = await favicon.text();
+	expect(faviconSource).toContain('fill="currentColor"');
+	expect(faviconSource).not.toMatch(/#(?:b73126|f5ead5|c84a3d|eadcc3)/i);
 });
 
 test("the landing page composes one add command from a package manager and a Design System", async ({
