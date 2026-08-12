@@ -11,20 +11,6 @@
 	--brand-paper: #eadcc3;
 }
 
-[data-design-system-mark] {
-	--preview-primary: var(--design-system-mark-primary-light);
-}
-
-.dark [data-design-system-mark] {
-	--preview-primary: var(--design-system-mark-primary-dark);
-}
-
-@media (prefers-color-scheme: dark) {
-	html:not(.light) [data-design-system-mark] {
-		--preview-primary: var(--design-system-mark-primary-dark);
-	}
-}
-
 .hero-layout {
 	display: grid;
 	min-width: 0;

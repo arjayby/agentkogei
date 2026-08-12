@@ -1,6 +1,8 @@
+import { cn } from "@agentkogei/ui/lib/utils";
 import type { CSSProperties, SVGProps } from "react";
 
 import type { DesignSystem, DesignSystemDiscovery } from "@/lib/catalog";
+import styles from "./design-system-mark.module.css";
 
 type MarkDrawingProps = SVGProps<SVGSVGElement>;
 
@@ -196,7 +198,7 @@ export function DesignSystemMark({
 			aria-label={`${designSystem.name} Design System Mark`}
 			aria-description={label}
 			data-mark-recipe={mark.recipe}
-			className={className}
+			className={cn(styles.mark, className)}
 			{...props}
 			data-design-system-mark={designSystem.slug}
 			style={markStyle}

@@ -1,0 +1,15 @@
+.mark {
+	--preview-primary: var(--design-system-mark-primary-light);
+}
+
+/* biome-ignore lint/correctness/noUnknownPseudoClass: CSS Modules uses :global to observe the app theme class. */
+:global(.dark) .mark {
+	--preview-primary: var(--design-system-mark-primary-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+	/* biome-ignore lint/correctness/noUnknownPseudoClass: CSS Modules uses :global to preserve the system theme fallback. */
+	:global(html:not(.light)) .mark {
+		--preview-primary: var(--design-system-mark-primary-dark);
+	}
+}

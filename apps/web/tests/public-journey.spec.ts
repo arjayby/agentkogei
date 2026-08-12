@@ -328,23 +328,36 @@ test("every Design System Mark keeps its published palette across pages and mode
 	] as const;
 	const routes = await discoverDesignSystemRoutes(page);
 
-	async function expectMarkPalette(
-		selector: string,
-		expectedPrimary: string,
-		expectedCount: number,
+	async function expectEveryMarkUsesPublishedPalette(
+		publishedPrimaryByIdentity: Map<string, string>,
 		context: string,
 	) {
-		const marks = page.locator(selector);
-		await expect(marks, context).toHaveCount(expectedCount);
-		const primaries = await marks.evaluateAll((elements) =>
-			elements.map((element) =>
-				getComputedStyle(element).getPropertyValue("--preview-primary").trim(),
+		const marks = page.locator("[data-design-system-mark]");
+		expect(await marks.count(), context).toBeGreaterThan(0);
+		const palettes = await marks.evaluateAll((elements) =>
+			elements.map((element) => ({
+				identity: element.getAttribute("data-design-system-mark") ?? "",
+				primary: getComputedStyle(element)
+					.getPropertyValue("--preview-primary")
+					.trim(),
+			})),
+		);
+		expect(
+			palettes.filter(
+				({ identity, primary }) =>
+					publishedPrimaryByIdentity.get(identity) !== primary,
 			),
-		);
-		expect(primaries, context).toEqual(
-			Array.from({ length: expectedCount }, () => expectedPrimary),
-		);
+			context,
+		).toEqual([]);
 	}
+
+	function identityFromRoute(route: string) {
+		const identity = route.split("/").at(-1);
+		if (!identity) throw new Error(`Invalid Design System route: ${route}`);
+		return identity;
+	}
+
+	const discoveredIdentities = routes.map(identityFromRoute).sort();
 
 	for (const mode of modes) {
 		await page.setViewportSize({ width: mode.width, height: mode.height });
@@ -366,44 +379,30 @@ test("every Design System Mark keeps its published palette across pages and mode
 					]),
 				),
 		);
+		expect([...publishedPrimaryByIdentity.keys()].sort()).toEqual(
+			discoveredIdentities,
+		);
 
 		for (const route of routes) {
-			const identity = route.split("/").at(-1);
-			if (!identity) throw new Error(`Invalid Design System route: ${route}`);
-			const expectedPrimary = publishedPrimaryByIdentity.get(identity);
-			if (!expectedPrimary) {
-				throw new Error(`Missing published primary token for ${identity}`);
-			}
-
-			await page
-				.getByRole("tab", {
-					name: new RegExp(`^${identity}$`, "i"),
-				})
-				.click();
-			await expectMarkPalette(
-				`[data-design-system-preview="${identity}"] [data-mark-size]`,
-				expectedPrimary,
-				2,
-				`${identity} collection marks in ${mode.name}`,
+			await page.locator(`[data-design-system-route="${route}"]`).click();
+			await expectEveryMarkUsesPublishedPalette(
+				publishedPrimaryByIdentity,
+				`collection marks with ${route} selected in ${mode.name}`,
 			);
+		}
 
-			await page.goto("/");
-			await expectMarkPalette(
-				`[data-design-system-preview="${identity}"] [data-mark-size]`,
-				expectedPrimary,
-				1,
-				`${identity} home mark in ${mode.name}`,
-			);
+		await page.goto("/");
+		await expectEveryMarkUsesPublishedPalette(
+			publishedPrimaryByIdentity,
+			`home marks in ${mode.name}`,
+		);
 
+		for (const route of routes) {
 			await page.goto(route);
-			await expectMarkPalette(
-				"main [data-mark-size]",
-				expectedPrimary,
-				2,
-				`${identity} Preview marks in ${mode.name}`,
+			await expectEveryMarkUsesPublishedPalette(
+				publishedPrimaryByIdentity,
+				`${route} marks in ${mode.name}`,
 			);
-
-			await page.goto("/design-systems");
 		}
 	}
 });
