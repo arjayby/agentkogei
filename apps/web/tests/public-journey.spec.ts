@@ -315,6 +315,101 @@ test("Design Systems retains every launch Design System", async ({ page }) => {
 	);
 });
 
+test("every Design System Mark keeps its published palette across pages and modes", async ({
+	page,
+}) => {
+	test.setTimeout(120_000);
+
+	const modes = [
+		{ name: "desktop light", width: 1440, height: 900, colorScheme: "light" },
+		{ name: "desktop dark", width: 1440, height: 900, colorScheme: "dark" },
+		{ name: "mobile light", width: 390, height: 844, colorScheme: "light" },
+		{ name: "mobile dark", width: 390, height: 844, colorScheme: "dark" },
+	] as const;
+	const routes = await discoverDesignSystemRoutes(page);
+
+	async function expectEveryMarkUsesPublishedPalette(
+		publishedPrimaryByIdentity: Map<string, string>,
+		context: string,
+		selector = "[data-design-system-mark]",
+	) {
+		const marks = page.locator(selector);
+		expect(await marks.count(), context).toBeGreaterThan(0);
+		const palettes = await marks.evaluateAll((elements) =>
+			elements.map((element) => ({
+				identity: element.getAttribute("data-design-system-mark") ?? "",
+				primary: getComputedStyle(element)
+					.getPropertyValue("--preview-primary")
+					.trim(),
+			})),
+		);
+		expect(
+			palettes.filter(
+				({ identity, primary }) =>
+					publishedPrimaryByIdentity.get(identity) !== primary,
+			),
+			context,
+		).toEqual([]);
+	}
+
+	function identityFromRoute(route: string) {
+		const identity = route.split("/").at(-1);
+		if (!identity) throw new Error(`Invalid Design System route: ${route}`);
+		return identity;
+	}
+
+	const discoveredIdentities = routes.map(identityFromRoute).sort();
+
+	for (const mode of modes) {
+		await page.setViewportSize({ width: mode.width, height: mode.height });
+		await page.emulateMedia({ colorScheme: mode.colorScheme });
+		await page.goto("/design-systems");
+		await expect(page.locator("html")).toHaveClass(
+			new RegExp(mode.colorScheme),
+		);
+
+		const publishedPrimaryByIdentity = new Map(
+			await page
+				.locator("[data-design-system-preview]")
+				.evaluateAll((elements) =>
+					elements.map((element) => [
+						element.getAttribute("data-design-system-preview") ?? "",
+						getComputedStyle(element)
+							.getPropertyValue("--preview-primary")
+							.trim(),
+					]),
+				),
+		);
+		expect([...publishedPrimaryByIdentity.keys()].sort()).toEqual(
+			discoveredIdentities,
+		);
+
+		for (const route of routes) {
+			const identity = identityFromRoute(route);
+			await page.locator(`[data-design-system-route="${route}"]`).click();
+			await expectEveryMarkUsesPublishedPalette(
+				publishedPrimaryByIdentity,
+				`collection marks with ${route} selected in ${mode.name}`,
+				`[role="tab"] [data-design-system-mark], [role="tabpanel"] [data-design-system-preview="${identity}"] [data-design-system-mark]`,
+			);
+		}
+
+		await page.goto("/");
+		await expectEveryMarkUsesPublishedPalette(
+			publishedPrimaryByIdentity,
+			`home marks in ${mode.name}`,
+		);
+
+		for (const route of routes) {
+			await page.goto(route);
+			await expectEveryMarkUsesPublishedPalette(
+				publishedPrimaryByIdentity,
+				`${route} marks in ${mode.name}`,
+			);
+		}
+	}
+});
+
 test("a Builder compares Design Systems through explicit tab activation and shareable hash state", async ({
 	page,
 }) => {

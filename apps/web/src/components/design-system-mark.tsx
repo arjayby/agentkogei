@@ -1,8 +1,21 @@
-import type { SVGProps } from "react";
+import { cn } from "@agentkogei/ui/lib/utils";
+import type { CSSProperties, SVGProps } from "react";
 
 import type { DesignSystem, DesignSystemDiscovery } from "@/lib/catalog";
+import styles from "./design-system-mark.module.css";
 
 type MarkDrawingProps = SVGProps<SVGSVGElement>;
+
+type DesignSystemMarkStyle = CSSProperties & {
+	"--design-system-mark-background-dark": string;
+	"--design-system-mark-background-light": string;
+	"--design-system-mark-foreground-dark": string;
+	"--design-system-mark-foreground-light": string;
+	"--design-system-mark-primary-dark": string;
+	"--design-system-mark-primary-light": string;
+	"--design-system-mark-primary-foreground-dark": string;
+	"--design-system-mark-primary-foreground-light": string;
+};
 
 const markColors = {
 	base: "var(--preview-primary)",
@@ -169,12 +182,25 @@ const drawings = {
 export function DesignSystemMark({
 	designSystem,
 	className,
+	style,
 	...props
 }: {
 	designSystem: DesignSystem | DesignSystemDiscovery;
 } & MarkDrawingProps) {
 	const { mark } = designSystem.preview;
 	const { Drawing, label } = drawings[mark.recipe];
+	const { dark, light } = designSystem.preview.theme.tokens;
+	const markStyle: DesignSystemMarkStyle = {
+		...style,
+		"--design-system-mark-background-dark": dark.background,
+		"--design-system-mark-background-light": light.background,
+		"--design-system-mark-foreground-dark": dark.foreground,
+		"--design-system-mark-foreground-light": light.foreground,
+		"--design-system-mark-primary-dark": dark.primary,
+		"--design-system-mark-primary-light": light.primary,
+		"--design-system-mark-primary-foreground-dark": dark.primaryForeground,
+		"--design-system-mark-primary-foreground-light": light.primaryForeground,
+	};
 
 	return (
 		<svg
@@ -183,8 +209,10 @@ export function DesignSystemMark({
 			aria-label={`${designSystem.name} Design System Mark`}
 			aria-description={label}
 			data-mark-recipe={mark.recipe}
-			className={className}
+			className={cn(styles.mark, className)}
 			{...props}
+			data-design-system-mark={designSystem.slug}
+			style={markStyle}
 		>
 			<title>{`${designSystem.name} Design System Mark`}</title>
 			<desc>{label}</desc>

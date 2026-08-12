@@ -1,0 +1,30 @@
+.mark {
+	--preview-background: var(--design-system-mark-background-light);
+	--preview-foreground: var(--design-system-mark-foreground-light);
+	--preview-primary: var(--design-system-mark-primary-light);
+	--preview-primary-foreground: var(
+		--design-system-mark-primary-foreground-light
+	);
+}
+
+/* biome-ignore lint/correctness/noUnknownPseudoClass: CSS Modules uses :global to observe the app theme class. */
+:global(.dark) .mark {
+	--preview-background: var(--design-system-mark-background-dark);
+	--preview-foreground: var(--design-system-mark-foreground-dark);
+	--preview-primary: var(--design-system-mark-primary-dark);
+	--preview-primary-foreground: var(
+		--design-system-mark-primary-foreground-dark
+	);
+}
+
+@media (prefers-color-scheme: dark) {
+	/* biome-ignore lint/correctness/noUnknownPseudoClass: CSS Modules uses :global to preserve the system theme fallback. */
+	:global(html:not(.light)) .mark {
+		--preview-background: var(--design-system-mark-background-dark);
+		--preview-foreground: var(--design-system-mark-foreground-dark);
+		--preview-primary: var(--design-system-mark-primary-dark);
+		--preview-primary-foreground: var(
+			--design-system-mark-primary-foreground-dark
+		);
+	}
+}

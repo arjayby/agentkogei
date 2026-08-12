@@ -11,13 +11,6 @@
 	--brand-paper: #eadcc3;
 }
 
-.design-system-mark-shell {
-	--preview-background: var(--background);
-	--preview-foreground: var(--foreground);
-	--preview-primary: var(--primary);
-	--preview-primary-foreground: var(--primary-foreground);
-}
-
 .hero-layout {
 	display: grid;
 	min-width: 0;
