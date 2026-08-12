@@ -496,26 +496,179 @@ button[data-preview-control][data-specimen-state="error"] {
 	margin-inline-start: clamp(0rem, 6vw, 6rem);
 }
 
-[data-specimen-composition="operational-grid"] {
+[data-preview-composition="operational-frame"] {
+	--preview-space: 0.75rem;
+	--preview-surface-radius: 0;
+	--preview-field-radius: 0.125rem;
+	--preview-control-radius: 0.125rem;
+	--preview-compact-radius: 0.125rem;
+	--preview-border-width: 1px;
+	--preview-shadow: none;
+	--preview-inset-highlight: inset 0 1px
+		color-mix(in oklab, var(--preview-foreground) 5%, transparent);
+}
+
+[data-preview-composition="operational-frame"][data-preview-themed-specimen] {
+	padding-block: clamp(2.5rem, 5vw, 4.5rem);
+}
+
+[data-preview-composition="operational-frame"]
+	[data-preview-exploration-heading] {
+	gap: 0.5rem;
+	margin-block-end: 1.5rem;
+}
+
+[data-preview-composition="operational-frame"]
+	[data-preview-exploration-heading]
+	h2 {
+	font-size: clamp(1.75rem, 4vw, 2.5rem);
+}
+
+[data-preview-composition="operational-frame"]
+	[data-preview-exploration-sections] {
+	gap: 1.5rem;
+}
+
+[data-preview-identity-panel][data-preview-composition="operational-frame"]
+	[data-preview-identity-hero] {
+	gap: 1rem;
+	padding: clamp(1.5rem, 3vw, 2.5rem);
+}
+
+[data-preview-identity-panel][data-preview-composition="operational-frame"]
+	[data-preview-identity-hero]
+	> div {
+	gap: 1rem;
+}
+
+[data-preview-identity-panel][data-preview-composition="operational-frame"]
+	[data-preview-identity-hero]
+	h2 {
+	font-size: clamp(2.5rem, 5vw, 3.5rem);
+}
+
+[data-preview-identity-panel][data-preview-composition="operational-frame"]
+	[data-preview-identity-headline] {
+	font-size: clamp(1.75rem, 3vw, 2.25rem);
+}
+
+[data-preview-identity-panel][data-preview-composition="operational-frame"]
+	:is([data-preview-identity-evidence], [data-preview-identity-typography]) {
+	gap: 1.5rem;
+	padding: clamp(1.5rem, 3vw, 2rem);
+}
+
+[data-preview-identity-panel][data-preview-composition="operational-frame"]
+	[data-preview-type-sample] {
+	font-size: clamp(3rem, 7vw, 4.5rem);
+}
+
+[data-preview-composition="operational-frame"]
+	:is(
+		.preview-foundation-heading p,
+		.preview-control-heading > p,
+		.preview-control-state-row > span:first-child,
+		[data-slot="button"],
+		[data-preview-control="link"],
+		[data-preview-control="navigation"],
+		.preview-data-table-region thead th
+	) {
+	font-family: var(--preview-font-body);
+}
+
+[data-preview-composition="operational-frame"] [data-spacing-measure] {
+	background: var(--preview-muted-foreground);
+}
+
+[data-specimen-composition="operational-frame"] {
 	gap: 1px;
 	background: var(--preview-border);
 }
 
-[data-specimen-composition="operational-grid"] .preview-control-section {
-	padding: clamp(1rem, 3vw, 2rem);
-	background-color: var(--preview-background);
-	background-image:
-		linear-gradient(
-			to right,
-			color-mix(in oklab, var(--preview-border) 32%, transparent) 1px,
-			transparent 1px
-		),
-		linear-gradient(
-			to bottom,
-			color-mix(in oklab, var(--preview-border) 32%, transparent) 1px,
-			transparent 1px
-		);
-	background-size: 2rem 2rem;
+[data-specimen-composition="operational-frame"] .preview-control-section {
+	gap: clamp(0.75rem, 1.5vw, 1rem);
+	padding: clamp(0.75rem, 1.5vw, 1rem);
+	background: var(--preview-background);
+	box-shadow: var(--preview-inset-highlight);
+}
+
+[data-preview-composition="operational-frame"]
+	:is(.preview-foundation-heading, .preview-control-heading) {
+	gap: 0.375rem;
+}
+
+[data-preview-composition="operational-frame"]
+	:is(.preview-foundation-heading, .preview-control-heading)
+	h3 {
+	font-size: clamp(1.25rem, 2vw, 1.75rem);
+	letter-spacing: -0.02em;
+}
+
+[data-preview-composition="operational-frame"] .preview-control-heading > span {
+	line-height: 1.45;
+}
+
+[data-preview-composition="operational-frame"]
+	.preview-control-section
+	> .grid {
+	gap: clamp(0.75rem, 2vw, 1.25rem);
+}
+
+[data-preview-composition="operational-frame"] .catalog-preview-panel {
+	box-shadow: var(--preview-inset-highlight);
+}
+
+[data-preview-composition="operational-frame"]
+	.preview-control-section
+	> .catalog-preview-panel {
+	padding: 0.75rem;
+}
+
+[data-preview-composition="operational-frame"] [data-slot="button"],
+[data-preview-composition="operational-frame"] [data-preview-control="input"] {
+	height: 1.875rem;
+	min-height: 1.875rem;
+	border-radius: 0.125rem;
+}
+
+[data-preview-composition="operational-frame"]
+	.preview-control-navigation-list
+	a {
+	min-height: 1.875rem;
+	padding: 0.375rem 0.625rem;
+}
+
+[data-preview-composition="operational-frame"]
+	.preview-data-table-region
+	table {
+	font-size: 0.8125rem;
+}
+
+[data-preview-composition="operational-frame"]
+	.preview-data-table-region
+	caption,
+[data-preview-composition="operational-frame"] .preview-data-table-region th,
+[data-preview-composition="operational-frame"] .preview-data-table-region td {
+	padding: 0.5rem 0.75rem;
+}
+
+[data-preview-composition="operational-frame"] .preview-data-list li,
+[data-preview-composition="operational-frame"] .preview-badge-list li,
+[data-preview-composition="operational-frame"]
+	.preview-feedback-state-grid
+	article {
+	padding: 0.75rem;
+}
+
+[data-preview-composition="operational-frame"]
+	.preview-badge-list
+	[data-slot="badge"] {
+	border-radius: 9999px;
+}
+
+[data-preview-composition="operational-frame"] .preview-dialog {
+	padding: clamp(0.75rem, 2vw, 1rem);
+	border-radius: 0.125rem;
 }
 
 [data-preview-composition="balanced-grid"] .preview-foundation-section {
@@ -542,26 +695,16 @@ button[data-preview-control][data-specimen-state="error"] {
 	margin-inline-start: clamp(0rem, 6vw, 6rem);
 }
 
-[data-preview-composition="operational-grid"] .preview-foundations-grid {
+[data-preview-composition="operational-frame"] .preview-foundations-grid {
 	gap: 1px;
 	background: var(--preview-border);
 }
 
-[data-preview-composition="operational-grid"] .preview-foundation-section {
-	background-color: var(--preview-background);
-	background-image:
-		linear-gradient(
-			to right,
-			color-mix(in oklab, var(--preview-border) 32%, transparent) 1px,
-			transparent 1px
-		),
-		linear-gradient(
-			to bottom,
-			color-mix(in oklab, var(--preview-border) 32%, transparent) 1px,
-			transparent 1px
-		);
-	background-size: 2rem 2rem;
-	padding: clamp(1rem, 3vw, 2rem);
+[data-preview-composition="operational-frame"] .preview-foundation-section {
+	gap: clamp(0.75rem, 1.5vw, 1rem);
+	background: var(--preview-background);
+	padding: clamp(0.75rem, 1.5vw, 1rem);
+	box-shadow: var(--preview-inset-highlight);
 }
 
 [data-preview-composition="balanced-grid"] .preview-shell-hero-grid {
@@ -595,26 +738,15 @@ button[data-preview-control][data-specimen-state="error"] {
 	grid-row: 1;
 }
 
-[data-preview-composition="operational-grid"] .preview-shell-hero {
-	background-image:
-		linear-gradient(
-			to right,
-			color-mix(in oklab, var(--preview-border) 44%, transparent) 1px,
-			transparent 1px
-		),
-		linear-gradient(
-			to bottom,
-			color-mix(in oklab, var(--preview-border) 44%, transparent) 1px,
-			transparent 1px
-		);
-	background-size: 2rem 2rem;
+[data-preview-composition="operational-frame"] .preview-shell-hero {
+	background: var(--preview-background);
 }
 
-[data-preview-composition="operational-grid"] .preview-shell-hero-grid {
+[data-preview-composition="operational-frame"] .preview-shell-hero-grid {
 	grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.42fr);
 }
 
-[data-preview-composition="operational-grid"] .preview-mark-stage {
+[data-preview-composition="operational-frame"] .preview-mark-stage {
 	aspect-ratio: 4 / 3;
 }
 
@@ -641,6 +773,17 @@ button[data-preview-control][data-specimen-state="error"] {
 	[data-specimen-composition="focal-frame"]
 		.preview-control-section:nth-child(even) {
 		margin-inline-start: 0;
+	}
+}
+
+@media (max-width: 47.999rem) {
+	[data-preview-composition="operational-frame"] [data-slot="button"],
+	[data-preview-composition="operational-frame"] [data-preview-control="input"],
+	[data-preview-composition="operational-frame"]
+		.preview-control-navigation-list
+		a {
+		height: 2.5rem;
+		min-height: 2.5rem;
 	}
 }
 

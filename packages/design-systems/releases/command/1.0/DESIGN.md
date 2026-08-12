@@ -2,7 +2,7 @@
 
 Command is a dark-first, dense, technical Design System for developer tools, infrastructure products, security consoles, data operations, and other software where Builders must inspect state, compare evidence, and act precisely.
 
-Command should feel like a purpose-built instrument: compact without becoming cramped, severe without becoming hostile, and expressive through structure rather than decoration. It is not a generic dark theme. Its identity comes from a graphite field, disciplined monospace accents, luminous operational signals, hard alignment, shallow layering, and interfaces that keep context visible while work is in progress.
+Command should feel like a purpose-built instrument: compact without becoming cramped, severe without becoming hostile, and expressive through structure rather than decoration. It is not a generic dark theme. Its identity comes from solid graphite planes, disciplined monospace accents, restrained operational signals, precise alignment, shallow layering, and interfaces that keep context visible while work is in progress.
 
 ## Agent operating contract
 
@@ -19,13 +19,13 @@ When generating an interface with Command:
 
 Command combines five recognizable decisions:
 
-- Near-black graphite surfaces with cool blue-gray separation rather than pure black.
+- Solid near-black graphite surfaces with cool blue-gray separation rather than pure black.
 - A compact sans-serif interface face paired with monospace only for identifiers, values, commands, timestamps, and status telemetry.
-- Square geometry with restrained two-pixel corner softening only where it improves focus or touch recognition.
-- Thin rules, inset highlights, and luminance steps instead of floating card shadows.
-- Operational cyan as the primary action signal, amber for attention, red for danger, and green for verified success. Status never relies on color alone.
+- Square panels and grouped regions with at most two pixels of corner softening for interactive and temporary surfaces.
+- One-pixel structural rules, subtle inset highlights, and solid luminance steps instead of floating card shadows.
+- Operational cyan reserved for primary actions, focus, active selection, links, and live informational state. Amber signals attention, red signals danger, and green signals verified success. Status never relies on color alone.
 
-Avoid neon cyberpunk gradients, terminal cosplay, scan-line effects, excessive monospace body copy, glowing text, rounded dashboard-card grids, and decorative code fragments. Command is technical because it clarifies systems, not because it imitates a movie terminal.
+Avoid decorative grid backgrounds, graph-paper textures, gradients, neon cyberpunk treatments, terminal cosplay, scan-line effects, excessive monospace body copy, glowing text, rounded card mosaics, and decorative code fragments. Command is technical because it clarifies systems, not because it imitates a movie terminal.
 
 ## Semantic color
 
@@ -69,7 +69,7 @@ Use the Project's available system sans stack for interface prose and a system m
 - Body: 14px, 1.5 line-height.
 - Compact interface: 12–13px, 1.4 line-height.
 - Telemetry: 11–12px monospace, 1.35 line-height, tabular numerals.
-- Eyebrow: 10–11px monospace uppercase, 0.12em tracking; never for paragraphs.
+- Eyebrow: 10–11px compact sans-serif uppercase, 0.12em tracking; never for paragraphs.
 
 Identifiers may truncate only when their full value is available by an accessible disclosure or copy action. Logs and code preserve whitespace and support selection.
 
@@ -77,14 +77,14 @@ Identifiers may truncate only when their full value is available by an accessibl
 
 Use a 4px base unit. Typical working rhythm is 4, 8, 12, 16, 24, 32, and 48px.
 
-- Compact control height: 32px desktop, minimum 40px for primary touch targets on narrow screens.
-- Table row: 36–40px desktop; 44px when rows contain touch actions.
-- Panel padding: 12–16px; marketing sections may use 48–96px vertically.
-- Inline gap: 6–8px.
-- Related-group gap: 12–16px.
-- Major-region gap: 24–32px.
+- Compact control height: 28–30px desktop, minimum 40px for primary touch targets on narrow screens.
+- Table row: 32–36px desktop; 44px when rows contain touch actions.
+- Panel padding: 8–12px; marketing sections may use 40–72px vertically.
+- Inline gap: 4–6px.
+- Related-group gap: 8–12px.
+- Major-region gap: 20–24px.
 
-Density is earned through alignment and persistent context. Do not reduce type below 12px for interactive content or collapse unrelated controls into one toolbar.
+Density is earned through alignment and persistent context. Product interfaces are aggressively compact; marketing retains enough space for comprehension without oversized empty hero regions. Do not reduce type below 12px for interactive content or collapse unrelated controls into one toolbar.
 
 ## Layout
 
@@ -93,8 +93,10 @@ Command uses a stable application frame:
 - 48px global header for Project identity, environment, search, and account controls.
 - 220–256px navigation rail on wide screens; compact 48px rail only when labels remain accessible.
 - Optional 280–360px inspector rail for selected-object detail.
-- Main content uses hard grid lines and a maximum readable prose width of 72ch.
+- Main content uses precise column alignment, one-pixel section rules, and a maximum readable prose width of 72ch.
 - Data-heavy regions may fill the viewport but must retain labelled landmarks and visible headings.
+
+Layout grids organize content but never appear as decorative background texture. Solid planes, boundaries, and alignment must carry the structure.
 
 Marketing surfaces use asymmetric technical compositions: one strong outcome, a compact evidence rail, and a real product-state preview. Avoid generic three-card benefit rows as the main identity.
 
@@ -104,7 +106,7 @@ At widths below 768px, navigation becomes a labelled drawer, inspectors become e
 
 ### Buttons
 
-Primary buttons use operational cyan and describe the result: “Deploy release,” not “Continue.” Secondary buttons use a visible border and surface fill. Quiet buttons retain a visible hover and focus treatment. Destructive actions use red only at the confirmation boundary, not for routine navigation.
+Primary buttons use operational cyan sparingly and describe the result: “Deploy release,” not “Continue.” Secondary buttons use a visible one-pixel border and surface fill. Quiet buttons retain a visible hover and focus treatment. Destructive actions use red only at the confirmation boundary, not for routine navigation.
 
 Every button needs default, hover, focus-visible, active, disabled, pending, success, and error behavior where applicable. Pending buttons keep their label width stable and announce progress without relying on animation.
 
@@ -112,7 +114,7 @@ Every button needs default, hover, focus-visible, active, disabled, pending, suc
 
 Labels stay visible above fields. Help and error text occupy a stable region below. Technical inputs use monospace only for values such as hostnames, tokens, paths, and commands. Validation occurs on blur or submit unless immediate feedback prevents a costly error.
 
-Group related fields inside ruled sections with a concise legend. Required status must be conveyed in text. Errors identify the problem and recovery action; do not rely on red borders alone.
+Group related fields inside one-pixel ruled sections with a concise legend. Required status must be conveyed in text. Errors identify the problem and recovery action; do not rely on red borders alone.
 
 ### Tables and data grids
 
@@ -141,11 +143,15 @@ Use shape or icon, text, and color together. Distinguish observed state from des
 
 Dialogs have one purpose, a visible title, initial focus on the least destructive sensible control, trapped keyboard focus, Escape behavior when safe, and restored focus on close. High-impact actions name the affected object and irreversible consequence. Typed confirmation is reserved for genuinely catastrophic actions.
 
+### Surfaces and elevation
+
+Application surfaces stay flat. Separate them with solid graphite luminance steps, one-pixel rules, and occasional inset highlights. Reserve cast shadows for temporary overlays such as menus and dialogs. Focus and strong selection use a two-pixel treatment and must not change layout.
+
 ## Surface recipes
 
 ### Marketing
 
-Lead with a concrete operational outcome and one primary action. Show credible product evidence: deployment state, audit history, performance telemetry, or a technical workflow. Pair concise prose with an annotated product frame rather than abstract gradients.
+Lead with a concrete operational outcome and one primary action. Show credible product evidence: deployment state, audit history, performance telemetry, or a technical workflow. Pair concise prose with an annotated product frame rather than abstract decoration. Use more breathing room than the product interface, but avoid giant type and empty hero regions.
 
 ### Authentication
 
@@ -209,6 +215,8 @@ Command targets WCAG 2.2 Level AA for its reference implementation.
 ## Final validation checklist
 
 - The result is recognizably Command, not a darkened generic dashboard.
+- No decorative grid background, graph-paper texture, glow, or gradient appears.
+- Product surfaces use solid graphite planes, one-pixel rules, compact spacing, and restrained operational cyan.
 - Supplied product behavior and copy remain intact.
 - All required surfaces and state variants are represented.
 - Desktop and mobile layouts preserve priority and access.
