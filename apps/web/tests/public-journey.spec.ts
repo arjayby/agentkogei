@@ -385,11 +385,12 @@ test("every Design System Mark keeps its published palette across pages and mode
 		);
 
 		for (const route of routes) {
+			const identity = identityFromRoute(route);
 			await page.locator(`[data-design-system-route="${route}"]`).click();
 			await expectEveryMarkUsesPublishedPalette(
 				publishedPrimaryByIdentity,
 				`collection marks with ${route} selected in ${mode.name}`,
-				'[role="tab"] [data-design-system-mark], [role="tabpanel"]:visible [data-design-system-mark]',
+				`[role="tab"] [data-design-system-mark], [role="tabpanel"] [data-design-system-preview="${identity}"] [data-design-system-mark]`,
 			);
 		}
 
