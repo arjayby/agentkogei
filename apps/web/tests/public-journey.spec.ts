@@ -315,6 +315,99 @@ test("Design Systems retains every launch Design System", async ({ page }) => {
 	);
 });
 
+test("every Design System Mark keeps its published palette across pages and modes", async ({
+	page,
+}) => {
+	test.setTimeout(120_000);
+
+	const modes = [
+		{ name: "desktop light", width: 1440, height: 900, colorScheme: "light" },
+		{ name: "desktop dark", width: 1440, height: 900, colorScheme: "dark" },
+		{ name: "mobile light", width: 390, height: 844, colorScheme: "light" },
+		{ name: "mobile dark", width: 390, height: 844, colorScheme: "dark" },
+	] as const;
+	const routes = await discoverDesignSystemRoutes(page);
+
+	async function expectMarkPalette(
+		selector: string,
+		expectedPrimary: string,
+		expectedCount: number,
+		context: string,
+	) {
+		const marks = page.locator(selector);
+		await expect(marks, context).toHaveCount(expectedCount);
+		const primaries = await marks.evaluateAll((elements) =>
+			elements.map((element) =>
+				getComputedStyle(element).getPropertyValue("--preview-primary").trim(),
+			),
+		);
+		expect(primaries, context).toEqual(
+			Array.from({ length: expectedCount }, () => expectedPrimary),
+		);
+	}
+
+	for (const mode of modes) {
+		await page.setViewportSize({ width: mode.width, height: mode.height });
+		await page.emulateMedia({ colorScheme: mode.colorScheme });
+		await page.goto("/design-systems");
+		await expect(page.locator("html")).toHaveClass(
+			new RegExp(mode.colorScheme),
+		);
+
+		const publishedPrimaryByIdentity = new Map(
+			await page
+				.locator("[data-design-system-preview]")
+				.evaluateAll((elements) =>
+					elements.map((element) => [
+						element.getAttribute("data-design-system-preview") ?? "",
+						getComputedStyle(element)
+							.getPropertyValue("--preview-primary")
+							.trim(),
+					]),
+				),
+		);
+
+		for (const route of routes) {
+			const identity = route.split("/").at(-1);
+			if (!identity) throw new Error(`Invalid Design System route: ${route}`);
+			const expectedPrimary = publishedPrimaryByIdentity.get(identity);
+			if (!expectedPrimary) {
+				throw new Error(`Missing published primary token for ${identity}`);
+			}
+
+			await page
+				.getByRole("tab", {
+					name: new RegExp(`^${identity}$`, "i"),
+				})
+				.click();
+			await expectMarkPalette(
+				`[data-design-system-preview="${identity}"] [data-mark-size]`,
+				expectedPrimary,
+				2,
+				`${identity} collection marks in ${mode.name}`,
+			);
+
+			await page.goto("/");
+			await expectMarkPalette(
+				`[data-design-system-preview="${identity}"] [data-mark-size]`,
+				expectedPrimary,
+				1,
+				`${identity} home mark in ${mode.name}`,
+			);
+
+			await page.goto(route);
+			await expectMarkPalette(
+				"main [data-mark-size]",
+				expectedPrimary,
+				2,
+				`${identity} Preview marks in ${mode.name}`,
+			);
+
+			await page.goto("/design-systems");
+		}
+	}
+});
+
 test("a Builder compares Design Systems through explicit tab activation and shareable hash state", async ({
 	page,
 }) => {

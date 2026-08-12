@@ -1,8 +1,13 @@
-import type { SVGProps } from "react";
+import type { CSSProperties, SVGProps } from "react";
 
 import type { DesignSystem, DesignSystemDiscovery } from "@/lib/catalog";
 
 type MarkDrawingProps = SVGProps<SVGSVGElement>;
+
+type DesignSystemMarkStyle = CSSProperties & {
+	"--design-system-mark-primary-dark": string;
+	"--design-system-mark-primary-light": string;
+};
 
 const markColors = {
 	base: "var(--preview-primary)",
@@ -169,12 +174,20 @@ const drawings = {
 export function DesignSystemMark({
 	designSystem,
 	className,
+	style,
 	...props
 }: {
 	designSystem: DesignSystem | DesignSystemDiscovery;
 } & MarkDrawingProps) {
 	const { mark } = designSystem.preview;
 	const { Drawing, label } = drawings[mark.recipe];
+	const markStyle: DesignSystemMarkStyle = {
+		...style,
+		"--design-system-mark-primary-dark":
+			designSystem.preview.theme.tokens.dark.primary,
+		"--design-system-mark-primary-light":
+			designSystem.preview.theme.tokens.light.primary,
+	};
 
 	return (
 		<svg
@@ -185,6 +198,8 @@ export function DesignSystemMark({
 			data-mark-recipe={mark.recipe}
 			className={className}
 			{...props}
+			data-design-system-mark={designSystem.slug}
+			style={markStyle}
 		>
 			<title>{`${designSystem.name} Design System Mark`}</title>
 			<desc>{label}</desc>

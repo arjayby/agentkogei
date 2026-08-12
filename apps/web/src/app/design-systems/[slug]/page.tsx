@@ -96,7 +96,7 @@ export default async function DesignSystemPage({
 						<DesignSystemMark
 							designSystem={designSystem}
 							data-mark-size="compact"
-							className="design-system-mark-shell size-8 shrink-0"
+							className="size-8 shrink-0"
 						/>
 					</div>
 					<div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.55fr)] lg:items-center">
@@ -137,7 +137,7 @@ export default async function DesignSystemPage({
 							<DesignSystemMark
 								designSystem={designSystem}
 								data-mark-size="hero"
-								className="design-system-mark-shell size-full max-h-72 max-w-72"
+								className="size-full max-h-72 max-w-72"
 							/>
 						</div>
 					</div>
