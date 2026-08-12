@@ -7,8 +7,14 @@ import styles from "./design-system-mark.module.css";
 type MarkDrawingProps = SVGProps<SVGSVGElement>;
 
 type DesignSystemMarkStyle = CSSProperties & {
+	"--design-system-mark-background-dark": string;
+	"--design-system-mark-background-light": string;
+	"--design-system-mark-foreground-dark": string;
+	"--design-system-mark-foreground-light": string;
 	"--design-system-mark-primary-dark": string;
 	"--design-system-mark-primary-light": string;
+	"--design-system-mark-primary-foreground-dark": string;
+	"--design-system-mark-primary-foreground-light": string;
 };
 
 const markColors = {
@@ -183,12 +189,17 @@ export function DesignSystemMark({
 } & MarkDrawingProps) {
 	const { mark } = designSystem.preview;
 	const { Drawing, label } = drawings[mark.recipe];
+	const { dark, light } = designSystem.preview.theme.tokens;
 	const markStyle: DesignSystemMarkStyle = {
 		...style,
-		"--design-system-mark-primary-dark":
-			designSystem.preview.theme.tokens.dark.primary,
-		"--design-system-mark-primary-light":
-			designSystem.preview.theme.tokens.light.primary,
+		"--design-system-mark-background-dark": dark.background,
+		"--design-system-mark-background-light": light.background,
+		"--design-system-mark-foreground-dark": dark.foreground,
+		"--design-system-mark-foreground-light": light.foreground,
+		"--design-system-mark-primary-dark": dark.primary,
+		"--design-system-mark-primary-light": light.primary,
+		"--design-system-mark-primary-foreground-dark": dark.primaryForeground,
+		"--design-system-mark-primary-foreground-light": light.primaryForeground,
 	};
 
 	return (

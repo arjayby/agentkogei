@@ -331,8 +331,9 @@ test("every Design System Mark keeps its published palette across pages and mode
 	async function expectEveryMarkUsesPublishedPalette(
 		publishedPrimaryByIdentity: Map<string, string>,
 		context: string,
+		selector = "[data-design-system-mark]",
 	) {
-		const marks = page.locator("[data-design-system-mark]");
+		const marks = page.locator(selector);
 		expect(await marks.count(), context).toBeGreaterThan(0);
 		const palettes = await marks.evaluateAll((elements) =>
 			elements.map((element) => ({
@@ -388,6 +389,7 @@ test("every Design System Mark keeps its published palette across pages and mode
 			await expectEveryMarkUsesPublishedPalette(
 				publishedPrimaryByIdentity,
 				`collection marks with ${route} selected in ${mode.name}`,
+				'[role="tab"] [data-design-system-mark], [role="tabpanel"]:visible [data-design-system-mark]',
 			);
 		}
 
