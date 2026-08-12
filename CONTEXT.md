@@ -25,11 +25,11 @@ The curated collection of MIT-licensed Design Systems published and maintained b
 _Avoid_: marketplace, store, registry, Catalog as a public collection name
 
 **Published Design System**:
-A Design System admitted to the Official Catalog after meeting its completeness and quality requirements.
+A Design System whose final release has met its completeness and quality requirements and has been merged into the Official Catalog source.
 _Avoid_: listing, catalog item
 
 **Design System Evaluation**:
-The standardized generation, automated validation, and human review process that a Design System Release must pass before its Design System can be published, including evidence that its reference implementation meets WCAG 2.2 Level AA.
+The standardized generation and automated validation that a Design System Release must pass before its Design System can be published, including evidence that its reference implementation meets WCAG 2.2 Level AA.
 _Avoid_: demo, preview, test
 
 **Design System Preview**:
@@ -44,21 +44,13 @@ _Avoid_: icon, logo, preview artwork, borrowed brand symbol
 An immutable edition of a Design System identified by a two part `major.minor` version. Minor releases add compatible direction, while major releases may intentionally change a Project's interface.
 _Avoid_: three part semantic version, patch release, latest, update, revision
 
-**Candidate Design System Release**:
-A complete proposed Design System Release that is ready for validation and Design System Evaluation but has not yet been admitted to the Official Catalog.
-_Avoid_: draft `DESIGN.md`, generated file, unfinished release
-
-**Authoring Approval**:
-A maintainer's explicit acceptance that a validated Candidate Design System Release expresses its approved creative brief and is ready for Design System Evaluation. It does not assert that evaluation has passed or authorize publication.
-_Avoid_: publication approval, evaluation pass, looks good
-
-**Publication Approval**:
-A maintainer's explicit authorization to admit an evaluated Design System Release to the Official Catalog and deploy it to production. It is granted only after all automated evaluation and separate visual, accessibility, and rights reviews have passed.
-_Avoid_: authoring approval, candidate approval, merge approval
-
 **Design Reference**:
-An image or URL supplied as inspiration for a Candidate Design System Release. It may inform general visual characteristics but is never a target for copying product identity, proprietary assets, distinctive compositions, or a living designer's style.
+A maintainer supplied image or public URL used as inspiration for a new Design System Release. A URL inspection covers the complete supplied page and useful linked product surfaces when available, but the reference is never a target for copying product identity, proprietary assets, distinctive compositions, or a living designer's style.
 _Avoid_: source design, replication target, style clone
+
+**Design System Addition**:
+The single workflow that inspects one Design Reference, creates and evaluates one final new Design System Release, integrates it with the Official Catalog, and opens its pull request. Merging the pull request publishes the release and triggers production deployment.
+_Avoid_: authoring workflow, publication workflow, approval workflow
 
 **Installation**:
 The declarative, non-executable application of a Design System to a Project through the AgentKogei CLI. It places the Design Contract at the Project root and makes it discoverable through the Project's agent instructions, but does not migrate an existing interface.

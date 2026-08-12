@@ -41,4 +41,4 @@ Remote Polar, Neon, GitHub OAuth, Vercel variable, and other historical vendor c
 ## Handoff status
 
 - Technical release candidate: verify with `bun run launch:verify`.
-- Design System Evaluation and rights review: retain the evaluation reports and approval records for every Published Design System.
+- Design System Evaluation and originality review: retain the evaluation report for every Published Design System.

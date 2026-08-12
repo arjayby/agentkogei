@@ -2,16 +2,6 @@ import { fileURLToPath } from "node:url";
 import { discoverPublishedDesignSystems } from "./published-design-systems";
 
 export {
-	type CandidateValidationOptions,
-	type CandidateValidationResult,
-	candidateDesignContractFileName,
-	candidateEvaluationPlanFileName,
-	candidateEvaluationPlanSchema,
-	candidateMetadataFileName,
-	candidateMetadataSchema,
-	validateCandidateDesignSystemRelease,
-} from "./candidate-design-system";
-export {
 	type DesignContract,
 	designContractFileName,
 	designContractSchema,
@@ -26,6 +16,10 @@ export {
 	retrieveDesignContract,
 } from "./design-contract-installation";
 export {
+	type DesignSystemAdditionReport,
+	designSystemAdditionReportSchema,
+} from "./design-system-addition";
+export {
 	type DesignSystemEvaluationRecord,
 	designSystemEvaluationFileName,
 	designSystemEvaluationRecordSchema,
@@ -36,31 +30,6 @@ export {
 } from "./design-system-evaluation";
 export type { DesignSystemIdentity } from "./design-system-identity";
 export { generateOfficialCatalogArtifacts } from "./official-catalog-generation";
-export {
-	contractRetrievalProtocol,
-	inspectPublicationProposal,
-	productionWebsiteUrl,
-	promoteApprovedPublication,
-	publicationApprovalSchema,
-	publicationVerificationSchema,
-	recordPublicationApproval,
-	verifyContractRetrievalProtocol,
-	verifyProductionPublication,
-} from "./publication-release";
-export {
-	approvePublicationHumanReview,
-	type EvaluationResultKind,
-	type EvaluationResultStatus,
-	type HumanReviewKind,
-	type PublicationWorkflowResult,
-	preparePublicationProposal,
-	publicationEvaluationSchema,
-	publicationProposalMetadataSchema,
-	publicationWorkflowDirectoryName,
-	publicationWorkflowFileName,
-	recordPublicationEvaluationResult,
-	startPublicationEvaluation,
-} from "./publication-workflow";
 export {
 	discoverPublishedDesignSystems,
 	type PublishedDesignSystem,

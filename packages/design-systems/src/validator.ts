@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 import { lstat, readdir, readFile } from "node:fs/promises";
 import path from "node:path";
-
 import { designContractFileName } from "./design-contract";
+import { validateDesignContractStandard } from "./design-contract-standard";
 import {
 	type DesignSystemEvaluationRecord,
 	designSystemEvaluationFileName,
@@ -304,6 +304,9 @@ export async function validateDesignSystemRelease(
 		return { ok: false, errors: [...errors, "Design Contract is missing"] };
 	}
 	errors.push(...validateDesignContract(record, contract));
+	if (record.schemaVersion === "5.0") {
+		errors.push(...validateDesignContractStandard(contract));
+	}
 
 	if (options.publishedReleaseDirectory) {
 		errors.push(

@@ -89,7 +89,9 @@ This checks formatting, types, production builds, the distributable CLI, and the
 
 ## Deployment
 
-The public catalog is configured for Vercel through `vercel.json`.
+The public catalog is configured for Vercel through `vercel.json`. Pull requests receive preview deployments, and merging `main` triggers the production deployment through the connected Vercel Git integration.
+
+The CLI commands remain available for local deployment diagnostics and exceptional manual operation:
 
 ```bash
 bun run deploy:setup

@@ -57,7 +57,8 @@ The CLI retrieves a current or exact release, validates it, previews the change,
 - The web application serves only public catalog, documentation, preview, and Design Contract routes.
 - The web application has no persistent application data or collection behavior.
 - All repository source and Design System content use the MIT License. Installed Design Contracts contain only design direction.
-- Publication requires original or rightfully used direction, automated validation, repeatable generation evidence, human visual review, human rights review, and a WCAG 2.2 Level AA reference implementation.
+- Publication requires original or rightfully used direction, automated validation, generation evidence, an originality review, and a WCAG 2.2 Level AA reference implementation.
+- One Add Design System workflow creates a final release and opens its pull request. Merging to `main` admits the release to the Official Catalog and triggers Vercel production deployment.
 
 ## Acceptance boundary
 

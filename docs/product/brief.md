@@ -58,10 +58,11 @@ Every Design System Release must:
 - Target React or Next.js, Tailwind CSS v4, and shadcn/ui
 - Cover representative screens, responsive behavior, light and dark modes, and reduced motion
 - Demonstrate WCAG 2.2 Level AA in its reference implementation
-- Pass repeatable generation tasks, automated checks, human visual review, and human rights review
+- Pass generation, automated structure, accessibility, responsive overflow, and color contrast checks
+- Record an originality review proving that retained proprietary reference material is absent
 - Publish a Design System Preview, evaluation evidence, and a changelog
 
-Patch releases clarify or correct direction without materially changing output. Minor releases add compatible direction. Major releases may intentionally alter a Project interface and require migration notes. Each release is immutable at its exact catalog route.
+Minor releases add compatible direction. Major releases may intentionally alter a Project interface and require migration notes. Each release is immutable at its exact catalog route.
 
 ## Web product
 

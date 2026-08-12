@@ -641,38 +641,55 @@ const designSystemReleaseSchema = z
  * part of this interface because every Design System is published through the
  * same public catalog.
  */
-export const designSystemEvaluationRecordSchema = z
+const designSystemEvaluationRecordShape = {
+	id: designSystemIdentitySchema,
+	designSystem: terminalTextSchema,
+	publisher: terminalTextSchema,
+	designSystemRelease: designSystemReleaseSchema,
+	/**
+	 * The one document the release publishes, pinned by digest so an
+	 * already-published release cannot be edited under its own version.
+	 */
+	designContract: z.object({ sha256: sha256Schema }).strict(),
+	/** The single stack each first-party Design Contract directly targets. */
+	compatibility: z
+		.object({
+			frameworks: z.array(z.enum(["react", "nextjs"])).min(1),
+			react: terminalTextSchema,
+			nextjs: terminalTextSchema,
+			tailwind: terminalTextSchema,
+			ui: z.literal("shadcn/ui"),
+		})
+		.strict(),
+	preview: designSystemPreviewSchema,
+	changelog: z
+		.object({
+			summary: z.string().min(1),
+			breaking: z.boolean(),
+			migrationNotes: z.string().min(1).nullable(),
+		})
+		.strict(),
+} as const;
+
+const commonEvaluationShape = {
+	status: z.literal("passed"),
+	standard: z.literal("WCAG 2.2 Level AA"),
+	screens: z.array(z.string()).min(8),
+	viewports: z.array(z.string()).min(2),
+	colorSchemes: z.array(z.enum(["light", "dark"])).length(2),
+	reducedMotion: z.literal(true),
+	automatedChecks: z.array(z.string()).min(1),
+	evidence: z.array(relativePathSchema).min(1),
+} as const;
+
+const versionFourDesignSystemEvaluationRecordSchema = z
 	.object({
 		schemaVersion: z.literal("4.0"),
-		id: designSystemIdentitySchema,
-		designSystem: terminalTextSchema,
-		publisher: terminalTextSchema,
-		designSystemRelease: designSystemReleaseSchema,
-		/**
-		 * The one document the release publishes, pinned by digest so an
-		 * already-published release cannot be edited under its own version.
-		 */
-		designContract: z.object({ sha256: sha256Schema }).strict(),
-		/** The single stack each first-party Design Contract directly targets. */
-		compatibility: z
-			.object({
-				frameworks: z.array(z.enum(["react", "nextjs"])).min(1),
-				react: terminalTextSchema,
-				nextjs: terminalTextSchema,
-				tailwind: terminalTextSchema,
-				ui: z.literal("shadcn/ui"),
-			})
-			.strict(),
+		...designSystemEvaluationRecordShape,
 		evaluation: z
 			.object({
-				status: z.literal("passed"),
-				standard: z.literal("WCAG 2.2 Level AA"),
-				screens: z.array(z.string()).min(8),
-				viewports: z.array(z.string()).min(2),
-				colorSchemes: z.array(z.enum(["light", "dark"])).length(2),
-				reducedMotion: z.literal(true),
+				...commonEvaluationShape,
 				agentGenerationRuns: z.number().int().min(2),
-				automatedChecks: z.array(z.string()).min(1),
 				humanReview: z
 					.object({
 						status: z.literal("passed"),
@@ -680,19 +697,36 @@ export const designSystemEvaluationRecordSchema = z
 						rightsReview: z.literal("passed"),
 					})
 					.strict(),
-				evidence: z.array(relativePathSchema).min(1),
-			})
-			.strict(),
-		preview: designSystemPreviewSchema,
-		changelog: z
-			.object({
-				summary: z.string().min(1),
-				breaking: z.boolean(),
-				migrationNotes: z.string().min(1).nullable(),
 			})
 			.strict(),
 	})
 	.strict();
+
+const versionFiveDesignSystemEvaluationRecordSchema = z
+	.object({
+		schemaVersion: z.literal("5.0"),
+		...designSystemEvaluationRecordShape,
+		evaluation: z
+			.object({
+				...commonEvaluationShape,
+				agentGenerationRuns: z.number().int().min(1),
+			})
+			.strict(),
+	})
+	.strict();
+
+/**
+ * Version 4 records preserve the historical gated workflow. Version 5 records
+ * are produced by the single pass Add Design System workflow and therefore
+ * carry verification evidence without approval metadata.
+ */
+export const designSystemEvaluationRecordSchema = z.discriminatedUnion(
+	"schemaVersion",
+	[
+		versionFourDesignSystemEvaluationRecordSchema,
+		versionFiveDesignSystemEvaluationRecordSchema,
+	],
+);
 
 export type DesignSystemEvaluationRecord = z.infer<
 	typeof designSystemEvaluationRecordSchema
