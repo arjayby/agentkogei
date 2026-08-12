@@ -155,6 +155,198 @@ test("the landing page presents every discovered visual direction without releas
 	expect(new Set(homeRoutes)).toEqual(new Set(designSystemRoutes));
 });
 
+test("the landing page presents Design System identities through the AgentKogei theme", async ({
+	page,
+}) => {
+	await page.goto("/");
+
+	const designSystemsRegion = page.getByRole("region", {
+		name: "Choose your taste.",
+	});
+	const identityEntries = designSystemsRegion.locator(
+		"[data-design-system-identity]",
+	);
+	const projectNameStyle = await designSystemsRegion
+		.getByRole("heading", { name: "Choose your taste." })
+		.evaluate((element) => {
+			const style = getComputedStyle(element);
+			return {
+				fontFamily: style.fontFamily,
+			};
+		});
+	const projectSummaryStyle = await designSystemsRegion
+		.getByText("Pick one visual direction for your project.", { exact: false })
+		.evaluate((element) => {
+			const style = getComputedStyle(element);
+			return {
+				color: style.color,
+				fontFamily: style.fontFamily,
+			};
+		});
+	const projectLabelStyle = await designSystemsRegion
+		.getByRole("link", { name: "View all design systems" })
+		.evaluate((element) => {
+			const style = getComputedStyle(element);
+			return {
+				color: style.color,
+				fontFamily: style.fontFamily,
+				fontSize: style.fontSize,
+				letterSpacing: style.letterSpacing,
+				textTransform: style.textTransform,
+			};
+		});
+	const identityStyles = await identityEntries.evaluateAll((entries) =>
+		entries.map((entry) => {
+			const nameStyle = getComputedStyle(entry.querySelector("h3") as Element);
+			const summaryStyle = getComputedStyle(
+				entry.querySelector("[data-identity-summary]") as Element,
+			);
+			const fitStyle = getComputedStyle(
+				entry.querySelector("[data-identity-fit]") as Element,
+			);
+			return {
+				name: {
+					fontFamily: nameStyle.fontFamily,
+					fontSize: nameStyle.fontSize,
+					fontWeight: nameStyle.fontWeight,
+					letterSpacing: nameStyle.letterSpacing,
+				},
+				summary: {
+					color: summaryStyle.color,
+					fontFamily: summaryStyle.fontFamily,
+					fontSize: summaryStyle.fontSize,
+					lineHeight: summaryStyle.lineHeight,
+				},
+				fit: {
+					color: fitStyle.color,
+					fontFamily: fitStyle.fontFamily,
+					fontSize: fitStyle.fontSize,
+					letterSpacing: fitStyle.letterSpacing,
+					textTransform: fitStyle.textTransform,
+				},
+			};
+		}),
+	);
+	for (const style of identityStyles) {
+		expect(style).toEqual({
+			name: {
+				...projectNameStyle,
+				fontSize: "20px",
+				fontWeight: "500",
+				letterSpacing: "-0.5px",
+			},
+			summary: {
+				...projectSummaryStyle,
+				fontSize: "14px",
+				lineHeight: "24px",
+			},
+			fit: projectLabelStyle,
+		});
+	}
+
+	const readMarkStyles = () =>
+		identityEntries.evaluateAll((entries) =>
+			entries.map((entry) => {
+				const mark = entry.querySelector("svg") as Element;
+				const markStyle = getComputedStyle(mark);
+				return {
+					animationName: markStyle.animationName,
+					fill: getComputedStyle(mark.querySelector("path") as Element).fill,
+					transform: markStyle.transform,
+					translate: markStyle.translate,
+				};
+			}),
+		);
+	const markStylesBeforeInteraction = await readMarkStyles();
+	expect(
+		new Set(markStylesBeforeInteraction.map(({ fill }) => fill)).size,
+	).toBeGreaterThan(1);
+	const projectInteractionColors = await page.evaluate(() => {
+		const reference = document.createElement("div");
+		reference.style.backgroundColor = "var(--muted)";
+		reference.style.color = "var(--foreground)";
+		document.body.append(reference);
+		const style = getComputedStyle(reference);
+		const colors = {
+			backgroundColor: style.backgroundColor,
+			foregroundColor: style.color,
+		};
+		reference.remove();
+		return colors;
+	});
+
+	const hoverBackgrounds: string[] = [];
+	for (const entry of await identityEntries.all()) {
+		const name = entry.getByRole("heading");
+		const arrow = entry.locator("svg").last();
+		const restingNameColor = await name.evaluate(
+			(element) => getComputedStyle(element).color,
+		);
+		const restingArrowTranslation = await arrow.evaluate(
+			(element) => getComputedStyle(element).translate,
+		);
+		const restingArrowColor = await arrow.evaluate(
+			(element) => getComputedStyle(element).color,
+		);
+		await entry.hover();
+		await page.waitForTimeout(200);
+		hoverBackgrounds.push(
+			await entry.evaluate(
+				(element) => getComputedStyle(element).backgroundColor,
+			),
+		);
+		await expect(name).toHaveCSS(
+			"color",
+			projectInteractionColors.foregroundColor,
+		);
+		await expect(arrow).toHaveCSS(
+			"color",
+			projectInteractionColors.foregroundColor,
+		);
+		expect(
+			await name.evaluate((element) => getComputedStyle(element).color),
+		).not.toBe(restingNameColor);
+		expect(
+			await arrow.evaluate((element) => getComputedStyle(element).translate),
+		).not.toBe(restingArrowTranslation);
+		expect(restingArrowColor).not.toBe(
+			projectInteractionColors.foregroundColor,
+		);
+	}
+	expect(hoverBackgrounds).toEqual(
+		Array.from(
+			{ length: await identityEntries.count() },
+			() => projectInteractionColors.backgroundColor,
+		),
+	);
+
+	await page.mouse.move(0, 0);
+	await page.keyboard.press("Tab");
+	const focusStyles: { backgroundColor: string; boxShadow: string }[] = [];
+	for (const entry of await identityEntries.all()) {
+		await entry.focus();
+		await page.waitForTimeout(200);
+		focusStyles.push(
+			await entry.evaluate((element) => {
+				const style = getComputedStyle(element);
+				return {
+					backgroundColor: style.backgroundColor,
+					boxShadow: style.boxShadow,
+				};
+			}),
+		);
+	}
+	expect(focusStyles.map(({ backgroundColor }) => backgroundColor)).toEqual(
+		hoverBackgrounds,
+	);
+	expect(new Set(focusStyles.map(({ boxShadow }) => boxShadow)).size).toBe(1);
+	expect(focusStyles[0]?.boxShadow).not.toBe("none");
+	expect(focusStyles[0]?.boxShadow).toContain("inset");
+
+	const markStylesAfterInteraction = await readMarkStyles();
+	expect(markStylesAfterInteraction).toEqual(markStylesBeforeInteraction);
+});
+
 test("removed commercial, account, authorization, and telemetry routes are absent", async ({
 	request,
 }) => {
