@@ -41,9 +41,8 @@ const retiredContent = [
 		name: "retired catalog or commercial vocabulary",
 		pattern: /\b(?:Signal|premium|subscription|entitlement)\b/i,
 		allowedMatches: {
-			"apps/web/src/generated/design-contracts.json": 2,
+			"apps/web/src/generated/design-contracts.json": 1,
 			"apps/web/tests/public-journey.spec.ts": 18,
-			"packages/design-systems/releases/command/1.0/DESIGN.md": 1,
 			"packages/design-systems/releases/mono/1.0/DESIGN.md": 1,
 		},
 	},

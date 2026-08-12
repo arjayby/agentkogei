@@ -9,7 +9,7 @@
 	},
 	"publisher": "AgentKogei",
 	"designContract": {
-		"sha256": "a6825345a05fea609942fd2fb9082f5bf79be48a90dd49a41ae54ab603a46cd7"
+		"sha256": "a123b9d811d86f8dd1a05f0800e3b06340aab3a6e88b743722d499a9fa97650c"
 	},
 	"compatibility": {
 		"frameworks": ["react", "nextjs"],
@@ -57,7 +57,7 @@
 			"label": "Node 04",
 			"headline": "Purpose-built instrument.",
 			"principles": [
-				"Graphite working planes",
+				"Solid graphite planes",
 				"Operational cyan signals",
 				"Dense persistent context"
 			]
@@ -71,16 +71,16 @@
 			"body": "neo-grotesk",
 			"accent": "technical-mono"
 		},
-		"composition": "operational-grid",
+		"composition": "operational-frame",
 		"foundations": {
 			"semanticColorUsage": {
 				"background": "The page canvas behind every surface.",
 				"foreground": "Primary text and high emphasis symbols.",
-				"card": "Grouped content and raised working surfaces.",
-				"muted": "Subdued regions, secondary controls, and quiet fills.",
+				"card": "The primary solid working plane for grouped content.",
+				"muted": "Nested regions, secondary controls, and quiet solid fills.",
 				"mutedForeground": "Supporting copy that remains readable.",
-				"border": "Separators, control outlines, and structural rules.",
-				"primary": "Primary actions, selection, and active emphasis.",
+				"border": "One-pixel separators, control outlines, and structural rules.",
+				"primary": "Primary actions, focus, active selection, links, and live information.",
 				"primaryForeground": "Content placed on the primary color.",
 				"destructive": "Irreversible actions and critical errors.",
 				"success": "Confirmed completion and healthy status.",
@@ -98,7 +98,7 @@
 					"weight": 600,
 					"lineHeight": 0.94,
 					"trackingEm": -0.04,
-					"usage": "Singular page statements and expressive product moments."
+					"usage": "Singular marketing statements only."
 				},
 				"page-title": {
 					"font": "display",
@@ -123,7 +123,7 @@
 					"usage": "Reading text, explanations, and form guidance."
 				},
 				"eyebrow": {
-					"font": "accent",
+					"font": "body",
 					"sizeRem": {
 						"mobile": 0.625,
 						"desktop": 0.6875
@@ -131,7 +131,7 @@
 					"weight": 700,
 					"lineHeight": 1.35,
 					"trackingEm": 0.12,
-					"usage": "Compact labels, metadata, and interface wayfinding."
+					"usage": "Compact sans-serif labels, metadata, and interface wayfinding."
 				},
 				"telemetry": {
 					"font": "accent",
@@ -174,11 +174,11 @@
 				},
 				"2": {
 					"valueRem": 0.5,
-					"usage": "Compact control internals and paired labels."
+					"usage": "Default panel padding, compact control internals, and paired labels."
 				},
 				"3": {
 					"valueRem": 0.75,
-					"usage": "Related content within one component."
+					"usage": "Maximum product panel padding and related component groups."
 				},
 				"4": {
 					"valueRem": 1,
@@ -190,11 +190,11 @@
 				},
 				"8": {
 					"valueRem": 2,
-					"usage": "Major sections and page level separation."
+					"usage": "Generous product separation and compact marketing groups."
 				},
 				"12": {
 					"valueRem": 3,
-					"usage": "Marketing section spacing and the largest operational regions."
+					"usage": "Marketing section spacing, never routine product panel spacing."
 				}
 			},
 			"layout": {
@@ -210,7 +210,7 @@
 					"tablet": 1,
 					"desktop": 1.25
 				},
-				"guidance": "Keep operational context visible, align dense panels to ruled columns, and reserve open space for active work."
+				"guidance": "Keep operational context visible, align dense panels within a solid ruled frame, and use no decorative background texture."
 			},
 			"responsive": {
 				"mobile": {
@@ -223,7 +223,7 @@
 				},
 				"desktop": {
 					"minWidthPx": 1024,
-					"guidance": "Use the full grid while keeping reading lines constrained."
+					"guidance": "Use precisely aligned ruled regions while keeping reading lines constrained."
 				},
 				"zoom": {
 					"scalePercent": 200,
@@ -237,16 +237,16 @@
 			"geometry": {
 				"radii": {
 					"subtle": {
-						"valueRem": 0,
-						"usage": "Small indicators and restrained detail."
+						"valueRem": 0.125,
+						"usage": "Small indicators and restrained interactive detail."
 					},
 					"control": {
-						"valueRem": 0,
+						"valueRem": 0.125,
 						"usage": "Buttons, fields, and compact interactive surfaces."
 					},
 					"panel": {
-						"valueRem": 0.125,
-						"usage": "Cards, panels, and larger grouped regions."
+						"valueRem": 0,
+						"usage": "Square cards, panels, tables, navigation, and grouped regions."
 					}
 				},
 				"borders": {
@@ -256,12 +256,12 @@
 						"usage": "Quiet dividers and table structure."
 					},
 					"default": {
-						"widthPx": 2,
+						"widthPx": 1,
 						"style": "solid",
 						"usage": "Controls and ordinary surface boundaries."
 					},
 					"strong": {
-						"widthPx": 3,
+						"widthPx": 2,
 						"style": "solid",
 						"usage": "Selected, focused, or strongly separated regions."
 					}
@@ -275,11 +275,11 @@
 						"usage": "Default surfaces separated by spacing or borders."
 					},
 					"raised": {
-						"offsetYRem": 0.125,
-						"blurRem": 0.5,
-						"spreadRem": -0.25,
-						"opacity": 0.14,
-						"usage": "Temporary emphasis and movable content."
+						"offsetYRem": 0,
+						"blurRem": 0,
+						"spreadRem": 0,
+						"opacity": 0,
+						"usage": "Solid luminance steps and inset highlights, never cast card shadows."
 					},
 					"overlay": {
 						"offsetYRem": 0.375,
@@ -349,7 +349,7 @@
 				"title": "Execution context",
 				"description": "Persistent context stays bounded beside the changing working surface.",
 				"items": ["Region MNL", "Branch main", "Checks 24 active"],
-				"guidance": "Use ruled panels for durable context and align telemetry to predictable columns."
+				"guidance": "Use solid graphite panels with one-pixel rules for durable context and align telemetry to predictable columns."
 			},
 			"navigation": {
 				"label": "Console sections",
@@ -474,7 +474,7 @@
 			},
 			"dialogs": {
 				"title": "Inspect run summary",
-				"description": "Review Run 042 telemetry before returning to the checks grid.",
+				"description": "Review Run 042 telemetry before returning to the checks table.",
 				"openLabel": "Open run summary",
 				"initialFocusLabel": "Inspect telemetry",
 				"confirmLabel": "Acknowledge summary",
@@ -604,6 +604,7 @@
 			"rawEvidencePublic": true
 		},
 		"theme": {
+			"schemeOrder": ["dark", "light"],
 			"tokens": {
 				"light": {
 					"background": "#f3f6fa",
@@ -639,13 +640,13 @@
 			"geometry": {
 				"density": "compact",
 				"radius": "square",
-				"border": "strong",
-				"elevation": "layered"
+				"border": "subtle",
+				"elevation": "flat"
 			}
 		}
 	},
 	"changelog": {
-		"summary": "Initial Published Design System with dense technical patterns and complete state coverage.",
+		"summary": "Initial Design System Release with solid graphite planes, dense technical patterns, and complete state coverage.",
 		"breaking": false,
 		"migrationNotes": null
 	}

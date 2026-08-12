@@ -168,7 +168,10 @@ export default async function DesignSystemPage({
 					aria-label={`${designSystem.name} rendered Design System Preview`}
 				>
 					<div className="mx-auto max-w-7xl">
-						<div className="mb-10 flex flex-col gap-3">
+						<div
+							data-preview-exploration-heading
+							className="mb-10 flex flex-col gap-3"
+						>
 							<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.2em]">
 								Design System Preview / Rendered evidence
 							</p>
@@ -181,7 +184,10 @@ export default async function DesignSystemPage({
 								public, so you can read every word before you add it.
 							</p>
 						</div>
-						<div className="grid gap-12 lg:gap-20">
+						<div
+							data-preview-exploration-sections
+							className="grid gap-12 lg:gap-20"
+						>
 							<DesignSystemFoundationsSpecimen designSystem={designSystem} />
 							<DesignSystemControlsSpecimen
 								composition={composition}

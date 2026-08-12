@@ -46,6 +46,10 @@ export function DesignSystemFoundationsSpecimen({
 
 	const { semanticColorUsage, typographyScale, spacingScale, layout } =
 		foundations;
+	const schemeOrder = theme.schemeOrder ?? (["light", "dark"] as const);
+	const semanticColorSchemes = schemeOrder.map(
+		(scheme) => [scheme, theme.tokens[scheme]] as const,
+	);
 	const responsiveModes = [
 		[
 			"mobile",
@@ -112,10 +116,14 @@ export function DesignSystemFoundationsSpecimen({
 			>
 				<div className="preview-foundation-heading">
 					<p>02 / Semantic colors</p>
-					<h3>Light and dark roles</h3>
+					<h3>
+						{schemeOrder[0] === "dark"
+							? "Dark and light roles"
+							: "Light and dark roles"}
+					</h3>
 				</div>
 				<div className="grid gap-6 xl:grid-cols-2">
-					{entries(theme.tokens).map(([scheme, palette]) => (
+					{semanticColorSchemes.map(([scheme, palette]) => (
 						<section
 							key={scheme}
 							aria-label={`${metadataLabel(scheme)} semantic colors`}
@@ -217,6 +225,7 @@ export function DesignSystemFoundationsSpecimen({
 							<div className="grid min-w-0 gap-2">
 								<span
 									aria-hidden="true"
+									data-spacing-measure
 									className="block h-3 max-w-full bg-[var(--preview-primary)]"
 									style={{
 										width: `min(100%, ${Math.max(step.valueRem * 5, 0.25)}rem)`,

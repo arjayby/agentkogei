@@ -1023,7 +1023,7 @@ test("Design Systems and Design System Previews present published metadata", asy
 			fit: "Developer and operations products",
 			viewports: "1440x900 · 390x844",
 			changelog:
-				"Initial Published Design System with dense technical patterns and complete state coverage.",
+				"Initial Design System Release with solid graphite planes, dense technical patterns, and complete state coverage.",
 		},
 	] as const;
 
@@ -1132,6 +1132,27 @@ test("the public Command Design System Preview shows complete evidence and its r
 }) => {
 	await page.goto("/design-systems/command");
 
+	const preview = page.getByRole("region", {
+		name: "Command rendered Design System Preview",
+	});
+	await expect(preview).toHaveAttribute(
+		"data-preview-composition",
+		"operational-frame",
+	);
+	for (const panel of [
+		preview.locator("[data-foundation-section]").first(),
+		preview.locator("[data-specimen-composition] > section").first(),
+	]) {
+		await expect(panel).toHaveCSS("background-image", "none");
+	}
+	expect(
+		await preview
+			.locator('[aria-label$="semantic colors"]')
+			.evaluateAll((regions) =>
+				regions.map((region) => region.getAttribute("aria-label")),
+			),
+	).toEqual(["Dark semantic colors", "Light semantic colors"]);
+
 	await expect(page.getByRole("heading", { name: "Command" })).toBeVisible();
 	await expect(
 		page.getByText("WCAG 2.2 Level AA", { exact: false }),
@@ -1141,12 +1162,10 @@ test("the public Command Design System Preview shows complete evidence and its r
 			"React >=18 <20 · Next.js >=15 <17 · Tailwind >=4 <5 · shadcn/ui",
 		),
 	).toBeVisible();
-	await expect(
-		page.getByLabel("Command rendered Design System Preview"),
-	).toBeVisible();
+	await expect(preview).toBeVisible();
 	for (const publishedEvidence of [
 		"Purpose-built instrument.",
-		"Graphite working planes",
+		"Solid graphite planes",
 		"Operational cyan signals",
 		"Dense persistent context",
 		"1440x900 · 390x844",

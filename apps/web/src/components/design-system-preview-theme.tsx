@@ -17,7 +17,7 @@ const fontFamilies = {
 } as const;
 
 const spacing = {
-	compact: "1rem",
+	compact: "0.75rem",
 	balanced: "1.25rem",
 	spacious: "1.75rem",
 } as const;

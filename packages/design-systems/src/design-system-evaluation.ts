@@ -603,7 +603,7 @@ export const designSystemPreviewSchema = z
 			"balanced-grid",
 			"reading-column",
 			"focal-frame",
-			"operational-grid",
+			"operational-frame",
 		]),
 		foundations: previewFoundationsSchema,
 		controls: previewControlsSchema,
@@ -616,6 +616,12 @@ export const designSystemPreviewSchema = z
 		theme: z
 			.object({
 				tokens: previewTokensSchema,
+				schemeOrder: z
+					.union([
+						z.tuple([z.literal("light"), z.literal("dark")]),
+						z.tuple([z.literal("dark"), z.literal("light")]),
+					])
+					.optional(),
 				geometry: previewGeometrySchema,
 			})
 			.strict(),

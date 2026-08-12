@@ -53,8 +53,15 @@ function DesignSystemIdentityPanel({
 
 	return (
 		<DesignSystemPreviewTheme designSystem={designSystem} includeStyles={false}>
-			<div className="flex min-h-full flex-col bg-background text-foreground">
-				<div className="grid gap-8 border-b p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start lg:p-12">
+			<div
+				data-preview-identity-panel
+				data-preview-composition={designSystem.preview.composition}
+				className="flex min-h-full flex-col bg-background text-foreground"
+			>
+				<div
+					data-preview-identity-hero
+					className="grid gap-8 border-b p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-start lg:p-12"
+				>
 					<div className="flex min-w-0 flex-col gap-6">
 						<p
 							className="text-muted-foreground text-xs uppercase tracking-[0.2em]"
@@ -74,6 +81,7 @@ function DesignSystemIdentityPanel({
 							</p>
 						</div>
 						<p
+							data-preview-identity-headline
 							className="max-w-3xl text-3xl leading-tight tracking-[-0.03em] sm:text-5xl"
 							style={{ fontFamily: "var(--preview-font-display)" }}
 						>
@@ -88,7 +96,10 @@ function DesignSystemIdentityPanel({
 				</div>
 
 				<div className="grid flex-1 gap-px bg-border lg:grid-cols-2">
-					<div className="flex flex-col gap-8 bg-background p-6 sm:p-10 lg:p-12">
+					<div
+						data-preview-identity-evidence
+						className="flex flex-col gap-8 bg-background p-6 sm:p-10 lg:p-12"
+					>
 						<div className="flex flex-col gap-4">
 							<h3 className="text-muted-foreground text-sm uppercase tracking-[0.16em]">
 								Three principles
@@ -125,7 +136,10 @@ function DesignSystemIdentityPanel({
 						</section>
 					</div>
 
-					<div className="flex flex-col justify-between gap-10 bg-card p-6 sm:p-10 lg:p-12">
+					<div
+						data-preview-identity-typography
+						className="flex flex-col justify-between gap-10 bg-card p-6 sm:p-10 lg:p-12"
+					>
 						<section
 							className="flex flex-col gap-4"
 							aria-label="Typography sample"
@@ -134,6 +148,7 @@ function DesignSystemIdentityPanel({
 								Typography sample
 							</p>
 							<p
+								data-preview-type-sample
 								className="text-7xl leading-none sm:text-8xl"
 								style={{ fontFamily: "var(--preview-font-display)" }}
 							>
