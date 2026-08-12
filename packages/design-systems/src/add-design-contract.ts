@@ -5,17 +5,16 @@ import {
 } from "./design-contract-installation";
 import { requestTerminalConsent } from "./terminal-consent";
 
-/** Where `add` retrieves Design Contracts, overridable so tests and previews
- * can point at a catalog other than the production one. */
+/** Where `add` retrieves Design Contracts, overridable for tests and previews. */
 function designContractCatalogUrl() {
 	return (
 		process.env.AGENTKOGEI_CONTRACT_CATALOG_URL ??
-		"https://agentkogei.com/contracts/"
+		"https://agentkogei.dev/contracts/"
 	);
 }
 
 /**
- * `add` retrieves one Design Contract from the Official Catalog and applies it
+ * `add` retrieves one Design Contract from AgentKogei Design Systems and applies it
  * to the current directory as a root `DESIGN.md` and one marked `AGENTS.md`
  * reference, after showing the Builder exactly what will change.
  */

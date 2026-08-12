@@ -2,7 +2,7 @@
 
 Give your AI coding agents one durable Design Contract.
 
-The `agentkogei` package installs a Design System from the public Official Catalog. Every published release directory that passes validation contributes to the catalog. Current directions include:
+The `agentkogei` package installs one of the public AgentKogei Design Systems. Every published release directory that passes validation contributes to the collection. Current directions include:
 
 | Design System | Direction |
 | --- | --- |
@@ -30,7 +30,7 @@ Installation writes one root `DESIGN.md` and one clearly marked reference in `AG
 
 ## Public retrieval
 
-Every Design System is retrieved anonymously from the Official Catalog. The CLI sends only the requested Design Contract selector. It sends no Project identity, path, Git remote, file content, prompt, generated interface, or dependency list.
+Every Design System is retrieved anonymously from AgentKogei Design Systems. The CLI sends only the requested Design Contract selector. It sends no Project identity, path, Git remote, file content, prompt, generated interface, or dependency list.
 
 ## Requirements
 
@@ -42,4 +42,4 @@ Delete `DESIGN.md` and the marked AgentKogei block in `AGENTS.md`. AgentKogei ke
 
 ## License
 
-The MIT License covers this package and every Design System in the Official Catalog. Installed Design Contracts remain bare design direction and do not repeat license, attribution, or provenance prose.
+The MIT License covers this package and every published AgentKogei Design System. Installed Design Contracts remain bare design direction and do not repeat license, attribution, or provenance prose.

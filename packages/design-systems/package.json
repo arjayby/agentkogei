@@ -1,7 +1,22 @@
 {
 	"name": "agentkogei",
 	"version": "0.1.0",
-	"description": "Give your AI coding agents one durable Design Contract.",
+	"description": "Design systems for AI coding agents, delivered as durable Design Contracts.",
+	"keywords": [
+		"ai",
+		"ai-coding-agents",
+		"design-contract",
+		"design-system",
+		"design-systems",
+		"shadcn",
+		"tailwind-css"
+	],
+	"homepage": "https://agentkogei.dev",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/arjayby/agentkogei.git",
+		"directory": "packages/design-systems"
+	},
 	"license": "MIT",
 	"type": "module",
 	"engines": {

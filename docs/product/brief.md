@@ -4,13 +4,13 @@ Status: implemented
 
 ## Outcome
 
-AgentKogei gives AI coding agents durable design direction for a software Project. A Builder chooses one Design System from the public Official Catalog and installs its complete Design Contract locally. Every agent working in that Project can then follow the same visual and behavioral direction.
+AgentKogei gives AI coding agents durable design direction for a software Project. A Builder chooses one of the public AgentKogei Design Systems and installs its complete Design Contract locally. Every agent working in that Project can then follow the same visual and behavioral direction.
 
 ## Builder
 
 AgentKogei serves a solo technical founder or member of a small product team who builds a web application with AI coding agents.
 
-The product does not serve enterprise design system administration, client catalog management, or third party publishing.
+The product does not serve enterprise design system administration, client collection management, or third party publishing.
 
 ## Product model
 
@@ -36,9 +36,9 @@ Every Published Design System covers:
 
 A Design System does not prescribe product workflows, information architecture, business logic, or product copy.
 
-## Official Catalog
+## Design Systems
 
-The first party Official Catalog contains validated, MIT licensed Design Systems discovered from published release metadata. Current directions include:
+The first party collection contains validated, MIT licensed Design Systems discovered from published release metadata. Current directions include:
 
 | Design System | Direction |
 | --- | --- |
@@ -47,7 +47,7 @@ The first party Official Catalog contains validated, MIT licensed Design Systems
 | Mono | Monochrome, high contrast interfaces for media and creative tooling |
 | Command | Dark first, dense interfaces for developer and operations products |
 
-Every Design System is public and complete. The catalog does not accept third party submissions.
+Every Design System is public and complete. The collection does not accept third party submissions.
 
 ## Publication standard
 
@@ -62,11 +62,11 @@ Every Design System Release must:
 - Record an originality review proving that retained proprietary reference material is absent
 - Publish a Design System Preview, evaluation evidence, and a changelog
 
-Minor releases add compatible direction. Major releases may intentionally alter a Project interface and require migration notes. Each release is immutable at its exact catalog route.
+Minor releases add compatible direction. Major releases may intentionally alter a Project interface and require migration notes. Each release is immutable at its exact Design Contract route.
 
 ## Web product
 
-The web application presents the landing page, Official Catalog, documentation, and a Design System Preview for every Published Design System. Current and exact Design Contract routes expose raw Markdown publicly.
+The web application presents the landing page, Design Systems, documentation, and a Design System Preview for every Published Design System. Current and exact Design Contract routes expose raw Markdown publicly.
 
 The application is stateless. It requires no identity, authorization, persistent application data, or protected delivery path.
 
@@ -80,7 +80,7 @@ agentkogei add <design-system[@version]> [--yes] [--force]
 
 The CLI:
 
-- Retrieves current or exact Design System Releases anonymously from the Official Catalog
+- Retrieves current or exact Design System Releases anonymously from AgentKogei Design Systems
 - Validates the complete Design Contract before changing the Project
 - Previews the selected release and absolute files it will write
 - Requires confirmation, or `--yes` for unattended consent
@@ -99,7 +99,7 @@ The MIT License covers all source code and every Published Design System, includ
 
 ## Exclusions
 
-- Third party catalog submissions or a marketplace
+- Third party Design System submissions or a marketplace
 - Team administration and enterprise controls
 - Project customization or hosted configuration
 - Automatic redesign or migration
