@@ -6,6 +6,7 @@ import {
 	mkdtemp,
 	readdir,
 	readFile,
+	readlink,
 	rm,
 	writeFile,
 } from "node:fs/promises";
@@ -20,6 +21,7 @@ const skillDirectory = path.join(
 	repository,
 	".agents/skills/add-design-system",
 );
+const claudeSkill = path.join(repository, ".claude/skills/add-design-system");
 const finalizer = path.join(skillDirectory, "scripts/finalize-release.ts");
 const temporaryDirectories: string[] = [];
 
@@ -212,9 +214,10 @@ afterEach(async () => {
 
 describe("Add Design System workflow", () => {
 	test("exposes one explicit skill with complete URL inspection and pull request publication", async () => {
-		const [skill, interfaceMetadata] = await Promise.all([
+		const [skill, interfaceMetadata, claudeSkillTarget] = await Promise.all([
 			readFile(path.join(skillDirectory, "SKILL.md"), "utf8"),
 			readFile(path.join(skillDirectory, "agents/openai.yaml"), "utf8"),
+			readlink(claudeSkill),
 		]);
 
 		expect(skill).toMatch(/^---\nname: add-design-system\n/);
@@ -226,11 +229,21 @@ describe("Add Design System workflow", () => {
 		expect(skill).toContain("Do not run `bun run deploy:prod`");
 		expect(skill).toContain("open a ready pull request targeting `main`");
 		expect(interfaceMetadata).toContain("$add-design-system");
+		expect(claudeSkillTarget).toBe("../../.agents/skills/add-design-system");
+		expect(await readFile(path.join(claudeSkill, "SKILL.md"), "utf8")).toBe(
+			skill,
+		);
 		await expect(
 			access(path.join(repository, ".agents/skills/author-design-system")),
 		).rejects.toThrow();
 		await expect(
 			access(path.join(repository, ".agents/skills/publish-design-system")),
+		).rejects.toThrow();
+		await expect(
+			access(path.join(repository, ".claude/skills/author-design-system")),
+		).rejects.toThrow();
+		await expect(
+			access(path.join(repository, ".claude/skills/publish-design-system")),
 		).rejects.toThrow();
 	});
 
