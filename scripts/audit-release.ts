@@ -1,4 +1,4 @@
-import { lstat, readFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import path from "node:path";
 
 const projectRoot = path.resolve(import.meta.dirname, "..");
@@ -24,7 +24,7 @@ async function repositoryFiles() {
 	const present = await Promise.all(
 		files.map(async (file) => {
 			try {
-				await lstat(path.join(projectRoot, file));
+				await readFile(path.join(projectRoot, file));
 				return file;
 			} catch (error) {
 				if (
