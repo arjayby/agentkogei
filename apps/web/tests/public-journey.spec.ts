@@ -495,6 +495,14 @@ test("the header links to the GitHub repository on desktop and mobile", async ({
 	);
 	await expect(githubLink).toHaveAttribute("target", "_blank");
 
+	const themeToggle = page.getByRole("button", { name: "Toggle theme" });
+	const [githubBorderColor, themeToggleBorderColor] = await Promise.all([
+		githubLink.evaluate((link) => getComputedStyle(link).borderColor),
+		themeToggle.evaluate((button) => getComputedStyle(button).borderColor),
+	]);
+	expect(githubBorderColor).toBe(themeToggleBorderColor);
+	expect(githubBorderColor).not.toBe("rgba(0, 0, 0, 0)");
+
 	await page.setViewportSize({ width: 390, height: 844 });
 	await expect(githubLink).toBeVisible();
 });
