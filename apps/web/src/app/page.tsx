@@ -8,13 +8,37 @@ import {
 	InstallationCommand,
 } from "@/components/installation-command";
 import { designSystems } from "@/lib/catalog";
+import {
+	agentKogeiOrganization,
+	homepageDescription,
+	publicOrigin,
+	StructuredData,
+} from "@/lib/structured-data";
 
 const installableDesignSystems: readonly InstallableDesignSystem[] =
 	designSystems.map(({ slug, name }) => ({ slug, name }));
 
+const homepageStructuredData = {
+	"@context": "https://schema.org",
+	"@graph": [
+		agentKogeiOrganization,
+		{
+			"@type": "SoftwareApplication",
+			"@id": `${publicOrigin}/#software-application`,
+			name: "AgentKogei",
+			url: `${publicOrigin}/`,
+			description: homepageDescription,
+			publisher: {
+				"@id": agentKogeiOrganization["@id"],
+			},
+		},
+	],
+};
+
 export default function Home() {
 	return (
 		<main>
+			<StructuredData identity="homepage" data={homepageStructuredData} />
 			<section
 				className="border-b px-5 py-20 sm:px-8 sm:py-24 lg:px-12 lg:py-28"
 				aria-labelledby="hero-heading"

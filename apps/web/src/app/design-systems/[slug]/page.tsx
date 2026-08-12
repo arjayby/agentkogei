@@ -28,10 +28,19 @@ import {
 	getDesignSystem,
 	previewSurfaceNames,
 } from "@/lib/catalog";
+import {
+	agentKogeiOrganization,
+	publicOrigin,
+	StructuredData,
+} from "@/lib/structured-data";
 
 type DesignSystemPageProps = {
 	params: Promise<{ slug: string }>;
 };
+
+function designSystemDescription(name: string, summary: string) {
+	return `${name} Design System: ${summary}`;
+}
 
 export function generateStaticParams() {
 	return designSystems.map(({ slug }) => ({ slug }));
@@ -49,7 +58,13 @@ export async function generateMetadata({
 
 	return {
 		title: `${designSystem.name} Design System Preview | AgentKogei`,
-		description: `${designSystem.name} Design System: ${designSystem.preview.summary}`,
+		description: designSystemDescription(
+			designSystem.name,
+			designSystem.preview.summary,
+		),
+		alternates: {
+			canonical: designSystem.preview.route,
+		},
 	};
 }
 
@@ -64,6 +79,50 @@ export default async function DesignSystemPage({
 	}
 
 	const release = currentRelease(designSystem);
+	const canonicalUrl = `${publicOrigin}${designSystem.preview.route}`;
+	const structuredData = {
+		"@context": "https://schema.org",
+		"@type": "CreativeWork",
+		"@id": `${canonicalUrl}#design-system`,
+		name: `${designSystem.name} Design System`,
+		description: designSystemDescription(
+			designSystem.name,
+			designSystem.preview.summary,
+		),
+		url: canonicalUrl,
+		version: release.version,
+		license: "https://opensource.org/license/mit",
+		author: agentKogeiOrganization,
+		additionalProperty: [
+			{
+				"@type": "PropertyValue",
+				name: "React",
+				value: designSystem.compatibility.react,
+			},
+			{
+				"@type": "PropertyValue",
+				name: "Next.js",
+				value: designSystem.compatibility.nextjs,
+			},
+			{
+				"@type": "PropertyValue",
+				name: "Tailwind CSS",
+				value: designSystem.compatibility.tailwind,
+			},
+			{
+				"@type": "PropertyValue",
+				name: "UI library",
+				value: designSystem.compatibility.ui,
+			},
+		],
+		hasPart: {
+			"@type": "CreativeWork",
+			"@id": `${canonicalUrl}#release-${release.version}`,
+			name: `${designSystem.name} Design System Release ${release.version}`,
+			version: release.version,
+			url: `${publicOrigin}/contracts/${designSystem.slug}/${release.version}`,
+		},
+	};
 	const {
 		accessibility,
 		composition,
@@ -80,6 +139,10 @@ export default async function DesignSystemPage({
 
 	return (
 		<main>
+			<StructuredData
+				identity={`design-system-${designSystem.slug}`}
+				data={structuredData}
+			/>
 			<section
 				data-preview-section="hero"
 				className="border-b px-5 py-8 sm:px-8 lg:px-12 lg:py-16"
