@@ -66,7 +66,7 @@ export function DesignSystemBehaviorSpecimen({
 						<legend className="sr-only">Motion specimen</legend>
 						<div className="preview-motion-stage border p-4">
 							<div
-								className="preview-motion-object catalog-preview-primary grid min-h-20 w-36 place-items-center rounded-[var(--preview-radius)] p-3 text-center text-xs"
+								className="preview-motion-object catalog-preview-primary grid min-h-20 w-36 place-items-center rounded-[var(--preview-surface-radius)] p-3 text-center text-xs"
 								data-motion-state={motionComplete ? "settled" : "ready"}
 								style={motionStyle}
 							>
