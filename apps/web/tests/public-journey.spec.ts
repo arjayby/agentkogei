@@ -18,6 +18,16 @@ const removedNavigationDestinations = [
 	"/privacy",
 ] as const;
 
+function readStructuredData(html: string, identity: string) {
+	const source = html.match(
+		new RegExp(
+			`<script[^>]*data-agentkogei-structured-data="${identity}"[^>]*>([\\s\\S]*?)<\\/script>`,
+		),
+	)?.[1];
+	expect(source, `${identity} structured data`).toBeTruthy();
+	return JSON.parse(source ?? "null") as unknown;
+}
+
 function runDesignContractInstallation(
 	project: string,
 	selector: string,
@@ -560,6 +570,173 @@ test("public page metadata uses Design System vocabulary", async ({ page }) => {
 		expect(description, route).toMatch(/Design System/i);
 		expect(description, route).not.toMatch(/\bpack\b/i);
 	}
+});
+
+test("the homepage is a canonical AgentKogei application published by AgentKogei", async ({
+	request,
+}) => {
+	const response = await request.get("/");
+	expect(response.status()).toBe(200);
+	const html = await response.text();
+
+	expect(html).toContain(
+		"<title>Give your agents better taste | AgentKogei</title>",
+	);
+	expect(html).toContain(
+		'<meta name="description" content="Complete design systems that stop generic design slop and keep every screen consistent."/>',
+	);
+	expect(html).toContain(
+		'<link rel="canonical" href="https://agentkogei.dev"/>',
+	);
+	expect(html).toMatch(/<meta name="robots" content="index, follow"\s*\/?>/);
+	expect(readStructuredData(html, "homepage")).toMatchObject({
+		"@context": "https://schema.org",
+		"@graph": [
+			{
+				"@type": "Organization",
+				"@id": "https://agentkogei.dev/#organization",
+				name: "AgentKogei",
+				url: "https://agentkogei.dev/",
+			},
+			{
+				"@type": "SoftwareApplication",
+				"@id": "https://agentkogei.dev/#software-application",
+				name: "AgentKogei",
+				url: "https://agentkogei.dev/",
+				publisher: {
+					"@id": "https://agentkogei.dev/#organization",
+				},
+			},
+		],
+	});
+});
+
+test("Design Systems is a canonical ItemList of every discovered Published Design System", async ({
+	page,
+	request,
+}) => {
+	await page.goto("/design-systems");
+	const routes = await discoverDesignSystemRoutes(page);
+	expect(routes).toContain("/design-systems/aperture");
+
+	const response = await request.get("/design-systems");
+	expect(response.status()).toBe(200);
+	const html = await response.text();
+
+	expect(html).toContain("<title>Design Systems | AgentKogei</title>");
+	expect(html).toContain(
+		'<meta name="description" content="Browse Published Design Systems from AgentKogei and choose a direction for your Project."/>',
+	);
+	expect(html).toContain(
+		'<link rel="canonical" href="https://agentkogei.dev/design-systems"/>',
+	);
+	expect(html).toMatch(/<meta name="robots" content="index, follow"\s*\/?>/);
+	expect(readStructuredData(html, "design-systems")).toMatchObject({
+		"@context": "https://schema.org",
+		"@type": "ItemList",
+		"@id": "https://agentkogei.dev/design-systems#published-design-systems",
+		name: "AgentKogei Design Systems",
+		url: "https://agentkogei.dev/design-systems",
+		itemListElement: routes.map((route, index) => ({
+			"@type": "ListItem",
+			position: index + 1,
+			item: {
+				"@type": "CreativeWork",
+				"@id": `https://agentkogei.dev${route}#design-system`,
+				url: `https://agentkogei.dev${route}`,
+			},
+		})),
+	});
+});
+
+test("every discovered Design System Preview is a canonical versioned CreativeWork", async ({
+	page,
+	request,
+}) => {
+	const routes = await discoverDesignSystemRoutes(page);
+	const titles = new Set<string>();
+	const descriptions = new Set<string>();
+
+	for (const route of routes) {
+		const { identity, name, currentRelease } = await readPublishedDesignSystem(
+			page,
+			route,
+		);
+		const response = await request.get(route);
+		expect(response.status(), route).toBe(200);
+		const html = await response.text();
+		const title = html.match(/<title>([^<]+)<\/title>/)?.[1];
+		const description = html.match(
+			/<meta name="description" content="([^"]+)"\s*\/?>/,
+		)?.[1];
+
+		expect(title, route).toBe(`${name} Design System Preview | AgentKogei`);
+		expect(description, route).toMatch(new RegExp(`^${name} Design System:`));
+		expect(html, route).toContain(
+			`<link rel="canonical" href="https://agentkogei.dev${route}"/>`,
+		);
+		expect(html, route).toMatch(
+			/<meta name="robots" content="index, follow"\s*\/?>/,
+		);
+
+		const structuredData = readStructuredData(
+			html,
+			`design-system-${identity}`,
+		);
+		expect(structuredData, route).toMatchObject({
+			"@context": "https://schema.org",
+			"@type": "CreativeWork",
+			"@id": `https://agentkogei.dev${route}#design-system`,
+			name: `${name} Design System`,
+			url: `https://agentkogei.dev${route}`,
+			version: currentRelease,
+			license: "https://opensource.org/license/mit",
+			author: {
+				"@type": "Organization",
+				"@id": "https://agentkogei.dev/#organization",
+				name: "AgentKogei",
+				url: "https://agentkogei.dev/",
+			},
+			additionalProperty: [
+				{
+					"@type": "PropertyValue",
+					name: "React",
+					value: ">=18 <20",
+				},
+				{
+					"@type": "PropertyValue",
+					name: "Next.js",
+					value: ">=15 <17",
+				},
+				{
+					"@type": "PropertyValue",
+					name: "Tailwind CSS",
+					value: ">=4 <5",
+				},
+				{
+					"@type": "PropertyValue",
+					name: "UI library",
+					value: "shadcn/ui",
+				},
+			],
+			hasPart: {
+				"@type": "CreativeWork",
+				"@id": `https://agentkogei.dev${route}#release-${currentRelease}`,
+				name: `${name} Design System Release ${currentRelease}`,
+				version: currentRelease,
+				url: `https://agentkogei.dev/contracts/${identity}/${currentRelease}`,
+			},
+		});
+		expect(JSON.stringify(structuredData), route).not.toMatch(
+			/"(?:aggregateRating|review|offers|price)"/,
+		);
+
+		titles.add(title ?? "");
+		descriptions.add(description ?? "");
+	}
+
+	expect(titles.size).toBe(routes.length);
+	expect(descriptions.size).toBe(routes.length);
 });
 
 test("Design Systems retains every launch Design System", async ({ page }) => {

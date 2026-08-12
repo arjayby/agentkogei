@@ -6,6 +6,7 @@ import "../index.css";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
+import { homepageDescription, publicOrigin } from "@/lib/structured-data";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -18,9 +19,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+	metadataBase: new URL(publicOrigin),
 	title: "Give your agents better taste | AgentKogei",
-	description:
-		"Complete design systems that stop generic design slop and keep every screen consistent.",
+	description: homepageDescription,
+	alternates: {
+		canonical: "/",
+	},
+	robots: {
+		index: true,
+		follow: true,
+	},
 };
 
 export default function RootLayout({
