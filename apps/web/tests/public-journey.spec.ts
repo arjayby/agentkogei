@@ -480,6 +480,25 @@ test("every page carries a footer naming Design Systems and public product surfa
 	).toHaveAttribute("href", "https://github.com/arjayby/agentkogei");
 });
 
+test("the header links to the GitHub repository on desktop and mobile", async ({
+	page,
+}) => {
+	await page.goto("/");
+	const githubLink = page
+		.getByRole("banner")
+		.getByRole("link", { name: "GitHub repository" });
+
+	await expect(githubLink).toBeVisible();
+	await expect(githubLink).toHaveAttribute(
+		"href",
+		"https://github.com/arjayby/agentkogei",
+	);
+	await expect(githubLink).toHaveAttribute("target", "_blank");
+
+	await page.setViewportSize({ width: 390, height: 844 });
+	await expect(githubLink).toBeVisible();
+});
+
 test("public navigation and calls to action expose no commercial or account journeys", async ({
 	page,
 }) => {
