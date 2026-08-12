@@ -2555,12 +2555,12 @@
 			"currentRelease": "1.0",
 			"preview": {
 				"order": 5,
-				"summary": "A calm relay desk for sequenced work.",
+				"summary": "High contrast, chartreuse led, and operational.",
 				"intendedFit": "Workflow, coordination, operations, and publishing products",
 				"route": "/design-systems/relay-grid",
 				"signature": {
-					"label": "A1 · Intake",
-					"headline": "Every handoff keeps its context.",
+					"label": "RUN 01 · Intake",
+					"headline": "Move the work. Keep the cue.",
 					"principles": [
 						"Name every lane",
 						"Sequence before decoration",
@@ -2570,23 +2570,23 @@
 				},
 				"mark": {
 					"recipe": "structural-planes",
-					"label": "Three aligned relay lanes with one forwarded cue"
+					"label": "Offset structural lanes cut by one rising chartreuse route"
 				},
 				"typography": {
 					"display": "neo-grotesk",
-					"body": "humanist-sans",
+					"body": "neo-grotesk",
 					"accent": "technical-mono"
 				},
 				"composition": "operational-frame",
 				"foundations": {
 					"semanticColorUsage": {
-						"background": "Warm canvas around the relay desk and between work regions.",
+						"background": "Off white canvas alternating with charcoal section fields.",
 						"foreground": "Primary text, essential symbols, and decisive values.",
-						"card": "Primary work surfaces, forms, grouped records, and dialogs.",
-						"muted": "Quiet controls, secondary lanes, and stable placeholders.",
+						"card": "White or charcoal framed demonstrations, forms, grouped records, and dialogs.",
+						"muted": "Quiet controls, secondary ruled cells, and stable placeholders.",
 						"mutedForeground": "Supporting copy, timestamps, and contextual metadata.",
-						"border": "Defined control boundaries, table rules, and lane separators.",
-						"primary": "Primary actions, current navigation, selected work, and key links.",
+						"border": "Hard control boundaries, table rules, band edges, and lane separators.",
+						"primary": "Chartreuse action fill, selected phrases, current navigation, and route markers.",
 						"primaryForeground": "Text and symbols placed on the primary color.",
 						"destructive": "Irreversible actions, critical failures, and final confirmation.",
 						"success": "Completed work, verified handoffs, and healthy results.",
@@ -2598,8 +2598,8 @@
 						"display": {
 							"font": "display",
 							"sizeRem": {
-								"mobile": 2.25,
-								"desktop": 3.5
+								"mobile": 2.5,
+								"desktop": 4.25
 							},
 							"weight": 700,
 							"lineHeight": 1,
@@ -2609,8 +2609,8 @@
 						"page-title": {
 							"font": "display",
 							"sizeRem": {
-								"mobile": 1.625,
-								"desktop": 2.125
+								"mobile": 1.75,
+								"desktop": 2.5
 							},
 							"weight": 700,
 							"lineHeight": 1.08,
@@ -2621,7 +2621,7 @@
 							"font": "display",
 							"sizeRem": {
 								"mobile": 1.125,
-								"desktop": 1.375
+								"desktop": 1.5
 							},
 							"weight": 700,
 							"lineHeight": 1.18,
@@ -2712,7 +2712,7 @@
 						}
 					},
 					"layout": {
-						"maxWidthRem": 90,
+						"maxWidthRem": 96,
 						"contentWidthCh": 68,
 						"columns": {
 							"mobile": 1,
@@ -2720,24 +2720,24 @@
 							"desktop": 12
 						},
 						"gutterRem": {
-							"mobile": 1,
+							"mobile": 1.5,
 							"tablet": 1.5,
 							"desktop": 2
 						},
-						"guidance": "Arrange regions in inspection order, preserve named lanes, and use the relay header only when it clarifies sequence."
+						"guidance": "Alternate full width off white and charcoal bands, pair bold outcomes with asymmetric evidence, and join compact demonstrations with hard rules."
 					},
 					"responsive": {
 						"mobile": {
 							"minWidthPx": 320,
-							"guidance": "Use one source ordered column, a labelled navigation sheet, and full width primary actions."
+							"guidance": "Keep brand and two priority actions visible, stack outcome above evidence, and move secondary navigation into a labelled sheet."
 						},
 						"tablet": {
 							"minWidthPx": 720,
-							"guidance": "Use six columns and pair work with context only when both retain readable measures."
+							"guidance": "Use six columns, preserve alternating section bands, and pair work with context only when both retain readable measures."
 						},
 						"desktop": {
 							"minWidthPx": 1080,
-							"guidance": "Use twelve columns with persistent navigation and at most one contextual rail."
+							"guidance": "Use twelve columns, asymmetric seven and five column hero splits, and dense edge joined product evidence."
 						},
 						"zoom": {
 							"scalePercent": 200,
@@ -2755,11 +2755,11 @@
 								"usage": "Lane panels, tables, and grouped regions."
 							},
 							"control": {
-								"valueRem": 0.25,
+								"valueRem": 0.125,
 								"usage": "Buttons, fields, and compact controls."
 							},
 							"overlay": {
-								"valueRem": 0.5,
+								"valueRem": 0.25,
 								"usage": "Menus, dialogs, and temporary feedback."
 							}
 						},
@@ -2767,7 +2767,7 @@
 							"rule": {
 								"widthPx": 1,
 								"style": "solid",
-								"usage": "Lane separation, cards, tables, and controls."
+								"usage": "Hard lane separation, section bands, cards, tables, and controls."
 							},
 							"selected": {
 								"widthPx": 2,
@@ -3061,19 +3061,19 @@
 					"statusCommunication": "Announce durable results and validation in named status or alert regions without relying on color."
 				},
 				"productSurfaces": {
-					"guidance": "Use the relay header to clarify sequence, keep product language intact, and let state remain attached to its object.",
+					"guidance": "Use bold outcome copy, chartreuse signals, hard ruled evidence, and the relay header while keeping product language intact.",
 					"examples": {
 						"marketing": {
-							"title": "A relay map with proof",
-							"description": "Introduce one workflow outcome beside an original map of records moving through named lanes.",
+							"title": "Outcome, cue, proof",
+							"description": "Set a bold outcome in a charcoal band beside an original ruled product demonstration with one chartreuse route.",
 							"elements": [
-								"Outcome headline and one primary action",
-								"Three named stages with written proof"
+								"Two line outcome with one chartreuse phrase",
+								"Dense evidence frame with named stages"
 							]
 						},
 						"authentication": {
 							"title": "Identity entry at A1",
-							"description": "A narrow labelled form keeps recovery and security context in an adjacent quiet lane.",
+							"description": "A narrow off white labelled form sits beside a full height grayscale abstract field with recovery kept visible.",
 							"elements": [
 								"Persistent email and password labels",
 								"Recovery route and neutral error region"
@@ -3089,7 +3089,7 @@
 						},
 						"dashboard": {
 							"title": "Handoffs requiring attention",
-							"description": "Exceptions lead the overview before throughput, ready work, and freshness evidence.",
+							"description": "Exceptions lead an edge joined overview before throughput, ready work, and freshness evidence, with chartreuse marking current state.",
 							"elements": [
 								"Urgent review lane with named owners",
 								"Fresh throughput summary linked to records"
@@ -3138,41 +3138,41 @@
 				"theme": {
 					"tokens": {
 						"light": {
-							"background": "#f6f3ea",
-							"foreground": "#17221c",
-							"card": "#fffdf7",
-							"muted": "#e4e7dd",
-							"mutedForeground": "#4f5f55",
-							"border": "#748479",
-							"primary": "#365f4b",
+							"background": "#f7f7f4",
+							"foreground": "#12130f",
+							"card": "#ffffff",
+							"muted": "#e8e8e2",
+							"mutedForeground": "#565950",
+							"border": "#75786e",
+							"primary": "#607800",
 							"primaryForeground": "#ffffff",
 							"destructive": "#a52e3f",
 							"success": "#28683f",
 							"warning": "#765300",
 							"info": "#235c88",
-							"ring": "#0d5e4b"
+							"ring": "#435800"
 						},
 						"dark": {
-							"background": "#101713",
-							"foreground": "#eef4ef",
-							"card": "#17201a",
-							"muted": "#222d25",
-							"mutedForeground": "#b2beb5",
-							"border": "#687b6c",
-							"primary": "#9be0bd",
-							"primaryForeground": "#102117",
+							"background": "#292c27",
+							"foreground": "#f7f7f2",
+							"card": "#31342e",
+							"muted": "#3b3f37",
+							"mutedForeground": "#c4c7bc",
+							"border": "#74796c",
+							"primary": "#c9ff3d",
+							"primaryForeground": "#15180e",
 							"destructive": "#ff909b",
 							"success": "#86d9a6",
 							"warning": "#f2c46d",
 							"info": "#83c9f4",
-							"ring": "#b4f5d1"
+							"ring": "#d6ff73"
 						}
 					},
 					"schemeOrder": ["light", "dark"],
 					"geometry": {
-						"density": "balanced",
-						"radius": "soft",
-						"border": "defined",
+						"density": "compact",
+						"radius": "square",
+						"border": "strong",
 						"elevation": "flat"
 					}
 				}
@@ -3213,7 +3213,7 @@
 				{
 					"version": "1.0",
 					"changelog": {
-						"summary": "Initial Design System Release with named relay lanes, sequenced work, and state attached to each object.",
+						"summary": "Initial Design System Release with high contrast chartreuse signals, hard ruled layouts, and state attached to each object.",
 						"breaking": false,
 						"migrationNotes": null
 					}

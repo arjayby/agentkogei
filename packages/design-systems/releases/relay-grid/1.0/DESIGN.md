@@ -4,7 +4,7 @@
 
 Relay Grid is a structured, high clarity Design System for workflow products, coordination software, publishing tools, operations portals, and business applications that turn many small decisions into a dependable sequence.
 
-Its intended fit is software where people scan changing status, move work between stages, compare records, and recover from exceptions. It creates the experience of a calm relay desk: every region has a named role, the next useful action is obvious, and dense information remains approachable.
+Its intended fit is software where people scan changing status, move work between stages, compare records, and recover from exceptions. It creates the experience of a brisk launch room: bold outcomes sit against dense evidence, every region has a named role, and one electric action color makes the next useful move unmistakable.
 
 Relay Grid is unsuitable for luxury storytelling, immersive entertainment, children’s products, expressive creator portfolios, and products whose main value is visual spectacle. Avoid using it when sparse content would be burdened by operational framing.
 
@@ -15,7 +15,7 @@ Relay Grid is unsuitable for luxury storytelling, immersive entertainment, child
 - **Principle 3: Density with breathing points.** Keep working surfaces compact, then create clear pauses between unrelated groups.
 - **Principle 4: State travels with the object.** Put status, freshness, and recovery near the record they describe.
 
-The system signature is the **relay header**: a narrow leading cell containing a coordinate label such as `A1`, followed by a ruled title band and an optional trailing state. Use it at the start of page regions, dialogs, onboarding steps, and important cards. The coordinate supports orientation but never replaces a semantic heading. Repeat the signature only where it clarifies sequence.
+The system signature is the **relay header**: a narrow leading cell containing a coordinate label such as `A1`, followed by a hard ruled title band, a chartreuse route marker, and an optional trailing state. Use it at the start of page regions, dialogs, onboarding steps, and important cards. The coordinate supports orientation but never replaces a semantic heading. Repeat the signature only where it clarifies sequence.
 
 ## Semantic color
 
@@ -23,42 +23,42 @@ Use semantic roles rather than raw palette names. The light and dark schemes pre
 
 | Role | Light | Dark | Usage |
 | --- | --- | --- | --- |
-| Background | `#f6f3ea` | `#101713` | Page canvas and space between working regions |
-| Foreground | `#17221c` | `#eef4ef` | Primary text and essential symbols |
-| Card | `#fffdf7` | `#17201a` | Forms, grouped records, dialogs, and primary work surfaces |
-| Muted | `#e4e7dd` | `#222d25` | Secondary regions, quiet controls, and empty placeholders |
-| Muted foreground | `#4f5f55` | `#b2beb5` | Supporting copy, metadata, and timestamps |
-| Border | `#748479` | `#687b6c` | Control boundaries, dividers, and table rules |
-| Primary | `#365f4b` | `#9be0bd` | Primary actions, current navigation, selected work, and key links |
-| Primary foreground | `#ffffff` | `#102117` | Text and icons on primary |
+| Background | `#f7f7f4` | `#292c27` | Off white page canvas or charcoal section field |
+| Foreground | `#12130f` | `#f7f7f2` | Primary text and essential symbols |
+| Card | `#ffffff` | `#31342e` | Forms, grouped records, dialogs, and product demonstration frames |
+| Muted | `#e8e8e2` | `#3b3f37` | Secondary regions, quiet controls, and alternating ruled cells |
+| Muted foreground | `#565950` | `#c4c7bc` | Supporting copy, metadata, and timestamps |
+| Border | `#75786e` | `#74796c` | Hard control boundaries, dividers, table rules, and section bands |
+| Primary | `#607800` | `#c9ff3d` | Chartreuse primary actions, current navigation, selected work, and key links |
+| Primary foreground | `#ffffff` | `#15180e` | Text and icons on primary |
 | Destructive | `#a52e3f` | `#ff909b` | Irreversible actions and critical failures |
 | Success | `#28683f` | `#86d9a6` | Completed work and healthy results |
 | Warning | `#765300` | `#f2c46d` | Attention that does not yet block progress |
 | Info | `#235c88` | `#83c9f4` | Neutral guidance and informational status |
-| Focus ring | `#0d5e4b` | `#b4f5d1` | Keyboard focus indicator outside component geometry |
+| Focus ring | `#435800` | `#d6ff73` | Keyboard focus indicator outside component geometry |
 
-Maintain text contrast of at least 4.5:1 and meaningful graphic or control contrast of at least 3:1. Foreground establishes the primary hierarchy, muted foreground supports it, and semantic colors communicate exceptional state. Do not use primary as a decorative fill across large areas. Pair destructive, success, warning, and info with written labels or icons so usage never depends on color alone.
+Maintain text contrast of at least 4.5:1 and meaningful graphic or control contrast of at least 3:1. Foreground establishes the primary hierarchy, muted foreground supports it, and semantic colors communicate exceptional state. In light mode, the accessible deep chartreuse primary carries text and controls; in dark mode, electric chartreuse becomes the unmistakable action fill. Use electric chartreuse for selected phrases, compact calls to action, route markers, and small evidence fields rather than flooding whole pages. Pair destructive, success, warning, and info with written labels or icons so usage never depends on color alone.
 
 ## Typography
 
 Use locally available font stacks and preserve these roles:
 
 - **Display:** a sturdy neo grotesk sans, weight 650 to 750, line height 0.98 to 1.08, tracking from `-0.035em` to `-0.02em`. Use for one page promise or one decisive outcome.
-- **Body:** a humanist sans, weight 400 or 500, line height 1.48 to 1.62, neutral tracking. Use for explanations, form guidance, and longer reading.
+- **Body:** a neutral neo grotesk sans, weight 400 or 500, line height 1.45 to 1.58, neutral tracking. Use for direct explanations, form guidance, and longer reading.
 - **Label:** the body face at weight 650, line height 1.25, tracking `0.06em` for uppercase labels and `0.01em` otherwise. Use for relay coordinates, navigation, field labels, and metadata.
 - **Code:** a technical monospace, weight 450 to 550, line height 1.45, neutral tracking, and tabular numerals. Use only for identifiers, timestamps, values, and technical input.
 
-The responsive type scale uses 36px to 56px display, 26px to 34px page title, 18px to 22px section title, 16px body, 14px compact body, 12px label, and 12px code. Apply smaller values on mobile and larger values from the desktop breakpoint. Keep paragraphs below 68 characters per line. Allow wrapping at natural word boundaries, never force display copy into a single line, and reveal any truncated identifier through an accessible disclosure.
+The responsive type scale uses 40px to 68px display, 28px to 40px page title, 18px to 24px section title, 16px body, 14px compact body, 12px label, and 12px code. Apply smaller values on mobile and larger values from the desktop breakpoint. Display lines are short, heavy, and tightly stacked. Keep paragraphs below 68 characters per line. Allow wrapping at natural word boundaries, never force display copy into a single line, and reveal any truncated identifier through an accessible disclosure.
 
 ## Spacing and density
 
 The base spacing unit is 4px. The scale is 4, 8, 12, 16, 24, 32, 48, 64, and 96px.
 
-Use a compact density inside tables, navigation, and repeated record cards. Use balanced density for forms, settings, authentication, and onboarding. Marketing may be spacious, but every large gap must separate distinct ideas.
+Use compact density inside tables, navigation, repeated record cards, and product demonstrations. Use balanced density for forms, settings, authentication, and onboarding. Marketing uses generous outer bands around compact inner evidence, not loose card mosaics.
 
 - Control heights are 36px compact, 40px default, and 48px for prominent mobile actions.
 - Content rhythm is 8px inside a control, 12px between related items, 24px between groups, and 48px between major product regions.
-- Grouping uses one border and one shared heading before separate card shells.
+- Grouping uses one hard rule and one shared heading before separate card shells.
 - Tables use 40px rows on desktop and at least 44px when row actions must support touch.
 - Relay headers use 8px vertical padding, a 40px coordinate cell, and a 12px gap between title and state.
 
@@ -68,17 +68,17 @@ Density must preserve readable labels, stable validation rows, and sufficient ta
 
 Use mobile from 320px, tablet from the 720px breakpoint, and desktop from the 1080px breakpoint. Treat these as content driven transitions: reflow sooner when labels or controls stop fitting.
 
-- **Mobile:** one column, 16px gutters, a content width of the viewport minus gutters, and source order that follows inspect, decide, act, confirm. Navigation becomes a labelled sheet. Relay coordinates remain visible but decorative trailing metadata may move below the title.
-- **Tablet:** a 6 column grid with 24px gutters. Pair a primary work region with a supporting panel only when both keep usable measures. Navigation may use a compact rail with persistent labels.
-- **Desktop:** a 12 column grid, 32px gutters, maximum page width 1440px, and reading content width no greater than 68ch. Persistent navigation and one contextual rail are allowed.
+- **Mobile:** one column, 24px gutters, a content width of the viewport minus gutters, and source order that follows inspect, decide, act, confirm. Keep the brand and two priority actions in the header while secondary navigation disappears into a labelled sheet. Stack bold copy above the evidence frame. Relay coordinates remain visible but trailing metadata moves below the title.
+- **Tablet:** a 6 column grid with 24px gutters. Pair a primary work region with a supporting panel only when both keep usable measures. Full width light and charcoal bands alternate without losing the content sequence.
+- **Desktop:** a 12 column grid, 32px gutters, maximum page width 1536px, and reading content width no greater than 68ch. Use asymmetric 7 and 5 column splits for outcome plus evidence, then switch to dense ruled demonstrations and alternating light or charcoal bands.
 
 Tables and timelines may use a named horizontal overflow region with keyboard access. The page itself must reflow at 320 CSS pixels without two dimensional scrolling. At 200 percent zoom, toolbars wrap into labelled groups, dialogs become near full width, and no content or navigation becomes clipped.
 
 ## Components and interaction states
 
-Relay Grid component geometry is square to softly cut, with radii of 0, 4, and 8px. Use 1px defined borders for structure, 2px borders for selected regions, and shadows only for temporary menus and dialogs. Component behavior preserves footprint through asynchronous changes.
+Relay Grid component geometry is nearly square, with radii of 0, 2, and 4px. Use 1px hard borders for structure, 2px borders for selected regions, and shadows only for temporary menus and dialogs. White, charcoal, and muted cells meet edge to edge inside demonstration frames. Component behavior preserves footprint through asynchronous changes.
 
-- **Buttons:** use explicit result labels. Primary buttons use primary and primary foreground. Secondary buttons use card and border. Destructive styling appears only at the final confirmation boundary.
+- **Buttons:** use explicit result labels. Primary buttons are compact chartreuse rectangles with dark text in dark schemes and accessible deep chartreuse with white text in light schemes. Secondary buttons use card and border. Destructive styling appears only at the final confirmation boundary.
 - **Links:** underline links in prose. Navigation links may use a ruled selected cell with `aria-current`.
 - **Inputs and text areas:** keep a persistent label above, help or error below, and reserve stable space for validation. A text area grows to a sensible maximum before it scrolls.
 - **Selects:** show the current value and a visible indicator. Native semantics are preferred unless a custom list box fully supports keyboard behavior.
@@ -94,10 +94,10 @@ Every interactive component defines default, hover, focus visible, active, selec
 
 ## Product surfaces
 
-- **Marketing:** lead with a clear operational outcome, one primary action, and an original relay map showing work moving between named stages. Avoid generic card mosaics.
-- **Authentication:** place a narrow, fully labelled form in the primary lane and concise trust or recovery context in a secondary lane. Never reveal account existence in errors.
+- **Marketing:** use an off white utility header above a full width charcoal hero. Stack one bold two line outcome with a chartreuse phrase, one compact primary action, and an original ruled evidence strip. Follow it with alternating light and charcoal sections whose dense product demonstrations remain bounded by hard lines. Avoid generic card mosaics and avoid copying any reference composition.
+- **Authentication:** use an off white form lane beside a full height grayscale abstract field. Keep the form narrow, fully labelled, and framed by hard rules with concise trust or recovery context. Never reveal account existence in errors.
 - **Onboarding:** show the current relay coordinate, total steps, completed work, optional skips, and the effect of the next action.
-- **Dashboard:** begin with exceptions and current throughput, then show fresh summaries connected to evidence. Each metric includes a label, time context, and route to detail.
+- **Dashboard:** begin with exceptions and current throughput, then show fresh summaries connected to evidence. Use edge joined panels, compact tab bars, and a single chartreuse current state. Each metric includes a label, time context, and route to detail.
 - **Table:** use a captioned, ruled comparison surface with row identity, status text, freshness, and an explicit action column.
 - **Form:** group fields by the decision they support. Keep instructions, input, error, and saved state within one scan path.
 - **Settings:** use named groups, current values, save behavior, and consequences. Isolate dangerous settings in a clearly labelled region.
