@@ -1,0 +1,3 @@
+# Add final Design Systems through one workflow
+
+One explicit Add Design System workflow now inspects a Design Reference, creates and evaluates a final `1.0` Design System Release, integrates the generated Official Catalog artifacts, and opens a pull request without candidate or approval states. This supersedes ADR 0013 and the human review requirement in ADR 0009 because a solo maintainer values one uninterrupted, evidence backed operation over separate authorization gates. Merge to `main` is the publication boundary and Vercel production deployment trigger, while failed validation still prevents the pull request from being completed.

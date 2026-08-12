@@ -3,12 +3,15 @@ import path from "node:path";
 
 const projectRoot = path.resolve(import.meta.dirname, "..");
 
-async function trackedFiles() {
-	const process_ = Bun.spawn(["git", "ls-files", "-z"], {
-		cwd: projectRoot,
-		stdout: "pipe",
-		stderr: "pipe",
-	});
+async function repositoryFiles() {
+	const process_ = Bun.spawn(
+		["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"],
+		{
+			cwd: projectRoot,
+			stdout: "pipe",
+			stderr: "pipe",
+		},
+	);
 	const [stdout, stderr, exitCode] = await Promise.all([
 		new Response(process_.stdout).text(),
 		new Response(process_.stderr).text(),
@@ -17,7 +20,20 @@ async function trackedFiles() {
 	if (exitCode !== 0) {
 		throw new Error(`git ls-files failed: ${stderr.trim()}`);
 	}
-	return stdout.split("\0").filter(Boolean);
+	const files = stdout.split("\0").filter(Boolean);
+	const present = await Promise.all(
+		files.map(async (file) => {
+			try {
+				await readFile(path.join(projectRoot, file));
+				return file;
+			} catch (error) {
+				if ((error as NodeJS.ErrnoException).code === "ENOENT")
+					return undefined;
+				throw error;
+			}
+		}),
+	);
+	return present.filter((file): file is string => file !== undefined);
 }
 
 const excludedContentPaths = [
@@ -75,7 +91,7 @@ const expectedGeneratedArtifacts = [
 	"apps/web/src/generated/official-catalog.json",
 ];
 
-const files = await trackedFiles();
+const files = await repositoryFiles();
 const failures: string[] = [];
 
 for (const file of files) {

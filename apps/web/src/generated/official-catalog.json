@@ -606,19 +606,19 @@
 				"viewports": ["1440x900", "390x844"],
 				"colorSchemes": ["light", "dark"],
 				"reducedMotion": true,
-				"agentGenerationRuns": 3,
 				"automatedChecks": [
 					"structure",
 					"accessibility",
 					"responsive overflow",
 					"color contrast"
 				],
+				"evidence": ["evaluation/report.json"],
+				"agentGenerationRuns": 3,
 				"humanReview": {
 					"status": "passed",
 					"reviewedAt": "2026-07-18",
 					"rightsReview": "passed"
-				},
-				"evidence": ["evaluation/report.json"]
+				}
 			},
 			"releases": [
 				{
@@ -1240,7 +1240,6 @@
 				"viewports": ["1440x900", "390x844", "320x844"],
 				"colorSchemes": ["light", "dark"],
 				"reducedMotion": true,
-				"agentGenerationRuns": 3,
 				"automatedChecks": [
 					"structure",
 					"accessibility",
@@ -1248,12 +1247,13 @@
 					"text reflow and source order",
 					"color contrast"
 				],
+				"evidence": ["evaluation/report.json", "evaluation/agent-runs.md"],
+				"agentGenerationRuns": 3,
 				"humanReview": {
 					"status": "passed",
 					"reviewedAt": "2026-07-19",
 					"rightsReview": "passed"
-				},
-				"evidence": ["evaluation/report.json", "evaluation/agent-runs.md"]
+				}
 			},
 			"releases": [
 				{
@@ -1875,19 +1875,19 @@
 				"viewports": ["1440x900", "390x844"],
 				"colorSchemes": ["light", "dark"],
 				"reducedMotion": true,
-				"agentGenerationRuns": 3,
 				"automatedChecks": [
 					"structure",
 					"accessibility",
 					"responsive overflow",
 					"color contrast"
 				],
+				"evidence": ["evaluation/report.json"],
+				"agentGenerationRuns": 3,
 				"humanReview": {
 					"status": "passed",
 					"reviewedAt": "2026-07-25",
 					"rightsReview": "passed"
-				},
-				"evidence": ["evaluation/report.json"]
+				}
 			},
 			"releases": [
 				{
@@ -2524,19 +2524,19 @@
 				"viewports": ["1440x900", "390x844"],
 				"colorSchemes": ["light", "dark"],
 				"reducedMotion": true,
-				"agentGenerationRuns": 4,
 				"automatedChecks": [
 					"structure",
 					"accessibility",
 					"responsive overflow",
 					"color contrast"
 				],
+				"evidence": ["evaluation/report.json"],
+				"agentGenerationRuns": 4,
 				"humanReview": {
 					"status": "passed",
 					"reviewedAt": "2026-07-18",
 					"rightsReview": "passed"
-				},
-				"evidence": ["evaluation/report.json"]
+				}
 			},
 			"releases": [
 				{

@@ -270,10 +270,9 @@ export default async function DesignSystemPage({
 													· Reduced motion
 												</li>
 												<li>
-													Human review{" "}
-													{designSystem.evaluation.humanReview.status} · Rights
-													review{" "}
-													{designSystem.evaluation.humanReview.rightsReview}
+													{"humanReview" in designSystem.evaluation
+														? `Human review ${designSystem.evaluation.humanReview.status} · Rights review ${designSystem.evaluation.humanReview.rightsReview}`
+														: "Originality review passed · Automated validation passed"}
 												</li>
 												<li>
 													{designSystem.evaluation.agentGenerationRuns} agent

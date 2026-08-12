@@ -1,6 +1,0 @@
-interface:
-  display_name: "Author Design System"
-  short_description: "Create a validated candidate Design System"
-  default_prompt: "Use $author-design-system to turn this Design Reference into an original candidate Design System."
-policy:
-  allow_implicit_invocation: false

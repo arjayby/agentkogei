@@ -1,6 +1,6 @@
 # Design Contract standard
 
-Write `DESIGN.md` as an inert, self contained Design Contract. It must stand alone after Installation. Do not mention candidate metadata, evaluation evidence, Design References, scripts, hooks, remote imports, or supporting resources. Fenced blocks must be labelled CSS or SVG. Unlabelled fenced blocks are not mechanically provable as inert and are prohibited.
+Write `DESIGN.md` as an inert, self contained Design Contract. It must stand alone after Installation. Do not mention metadata, evaluation evidence, Design References, scripts, hooks, remote imports, or supporting resources. Label every fenced block CSS or SVG.
 
 Use every heading below exactly once. Give concrete, agent executable direction beneath each heading.
 
@@ -14,7 +14,7 @@ Define three to five principles as Markdown list items and one original signatur
 
 ## Semantic color
 
-Define light and dark semantic roles for background, foreground, card, muted, muted foreground, border, primary, primary foreground, destructive, success, warning, info, and focus ring. Explain contrast, hierarchy, and usage. Avoid hard coded component colors when a semantic role applies.
+Define light and dark semantic roles for background, foreground, card, muted, muted foreground, border, primary, primary foreground, destructive, success, warning, info, and focus ring. Explain contrast, hierarchy, and usage.
 
 ## Typography
 
