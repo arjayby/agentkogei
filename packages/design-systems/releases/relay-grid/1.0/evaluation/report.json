@@ -1,0 +1,75 @@
+{
+	"schemaVersion": "2.0",
+	"status": "passed",
+	"designSystem": "Relay Grid",
+	"designReference": {
+		"kind": "url",
+		"locator": "https://everyfeed.ai/",
+		"inspectedPages": [
+			{
+				"path": "/",
+				"scope": "Desktop page inspected incrementally from navigation through the complete feature sequence, pricing, questions, and footer, plus the responsive header and opening sequence at 390 by 844 pixels.",
+				"reachedBottom": true
+			},
+			{
+				"path": "/docs",
+				"scope": "Public documentation introduction inspected from the persistent sidebar and article header through the final developer resources and continuation links.",
+				"reachedBottom": true
+			},
+			{
+				"path": "/docs/quick-start",
+				"scope": "Public quick start guide inspected from its documentation navigation through all numbered steps, embedded instructional figures, and final related routes.",
+				"reachedBottom": true
+			},
+			{
+				"path": "/login",
+				"scope": "Public authentication surface inspected from brand and language controls through sign in methods, labelled fields, recovery access, testimonial region, and page end without submitting data.",
+				"reachedBottom": true
+			}
+		],
+		"additionalPages": {
+			"inspected": 3,
+			"limitation": null
+		},
+		"generalizedTraits": [
+			"Strong light and dark contrast separates public storytelling, documentation, and task focused entry surfaces.",
+			"Compact square controls, thin rules, and bounded interface demonstrations create an operational rhythm without heavy elevation.",
+			"Large outcome led headings alternate with dense product evidence and quieter explanatory passages.",
+			"A restrained action accent ranks controls and highlights phrases while most hierarchy comes from type, spacing, and surface contrast.",
+			"Responsive layouts preserve primary actions and source order while reducing secondary navigation and simplifying multi column evidence."
+		],
+		"transformation": "Relay Grid converts the observed operational density and contrast into an original relay desk metaphor for sequenced work. Named coordinate headers, warm mineral surfaces, forest signals, state attached to each record, and inspect decide act confirm composition replace the source product’s brand language, layouts, imagery, and channel centered demonstrations.",
+		"excludedElements": [
+			"copied assets",
+			"product identity",
+			"distinctive compositions",
+			"recognizable product replication",
+			"imitation of living designers"
+		]
+	},
+	"screens": [
+		"marketing",
+		"authentication",
+		"onboarding",
+		"dashboard",
+		"table",
+		"form",
+		"settings",
+		"states"
+	],
+	"coverage": {
+		"viewports": ["1440x900", "390x844"],
+		"colorSchemes": ["light", "dark"],
+		"reducedMotion": true
+	},
+	"automatedChecks": {
+		"structure": "passed",
+		"accessibility": "passed",
+		"responsiveOverflow": "passed",
+		"colorContrast": "passed"
+	},
+	"originalityReview": {
+		"status": "passed",
+		"notes": "The result uses original copy, tokens, specimens, coordinate based relay headers, and a workflow domain distinct from the inspected product. It contains no copied assets, trademarks, proprietary compositions, or imitation of a living designer and is safe to publish under MIT."
+	}
+}

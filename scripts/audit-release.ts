@@ -1,4 +1,4 @@
-import { readFile } from "node:fs/promises";
+import { lstat, readFile } from "node:fs/promises";
 import path from "node:path";
 
 const projectRoot = path.resolve(import.meta.dirname, "..");
@@ -24,7 +24,7 @@ async function repositoryFiles() {
 	const present = await Promise.all(
 		files.map(async (file) => {
 			try {
-				await readFile(path.join(projectRoot, file));
+				await lstat(path.join(projectRoot, file));
 				return file;
 			} catch (error) {
 				if ((error as NodeJS.ErrnoException).code === "ENOENT")

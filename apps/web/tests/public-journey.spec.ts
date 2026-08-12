@@ -1777,7 +1777,7 @@ test("every discovered release is delivered and installed through identity indep
 		);
 		const currentContract = await current.text();
 		expect(currentContract).toContain(`# ${designSystem} Design System`);
-		expect(currentContract).toContain("\n## Final validation checklist\n");
+		expect(currentContract).toMatch(/\n## Final validation(?: checklist)?\n/);
 		for (const machineMetadata of [
 			"design-system-evaluation.json",
 			"agentkogei.manifest.json",

@@ -1,0 +1,606 @@
+{
+	"schemaVersion": "5.0",
+	"id": "relay-grid",
+	"designSystem": "Relay Grid",
+	"publisher": "AgentKogei",
+	"designSystemRelease": {
+		"version": "1.0",
+		"publishedAt": "2026-08-13",
+		"immutable": true
+	},
+	"designContract": {
+		"sha256": "301c5a2b7d8688d9afe463ca2ef6b95f7153df6be370b910cc2ef4a3d2a1f7c8"
+	},
+	"compatibility": {
+		"frameworks": ["react", "nextjs"],
+		"react": ">=18 <20",
+		"nextjs": ">=15 <17",
+		"tailwind": ">=4 <5",
+		"ui": "shadcn/ui"
+	},
+	"evaluation": {
+		"status": "passed",
+		"standard": "WCAG 2.2 Level AA",
+		"screens": [
+			"marketing",
+			"authentication",
+			"onboarding",
+			"dashboard",
+			"table",
+			"form",
+			"settings",
+			"states"
+		],
+		"viewports": ["1440x900", "390x844"],
+		"colorSchemes": ["light", "dark"],
+		"reducedMotion": true,
+		"agentGenerationRuns": 1,
+		"automatedChecks": [
+			"structure",
+			"accessibility",
+			"responsive overflow",
+			"color contrast"
+		],
+		"evidence": ["evaluation/report.json"]
+	},
+	"preview": {
+		"order": 5,
+		"summary": "A calm relay desk for sequenced work.",
+		"intendedFit": "Workflow, coordination, operations, and publishing products",
+		"route": "/design-systems/relay-grid",
+		"signature": {
+			"label": "A1 · Intake",
+			"headline": "Every handoff keeps its context.",
+			"principles": [
+				"Name every lane",
+				"Sequence before decoration",
+				"Density with breathing points",
+				"State travels with the object"
+			]
+		},
+		"mark": {
+			"recipe": "structural-planes",
+			"label": "Three aligned relay lanes with one forwarded cue"
+		},
+		"typography": {
+			"display": "neo-grotesk",
+			"body": "humanist-sans",
+			"accent": "technical-mono"
+		},
+		"composition": "operational-frame",
+		"foundations": {
+			"semanticColorUsage": {
+				"background": "Warm canvas around the relay desk and between work regions.",
+				"foreground": "Primary text, essential symbols, and decisive values.",
+				"card": "Primary work surfaces, forms, grouped records, and dialogs.",
+				"muted": "Quiet controls, secondary lanes, and stable placeholders.",
+				"mutedForeground": "Supporting copy, timestamps, and contextual metadata.",
+				"border": "Defined control boundaries, table rules, and lane separators.",
+				"primary": "Primary actions, current navigation, selected work, and key links.",
+				"primaryForeground": "Text and symbols placed on the primary color.",
+				"destructive": "Irreversible actions, critical failures, and final confirmation.",
+				"success": "Completed work, verified handoffs, and healthy results.",
+				"warning": "Attention that does not yet block progress.",
+				"info": "Neutral guidance, explanatory state, and new information.",
+				"ring": "Keyboard focus outside the component boundary."
+			},
+			"typographyScale": {
+				"display": {
+					"font": "display",
+					"sizeRem": { "mobile": 2.25, "desktop": 3.5 },
+					"weight": 700,
+					"lineHeight": 1,
+					"trackingEm": -0.035,
+					"usage": "One decisive product outcome or marketing promise."
+				},
+				"page-title": {
+					"font": "display",
+					"sizeRem": { "mobile": 1.625, "desktop": 2.125 },
+					"weight": 700,
+					"lineHeight": 1.08,
+					"trackingEm": -0.025,
+					"usage": "Page identity and the highest local decision."
+				},
+				"section-title": {
+					"font": "display",
+					"sizeRem": { "mobile": 1.125, "desktop": 1.375 },
+					"weight": 700,
+					"lineHeight": 1.18,
+					"trackingEm": -0.012,
+					"usage": "Relay lane and grouped surface headings."
+				},
+				"body": {
+					"font": "body",
+					"sizeRem": { "mobile": 1, "desktop": 1 },
+					"weight": 400,
+					"lineHeight": 1.55,
+					"trackingEm": 0,
+					"usage": "Explanations, form guidance, and reading content."
+				},
+				"compact-body": {
+					"font": "body",
+					"sizeRem": { "mobile": 0.875, "desktop": 0.875 },
+					"weight": 500,
+					"lineHeight": 1.45,
+					"trackingEm": 0,
+					"usage": "Tables, cards, controls, and repeated records."
+				},
+				"label": {
+					"font": "body",
+					"sizeRem": { "mobile": 0.75, "desktop": 0.75 },
+					"weight": 700,
+					"lineHeight": 1.25,
+					"trackingEm": 0.06,
+					"usage": "Coordinates, field labels, navigation, and status labels."
+				},
+				"coordinate": {
+					"font": "accent",
+					"sizeRem": { "mobile": 0.75, "desktop": 0.75 },
+					"weight": 500,
+					"lineHeight": 1.35,
+					"trackingEm": 0.02,
+					"usage": "Relay coordinates, timestamps, identifiers, and tabular values."
+				}
+			},
+			"spacingScale": {
+				"1": {
+					"valueRem": 0.25,
+					"usage": "Tight icon and label relationships."
+				},
+				"2": {
+					"valueRem": 0.5,
+					"usage": "Relay header padding and compact inline groups."
+				},
+				"3": {
+					"valueRem": 0.75,
+					"usage": "Related controls and card internals."
+				},
+				"4": {
+					"valueRem": 1,
+					"usage": "Default control and mobile gutter rhythm."
+				},
+				"6": { "valueRem": 1.5, "usage": "Groups inside a working region." },
+				"8": {
+					"valueRem": 2,
+					"usage": "Desktop gutters and distinct product regions."
+				},
+				"12": { "valueRem": 3, "usage": "Major product section separation." },
+				"16": { "valueRem": 4, "usage": "Marketing sequence separation." },
+				"24": { "valueRem": 6, "usage": "Rare spacious marketing transitions." }
+			},
+			"layout": {
+				"maxWidthRem": 90,
+				"contentWidthCh": 68,
+				"columns": { "mobile": 1, "tablet": 6, "desktop": 12 },
+				"gutterRem": { "mobile": 1, "tablet": 1.5, "desktop": 2 },
+				"guidance": "Arrange regions in inspection order, preserve named lanes, and use the relay header only when it clarifies sequence."
+			},
+			"responsive": {
+				"mobile": {
+					"minWidthPx": 320,
+					"guidance": "Use one source ordered column, a labelled navigation sheet, and full width primary actions."
+				},
+				"tablet": {
+					"minWidthPx": 720,
+					"guidance": "Use six columns and pair work with context only when both retain readable measures."
+				},
+				"desktop": {
+					"minWidthPx": 1080,
+					"guidance": "Use twelve columns with persistent navigation and at most one contextual rail."
+				},
+				"zoom": {
+					"scalePercent": 200,
+					"guidance": "Wrap toolbars into named groups and let dialogs approach full width without clipping."
+				},
+				"reflow": {
+					"widthPx": 320,
+					"guidance": "Keep page content in one dimension and confine intentional overflow to named data regions."
+				}
+			},
+			"geometry": {
+				"radii": {
+					"square": {
+						"valueRem": 0,
+						"usage": "Lane panels, tables, and grouped regions."
+					},
+					"control": {
+						"valueRem": 0.25,
+						"usage": "Buttons, fields, and compact controls."
+					},
+					"overlay": {
+						"valueRem": 0.5,
+						"usage": "Menus, dialogs, and temporary feedback."
+					}
+				},
+				"borders": {
+					"rule": {
+						"widthPx": 1,
+						"style": "solid",
+						"usage": "Lane separation, cards, tables, and controls."
+					},
+					"selected": {
+						"widthPx": 2,
+						"style": "solid",
+						"usage": "Current work, keyboard focus, and strong selection."
+					},
+					"pending": {
+						"widthPx": 1,
+						"style": "dashed",
+						"usage": "Reserved regions and pending handoffs."
+					}
+				},
+				"elevation": {
+					"flat": {
+						"offsetYRem": 0,
+						"blurRem": 0,
+						"spreadRem": 0,
+						"opacity": 0,
+						"usage": "Default cards, panels, navigation, forms, and tables."
+					},
+					"raised": {
+						"offsetYRem": 0.125,
+						"blurRem": 0.5,
+						"spreadRem": -0.25,
+						"opacity": 0.12,
+						"usage": "Selected records that need temporary emphasis within a lane."
+					},
+					"overlay": {
+						"offsetYRem": 0.5,
+						"blurRem": 1.5,
+						"spreadRem": -0.5,
+						"opacity": 0.2,
+						"usage": "Dialogs and menus above the working plane."
+					}
+				}
+			}
+		},
+		"controls": {
+			"buttons": {
+				"primaryLabel": "Forward for review",
+				"secondaryLabel": "Save draft",
+				"guidance": "Use result led labels, stable widths, and primary color only for the next ranked action.",
+				"states": {
+					"default": "Show the complete action label and current availability.",
+					"hover": "Increase contrast without moving the button or changing its size.",
+					"focus": "Draw the focus ring outside the button border.",
+					"active": "Use an inset treatment with no layout shift.",
+					"disabled": "Keep the label visible and explain the unmet condition nearby.",
+					"loading": "Keep the action label and append a written progress state.",
+					"success": "Name the completed handoff and expose the next useful route.",
+					"error": "Name the failed handoff and provide a retry or safe alternative."
+				}
+			},
+			"links": {
+				"primaryLabel": "Open approval record",
+				"secondaryLabel": "Review lane history",
+				"guidance": "Use precise destinations, persistent prose underlines, and visible keyboard focus.",
+				"states": {
+					"default": "Name the destination rather than using generic link text.",
+					"hover": "Strengthen the underline and contrast without shifting text.",
+					"focus": "Use the same visible focus ring as controls.",
+					"active": "Preserve the destination name through activation.",
+					"disabled": "Render an unavailable destination as explained status text.",
+					"loading": "Place a written loading state beside the destination.",
+					"success": "Report successful local resolution in adjacent text.",
+					"error": "Report failed local resolution with a recovery action."
+				}
+			},
+			"forms": {
+				"legend": "Approval handoff",
+				"guidance": "Keep purpose, labels, inputs, help, validation, and result within one vertical scan path.",
+				"submitLabel": "Send to lane B2",
+				"help": "Reviewers receive the summary and the current record context.",
+				"error": "Choose at least one reviewer before forwarding this record.",
+				"success": "The record was forwarded to lane B2."
+			},
+			"inputs": {
+				"textLabel": "Reviewer email address",
+				"textPlaceholder": "builder@example.com",
+				"textareaLabel": "Handoff summary",
+				"textareaPlaceholder": "Explain what changed and what needs a decision.",
+				"disabledLabel": "Origin lane · A1 Intake",
+				"guidance": "Use persistent labels, calm defined borders, and reserved validation rows."
+			},
+			"cards": {
+				"title": "Release notes review",
+				"description": "A relay card keeps owner, freshness, state, and the next decision together.",
+				"metadata": "A1 · Updated 8 min ago",
+				"actionLabel": "Open handoff",
+				"guidance": "Use one card per work object and avoid nesting independent decisions inside it."
+			},
+			"panels": {
+				"title": "Current relay",
+				"description": "A bounded context panel shows what entered, what changed, and where work goes next.",
+				"items": [
+					"A1 Intake · complete",
+					"B2 Review · current",
+					"C3 Publish · waiting"
+				],
+				"guidance": "Align lane coordinates, state labels, and freshness into predictable ruled rows."
+			},
+			"navigation": {
+				"label": "Relay workspace",
+				"items": [
+					{ "id": "inbox", "label": "Inbox" },
+					{ "id": "reviews", "label": "Reviews" },
+					{ "id": "schedule", "label": "Schedule" },
+					{ "id": "settings", "label": "Settings" }
+				],
+				"guidance": "Expose current location with text, a leading rule, and aria current while preserving source order."
+			}
+		},
+		"interactions": {
+			"dataDisplay": {
+				"tableCaption": "Active handoffs",
+				"columns": [
+					{ "id": "handoff", "label": "Handoff" },
+					{ "id": "lane", "label": "Lane" },
+					{ "id": "state", "label": "State" }
+				],
+				"rows": [
+					{
+						"id": "release-notes",
+						"label": "Release notes",
+						"cells": ["B2 Review", "Needs decision"]
+					},
+					{
+						"id": "launch-checklist",
+						"label": "Launch checklist",
+						"cells": ["C3 Publish", "Ready"]
+					},
+					{
+						"id": "support-brief",
+						"label": "Support brief",
+						"cells": ["A1 Intake", "Draft"]
+					}
+				],
+				"listLabel": "Relay context",
+				"listItems": [
+					{
+						"title": "Intake",
+						"description": "Records waiting for a complete brief.",
+						"status": "4 open"
+					},
+					{
+						"title": "Review",
+						"description": "Records that need a named decision.",
+						"status": "2 urgent"
+					},
+					{
+						"title": "Publish",
+						"description": "Approved records waiting for their window.",
+						"status": "6 ready"
+					}
+				],
+				"guidance": "Use ruled columns, row headings, written states, and freshness that stays with each record.",
+				"overflowGuidance": "Place wide tables in a labelled keyboard reachable scroll region and keep row identity visible."
+			},
+			"feedback": {
+				"badges": [
+					{
+						"label": "Draft",
+						"meaning": "The handoff is still being prepared",
+						"tone": "neutral"
+					},
+					{
+						"label": "In review",
+						"meaning": "A named reviewer owns the next decision",
+						"tone": "info"
+					},
+					{
+						"label": "Ready",
+						"meaning": "The handoff completed all required checks",
+						"tone": "success"
+					},
+					{
+						"label": "Needs attention",
+						"meaning": "The handoff can continue after a correction",
+						"tone": "warning"
+					},
+					{
+						"label": "Blocked",
+						"meaning": "The handoff cannot continue without recovery",
+						"tone": "destructive"
+					}
+				],
+				"alerts": [
+					{
+						"title": "Review lane recovered",
+						"description": "Every queued record can move forward again.",
+						"tone": "success"
+					},
+					{
+						"title": "Two records are blocked",
+						"description": "Restore missing approvals before the publish window.",
+						"tone": "destructive"
+					},
+					{
+						"title": "Schedule changed",
+						"description": "Three ready records now use the revised window.",
+						"tone": "info"
+					}
+				],
+				"states": {
+					"loading": "Reading the latest relay state…",
+					"empty": "No records have entered this lane yet. Create the first handoff.",
+					"filteredEmpty": "No records match Needs decision. Clear the active state filter.",
+					"error": "The relay state could not be read. Retry without losing the current filter.",
+					"success": "Every approved record reached the publish lane.",
+					"disabled": "Forwarding is unavailable until a reviewer is assigned.",
+					"destructive": "Removing Release notes deletes its local handoff history."
+				},
+				"guidance": "Keep state, consequence, freshness, and the next action in the object’s own lane.",
+				"nonColorGuidance": "Pair every tone with a written label, symbol or border treatment, and explicit consequence."
+			},
+			"dialogs": {
+				"title": "Review handoff context",
+				"description": "Inspect the release notes changes and reviewer history before returning to lane B2.",
+				"openLabel": "Open handoff details",
+				"initialFocusLabel": "Read change summary",
+				"confirmLabel": "Mark context reviewed",
+				"closeLabel": "Close",
+				"guidance": "Keep the lane coordinate, object name, and current decision visible throughout the dialog.",
+				"escapeBehavior": "Escape closes this read only dialog because no pending change would be lost.",
+				"focusRestoration": "Return focus to the Open handoff details button."
+			},
+			"destructiveActions": {
+				"objectLabel": "Release notes handoff",
+				"consequence": "The record and its local lane history will be removed from this workspace.",
+				"recoverability": "This local specimen is reversible through Restore handoff before the page changes.",
+				"openLabel": "Remove handoff",
+				"confirmLabel": "Remove Release notes handoff",
+				"cancelLabel": "Keep handoff",
+				"guidance": "Repeat the exact object, affected history, and recovery window before confirmation."
+			}
+		},
+		"motion": {
+			"durationMs": { "feedback": 90, "transition": 150, "spatial": 220 },
+			"easing": {
+				"enter": "ease-out",
+				"exit": "ease-in",
+				"move": "ease-in-out"
+			},
+			"movement": { "distanceRem": 0.5, "scaleFrom": 0.98 },
+			"guidance": "Use brief axis aligned movement to preserve continuity between relay lanes and state changes.",
+			"autoplay": false
+		},
+		"reducedMotion": {
+			"removeNonessential": true,
+			"stateChanges": "instant",
+			"guidance": "Remove translation, scaling, smooth scrolling, and looping indicators while preserving written state."
+		},
+		"accessibility": {
+			"standard": "WCAG 2.2 Level AA",
+			"semantics": "Use native landmarks, headings, controls, lists, tables, and dialogs before adding ARIA.",
+			"keyboard": "Keep every action operable in logical source order and confine focus only while a dialog is open.",
+			"focus": "Use a high contrast external focus ring and restore focus after overlays close.",
+			"contrast": "Meet AA text contrast and 3 to 1 contrast for boundaries, focus, meaningful graphics, and states.",
+			"targetSize": "Provide at least 24 by 24 CSS pixel targets and prefer 44 pixel primary touch actions.",
+			"zoom": "Preserve content and operation at 200 percent text zoom and 400 percent browser zoom.",
+			"reflow": "Reflow at 320 CSS pixels except inside labelled data regions with intentional keyboard reachable overflow.",
+			"forcedColors": "Preserve lane boundaries, selection, focus, and written status when system colors replace authored colors.",
+			"statusCommunication": "Announce durable results and validation in named status or alert regions without relying on color."
+		},
+		"productSurfaces": {
+			"guidance": "Use the relay header to clarify sequence, keep product language intact, and let state remain attached to its object.",
+			"examples": {
+				"marketing": {
+					"title": "A relay map with proof",
+					"description": "Introduce one workflow outcome beside an original map of records moving through named lanes.",
+					"elements": [
+						"Outcome headline and one primary action",
+						"Three named stages with written proof"
+					]
+				},
+				"authentication": {
+					"title": "Identity entry at A1",
+					"description": "A narrow labelled form keeps recovery and security context in an adjacent quiet lane.",
+					"elements": [
+						"Persistent email and password labels",
+						"Recovery route and neutral error region"
+					]
+				},
+				"onboarding": {
+					"title": "Workspace relay setup",
+					"description": "A four step sequence shows completed work, the current decision, optional skips, and the next effect.",
+					"elements": [
+						"Coordinate progress from A1 to D4",
+						"Current step guidance and reversible actions"
+					]
+				},
+				"dashboard": {
+					"title": "Handoffs requiring attention",
+					"description": "Exceptions lead the overview before throughput, ready work, and freshness evidence.",
+					"elements": [
+						"Urgent review lane with named owners",
+						"Fresh throughput summary linked to records"
+					]
+				},
+				"table": {
+					"title": "Active handoffs",
+					"description": "A ruled table keeps row identity, owner, lane, written state, and action in one comparison surface.",
+					"elements": [
+						"Caption, row headings, and sticky columns",
+						"Labelled narrow viewport overflow region"
+					]
+				},
+				"form": {
+					"title": "Forward for review",
+					"description": "A guided form groups reviewer choice, handoff summary, validation, and resulting lane.",
+					"elements": [
+						"Persistent labels, help, and error rows",
+						"Stable submit and saved state region"
+					]
+				},
+				"settings": {
+					"title": "Relay rules",
+					"description": "Named groups explain current routing values, save behavior, and consequences.",
+					"elements": [
+						"Review assignment and scheduling groups",
+						"Isolated remove workspace action"
+					]
+				},
+				"states": {
+					"title": "Lane state library",
+					"description": "Stable specimens show loading, empty, filtered empty, error, success, disabled, and destructive recovery.",
+					"elements": [
+						"Written state, consequence, and freshness",
+						"Relevant recovery or next action"
+					]
+				}
+			}
+		},
+		"evidencePresentation": {
+			"preview": "The Design System Preview is a public visual and descriptive specimen of evaluated direction.",
+			"designContract": "The complete Design Contract is the public raw Markdown installed into a Project.",
+			"evaluation": "Evaluation metadata and raw evidence paths remain public so coverage can be inspected.",
+			"rawEvidencePublic": true
+		},
+		"theme": {
+			"schemeOrder": ["light", "dark"],
+			"tokens": {
+				"light": {
+					"background": "#f6f3ea",
+					"foreground": "#17221c",
+					"card": "#fffdf7",
+					"muted": "#e4e7dd",
+					"mutedForeground": "#4f5f55",
+					"border": "#748479",
+					"primary": "#365f4b",
+					"primaryForeground": "#ffffff",
+					"destructive": "#a52e3f",
+					"success": "#28683f",
+					"warning": "#765300",
+					"info": "#235c88",
+					"ring": "#0d5e4b"
+				},
+				"dark": {
+					"background": "#101713",
+					"foreground": "#eef4ef",
+					"card": "#17201a",
+					"muted": "#222d25",
+					"mutedForeground": "#b2beb5",
+					"border": "#687b6c",
+					"primary": "#9be0bd",
+					"primaryForeground": "#102117",
+					"destructive": "#ff909b",
+					"success": "#86d9a6",
+					"warning": "#f2c46d",
+					"info": "#83c9f4",
+					"ring": "#b4f5d1"
+				}
+			},
+			"geometry": {
+				"density": "balanced",
+				"radius": "soft",
+				"border": "defined",
+				"elevation": "flat"
+			}
+		}
+	},
+	"changelog": {
+		"summary": "Initial Design System Release with named relay lanes, sequenced work, and state attached to each object.",
+		"breaking": false,
+		"migrationNotes": null
+	}
+}
