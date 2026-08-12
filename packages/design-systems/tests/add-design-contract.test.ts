@@ -67,7 +67,7 @@ const catalog = Bun.serve({
 					: null;
 		if (!release) {
 			return new Response(
-				"not a Design System Release in the Official Catalog\n",
+				"not a Design System Release in AgentKogei Design Systems\n",
 				{
 					status: 404,
 					headers: { "content-type": "text/plain; charset=utf-8" },
@@ -256,7 +256,7 @@ describe("agentkogei add", () => {
 		);
 	});
 
-	test("rejects an unknown Official Catalog identity without touching the Project", async () => {
+	test("rejects an unknown Design System identity without touching the Project", async () => {
 		const project = await temporaryProject();
 
 		const result = await runAdd(project, ["add", "fondation", "--yes"]);
@@ -266,7 +266,7 @@ describe("agentkogei add", () => {
 		expect(await projectEntries(project)).toEqual([]);
 	});
 
-	test("never installs a non-successful catalog response", async () => {
+	test("never installs an unsuccessful Design Systems response", async () => {
 		const project = await temporaryProject();
 		overrides.set("/contracts/foundation", {
 			status: 503,

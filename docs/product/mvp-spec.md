@@ -10,9 +10,9 @@ Themes and component libraries primarily provide code or visual primitives. They
 
 ## Solution
 
-AgentKogei provides a public Official Catalog, Design System Previews, Design Contract validation, and a CLI for installing versioned Design Systems.
+AgentKogei provides public Design Systems, Design System Previews, Design Contract validation, and a CLI for installing versioned Design Systems.
 
-Each Design System Release is one inert Markdown Design Contract named `DESIGN.md`. It directly targets React or Next.js Projects using Tailwind CSS v4 and shadcn/ui. The Official Catalog discovers complete, public, MIT licensed Design Systems from validated published release metadata.
+Each Design System Release is one inert Markdown Design Contract named `DESIGN.md`. It directly targets React or Next.js Projects using Tailwind CSS v4 and shadcn/ui. Complete, public, MIT licensed Design Systems are discovered from validated published release metadata.
 
 The CLI retrieves a current or exact release, validates it, previews the change, and installs it after explicit consent. Installation writes one root `DESIGN.md` and one marked `AGENTS.md` reference. It preserves unrelated files, never executes supplied code, and leaves the Project unchanged on failure.
 
@@ -31,13 +31,13 @@ The CLI retrieves a current or exact release, validates it, previews the change,
 11. As a Builder, I want the CLI to transmit only my requested Design Contract selector so that Project identity and contents stay local.
 12. As a maintainer, I want every release to pass the same validation and Design System Evaluation standard so that publication claims remain verifiable.
 13. As a maintainer, I want Design Systems to use one canonical vocabulary across schemas, routes, CLI output, artifacts, tests, and documentation.
-14. As a maintainer, I want the web application to remain stateless so that catalog delivery has no persistent application infrastructure.
+14. As a maintainer, I want the web application to remain stateless so that Design Contract delivery has no persistent application infrastructure.
 15. As a contributor, I want all source code and Design System content under the MIT License so that the rights to use, modify, distribute, sublicense, and sell copies are clear.
 
 ## Implementation decisions
 
-- The Official Catalog discovers Published Design Systems from validated release directories without an application registry of identities.
-- The catalog is first party and version controlled.
+- Published Design Systems are discovered from validated release directories without an application registry of identities.
+- The collection is first party and version controlled.
 - Each Design System Release contains one `DESIGN.md` plus its publication evaluation artifacts.
 - Each installed Design Contract directly targets React or Next.js, Tailwind CSS v4, and shadcn/ui.
 - There is no framework neutral core, manifest, supporting resource tree, or executable hook.
@@ -54,15 +54,15 @@ The CLI retrieves a current or exact release, validates it, previews the change,
 - The CLI never runs scripts, installs dependencies, or invokes a package manager.
 - A Project can have at most one Installed Design System.
 - The installed file has no runtime dependency on AgentKogei.
-- The web application serves only public catalog, documentation, preview, and Design Contract routes.
+- The web application serves only public Design Systems, documentation, preview, and Design Contract routes.
 - The web application has no persistent application data or collection behavior.
 - All repository source and Design System content use the MIT License. Installed Design Contracts contain only design direction.
 - Publication requires original or rightfully used direction, automated validation, generation evidence, an originality review, and a WCAG 2.2 Level AA reference implementation.
-- One Add Design System workflow creates a final release and opens its pull request. Merging to `main` admits the release to the Official Catalog and triggers Vercel production deployment.
+- One Add Design System workflow creates a final release and opens its pull request. Merging to `main` publishes the release and triggers Vercel production deployment.
 
 ## Acceptance boundary
 
-The primary automated seam runs the built web application and packed CLI together against a controlled Official Catalog and temporary Projects.
+The primary automated seam runs the built web application and packed CLI together against a controlled Design Contract source and temporary Projects.
 
 Tests observe browser visible state, HTTP responses, CLI output and exit status, resulting Project files, and outbound CLI requests. They do not assert private functions, component state, or module composition.
 
@@ -84,7 +84,7 @@ Formatting, type checks, production builds, package construction, and the full b
 
 ## Out of scope
 
-- Third party catalogs, submissions, rankings, or reviews
+- Third party Design System submissions, rankings, or reviews
 - Teams, organizations, roles, or enterprise controls
 - Project customization or hosted Project configuration
 - Automatic interface redesign or migration

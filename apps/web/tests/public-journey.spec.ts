@@ -1733,7 +1733,7 @@ test("Command is public while current and exact Signal selectors are ordinarily 
 		expect(response.headers()["content-type"]).toContain("text/plain");
 		expect(response.headers()["cache-control"]).toBe("no-store");
 		expect(await response.text()).toBe(
-			`${selector.replace("/", "@")} is not a Design System Release in the AgentKogei Official Catalog.\n`,
+			`${selector.replace("/", "@")} is not a Design System Release in AgentKogei Design Systems.\n`,
 		);
 	}
 
@@ -1743,7 +1743,7 @@ test("Command is public while current and exact Signal selectors are ordinarily 
 			const result = await runDesignContractInstallation(project, selector);
 			expect(result.exitCode).toBe(1);
 			expect(result.stderr).toContain(
-				`Official Catalog has no Design Contract for ${selector} (404)`,
+				`Design Systems has no Design Contract for ${selector} (404)`,
 			);
 			expect(await readdir(project)).toEqual([]);
 		} finally {

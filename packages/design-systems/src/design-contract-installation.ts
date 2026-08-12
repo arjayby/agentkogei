@@ -56,17 +56,17 @@ function catalogHeader(response: Response, name: string, selector: string) {
 	const value = response.headers.get(`x-agentkogei-${name}`)?.trim();
 	if (!value || hasTerminalControl(value)) {
 		throw new Error(
-			`Official Catalog response for ${selector} is missing its ${name.replaceAll("-", " ")}`,
+			`Design Systems response for ${selector} is missing its ${name.replaceAll("-", " ")}`,
 		);
 	}
 	return value;
 }
 
 /**
- * Retrieves one Design Contract from the first-party Official Catalog as raw
+ * Retrieves one Design Contract from the first party Design Systems source as raw
  * UTF-8 Markdown. Every response is proven to be an installable Design Contract
  * before any part of it reaches the Project. The anonymous request carries only
- * the selector, so the Official Catalog learns nothing about the Project.
+ * the selector, so AgentKogei learns nothing about the Project.
  */
 export async function retrieveDesignContract(input: {
 	identity: string;
@@ -93,11 +93,11 @@ export async function retrieveDesignContract(input: {
 			base,
 		);
 	} catch {
-		throw new Error("Official Catalog must be an absolute URL");
+		throw new Error("Design Systems source must be an absolute URL");
 	}
 	if (!["http:", "https:"].includes(source.protocol)) {
 		throw new Error(
-			`unsupported Official Catalog protocol: ${source.protocol}`,
+			`unsupported Design Systems source protocol: ${source.protocol}`,
 		);
 	}
 
@@ -108,18 +108,20 @@ export async function retrieveDesignContract(input: {
 		},
 	});
 	if (response.status >= 300 && response.status < 400) {
-		throw new Error(`Official Catalog redirected the request for ${selector}`);
+		throw new Error(
+			`Design Systems source redirected the request for ${selector}`,
+		);
 	}
 	if (!response.ok) {
 		throw new Error(
-			`Official Catalog has no Design Contract for ${selector} (${response.status})`,
+			`Design Systems has no Design Contract for ${selector} (${response.status})`,
 		);
 	}
 	if (
 		!/^text\/markdown\s*(;|$)/i.test(response.headers.get("content-type") ?? "")
 	) {
 		throw new Error(
-			`Official Catalog response for ${selector} is not Markdown (${response.headers.get("content-type") ?? "no content type"})`,
+			`Design Systems response for ${selector} is not Markdown (${response.headers.get("content-type") ?? "no content type"})`,
 		);
 	}
 	let markdown: string;
@@ -130,12 +132,12 @@ export async function retrieveDesignContract(input: {
 		}).decode(await response.arrayBuffer());
 	} catch {
 		throw new Error(
-			`Official Catalog response for ${selector} is not valid UTF-8 text`,
+			`Design Systems response for ${selector} is not valid UTF-8 text`,
 		);
 	}
 	if (markdown.trim().length === 0) {
 		throw new Error(
-			`Official Catalog returned an empty Design Contract for ${selector}`,
+			`Design Systems returned an empty Design Contract for ${selector}`,
 		);
 	}
 	if (hasHiddenDocumentControl(markdown)) {
@@ -153,12 +155,12 @@ export async function retrieveDesignContract(input: {
 		!designSystemReleaseVersionSchema.safeParse(designSystemRelease).success
 	) {
 		throw new Error(
-			`Official Catalog reported an invalid Design System Release for ${selector}`,
+			`Design Systems reported an invalid Design System Release for ${selector}`,
 		);
 	}
 	if (input.version && designSystemRelease !== input.version) {
 		throw new Error(
-			`Official Catalog returned ${input.identity}@${designSystemRelease}, expected ${selector}`,
+			`Design Systems returned ${input.identity}@${designSystemRelease}, expected ${selector}`,
 		);
 	}
 
@@ -366,7 +368,7 @@ export function formatDesignContractPreview(
 	const catalogFacts = [
 		`Design System: ${plan.designSystem} (${plan.identity})\nDesign System Release: ${plan.designSystemRelease}`,
 		[
-			`Official Catalog: ${plan.source}`,
+			`Design Systems: ${plan.source}`,
 			`Project: ${plan.projectDirectory}`,
 		].join("\n"),
 	];
