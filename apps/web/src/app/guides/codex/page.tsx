@@ -316,7 +316,10 @@ export default function CodexGuidePage() {
 								</li>
 							))}
 						</ul>
-						<InstallationCommand designSystems={installableDesignSystems}>
+						<InstallationCommand
+							designSystems={installableDesignSystems}
+							guide="codex"
+						>
 							Run the command from the Project root. Review the CLI preview and
 							approve the file changes only when the selected Design System
 							fits.

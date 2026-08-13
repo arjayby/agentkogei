@@ -2,6 +2,7 @@
 
 import { Button } from "@agentkogei/ui/components/button";
 import { cn } from "@agentkogei/ui/lib/utils";
+import { track } from "@vercel/analytics";
 import { CheckIcon, CopyIcon } from "lucide-react";
 import {
 	type FocusEvent,
@@ -26,6 +27,12 @@ const packageManagers = [
 ] as const;
 
 type PackageManagerId = (typeof packageManagers)[number]["id"];
+
+export type InstallationGuide =
+	| "claude-code"
+	| "codex"
+	| "consistent-ai-ui"
+	| "design-contract";
 
 /** The catalog facts the interactive mode needs to offer a Design System. */
 export type InstallableDesignSystem = {
@@ -52,7 +59,10 @@ const terminalBar =
 	"flex min-h-10 items-center justify-between gap-3 border-[#1f2733] border-b px-4";
 const terminalMuted = "text-[#8b98ab]";
 
-type InstallationCommandProps = { children?: ReactNode } & (
+type InstallationCommandProps = {
+	children?: ReactNode;
+	guide?: InstallationGuide;
+} & (
 	| { identity: string; designSystems?: undefined }
 	| { identity?: undefined; designSystems: readonly InstallableDesignSystem[] }
 );
@@ -69,7 +79,10 @@ export function InstallationCommand(props: InstallationCommandProps) {
 			className={props.designSystems ? interactiveFrame : terminalFrame}
 		>
 			{props.designSystems ? (
-				<InteractiveCommand designSystems={props.designSystems} />
+				<InteractiveCommand
+					designSystems={props.designSystems}
+					guide={props.guide}
+				/>
 			) : (
 				<>
 					<div className={terminalBar}>
@@ -122,8 +135,10 @@ export function InstallationCommand(props: InstallationCommandProps) {
 
 function InteractiveCommand({
 	designSystems,
+	guide,
 }: {
 	designSystems: readonly InstallableDesignSystem[];
+	guide?: InstallationGuide;
 }) {
 	const [managerId, setManagerId] = useState<PackageManagerId>("npm");
 	const [designSystemIndex, setDesignSystemIndex] = useState(0);
@@ -176,6 +191,17 @@ function InteractiveCommand({
 
 	async function copyCommand() {
 		await navigator.clipboard.writeText(command);
+		if (guide) {
+			track("Guide Installation Action Used", {
+				designSystem: designSystemSlug,
+				guide,
+			});
+		} else {
+			track("Installation Command Copied", {
+				designSystem: designSystemSlug,
+				packageManager: managerId,
+			});
+		}
 		setCopied(true);
 		setIsPinned(true);
 		if (resetCopied.current) {

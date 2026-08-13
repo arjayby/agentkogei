@@ -2,7 +2,7 @@ import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, type Locator, type Page, test } from "@playwright/test";
 import { runCli } from "./support/cli";
 import {
 	discoverDesignSystemRoutes,
@@ -80,6 +80,58 @@ async function releasePublishedAt(identity: string, release: string) {
 	}
 	throw new Error(`Missing release metadata for ${identity}@${release}`);
 }
+
+type ObservedAnalyticsEvent = {
+	name: string;
+	data?: Record<string, unknown>;
+};
+
+async function observeAnalyticsEvents(page: Page) {
+	const events: ObservedAnalyticsEvent[] = [];
+	const pageviews: unknown[] = [];
+	await page.exposeFunction(
+		"__agentKogeiObserveAnalytics",
+		(command: unknown, payload: unknown) => {
+			if (command === "pageview") {
+				pageviews.push(payload);
+			}
+			if (
+				command === "event" &&
+				payload &&
+				typeof payload === "object" &&
+				"name" in payload &&
+				typeof payload.name === "string"
+			) {
+				events.push(payload as ObservedAnalyticsEvent);
+			}
+		},
+	);
+	await page.addInitScript(() => {
+		const analyticsWindow = window as typeof window & {
+			__agentKogeiObserveAnalytics: (...arguments_: unknown[]) => void;
+			va: (...arguments_: unknown[]) => void;
+		};
+		analyticsWindow.va = (...arguments_) => {
+			analyticsWindow.__agentKogeiObserveAnalytics(...arguments_);
+		};
+	});
+	return { events, pageviews };
+}
+
+async function activateLinkWithoutNavigation(link: Locator) {
+	await link.evaluate((element) => {
+		element.addEventListener("click", (event) => event.preventDefault(), {
+			once: true,
+		});
+		(element as HTMLElement).click();
+	});
+}
+
+test.beforeEach(async ({ context }) => {
+	await context.route("**/_vercel/insights/script.js", (route) =>
+		route.fulfill({ contentType: "application/javascript", body: "" }),
+	);
+});
 
 test("a prospective Builder can understand what a Design System changes", async ({
 	page,
@@ -205,6 +257,124 @@ test("the landing page composes one add command from a package manager and a Des
 	await page.mouse.move(0, 0);
 	await page.waitForTimeout(2200);
 	await expect(command).toHaveText("bunx agentkogei@latest add editorial");
+});
+
+test("website analytics records only the approved Installation journey events", async ({
+	context,
+	page,
+}) => {
+	await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+	const { events, pageviews } = await observeAnalyticsEvents(page);
+	const privateMarker = "builder-project-secret";
+
+	await page.goto(`/design-systems/foundation?project=${privateMarker}`);
+	await expect(
+		page.locator('script[src="/_vercel/insights/script.js"]'),
+	).toHaveCount(1);
+	await expect
+		.poll(() => pageviews)
+		.toContainEqual({
+			route: "/design-systems/[slug]",
+			path: "/design-systems/foundation",
+		});
+	await expect
+		.poll(() => events)
+		.toEqual([
+			{
+				name: "Design System Viewed",
+				data: { designSystem: "foundation" },
+			},
+		]);
+
+	await activateLinkWithoutNavigation(
+		page.getByRole("link", {
+			name: "Read the Foundation 1.0 Design Contract",
+		}),
+	);
+	await expect
+		.poll(() => events.at(-1))
+		.toEqual({
+			name: "Design Contract Opened",
+			data: { designSystem: "foundation", surface: "preview" },
+		});
+	await activateLinkWithoutNavigation(
+		page
+			.getByRole("link", {
+				name: "Read Foundation 1.0 Design Contract",
+			})
+			.last(),
+	);
+	await expect.poll(() => events).toHaveLength(3);
+	await expect
+		.poll(() => events.at(-1))
+		.toEqual({
+			name: "Design Contract Opened",
+			data: { designSystem: "foundation", surface: "preview" },
+		});
+
+	await page.goto("/");
+	const productInstallation = page.getByRole("region", {
+		name: "Installation command",
+	});
+	await productInstallation
+		.getByRole("button", { name: "Copy command" })
+		.click();
+	await expect
+		.poll(() => events.at(-1))
+		.toEqual({
+			name: "Installation Command Copied",
+			data: { designSystem: "foundation", packageManager: "npm" },
+		});
+
+	await page.goto("/guides/consistent-ai-ui");
+	const guide = page.getByRole("article");
+	await activateLinkWithoutNavigation(
+		guide.getByRole("link", {
+			name: "Inspect the Foundation Design Contract",
+		}),
+	);
+	await expect
+		.poll(() => events.at(-1))
+		.toEqual({
+			name: "Design Contract Opened",
+			data: { designSystem: "foundation", surface: "guide" },
+		});
+	await guide.getByRole("button", { name: "Copy command" }).click();
+	await expect
+		.poll(() => events.at(-1))
+		.toEqual({
+			name: "Guide Installation Action Used",
+			data: { designSystem: "foundation", guide: "consistent-ai-ui" },
+		});
+
+	expect(events).toEqual([
+		{
+			name: "Design System Viewed",
+			data: { designSystem: "foundation" },
+		},
+		{
+			name: "Design Contract Opened",
+			data: { designSystem: "foundation", surface: "preview" },
+		},
+		{
+			name: "Design Contract Opened",
+			data: { designSystem: "foundation", surface: "preview" },
+		},
+		{
+			name: "Installation Command Copied",
+			data: { designSystem: "foundation", packageManager: "npm" },
+		},
+		{
+			name: "Design Contract Opened",
+			data: { designSystem: "foundation", surface: "guide" },
+		},
+		{
+			name: "Guide Installation Action Used",
+			data: { designSystem: "foundation", guide: "consistent-ai-ui" },
+		},
+	]);
+	expect(JSON.stringify(events)).not.toContain(privateMarker);
+	expect(JSON.stringify(pageviews)).not.toContain(privateMarker);
 });
 
 test("the landing page presents every discovered visual direction without release details", async ({
