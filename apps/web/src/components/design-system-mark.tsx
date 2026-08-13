@@ -198,6 +198,46 @@ function RelayLoop() {
 	);
 }
 
+function SpecimenFrame() {
+	return (
+		<>
+			<rect
+				x="12"
+				y="12"
+				width="40"
+				height="40"
+				fill="none"
+				stroke={markColors.base}
+				strokeWidth="7"
+				strokeDasharray="15 5"
+				strokeLinejoin="miter"
+			/>
+			<rect
+				x="20"
+				y="20"
+				width="24"
+				height="24"
+				fill={markColors.highlight}
+				stroke={markColors.outline}
+				strokeWidth="1.75"
+			/>
+			<path
+				d="M20 36 36 20h8L20 44v-8Z"
+				fill={markColors.shade}
+				opacity="0.7"
+			/>
+			<circle
+				cx="32"
+				cy="32"
+				r="3.75"
+				fill={markColors.base}
+				stroke={markColors.outline}
+				strokeWidth="1.5"
+			/>
+		</>
+	);
+}
+
 const drawings = {
 	"structural-planes": {
 		Drawing: StructuralBlocks,
@@ -218,6 +258,10 @@ const drawings = {
 	"relay-loop": {
 		Drawing: RelayLoop,
 		label: "Four linked relay segments circling a shared route",
+	},
+	"specimen-frame": {
+		Drawing: SpecimenFrame,
+		label: "Four primary colored register corners framing a specimen",
 	},
 } as const;
 
