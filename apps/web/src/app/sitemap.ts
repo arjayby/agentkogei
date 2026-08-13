@@ -1,23 +1,42 @@
 import type { MetadataRoute } from "next";
-import { designSystems } from "@/lib/catalog";
+
+import { currentRelease, designSystems } from "@/lib/catalog";
 import { designContractGuide, designContractGuideUrl } from "@/lib/guides";
 import { publicOrigin } from "@/lib/structured-data";
 
-const canonicalPages = ["", "/design-systems", "/guides"] as const;
-
 export default function sitemap(): MetadataRoute.Sitemap {
+	const previews = designSystems.map((designSystem) => ({
+		url: `${publicOrigin}${designSystem.preview.route}`,
+		lastModified: currentRelease(designSystem).publishedAt,
+	}));
+	const catalogLastModified = previews
+		.map(({ lastModified }) => lastModified)
+		.toSorted()
+		.at(-1);
+
+	if (!catalogLastModified) {
+		throw new Error(
+			"The Design Systems collection has no Published Design Systems",
+		);
+	}
+
 	return [
-		...canonicalPages.map((route) => ({
-			url: `${publicOrigin}${route}`,
-		})),
+		{
+			url: publicOrigin,
+			lastModified: catalogLastModified,
+		},
+		{
+			url: `${publicOrigin}/design-systems`,
+			lastModified: catalogLastModified,
+		},
+		{
+			url: `${publicOrigin}/guides`,
+			lastModified: designContractGuide.publishedAt,
+		},
 		{
 			url: designContractGuideUrl,
-			lastModified: new Date(
-				`${designContractGuide.publishedAt}T00:00:00.000Z`,
-			),
+			lastModified: designContractGuide.publishedAt,
 		},
-		...designSystems.map((designSystem) => ({
-			url: `${publicOrigin}${designSystem.preview.route}`,
-		})),
+		...previews,
 	];
 }

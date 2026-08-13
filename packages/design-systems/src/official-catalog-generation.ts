@@ -33,6 +33,7 @@ export async function generateOfficialCatalogArtifacts(
 				.toReversed()
 				.map(({ metadata, version }) => ({
 					version,
+					publishedAt: metadata.designSystemRelease.publishedAt,
 					changelog: metadata.changelog,
 				})),
 		});
