@@ -40,30 +40,56 @@ export default function GuidesPage() {
 					<h2 id="available-guides-heading" className="sr-only">
 						Available guides
 					</h2>
-					<article className="grid gap-8 border p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.6fr)] lg:items-end">
-						<div className="flex max-w-3xl flex-col gap-5">
-							<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.2em]">
-								Design Contract / Vendor neutral
-							</p>
-							<h2 className="text-balance font-medium text-3xl tracking-tight sm:text-5xl">
-								Durable visual direction for every agent.
-							</h2>
-							<p className="text-pretty text-lg text-muted-foreground leading-8">
-								Learn how Project instructions lead agents to one root Design
-								Contract, why the Installed Design System remains available
-								offline, and how Installation prepares future work.
-							</p>
-						</div>
-						<div className="flex lg:justify-end">
-							<Link
-								href={"/guides/design-md" as Route}
-								className={buttonVariants({ size: "lg" })}
-							>
-								Read the Design Contract guide
-								<ArrowUpRight data-icon="inline-end" aria-hidden="true" />
-							</Link>
-						</div>
-					</article>
+					<div className="grid gap-6">
+						<article className="grid gap-8 border p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.6fr)] lg:items-end">
+							<div className="flex max-w-3xl flex-col gap-5">
+								<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.2em]">
+									Codex / Project instructions
+								</p>
+								<h2 className="text-balance font-medium text-3xl tracking-tight sm:text-5xl">
+									Make your Design Contract discoverable to Codex.
+								</h2>
+								<p className="text-pretty text-lg text-muted-foreground leading-8">
+									Follow the tested Installation workflow, inspect the managed
+									AGENTS.md reference, and verify the direction Codex receives
+									before interface work.
+								</p>
+							</div>
+							<div className="flex lg:justify-end">
+								<Link
+									href={"/guides/codex" as Route}
+									className={buttonVariants({ size: "lg" })}
+								>
+									Read the Codex guide
+									<ArrowUpRight data-icon="inline-end" aria-hidden="true" />
+								</Link>
+							</div>
+						</article>
+						<article className="grid gap-8 border p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.6fr)] lg:items-end">
+							<div className="flex max-w-3xl flex-col gap-5">
+								<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.2em]">
+									Design Contract / Vendor neutral
+								</p>
+								<h2 className="text-balance font-medium text-3xl tracking-tight sm:text-5xl">
+									Durable visual direction for every agent.
+								</h2>
+								<p className="text-pretty text-lg text-muted-foreground leading-8">
+									Learn how Project instructions lead agents to one root Design
+									Contract, why the Installed Design System remains available
+									offline, and how Installation prepares future work.
+								</p>
+							</div>
+							<div className="flex lg:justify-end">
+								<Link
+									href={"/guides/design-md" as Route}
+									className={buttonVariants({ size: "lg" })}
+								>
+									Read the Design Contract guide
+									<ArrowUpRight data-icon="inline-end" aria-hidden="true" />
+								</Link>
+							</div>
+						</article>
+					</div>
 				</div>
 			</section>
 		</main>
