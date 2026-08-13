@@ -3,16 +3,10 @@ import Link from "next/link";
 
 import { DesignSystemBrowser } from "@/components/design-system-browser";
 import { designSystemDiscoveryFor, designSystems } from "@/lib/catalog";
+import { designSystemsSocialCard, socialMetadata } from "@/lib/social-metadata";
 import { publicOrigin, StructuredData } from "@/lib/structured-data";
 
-export const metadata: Metadata = {
-	title: "Design Systems | AgentKogei",
-	description:
-		"Browse Published Design Systems from AgentKogei and choose a direction for your Project.",
-	alternates: {
-		canonical: "/design-systems",
-	},
-};
+export const metadata: Metadata = socialMetadata(designSystemsSocialCard);
 
 export default function DesignSystemsPage() {
 	const browserDesignSystems = designSystems.map(designSystemDiscoveryFor);

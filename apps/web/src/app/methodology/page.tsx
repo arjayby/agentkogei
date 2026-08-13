@@ -2,24 +2,18 @@ import { buttonVariants } from "@agentkogei/ui/components/button";
 import { ArrowUpRight } from "lucide-react";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
-
+import { methodologySocialCard, socialMetadata } from "@/lib/social-metadata";
 import {
 	agentKogeiOrganization,
 	publicOrigin,
 	StructuredData,
 } from "@/lib/structured-data";
 
-const title = "Design System Evaluation methodology | AgentKogei";
-const description =
-	"How AgentKogei authors, evaluates, publishes, versions, licenses, retrieves, and installs Design Systems.";
+const { description } = methodologySocialCard;
 const canonicalUrl = `${publicOrigin}/methodology`;
 
 export const metadata: Metadata = {
-	title,
-	description,
-	alternates: {
-		canonical: "/methodology",
-	},
+	...socialMetadata(methodologySocialCard),
 	robots: {
 		index: true,
 		follow: true,
