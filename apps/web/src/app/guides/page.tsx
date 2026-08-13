@@ -2,6 +2,7 @@ import { buttonVariants } from "@agentkogei/ui/components/button";
 import { ArrowUpRight } from "lucide-react";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
+import { guides } from "@/lib/guides";
 
 export const metadata: Metadata = {
 	title: "Guides for AI coding agents | AgentKogei",
@@ -36,34 +37,37 @@ export default function GuidesPage() {
 				className="px-5 py-12 sm:px-8 lg:px-12 lg:py-20"
 				aria-labelledby="available-guides-heading"
 			>
-				<div className="mx-auto max-w-7xl">
+				<div className="mx-auto flex max-w-7xl flex-col gap-6">
 					<h2 id="available-guides-heading" className="sr-only">
 						Available guides
 					</h2>
-					<article className="grid gap-8 border p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.6fr)] lg:items-end">
-						<div className="flex max-w-3xl flex-col gap-5">
-							<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.2em]">
-								Design Contract / Vendor neutral
-							</p>
-							<h2 className="text-balance font-medium text-3xl tracking-tight sm:text-5xl">
-								Durable visual direction for every agent.
-							</h2>
-							<p className="text-pretty text-lg text-muted-foreground leading-8">
-								Learn how Project instructions lead agents to one root Design
-								Contract, why the Installed Design System remains available
-								offline, and how Installation prepares future work.
-							</p>
-						</div>
-						<div className="flex lg:justify-end">
-							<Link
-								href={"/guides/design-md" as Route}
-								className={buttonVariants({ size: "lg" })}
-							>
-								Read the Design Contract guide
-								<ArrowUpRight data-icon="inline-end" aria-hidden="true" />
-							</Link>
-						</div>
-					</article>
+					{guides.map((guide) => (
+						<article
+							key={guide.route}
+							className="grid gap-8 border p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.6fr)] lg:items-end"
+						>
+							<div className="flex max-w-3xl flex-col gap-5">
+								<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.2em]">
+									{guide.card.label}
+								</p>
+								<h2 className="text-balance font-medium text-3xl tracking-tight sm:text-5xl">
+									{guide.card.title}
+								</h2>
+								<p className="text-pretty text-lg text-muted-foreground leading-8">
+									{guide.card.body}
+								</p>
+							</div>
+							<div className="flex lg:justify-end">
+								<Link
+									href={guide.route as Route}
+									className={buttonVariants({ size: "lg" })}
+								>
+									{guide.card.linkLabel}
+									<ArrowUpRight data-icon="inline-end" aria-hidden="true" />
+								</Link>
+							</div>
+						</article>
+					))}
 				</div>
 			</section>
 		</main>

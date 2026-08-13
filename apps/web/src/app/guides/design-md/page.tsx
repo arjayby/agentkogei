@@ -7,36 +7,19 @@ import {
 	InstallationCommand,
 } from "@/components/installation-command";
 import { installationChoices } from "@/lib/catalog";
-import { designContractGuide, designContractGuideUrl } from "@/lib/guides";
-import { agentKogeiOrganization, StructuredData } from "@/lib/structured-data";
+import {
+	designContractGuide,
+	guideMetadata,
+	guideStructuredData,
+} from "@/lib/guides";
+import { StructuredData } from "@/lib/structured-data";
 
 const installableDesignSystems: readonly InstallableDesignSystem[] =
 	installationChoices();
 
-export const metadata: Metadata = {
-	title: `${designContractGuide.title} | AgentKogei`,
-	description: designContractGuide.description,
-	alternates: {
-		canonical: designContractGuide.route,
-	},
-};
+export const metadata: Metadata = guideMetadata(designContractGuide);
 
-const structuredData = {
-	"@context": "https://schema.org",
-	"@type": "TechArticle",
-	"@id": `${designContractGuideUrl}#article`,
-	headline: designContractGuide.title,
-	description: designContractGuide.description,
-	url: designContractGuideUrl,
-	mainEntityOfPage: designContractGuideUrl,
-	inLanguage: "en",
-	datePublished: designContractGuide.publishedAt,
-	dateModified: designContractGuide.publishedAt,
-	author: agentKogeiOrganization,
-	publisher: {
-		"@id": agentKogeiOrganization["@id"],
-	},
-};
+const structuredData = guideStructuredData(designContractGuide);
 
 const relationshipSteps = [
 	{
