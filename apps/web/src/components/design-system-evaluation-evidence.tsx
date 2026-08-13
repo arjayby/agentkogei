@@ -1,3 +1,5 @@
+import type { Route } from "next";
+import Link from "next/link";
 import type { DesignSystem } from "@/lib/catalog";
 
 export function DesignSystemEvaluationEvidence({
@@ -29,6 +31,12 @@ export function DesignSystemEvaluationEvidence({
 				<p className="mt-2 text-muted-foreground text-sm leading-6">
 					{evidencePresentation.evaluation}
 				</p>
+				<Link
+					href={"/methodology" as Route}
+					className="mt-3 inline-block font-medium text-sm underline underline-offset-4"
+				>
+					Read the methodology
+				</Link>
 			</div>
 		</section>
 	);

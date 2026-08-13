@@ -2,7 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 import { discoverDesignSystemRoutes } from "./support/design-systems";
 
-const publicRoutes = ["/", "/design-systems"] as const;
+const publicRoutes = ["/", "/design-systems", "/methodology"] as const;
 
 const viewports = [
 	{

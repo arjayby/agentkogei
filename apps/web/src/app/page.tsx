@@ -107,6 +107,39 @@ export default function Home() {
 					<DesignSystemIdentityList designSystems={designSystems} />
 				</div>
 			</section>
+
+			<section
+				className="px-5 py-16 sm:px-8 lg:px-12 lg:py-24"
+				aria-labelledby="evaluation-heading"
+			>
+				<div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-2 lg:items-end">
+					<div>
+						<p className="mb-5 font-mono text-muted-foreground text-xs uppercase tracking-[0.24em]">
+							Public trust surface
+						</p>
+						<h2
+							id="evaluation-heading"
+							className="text-balance font-medium text-3xl tracking-tight sm:text-5xl"
+						>
+							Evidence you can inspect.
+						</h2>
+					</div>
+					<div className="flex max-w-xl flex-col items-start gap-6">
+						<p className="text-lg text-muted-foreground leading-8">
+							Every Published Design System exposes its release, compatibility,
+							license, evaluation scope, and evidence. The methodology explains
+							what those facts prove and where their guarantees end.
+						</p>
+						<Link
+							href={"/methodology" as Route}
+							className="inline-flex items-center gap-1 font-medium underline underline-offset-4"
+						>
+							Read the evaluation methodology
+							<ArrowUpRight className="size-4" aria-hidden="true" />
+						</Link>
+					</div>
+				</div>
+			</section>
 		</main>
 	);
 }

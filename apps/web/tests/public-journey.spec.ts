@@ -611,6 +611,107 @@ test("the homepage is a canonical AgentKogei application published by AgentKogei
 	});
 });
 
+test("methodology explains the current evidence backed publication and Installation boundaries", async ({
+	request,
+}) => {
+	const response = await request.get("/methodology");
+	expect(response.status()).toBe(200);
+	const html = await response.text();
+
+	expect(html).toContain(
+		"<title>Design System Evaluation methodology | AgentKogei</title>",
+	);
+	expect(html).toContain(
+		'<link rel="canonical" href="https://agentkogei.dev/methodology"/>',
+	);
+	expect(html).toMatch(/<meta name="robots" content="index, follow"\s*\/?>/);
+	expect(html).toContain("Design System Evaluation methodology");
+	expect(html).toContain("Candidate Design System Release");
+	expect(html).toContain("Authoring Approval");
+	expect(html).toContain("Publication Approval");
+	expect(html).toContain("generation evidence");
+	expect(html).toContain("automated validation");
+	expect(html).toContain("WCAG 2.2 Level AA");
+	expect(html).toContain("two part");
+	expect(html).toContain("MIT License");
+	expect(html).toContain("public and stateless");
+	expect(html).toContain("works offline");
+	expect(html).toContain("does not redesign");
+	expect(html).toContain(
+		"does not claim that every resulting interface conforms",
+	);
+
+	expect(readStructuredData(html, "methodology")).toMatchObject({
+		"@context": "https://schema.org",
+		"@type": "TechArticle",
+		"@id": "https://agentkogei.dev/methodology#article",
+		name: "Design System Evaluation methodology",
+		url: "https://agentkogei.dev/methodology",
+		author: {
+			"@type": "Organization",
+			"@id": "https://agentkogei.dev/#organization",
+			name: "AgentKogei",
+		},
+		publisher: {
+			"@id": "https://agentkogei.dev/#organization",
+		},
+	});
+});
+
+test("trust claims link to methodology from every public evaluation surface", async ({
+	page,
+}) => {
+	await page.goto("/");
+	await expect(
+		page.getByRole("main").getByRole("link", {
+			name: "Read the evaluation methodology",
+		}),
+	).toHaveAttribute("href", "/methodology");
+
+	await page.goto("/design-systems");
+	await expect(
+		page.getByRole("main").getByRole("link", {
+			name: "How Design System Evaluation works",
+		}),
+	).toHaveAttribute("href", "/methodology");
+	const routes = await discoverDesignSystemRoutes(page);
+
+	for (const route of routes) {
+		const { name } = await readPublishedDesignSystem(page, route);
+		const evidence = page.getByRole("region", {
+			name: `${name} public evaluation evidence`,
+		});
+		await expect(
+			evidence.getByRole("link", { name: "Read the methodology" }),
+			route,
+		).toHaveAttribute("href", "/methodology");
+	}
+});
+
+test("the canonical sitemap includes methodology and every Published Design System", async ({
+	page,
+	request,
+}) => {
+	const routes = await discoverDesignSystemRoutes(page);
+	const response = await request.get("/sitemap.xml");
+	expect(response.status()).toBe(200);
+	expect(response.headers()["content-type"]).toContain("application/xml");
+	const sitemap = await response.text();
+	const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(
+		([, location]) => location,
+	);
+
+	expect(locations).toEqual([
+		"https://agentkogei.dev",
+		"https://agentkogei.dev/design-systems",
+		"https://agentkogei.dev/methodology",
+		...routes.map((route) => `https://agentkogei.dev${route}`),
+	]);
+	expect(sitemap).toMatch(
+		/<loc>https:\/\/agentkogei\.dev\/methodology<\/loc>\s*<lastmod>2026-08-13<\/lastmod>/,
+	);
+});
+
 test("Design Systems is a canonical ItemList of every discovered Published Design System", async ({
 	page,
 	request,
@@ -2185,6 +2286,7 @@ const responsiveRoutes = [
 	"/",
 	"/design-systems",
 	"/design-systems/command",
+	"/methodology",
 ] as const;
 
 for (const route of responsiveRoutes) {

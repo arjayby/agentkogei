@@ -5,6 +5,7 @@ import { designSystems } from "@/lib/catalog";
 
 const productLinks = [
 	{ href: "/design-systems" as Route, label: "Design Systems" },
+	{ href: "/methodology" as Route, label: "Methodology" },
 ] as const;
 
 const repositoryUrl = "https://github.com/arjayby/agentkogei";
