@@ -3,6 +3,25 @@ import { ArrowUpRight } from "lucide-react";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
 
+const guideCards = [
+	{
+		label: "Problem guide / Start here",
+		title: "Consistent interfaces across agent work.",
+		description:
+			"Recognize why individually plausible screens drift, compare common approaches, and evaluate complete direction before you install it.",
+		href: "/guides/consistent-ai-ui",
+		action: "Solve inconsistent AI interfaces",
+	},
+	{
+		label: "Design Contract / Vendor neutral",
+		title: "Durable visual direction for every agent.",
+		description:
+			"Learn how Project instructions lead agents to one root Design Contract, why the Installed Design System remains available offline, and how Installation prepares future work.",
+		href: "/guides/design-md",
+		action: "Read the Design Contract guide",
+	},
+] as const;
+
 export const metadata: Metadata = {
 	title: "Guides for AI coding agents | AgentKogei",
 	description:
@@ -40,30 +59,35 @@ export default function GuidesPage() {
 					<h2 id="available-guides-heading" className="sr-only">
 						Available guides
 					</h2>
-					<article className="grid gap-8 border p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.6fr)] lg:items-end">
-						<div className="flex max-w-3xl flex-col gap-5">
-							<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.2em]">
-								Design Contract / Vendor neutral
-							</p>
-							<h2 className="text-balance font-medium text-3xl tracking-tight sm:text-5xl">
-								Durable visual direction for every agent.
-							</h2>
-							<p className="text-pretty text-lg text-muted-foreground leading-8">
-								Learn how Project instructions lead agents to one root Design
-								Contract, why the Installed Design System remains available
-								offline, and how Installation prepares future work.
-							</p>
-						</div>
-						<div className="flex lg:justify-end">
-							<Link
-								href={"/guides/design-md" as Route}
-								className={buttonVariants({ size: "lg" })}
+					<div className="grid gap-px border bg-border">
+						{guideCards.map((guide) => (
+							<article
+								key={guide.href}
+								className="grid gap-8 bg-background p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.6fr)] lg:items-end"
 							>
-								Read the Design Contract guide
-								<ArrowUpRight data-icon="inline-end" aria-hidden="true" />
-							</Link>
-						</div>
-					</article>
+								<div className="flex max-w-3xl flex-col gap-5">
+									<p className="font-mono text-muted-foreground text-xs uppercase tracking-[0.2em]">
+										{guide.label}
+									</p>
+									<h2 className="text-balance font-medium text-3xl tracking-tight sm:text-5xl">
+										{guide.title}
+									</h2>
+									<p className="text-pretty text-lg text-muted-foreground leading-8">
+										{guide.description}
+									</p>
+								</div>
+								<div className="flex lg:justify-end">
+									<Link
+										href={guide.href as Route}
+										className={buttonVariants({ size: "lg" })}
+									>
+										{guide.action}
+										<ArrowUpRight data-icon="inline-end" aria-hidden="true" />
+									</Link>
+								</div>
+							</article>
+						))}
+					</div>
 				</div>
 			</section>
 		</main>

@@ -1,7 +1,12 @@
 import type { MetadataRoute } from "next";
 
 import { currentRelease, designSystems } from "@/lib/catalog";
-import { designContractGuide, designContractGuideUrl } from "@/lib/guides";
+import {
+	consistentAiUiGuide,
+	consistentAiUiGuideUrl,
+	designContractGuide,
+	designContractGuideUrl,
+} from "@/lib/guides";
 import { publicOrigin } from "@/lib/structured-data";
 
 const methodologyPublishedAt = "2026-08-13";
@@ -38,6 +43,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
 		{
 			url: designContractGuideUrl,
 			lastModified: designContractGuide.publishedAt,
+		},
+		{
+			url: consistentAiUiGuideUrl,
+			lastModified: consistentAiUiGuide.publishedAt,
 		},
 		{
 			url: `${publicOrigin}/methodology`,

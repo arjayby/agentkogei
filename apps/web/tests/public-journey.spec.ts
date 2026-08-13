@@ -668,6 +668,10 @@ test("the sitemap contains only canonical indexable HTML with meaningful modific
 			lastModified: "2026-08-13",
 		},
 		{
+			url: "https://agentkogei.dev/guides/consistent-ai-ui",
+			lastModified: "2026-08-13",
+		},
+		{
 			url: "https://agentkogei.dev/methodology",
 			lastModified: "2026-08-13",
 		},
@@ -838,6 +842,7 @@ test("the canonical sitemap includes methodology and every Published Design Syst
 		"https://agentkogei.dev/design-systems",
 		"https://agentkogei.dev/guides",
 		"https://agentkogei.dev/guides/design-md",
+		"https://agentkogei.dev/guides/consistent-ai-ui",
 		"https://agentkogei.dev/methodology",
 		...routes.map((route) => `https://agentkogei.dev${route}`),
 	]);
@@ -1041,6 +1046,165 @@ test("Guides teaches Design Contracts through a complete education to Installati
 	).toHaveAttribute("href", "/design-systems");
 	await expect(article.getByLabel("Generated command")).toContainText(
 		"agentkogei@latest add",
+	);
+});
+
+test("a Builder can diagnose inconsistent AI generated interfaces and qualify an Installation", async ({
+	context,
+	page,
+	request,
+}) => {
+	await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+	await page.goto("/guides");
+	await page
+		.getByRole("link", { name: "Solve inconsistent AI interfaces" })
+		.click();
+	await expect(page).toHaveURL(/\/guides\/consistent-ai-ui$/);
+
+	const article = page.getByRole("article");
+	await expect(
+		article.getByRole("heading", {
+			level: 1,
+			name: "Keep AI generated interfaces consistent.",
+		}),
+	).toBeVisible();
+	await expect(
+		article.getByText(/individually plausible screen/i),
+	).toBeVisible();
+	await expect(article.getByText(/Project level direction/i)).toBeVisible();
+
+	for (const alternative of [
+		"Repeated prompts",
+		"Themes",
+		"Component libraries",
+		"Automatic redesign",
+		"Complete Design System",
+	]) {
+		await expect(
+			article.getByRole("heading", { name: alternative, exact: true }),
+		).toBeVisible();
+	}
+	await expect(article.getByText(/root DESIGN\.md artifact/i)).toBeVisible();
+
+	const evaluationPath = article.getByRole("list", {
+		name: "Evaluate before Installation",
+	});
+	await expect(
+		article.getByRole("link", { name: "Design System Preview", exact: true }),
+	).toHaveAttribute("href", "/design-systems");
+	const previewLink = evaluationPath.getByRole("link", {
+		name: /Open the .* Design System Preview/,
+	});
+	const previewHref = await previewLink.getAttribute("href");
+	expect(previewHref).toMatch(/^\/design-systems\/[^/]+$/);
+	const evaluatedIdentity = previewHref?.split("/").at(-1);
+	expect(evaluatedIdentity).toBeTruthy();
+
+	const evidenceLink = evaluationPath.getByRole("link", {
+		name: /Review .* public evidence/,
+	});
+	await expect(evidenceLink).toHaveAttribute(
+		"href",
+		`${previewHref}#release-details-heading`,
+	);
+	const contractLink = evaluationPath.getByRole("link", {
+		name: /Inspect the .* Design Contract/,
+	});
+	const contractHref = await contractLink.getAttribute("href");
+	expect(contractHref).toMatch(
+		new RegExp(`^/contracts/${evaluatedIdentity}/\\d+\\.\\d+$`),
+	);
+
+	await previewLink.click();
+	await expect(page).toHaveURL(new RegExp(`${previewHref}$`));
+	await expect(
+		page.getByRole("region", { name: /public evaluation evidence/ }),
+	).toBeVisible();
+	await page.goBack();
+	await evidenceLink.click();
+	await expect(page).toHaveURL(
+		new RegExp(`${previewHref}#release-details-heading$`),
+	);
+	await expect(
+		page.getByRole("heading", { name: "Release evidence", exact: true }),
+	).toBeVisible();
+	await page.goBack();
+
+	const contractResponse = await request.get(contractHref ?? "");
+	expect(contractResponse.status()).toBe(200);
+	expect(await contractResponse.text()).toMatch(/^# .+ Design System$/m);
+
+	const expectedCommand = `npx agentkogei@latest add ${evaluatedIdentity}`;
+	await expect(article.getByLabel("Generated command")).toHaveText(
+		expectedCommand,
+	);
+	await article.getByRole("button", { name: "Copy command" }).click();
+	expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+		expectedCommand,
+	);
+});
+
+test("the consistent AI interface guide is a canonical server rendered TechArticle", async ({
+	request,
+}) => {
+	const response = await request.get("/guides/consistent-ai-ui");
+	expect(response.status()).toBe(200);
+	const html = await response.text();
+
+	expect(html).toContain(
+		"<title>How to keep AI generated interfaces consistent | AgentKogei</title>",
+	);
+	expect(html).toContain(
+		'<link rel="canonical" href="https://agentkogei.dev/guides/consistent-ai-ui"/>',
+	);
+	for (const content of [
+		"Keep AI generated interfaces consistent.",
+		"individually plausible screen",
+		"Project level direction",
+		"Repeated prompts",
+		"Themes",
+		"Component libraries",
+		"Automatic redesign",
+		"Complete Design System",
+		"root DESIGN.md artifact",
+		"agentkogei@latest add",
+	]) {
+		expect(html).toContain(content);
+	}
+	for (const href of ['/guides"', '/design-systems"']) {
+		expect(html).toContain(`href="${href}`);
+	}
+	const previewRoute = html.match(
+		/href="(\/design-systems\/[^"#]+)"[^>]*>Open the /,
+	)?.[1];
+	expect(previewRoute).toBeTruthy();
+	expect(html).toContain(`href="${previewRoute}#release-details-heading"`);
+	const contractRoute = html.match(/href="(\/contracts\/([^/"]+)\/\d+\.\d+)"/);
+	expect(contractRoute?.[1]).toBeTruthy();
+	expect(contractRoute?.[2]).toBe(previewRoute?.split("/").at(-1));
+	expect(readStructuredData(html, "guide-consistent-ai-ui")).toMatchObject({
+		"@context": "https://schema.org",
+		"@type": "TechArticle",
+		"@id": "https://agentkogei.dev/guides/consistent-ai-ui#article",
+		headline: "How to keep AI generated interfaces consistent",
+		url: "https://agentkogei.dev/guides/consistent-ai-ui",
+		author: {
+			"@type": "Organization",
+			"@id": "https://agentkogei.dev/#organization",
+			name: "AgentKogei",
+		},
+		publisher: {
+			"@id": "https://agentkogei.dev/#organization",
+		},
+	});
+
+	const guidesResponse = await request.get("/guides");
+	expect(await guidesResponse.text()).toContain(
+		'href="/guides/consistent-ai-ui"',
+	);
+	const sitemapResponse = await request.get("/sitemap.xml");
+	expect(await sitemapResponse.text()).toContain(
+		"<loc>https://agentkogei.dev/guides/consistent-ai-ui</loc>",
 	);
 });
 
@@ -2598,6 +2762,7 @@ const responsiveRoutes = [
 	"/design-systems/command",
 	"/guides",
 	"/guides/design-md",
+	"/guides/consistent-ai-ui",
 	"/methodology",
 ] as const;
 
