@@ -28,6 +28,20 @@ export const designContractGuide = {
 	},
 } as const satisfies Guide;
 
+export const codexGuide = {
+	route: "/guides/codex",
+	title: "Use a Design System with Codex",
+	description:
+		"Install one Design Contract, inspect the managed Project instruction, and verify the direction Codex receives before interface work.",
+	publishedAt: "2026-08-13",
+	card: {
+		label: "Codex / Project instructions",
+		title: "Make your Design Contract discoverable to Codex.",
+		body: "Follow the tested Installation workflow, inspect the managed AGENTS.md reference, and verify the direction Codex receives before interface work.",
+		linkLabel: "Read the Codex guide",
+	},
+} as const satisfies Guide;
+
 export const claudeCodeGuide = {
 	route: "/guides/claude-code",
 	title: "Claude Code Design Contract workflow",
@@ -42,7 +56,11 @@ export const claudeCodeGuide = {
 	},
 } as const satisfies Guide;
 
-export const guides = [designContractGuide, claudeCodeGuide] as const;
+export const guides = [
+	codexGuide,
+	designContractGuide,
+	claudeCodeGuide,
+] as const;
 
 export const guidesPublishedAt = guides.reduce<string>(
 	(latest, guide) => (guide.publishedAt > latest ? guide.publishedAt : latest),

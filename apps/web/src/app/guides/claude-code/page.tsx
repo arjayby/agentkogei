@@ -172,7 +172,7 @@ export default function ClaudeCodeGuidePage() {
 								<div className="border-[#1f2733] border-b px-4 py-3 text-[#8b98ab] text-xs uppercase tracking-[0.18em]">
 									Inspect the bridge from the Project root
 								</div>
-								<pre className="overflow-x-auto p-5 text-sm leading-7">
+								<pre className="whitespace-pre-wrap p-5 text-sm leading-7 [overflow-wrap:anywhere]">
 									<code>{`sed -n '1,120p' CLAUDE.md
 sed -n '/agentkogei:design-system:start/,/agentkogei:design-system:end/p' AGENTS.md
 sed -n '1,160p' DESIGN.md`}</code>
