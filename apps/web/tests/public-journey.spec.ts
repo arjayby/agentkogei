@@ -41,6 +41,34 @@ function runDesignContractInstallation(
 	});
 }
 
+async function releasePublishedAt(identity: string, release: string) {
+	for (const releasesDirectory of [
+		path.resolve(process.cwd(), "../../packages/design-systems/releases"),
+		path.resolve(
+			process.cwd(),
+			"../../packages/design-systems/tests/fixtures/releases",
+		),
+	]) {
+		try {
+			const metadata = JSON.parse(
+				await readFile(
+					path.join(
+						releasesDirectory,
+						identity,
+						release,
+						"design-system-evaluation.json",
+					),
+					"utf8",
+				),
+			) as { designSystemRelease: { publishedAt: string } };
+			return metadata.designSystemRelease.publishedAt;
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+		}
+	}
+	throw new Error(`Missing release metadata for ${identity}@${release}`);
+}
+
 test("a prospective Builder can understand what a Design System changes", async ({
 	page,
 }) => {
@@ -570,6 +598,72 @@ test("public page metadata uses Design System vocabulary", async ({ page }) => {
 		expect(description, route).toMatch(/Design System/i);
 		expect(description, route).not.toMatch(/\bpack\b/i);
 	}
+});
+
+test("the public crawler policy permits every public resource", async ({
+	request,
+}) => {
+	const response = await request.get("/robots.txt");
+	expect(response.status()).toBe(200);
+	expect(response.headers()["content-type"]).toContain("text/plain");
+	expect(await response.text()).toBe(
+		[
+			"User-Agent: *",
+			"Allow: /",
+			"",
+			"Host: https://agentkogei.dev",
+			"Sitemap: https://agentkogei.dev/sitemap.xml",
+			"",
+		].join("\n"),
+	);
+});
+
+test("the sitemap contains only canonical indexable HTML with release modification dates", async ({
+	page,
+	request,
+}) => {
+	const previewRoutes = await discoverDesignSystemRoutes(page);
+	const previewEntries = [];
+	for (const route of previewRoutes) {
+		const { identity, currentRelease } = await readPublishedDesignSystem(
+			page,
+			route,
+		);
+		previewEntries.push({
+			url: `https://agentkogei.dev${route}`,
+			lastModified: await releasePublishedAt(identity, currentRelease),
+		});
+	}
+	const catalogLastModified = previewEntries
+		.map(({ lastModified }) => lastModified)
+		.toSorted()
+		.at(-1);
+	if (!catalogLastModified) throw new Error("The sitemap has no release date");
+
+	const response = await request.get("/sitemap.xml");
+	expect(response.status()).toBe(200);
+	expect(response.headers()["content-type"]).toContain("application/xml");
+	const xml = await response.text();
+	const entries = [
+		...xml.matchAll(
+			/<url>\s*<loc>([^<]+)<\/loc>\s*<lastmod>([^<]+)<\/lastmod>\s*<\/url>/g,
+		),
+	].map(([, url, lastModified]) => ({ url, lastModified }));
+
+	expect(entries).toEqual([
+		{
+			url: "https://agentkogei.dev",
+			lastModified: catalogLastModified,
+		},
+		{
+			url: "https://agentkogei.dev/design-systems",
+			lastModified: catalogLastModified,
+		},
+		...previewEntries,
+	]);
+	expect(xml).not.toMatch(
+		/\/contracts\/|\.json<\/loc>|\/llms(?:-full)?\.txt|\/design-systems\/[^<]+\/[^<]+|404|not-found/,
+	);
 });
 
 test("the homepage is a canonical AgentKogei application published by AgentKogei", async ({
@@ -1879,7 +1973,9 @@ test("an unresolved Design Contract selector is refused as plain text", async ({
 
 	expect(unknown.status()).toBe(404);
 	expect(unknown.headers()["content-type"]).toContain("text/plain");
+	expect(unknown.headers()["x-robots-tag"]).toBe("noindex");
 	expect(unknownRelease.status()).toBe(404);
+	expect(unknownRelease.headers()["x-robots-tag"]).toBe("noindex");
 });
 
 test("Command is public while current and exact Signal selectors are ordinarily unknown", async ({
@@ -1945,6 +2041,7 @@ test("every discovered release is delivered and installed through identity indep
 
 		const current = await request.get(`/contracts/${identity}`);
 		expect(current.status()).toBe(200);
+		expect(current.headers()["x-robots-tag"]).toBe("noindex");
 		expect(current.headers()["content-type"]).toBe(
 			"text/markdown; charset=utf-8",
 		);
@@ -1979,6 +2076,7 @@ test("every discovered release is delivered and installed through identity indep
 			releases.map(async (release) => {
 				const response = await request.get(`/contracts/${identity}/${release}`);
 				expect(response.status()).toBe(200);
+				expect(response.headers()["x-robots-tag"]).toBe("noindex");
 				expect(response.headers()["x-agentkogei-design-system-release"]).toBe(
 					release,
 				);

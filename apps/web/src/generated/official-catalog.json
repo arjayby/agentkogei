@@ -623,6 +623,7 @@
 			"releases": [
 				{
 					"version": "1.0",
+					"publishedAt": "2026-07-19",
 					"changelog": {
 						"summary": "Initial Published Design System with complete cross-surface guidance, semantic informational-state tokens, and responsive pagination direction.",
 						"breaking": false,
@@ -1258,6 +1259,7 @@
 			"releases": [
 				{
 					"version": "1.0",
+					"publishedAt": "2026-07-19",
 					"changelog": {
 						"summary": "Initial Published Design System with complete cross-surface guidance, evaluated implementation direction, and WCAG 2.2 AA evidence.",
 						"breaking": false,
@@ -1892,6 +1894,7 @@
 			"releases": [
 				{
 					"version": "1.0",
+					"publishedAt": "2026-07-25",
 					"changelog": {
 						"summary": "Initial Published Design System with complete cross-surface coverage and evaluation evidence.",
 						"breaking": false,
@@ -2541,6 +2544,7 @@
 			"releases": [
 				{
 					"version": "1.0",
+					"publishedAt": "2026-07-18",
 					"changelog": {
 						"summary": "Initial Design System Release with solid graphite planes, dense technical patterns, and complete state coverage.",
 						"breaking": false,
