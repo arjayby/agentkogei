@@ -79,6 +79,10 @@ export default async function DesignSystemPage({
 	}
 
 	const release = currentRelease(designSystem);
+	const firstRelease = designSystem.releases.at(-1);
+	if (!firstRelease) {
+		throw new Error(`${designSystem.name} has no Design System Releases`);
+	}
 	const canonicalUrl = `${publicOrigin}${designSystem.preview.route}`;
 	const structuredData = {
 		"@context": "https://schema.org",
@@ -91,7 +95,8 @@ export default async function DesignSystemPage({
 		),
 		url: canonicalUrl,
 		version: release.version,
-		datePublished: release.publishedAt,
+		datePublished: firstRelease.publishedAt,
+		dateModified: release.publishedAt,
 		license: "https://opensource.org/license/mit",
 		author: agentKogeiOrganization,
 		additionalProperty: [

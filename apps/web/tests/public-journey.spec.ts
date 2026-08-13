@@ -639,7 +639,7 @@ test("methodology explains the current evidence backed publication and Installat
 		"The standardized generation and automated validation a Design System Release must pass before publication",
 	);
 	expect(html).toContain(
-		"A Design System whose final release has met its completeness and quality requirements",
+		"A Design System whose final release has met its completeness and quality requirements and has been merged into the Official Catalog source.",
 	);
 	expect(html).toContain("generation evidence");
 	expect(html).toContain("automated validation");
@@ -745,13 +745,13 @@ test("the canonical sitemap includes methodology and every Published Design Syst
 		const structuredData = readStructuredData(
 			previewHtml,
 			`design-system-${identity}`,
-		) as { datePublished?: string };
+		) as { dateModified?: string };
 		expect(
 			entries.find(
 				({ location }) => location === `https://agentkogei.dev${route}`,
 			)?.lastModified,
 			route,
-		).toBe(structuredData.datePublished);
+		).toBe(structuredData.dateModified);
 	}
 });
 
@@ -835,6 +835,7 @@ test("every discovered Design System Preview is a canonical versioned CreativeWo
 			url: `https://agentkogei.dev${route}`,
 			version: currentRelease,
 			datePublished: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+			dateModified: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
 			license: "https://opensource.org/license/mit",
 			author: {
 				"@type": "Organization",

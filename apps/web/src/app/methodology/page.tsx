@@ -246,8 +246,8 @@ export default function MethodologyPage() {
 							<h3 className="font-medium">Published Design System</h3>
 							<p className="mt-3 text-muted-foreground text-sm leading-6">
 								A Design System whose final release has met its completeness and
-								quality requirements and has been merged into AgentKogei's
-								validated publication source. Before merge, it is not published.
+								quality requirements and has been merged into the Official
+								Catalog source. Before merge, it is not published.
 							</p>
 						</div>
 						<div className="bg-background p-6">
