@@ -7,8 +7,12 @@ import {
 	InstallationCommand,
 } from "@/components/installation-command";
 import { currentRelease, designSystems } from "@/lib/catalog";
-import { consistentAiUiGuide, consistentAiUiGuideUrl } from "@/lib/guides";
-import { agentKogeiOrganization, StructuredData } from "@/lib/structured-data";
+import {
+	consistentAiUiGuide,
+	guideMetadata,
+	guideStructuredData,
+} from "@/lib/guides";
+import { StructuredData } from "@/lib/structured-data";
 
 function firstDesignSystem() {
 	const designSystem = designSystems.at(0);
@@ -27,30 +31,9 @@ const guideInstallationChoice: readonly InstallableDesignSystem[] = [
 	},
 ];
 
-export const metadata: Metadata = {
-	title: `${consistentAiUiGuide.title} | AgentKogei`,
-	description: consistentAiUiGuide.description,
-	alternates: {
-		canonical: consistentAiUiGuide.route,
-	},
-};
+export const metadata: Metadata = guideMetadata(consistentAiUiGuide);
 
-const structuredData = {
-	"@context": "https://schema.org",
-	"@type": "TechArticle",
-	"@id": `${consistentAiUiGuideUrl}#article`,
-	headline: consistentAiUiGuide.title,
-	description: consistentAiUiGuide.description,
-	url: consistentAiUiGuideUrl,
-	mainEntityOfPage: consistentAiUiGuideUrl,
-	inLanguage: "en",
-	datePublished: consistentAiUiGuide.publishedAt,
-	dateModified: consistentAiUiGuide.publishedAt,
-	author: agentKogeiOrganization,
-	publisher: {
-		"@id": agentKogeiOrganization["@id"],
-	},
-};
+const structuredData = guideStructuredData(consistentAiUiGuide);
 
 const comparisonApproaches = [
 	{

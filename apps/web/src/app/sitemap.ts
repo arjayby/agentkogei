@@ -1,12 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { currentRelease, designSystems } from "@/lib/catalog";
-import {
-	consistentAiUiGuide,
-	consistentAiUiGuideUrl,
-	designContractGuide,
-	designContractGuideUrl,
-} from "@/lib/guides";
+import { guides, guidesPublishedAt, guideUrl } from "@/lib/guides";
 import { publicOrigin } from "@/lib/structured-data";
 
 const methodologyPublishedAt = "2026-08-13";
@@ -15,6 +10,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
 	const previews = designSystems.map((designSystem) => ({
 		url: `${publicOrigin}${designSystem.preview.route}`,
 		lastModified: currentRelease(designSystem).publishedAt,
+	}));
+	const guidePages = guides.map((guide) => ({
+		url: guideUrl(guide),
+		lastModified: guide.publishedAt,
 	}));
 	const collectionLastModified = previews
 		.map(({ lastModified }) => lastModified)
@@ -38,16 +37,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
 		},
 		{
 			url: `${publicOrigin}/guides`,
-			lastModified: designContractGuide.publishedAt,
+			lastModified: guidesPublishedAt,
 		},
-		{
-			url: designContractGuideUrl,
-			lastModified: designContractGuide.publishedAt,
-		},
-		{
-			url: consistentAiUiGuideUrl,
-			lastModified: consistentAiUiGuide.publishedAt,
-		},
+		...guidePages,
 		{
 			url: `${publicOrigin}/methodology`,
 			lastModified: methodologyPublishedAt,

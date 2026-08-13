@@ -664,11 +664,19 @@ test("the sitemap contains only canonical indexable HTML with meaningful modific
 			lastModified: "2026-08-13",
 		},
 		{
+			url: "https://agentkogei.dev/guides/codex",
+			lastModified: "2026-08-13",
+		},
+		{
 			url: "https://agentkogei.dev/guides/design-md",
 			lastModified: "2026-08-13",
 		},
 		{
 			url: "https://agentkogei.dev/guides/consistent-ai-ui",
+			lastModified: "2026-08-13",
+		},
+		{
+			url: "https://agentkogei.dev/guides/claude-code",
 			lastModified: "2026-08-13",
 		},
 		{
@@ -841,8 +849,10 @@ test("the canonical sitemap includes methodology and every Published Design Syst
 		"https://agentkogei.dev",
 		"https://agentkogei.dev/design-systems",
 		"https://agentkogei.dev/guides",
+		"https://agentkogei.dev/guides/codex",
 		"https://agentkogei.dev/guides/design-md",
 		"https://agentkogei.dev/guides/consistent-ai-ui",
+		"https://agentkogei.dev/guides/claude-code",
 		"https://agentkogei.dev/methodology",
 		...routes.map((route) => `https://agentkogei.dev${route}`),
 	]);
@@ -1046,6 +1056,233 @@ test("Guides teaches Design Contracts through a complete education to Installati
 	).toHaveAttribute("href", "/design-systems");
 	await expect(article.getByLabel("Generated command")).toContainText(
 		"agentkogei@latest add",
+	);
+	const accessibility = await new AxeBuilder({ page })
+		.withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+		.analyze();
+	expect(accessibility.violations).toEqual([]);
+});
+
+test("the Claude Code guide makes the explicit instruction bridge visible", async ({
+	page,
+}) => {
+	await page.goto("/guides");
+	await page.getByRole("link", { name: "Read the Claude Code guide" }).click();
+	await expect(page).toHaveURL(/\/guides\/claude-code$/);
+
+	const article = page.getByRole("article");
+	await expect(
+		article.getByRole("heading", {
+			level: 1,
+			name: "Connect Claude Code to your Design Contract.",
+		}),
+	).toBeVisible();
+	await expect(article.getByText("CLAUDE.md", { exact: true })).toBeVisible();
+	await expect(article.getByText("@AGENTS.md", { exact: true })).toBeVisible();
+	await expect(article.getByText("AGENTS.md", { exact: true })).toBeVisible();
+	await expect(article.getByText("DESIGN.md", { exact: true })).toBeVisible();
+	await expect(
+		article.getByText(
+			"AgentKogei Installation does not create or manage CLAUDE.md.",
+			{ exact: true },
+		),
+	).toBeVisible();
+	await expect(article.getByText(/run \/context/i)).toBeVisible();
+	const inspection = article.getByRole("region", {
+		name: "Project file inspection",
+	});
+	await expect(inspection).toContainText("CLAUDE.md");
+	await expect(inspection).toContainText("agentkogei:design-system:start");
+	await expect(inspection).toContainText("DESIGN.md");
+	await expect(
+		article.getByRole("link", { name: "Understand the Design Contract" }),
+	).toHaveAttribute("href", "/guides/design-md");
+	await expect(
+		article.getByRole("link", { name: "Explore Design Systems" }),
+	).toHaveAttribute("href", "/design-systems");
+	await expect(article.getByLabel("Generated command")).toContainText(
+		"agentkogei@latest add",
+	);
+});
+
+test("the Claude Code guide is a canonical server rendered TechArticle", async ({
+	request,
+}) => {
+	const guidesResponse = await request.get("/guides");
+	expect(guidesResponse.status()).toBe(200);
+	expect(await guidesResponse.text()).toContain('href="/guides/claude-code"');
+
+	const guideResponse = await request.get("/guides/claude-code");
+	expect(guideResponse.status()).toBe(200);
+	const guideHtml = await guideResponse.text();
+	expect(guideHtml).toContain(
+		"<title>Claude Code Design Contract workflow | AgentKogei</title>",
+	);
+	expect(guideHtml).toContain(
+		'<link rel="canonical" href="https://agentkogei.dev/guides/claude-code"/>',
+	);
+	for (const serverRenderedContent of [
+		"Connect Claude Code to your Design Contract.",
+		"@AGENTS.md",
+		"AgentKogei Installation does not create or manage CLAUDE.md.",
+		"Run /context",
+		"agentkogei@latest add",
+	]) {
+		expect(guideHtml).toContain(serverRenderedContent);
+	}
+	for (const internalLink of ["/guides", "/guides/design-md"]) {
+		expect(guideHtml).toContain(`href="${internalLink}"`);
+	}
+	expect(readStructuredData(guideHtml, "guide-claude-code")).toMatchObject({
+		"@context": "https://schema.org",
+		"@type": "TechArticle",
+		"@id": "https://agentkogei.dev/guides/claude-code#article",
+		headline: "Claude Code Design Contract workflow",
+		url: "https://agentkogei.dev/guides/claude-code",
+		author: {
+			"@type": "Organization",
+			"@id": "https://agentkogei.dev/#organization",
+			name: "AgentKogei",
+		},
+		publisher: {
+			"@id": "https://agentkogei.dev/#organization",
+		},
+	});
+
+	const sitemapResponse = await request.get("/sitemap.xml");
+	expect(sitemapResponse.status()).toBe(200);
+	expect(await sitemapResponse.text()).toContain(
+		"<loc>https://agentkogei.dev/guides/claude-code</loc>",
+	);
+});
+
+test("the Codex guide proves the Project instruction to Installation workflow", async ({
+	page,
+}) => {
+	await page.goto("/guides");
+	await page.getByRole("link", { name: "Read the Codex guide" }).click();
+	await expect(page).toHaveURL(/\/guides\/codex$/);
+
+	const article = page.getByRole("article");
+	await expect(
+		article.getByRole("heading", {
+			level: 1,
+			name: "Give Codex the same design direction in every task.",
+		}),
+	).toBeVisible();
+	await expect(
+		article
+			.getByRole("region", { name: "Inspect, install, then verify." })
+			.getByText("npx agentkogei@latest add foundation", { exact: true }),
+	).toBeVisible();
+	await expect(
+		article.getByText("cat AGENTS.md", { exact: true }),
+	).toBeVisible();
+	await expect(
+		article.getByText("cat DESIGN.md", { exact: true }),
+	).toBeVisible();
+	await expect(
+		article.getByText("ls AGENTS.override.md AGENTS.md DESIGN.md", {
+			exact: true,
+		}),
+	).toBeVisible();
+	await expect(
+		article.getByText("wc -c AGENTS.md", { exact: true }),
+	).toBeVisible();
+	await expect(
+		article.getByText(
+			"Follow the Design System in `DESIGN.md` for all user interface work in this Project.",
+			{ exact: true },
+		),
+	).toBeVisible();
+	await expect(
+		article.getByText(
+			"At the Project root, Codex checks AGENTS.override.md before AGENTS.md and uses at most one instruction file there.",
+			{ exact: true },
+		),
+	).toBeVisible();
+	await expect(
+		article.getByText(
+			"Codex stops adding instruction files when their combined size reaches project_doc_max_bytes, which defaults to 32 KiB.",
+			{ exact: true },
+		),
+	).toBeVisible();
+	await expect(
+		article.getByText(
+			"Summarize the Project instructions and the Design Contract you will follow before changing the interface.",
+			{ exact: true },
+		),
+	).toBeVisible();
+	await expect(
+		article.getByRole("link", { name: "Codex AGENTS.md documentation" }),
+	).toHaveAttribute(
+		"href",
+		"https://developers.openai.com/codex/guides/agents-md",
+	);
+	await expect(
+		article.getByRole("link", { name: "Explore Design Systems" }),
+	).toHaveAttribute("href", "/design-systems");
+	await expect(article.getByLabel("Generated command")).toContainText(
+		"agentkogei@latest add",
+	);
+});
+
+test("the Codex guide is a canonical server rendered TechArticle", async ({
+	request,
+}) => {
+	const response = await request.get("/guides/codex");
+	expect(response.status()).toBe(200);
+	const html = await response.text();
+
+	expect(html).toContain(
+		"<title>Use a Design System with Codex | AgentKogei</title>",
+	);
+	expect(html).toContain(
+		'<link rel="canonical" href="https://agentkogei.dev/guides/codex"/>',
+	);
+	for (const serverRenderedContent of [
+		"Give Codex the same design direction in every task.",
+		"Project instructions form the discovery path.",
+		"DESIGN.md is not a special Codex instruction filename.",
+		"npx agentkogei@latest add foundation",
+		"ls AGENTS.override.md AGENTS.md DESIGN.md",
+		"wc -c AGENTS.md",
+		"cat AGENTS.md",
+		"cat DESIGN.md",
+		"Codex checks AGENTS.override.md before",
+		"Codex stops adding instruction files when their combined size reaches project_doc_max_bytes",
+		"AgentKogei does not create or change AGENTS.override.md.",
+		"Start a new Codex task from the Project root after Installation.",
+		"agentkogei@latest add",
+	]) {
+		expect(html).toContain(serverRenderedContent);
+	}
+	expect(html).toContain('href="/guides"');
+	expect(html).toContain('href="/design-systems"');
+	expect(html).toContain(
+		'href="https://developers.openai.com/codex/guides/agents-md"',
+	);
+	expect(readStructuredData(html, "guide-codex")).toMatchObject({
+		"@context": "https://schema.org",
+		"@type": "TechArticle",
+		"@id": "https://agentkogei.dev/guides/codex#article",
+		headline: "Use a Design System with Codex",
+		url: "https://agentkogei.dev/guides/codex",
+		author: {
+			"@type": "Organization",
+			"@id": "https://agentkogei.dev/#organization",
+			name: "AgentKogei",
+		},
+		publisher: {
+			"@id": "https://agentkogei.dev/#organization",
+		},
+	});
+
+	const guidesResponse = await request.get("/guides");
+	expect(await guidesResponse.text()).toContain('href="/guides/codex"');
+	const sitemapResponse = await request.get("/sitemap.xml");
+	expect(await sitemapResponse.text()).toContain(
+		"<loc>https://agentkogei.dev/guides/codex</loc>",
 	);
 });
 
@@ -2761,6 +2998,8 @@ const responsiveRoutes = [
 	"/design-systems",
 	"/design-systems/command",
 	"/guides",
+	"/guides/codex",
+	"/guides/claude-code",
 	"/guides/design-md",
 	"/guides/consistent-ai-ui",
 	"/methodology",
