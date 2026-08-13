@@ -6,6 +6,7 @@ const publicRoutes = [
 	"/",
 	"/design-systems",
 	"/guides",
+	"/guides/codex",
 	"/guides/design-md",
 	"/methodology",
 ] as const;

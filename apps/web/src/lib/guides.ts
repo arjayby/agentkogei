@@ -9,3 +9,13 @@ export const designContractGuide = {
 } as const;
 
 export const designContractGuideUrl = `${publicOrigin}${designContractGuide.route}`;
+
+export const codexGuide = {
+	route: "/guides/codex",
+	title: "Use a Design System with Codex",
+	description:
+		"Install one Design Contract, inspect the managed Project instruction, and verify the direction Codex receives before interface work.",
+	publishedAt: "2026-08-13",
+} as const;
+
+export const codexGuideUrl = `${publicOrigin}${codexGuide.route}`;
