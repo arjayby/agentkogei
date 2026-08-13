@@ -7,36 +7,15 @@ import {
 	InstallationCommand,
 } from "@/components/installation-command";
 import { installationChoices } from "@/lib/catalog";
-import { codexGuide, codexGuideUrl } from "@/lib/guides";
-import { agentKogeiOrganization, StructuredData } from "@/lib/structured-data";
+import { codexGuide, guideMetadata, guideStructuredData } from "@/lib/guides";
+import { StructuredData } from "@/lib/structured-data";
 
 const installableDesignSystems: readonly InstallableDesignSystem[] =
 	installationChoices();
 
-export const metadata: Metadata = {
-	title: `${codexGuide.title} | AgentKogei`,
-	description: codexGuide.description,
-	alternates: {
-		canonical: codexGuide.route,
-	},
-};
+export const metadata: Metadata = guideMetadata(codexGuide);
 
-const structuredData = {
-	"@context": "https://schema.org",
-	"@type": "TechArticle",
-	"@id": `${codexGuideUrl}#article`,
-	headline: codexGuide.title,
-	description: codexGuide.description,
-	url: codexGuideUrl,
-	mainEntityOfPage: codexGuideUrl,
-	inLanguage: "en",
-	datePublished: codexGuide.publishedAt,
-	dateModified: codexGuide.publishedAt,
-	author: agentKogeiOrganization,
-	publisher: {
-		"@id": agentKogeiOrganization["@id"],
-	},
-};
+const structuredData = guideStructuredData(codexGuide);
 
 const installationSteps = [
 	{
