@@ -225,7 +225,10 @@ export default function DesignContractGuidePage() {
 							use the command for the Design System you chose from the Project
 							root.
 						</p>
-						<InstallationCommand designSystems={installableDesignSystems}>
+						<InstallationCommand
+							designSystems={installableDesignSystems}
+							guide="design-contract"
+						>
 							The CLI retrieves the selected public release anonymously and asks
 							for normal file mutation approval before Installation.
 						</InstallationCommand>

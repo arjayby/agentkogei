@@ -10,6 +10,7 @@ import { ArrowLeft, ArrowUpRight, Check } from "lucide-react";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { DesignContractLink } from "@/components/design-contract-link";
 import { DesignSystemBehaviorSpecimen } from "@/components/design-system-behavior-specimen";
 import { DesignSystemControlsSpecimen } from "@/components/design-system-controls-specimen";
 import { DesignSystemEvaluationEvidence } from "@/components/design-system-evaluation-evidence";
@@ -17,6 +18,7 @@ import { DesignSystemFoundationsSpecimen } from "@/components/design-system-foun
 import { DesignSystemInteractionsSpecimen } from "@/components/design-system-interactions-specimen";
 import { DesignSystemMark } from "@/components/design-system-mark";
 import { DesignSystemPreviewTheme } from "@/components/design-system-preview-theme";
+import { DesignSystemViewAnalytics } from "@/components/design-system-view-analytics";
 import { InstallationCommand } from "@/components/installation-command";
 import {
 	catalogMetadataLabel,
@@ -146,6 +148,7 @@ export default async function DesignSystemPage({
 
 	return (
 		<main>
+			<DesignSystemViewAnalytics designSystem={designSystem.slug} />
 			<StructuredData
 				identity={`design-system-${designSystem.slug}`}
 				data={structuredData}
@@ -194,13 +197,15 @@ export default async function DesignSystemPage({
 								</ul>
 							</div>
 							<div>
-								<Link
+								<DesignContractLink
 									href={actionHref}
+									designSystem={designSystem.slug}
+									surface="preview"
 									className={buttonVariants({ size: "lg" })}
 								>
 									{actionLabel}
 									<ArrowUpRight data-icon="inline-end" aria-hidden="true" />
-								</Link>
+								</DesignContractLink>
 							</div>
 						</div>
 						<div className="grid aspect-square place-items-center border bg-card p-10 sm:p-14">
@@ -426,12 +431,14 @@ export default async function DesignSystemPage({
 										{release.changelog.summary}
 									</p>
 								</div>
-								<Link
+								<DesignContractLink
 									href={actionHref}
+									designSystem={designSystem.slug}
+									surface="preview"
 									className="w-fit font-medium text-sm underline underline-offset-4"
 								>
 									Read {designSystem.name} {release.version} Design Contract
-								</Link>
+								</DesignContractLink>
 								<details className="border-t pt-5">
 									<summary className="cursor-pointer font-medium text-sm underline underline-offset-4">
 										View raw Design Contract

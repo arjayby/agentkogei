@@ -2,6 +2,7 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
 
+import { DesignContractLink } from "@/components/design-contract-link";
 import {
 	type InstallableDesignSystem,
 	InstallationCommand,
@@ -64,18 +65,24 @@ const evaluationSteps = [
 		title: `Open the ${exampleDesignSystem.name} Design System Preview`,
 		body: "Inspect its intended fit, visual direction, foundations, component behavior, and representative product surfaces.",
 		href: exampleDesignSystem.preview.route,
+		analytics: null,
 	},
 	{
 		label: "02 / Evidence",
 		title: `Review ${exampleDesignSystem.name} public evidence`,
 		body: "Check its release metadata, validation, responsive coverage, color schemes, reduced motion, and accessibility evidence for the reference implementation.",
 		href: `${exampleDesignSystem.preview.route}#release-details-heading`,
+		analytics: null,
 	},
 	{
 		label: "03 / Complete direction",
 		title: `Inspect the ${exampleDesignSystem.name} Design Contract`,
 		body: `Read the exact ${exampleDesignSystem.name} ${exampleRelease.version} Design Contract to judge the actual agent direction rather than relying on the visual specimen alone.`,
 		href: `/contracts/${exampleDesignSystem.slug}/${exampleRelease.version}`,
+		analytics: {
+			designSystem: exampleDesignSystem.slug,
+			surface: "guide",
+		},
 	},
 ] as const;
 
@@ -215,13 +222,25 @@ export default function ConsistentAiUiGuidePage() {
 										) : null}
 									</div>
 									<h3 className="font-medium text-xl tracking-tight">
-										<Link
-											href={step.href as Route}
-											className="inline-flex items-center gap-2 underline-offset-4 hover:underline"
-										>
-											{step.title}
-											<ArrowUpRight className="size-4" aria-hidden="true" />
-										</Link>
+										{step.analytics ? (
+											<DesignContractLink
+												href={step.href as Route}
+												designSystem={step.analytics.designSystem}
+												surface={step.analytics.surface}
+												className="inline-flex items-center gap-2 underline-offset-4 hover:underline"
+											>
+												{step.title}
+												<ArrowUpRight className="size-4" aria-hidden="true" />
+											</DesignContractLink>
+										) : (
+											<Link
+												href={step.href as Route}
+												className="inline-flex items-center gap-2 underline-offset-4 hover:underline"
+											>
+												{step.title}
+												<ArrowUpRight className="size-4" aria-hidden="true" />
+											</Link>
+										)}
 									</h3>
 									<p className="text-muted-foreground leading-7">{step.body}</p>
 								</li>
@@ -252,7 +271,10 @@ export default function ConsistentAiUiGuidePage() {
 							does not redesign an existing interface, install dependencies, or
 							replace the Builder&apos;s approval of file changes.
 						</p>
-						<InstallationCommand designSystems={guideInstallationChoice}>
+						<InstallationCommand
+							designSystems={guideInstallationChoice}
+							guide="consistent-ai-ui"
+						>
 							This command keeps the {exampleDesignSystem.name} direction
 							inspected above. Run it from the Project root after confirming the
 							fit.

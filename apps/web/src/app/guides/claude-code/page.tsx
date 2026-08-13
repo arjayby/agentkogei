@@ -248,7 +248,10 @@ sed -n '1,160p' DESIGN.md`}</code>
 							the selected command from the Project root. Installation previews
 							the file changes and asks for approval before writing.
 						</p>
-						<InstallationCommand designSystems={installableDesignSystems}>
+						<InstallationCommand
+							designSystems={installableDesignSystems}
+							guide="claude-code"
+						>
 							Installation writes the single root Design Contract and maintains
 							the marked reference in shared Project instructions. It does not
 							change Claude Code configuration or existing interface code.

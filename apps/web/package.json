@@ -15,9 +15,10 @@
 		"start:test": "next start --port 3011"
 	},
 	"dependencies": {
-		"agentkogei": "workspace:*",
 		"@agentkogei/ui": "workspace:*",
 		"@swc/helpers": "^0.5.23",
+		"@vercel/analytics": "^2.0.1",
+		"agentkogei": "workspace:*",
 		"babel-plugin-react-compiler": "^1.0.0",
 		"lucide-react": "catalog:",
 		"next": "catalog:",
