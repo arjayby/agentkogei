@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { currentRelease, designSystems } from "@/lib/catalog";
+import { designContractGuide, designContractGuideUrl } from "@/lib/guides";
 import { publicOrigin } from "@/lib/structured-data";
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -27,6 +28,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
 		{
 			url: `${publicOrigin}/design-systems`,
 			lastModified: catalogLastModified,
+		},
+		{
+			url: `${publicOrigin}/guides`,
+			lastModified: designContractGuide.publishedAt,
+		},
+		{
+			url: designContractGuideUrl,
+			lastModified: designContractGuide.publishedAt,
 		},
 		...previews,
 	];

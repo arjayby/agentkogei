@@ -8,6 +8,7 @@ import { ModeToggle } from "./mode-toggle";
 
 const navigation = [
 	{ href: "/design-systems" as Route, label: "Design Systems" },
+	{ href: "/guides" as Route, label: "Guides" },
 ] as const;
 
 const repositoryUrl = "https://github.com/arjayby/agentkogei";
@@ -24,7 +25,9 @@ export default function Header() {
 					<span className="site-brand-mark">
 						<BrandMark className="size-7" />
 					</span>
-					<span className="site-brand-wordmark">AgentKogei</span>
+					<span className="site-brand-wordmark hidden sm:inline">
+						AgentKogei
+					</span>
 				</Link>
 				<nav
 					aria-label="Primary navigation"
