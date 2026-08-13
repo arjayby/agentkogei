@@ -6,7 +6,8 @@ import "../index.css";
 import Footer from "@/components/footer";
 import Header from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
-import { homepageDescription, publicOrigin } from "@/lib/structured-data";
+import { homepageSocialCard, socialMetadata } from "@/lib/social-metadata";
+import { publicOrigin } from "@/lib/structured-data";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -19,12 +20,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+	...socialMetadata(homepageSocialCard),
 	metadataBase: new URL(publicOrigin),
-	title: "Give your agents better taste | AgentKogei",
-	description: homepageDescription,
-	alternates: {
-		canonical: "/",
-	},
 	robots: {
 		index: true,
 		follow: true,

@@ -28,6 +28,18 @@ function readStructuredData(html: string, identity: string) {
 	return JSON.parse(source ?? "null") as unknown;
 }
 
+function readMetaContent(
+	html: string,
+	attribute: "name" | "property",
+	value: string,
+) {
+	const escapedValue = value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+	const tag = html.match(
+		new RegExp(`<meta(?=[^>]*${attribute}="${escapedValue}")[^>]*>`),
+	)?.[0];
+	return tag?.match(/content="([^"]*)"/)?.[1];
+}
+
 function runDesignContractInstallation(
 	project: string,
 	selector: string,
@@ -598,6 +610,107 @@ test("public page metadata uses Design System vocabulary", async ({ page }) => {
 		expect(description, route).toMatch(/Design System/i);
 		expect(description, route).not.toMatch(/\bpack\b/i);
 	}
+});
+
+test("every canonical page has a specific available social preview", async ({
+	page,
+	request,
+}) => {
+	const previewRoutes = await discoverDesignSystemRoutes(page);
+	const canonicalRoutes = [
+		"/",
+		"/guides",
+		"/guides/codex",
+		"/guides/design-md",
+		"/guides/consistent-ai-ui",
+		"/guides/claude-code",
+		"/methodology",
+		"/design-systems",
+		...previewRoutes,
+	];
+	const socialImageUrls = new Set<string>();
+	const socialImages = new Map<string, Buffer>();
+
+	for (const route of canonicalRoutes) {
+		const response = await request.get(route);
+		expect(response.status(), route).toBe(200);
+		const html = await response.text();
+		const title = html.match(/<title>([^<]+)<\/title>/)?.[1];
+		const description = readMetaContent(html, "name", "description");
+		const canonicalUrl = `https://agentkogei.dev${route === "/" ? "" : route}`;
+		const imageUrl = readMetaContent(html, "property", "og:image");
+
+		expect(title, route).toBeTruthy();
+		expect(description, route).toBeTruthy();
+		expect(readMetaContent(html, "property", "og:title"), route).toBe(title);
+		expect(readMetaContent(html, "property", "og:description"), route).toBe(
+			description,
+		);
+		expect(readMetaContent(html, "property", "og:url"), route).toBe(
+			canonicalUrl,
+		);
+		expect(readMetaContent(html, "property", "og:site_name"), route).toBe(
+			"AgentKogei",
+		);
+		expect(readMetaContent(html, "property", "og:type"), route).toBe("website");
+		expect(readMetaContent(html, "property", "og:image:width"), route).toBe(
+			"1200",
+		);
+		expect(readMetaContent(html, "property", "og:image:height"), route).toBe(
+			"630",
+		);
+		expect(readMetaContent(html, "property", "og:image:alt"), route).toBe(
+			`${title} social preview`,
+		);
+		expect(readMetaContent(html, "name", "twitter:card"), route).toBe(
+			"summary_large_image",
+		);
+		expect(readMetaContent(html, "name", "twitter:title"), route).toBe(title);
+		expect(readMetaContent(html, "name", "twitter:description"), route).toBe(
+			description,
+		);
+		expect(readMetaContent(html, "name", "twitter:image"), route).toBe(
+			imageUrl,
+		);
+		expect(readMetaContent(html, "name", "twitter:image:alt"), route).toBe(
+			`${title} social preview`,
+		);
+		expect(imageUrl, route).toMatch(/^https:\/\/agentkogei\.dev\/social\//);
+		socialImageUrls.add(imageUrl ?? "");
+
+		const imageResponse = await request.get(
+			imageUrl ? new URL(imageUrl).pathname : "",
+		);
+		expect(imageResponse.status(), imageUrl).toBe(200);
+		expect(imageResponse.headers()["content-type"], imageUrl).toContain(
+			"image/png",
+		);
+		const image = await imageResponse.body();
+		expect(image.byteLength, imageUrl).toBeGreaterThan(10_000);
+		socialImages.set(imageUrl ?? "", image);
+	}
+
+	expect(socialImageUrls.size).toBe(canonicalRoutes.length);
+
+	const apertureResponse = await request.get("/design-systems/aperture");
+	const apertureHtml = await apertureResponse.text();
+	expect(readMetaContent(apertureHtml, "property", "og:title")).toBe(
+		"Aperture Design System Preview | AgentKogei",
+	);
+	expect(readMetaContent(apertureHtml, "property", "og:description")).toMatch(
+		/^Aperture Design System:/,
+	);
+	const apertureImageUrl =
+		"https://agentkogei.dev/social/design-systems/aperture/1.0";
+	expect(readMetaContent(apertureHtml, "property", "og:image")).toBe(
+		apertureImageUrl,
+	);
+	const repeatedApertureImage = await request.get(
+		new URL(apertureImageUrl).pathname,
+	);
+	expect(await repeatedApertureImage.body()).toEqual(
+		socialImages.get(apertureImageUrl),
+	);
 });
 
 test("the public crawler policy permits every public resource", async ({

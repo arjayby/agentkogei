@@ -28,6 +28,7 @@ import {
 	getDesignSystem,
 	previewSurfaceNames,
 } from "@/lib/catalog";
+import { designSystemSocialCard, socialMetadata } from "@/lib/social-metadata";
 import {
 	agentKogeiOrganization,
 	publicOrigin,
@@ -56,16 +57,7 @@ export async function generateMetadata({
 		return {};
 	}
 
-	return {
-		title: `${designSystem.name} Design System Preview | AgentKogei`,
-		description: designSystemDescription(
-			designSystem.name,
-			designSystem.preview.summary,
-		),
-		alternates: {
-			canonical: designSystem.preview.route,
-		},
-	};
+	return socialMetadata(designSystemSocialCard(designSystem));
 }
 
 export default async function DesignSystemPage({

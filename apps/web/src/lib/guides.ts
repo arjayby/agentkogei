@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { guideSocialCard, socialMetadata } from "@/lib/social-metadata";
 import { agentKogeiOrganization, publicOrigin } from "@/lib/structured-data";
 
 type Guide = {
@@ -87,13 +88,7 @@ export function guideUrl(guide: Guide) {
 }
 
 export function guideMetadata(guide: Guide): Metadata {
-	return {
-		title: `${guide.title} | AgentKogei`,
-		description: guide.description,
-		alternates: {
-			canonical: guide.route,
-		},
-	};
+	return socialMetadata(guideSocialCard(guide));
 }
 
 export function guideStructuredData(guide: Guide) {

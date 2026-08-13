@@ -3,15 +3,9 @@ import { ArrowUpRight } from "lucide-react";
 import type { Metadata, Route } from "next";
 import Link from "next/link";
 import { guides } from "@/lib/guides";
+import { guidesSocialCard, socialMetadata } from "@/lib/social-metadata";
 
-export const metadata: Metadata = {
-	title: "Guides for AI coding agents | AgentKogei",
-	description:
-		"Practical guides for giving AI coding agents durable Design System direction across a Project.",
-	alternates: {
-		canonical: "/guides",
-	},
-};
+export const metadata: Metadata = socialMetadata(guidesSocialCard);
 
 export default function GuidesPage() {
 	return (
