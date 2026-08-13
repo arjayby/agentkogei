@@ -4,17 +4,19 @@ import { currentRelease, designSystems } from "@/lib/catalog";
 import { designContractGuide, designContractGuideUrl } from "@/lib/guides";
 import { publicOrigin } from "@/lib/structured-data";
 
+const methodologyPublishedAt = "2026-08-13";
+
 export default function sitemap(): MetadataRoute.Sitemap {
 	const previews = designSystems.map((designSystem) => ({
 		url: `${publicOrigin}${designSystem.preview.route}`,
 		lastModified: currentRelease(designSystem).publishedAt,
 	}));
-	const catalogLastModified = previews
+	const collectionLastModified = previews
 		.map(({ lastModified }) => lastModified)
 		.toSorted()
 		.at(-1);
 
-	if (!catalogLastModified) {
+	if (!collectionLastModified) {
 		throw new Error(
 			"The Design Systems collection has no Published Design Systems",
 		);
@@ -23,11 +25,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
 	return [
 		{
 			url: publicOrigin,
-			lastModified: catalogLastModified,
+			lastModified: collectionLastModified,
 		},
 		{
 			url: `${publicOrigin}/design-systems`,
-			lastModified: catalogLastModified,
+			lastModified: collectionLastModified,
 		},
 		{
 			url: `${publicOrigin}/guides`,
@@ -36,6 +38,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
 		{
 			url: designContractGuideUrl,
 			lastModified: designContractGuide.publishedAt,
+		},
+		{
+			url: `${publicOrigin}/methodology`,
+			lastModified: methodologyPublishedAt,
 		},
 		...previews,
 	];

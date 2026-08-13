@@ -667,6 +667,10 @@ test("the sitemap contains only canonical indexable HTML with meaningful modific
 			url: "https://agentkogei.dev/guides/design-md",
 			lastModified: "2026-08-13",
 		},
+		{
+			url: "https://agentkogei.dev/methodology",
+			lastModified: "2026-08-13",
+		},
 		...previewEntries,
 	]);
 	expect(xml).not.toMatch(
@@ -711,6 +715,152 @@ test("the homepage is a canonical AgentKogei application published by AgentKogei
 			},
 		],
 	});
+});
+
+test("methodology explains the current evidence backed publication and Installation boundaries", async ({
+	request,
+}) => {
+	const response = await request.get("/methodology");
+	expect(response.status()).toBe(200);
+	const html = await response.text();
+
+	expect(html).toContain(
+		"<title>Design System Evaluation methodology | AgentKogei</title>",
+	);
+	expect(html).toContain(
+		'<link rel="canonical" href="https://agentkogei.dev/methodology"/>',
+	);
+	expect(html).toMatch(/<meta name="robots" content="index, follow"\s*\/?>/);
+	expect(html).toContain("Design System Evaluation methodology");
+	expect(html).toContain(
+		"The earlier gated process kept a Candidate Design System Release separate from Authoring Approval, Design System Evaluation, and Publication Approval. Those three gates had distinct meanings.",
+	);
+	expect(html).toContain(
+		"The current workflow has no separate Authoring Approval state.",
+	);
+	expect(html).toContain(
+		"Current publication is authorized by merging the validated pull request, not by a separate Publication Approval record.",
+	);
+	expect(html).toContain(
+		"The standardized generation and automated validation a Design System Release must pass before publication",
+	);
+	expect(html).toContain(
+		"A Design System whose final release has met its completeness and quality requirements and has been merged into the Official Catalog source.",
+	);
+	expect(html).toContain("generation evidence");
+	expect(html).toContain("automated validation");
+	expect(html).toContain("WCAG 2.2 Level AA");
+	expect(html).toContain(
+		"Older evaluation records may identify a separate human review and rights review.",
+	);
+	expect(html).toContain("two part");
+	expect(html).toContain(
+		"React 18 or 19, Next.js 15 or 16, Tailwind CSS v4, and shadcn/ui",
+	);
+	expect(html).toContain("MIT License");
+	expect(html).toContain("public and stateless");
+	expect(html).toContain(
+		"The CLI sends only the requested Design Contract selector. It sends no Project name, path, Git remote, file content, prompt, generated interface, or dependency list.",
+	);
+	expect(html).toContain(
+		"The installed Design Contract works offline without AgentKogei or network access.",
+	);
+	expect(html).toContain("does not redesign");
+	expect(html).toContain(
+		"does not claim that every resulting interface conforms",
+	);
+
+	expect(readStructuredData(html, "methodology")).toMatchObject({
+		"@context": "https://schema.org",
+		"@type": "TechArticle",
+		"@id": "https://agentkogei.dev/methodology#article",
+		name: "Design System Evaluation methodology",
+		url: "https://agentkogei.dev/methodology",
+		author: {
+			"@type": "Organization",
+			"@id": "https://agentkogei.dev/#organization",
+			name: "AgentKogei",
+		},
+		publisher: {
+			"@id": "https://agentkogei.dev/#organization",
+		},
+	});
+});
+
+test("trust claims link to methodology from every public evaluation surface", async ({
+	page,
+}) => {
+	await page.goto("/");
+	await expect(
+		page.getByRole("main").getByRole("link", {
+			name: "Read the evaluation methodology",
+		}),
+	).toHaveAttribute("href", "/methodology");
+
+	await page.goto("/design-systems");
+	await expect(
+		page.getByRole("main").getByRole("link", {
+			name: "How Design System Evaluation works",
+		}),
+	).toHaveAttribute("href", "/methodology");
+	const routes = await discoverDesignSystemRoutes(page);
+
+	for (const route of routes) {
+		const { name } = await readPublishedDesignSystem(page, route);
+		const evidence = page.getByRole("region", {
+			name: `${name} public evaluation evidence`,
+		});
+		await expect(
+			evidence.getByRole("link", { name: "Read the methodology" }),
+			route,
+		).toHaveAttribute("href", "/methodology");
+	}
+});
+
+test("the canonical sitemap includes methodology and every Published Design System", async ({
+	page,
+	request,
+}) => {
+	const routes = await discoverDesignSystemRoutes(page);
+	const response = await request.get("/sitemap.xml");
+	expect(response.status()).toBe(200);
+	expect(response.headers()["content-type"]).toContain("application/xml");
+	const sitemap = await response.text();
+	const entries = [
+		...sitemap.matchAll(
+			/<url>\s*<loc>([^<]+)<\/loc>\s*<lastmod>([^<]+)<\/lastmod>\s*<\/url>/g,
+		),
+	].map(([, location, lastModified]) => ({ location, lastModified }));
+	const locations = entries.map(({ location }) => location);
+
+	expect(locations).toEqual([
+		"https://agentkogei.dev",
+		"https://agentkogei.dev/design-systems",
+		"https://agentkogei.dev/guides",
+		"https://agentkogei.dev/guides/design-md",
+		"https://agentkogei.dev/methodology",
+		...routes.map((route) => `https://agentkogei.dev${route}`),
+	]);
+	expect(sitemap).toMatch(
+		/<loc>https:\/\/agentkogei\.dev\/methodology<\/loc>\s*<lastmod>2026-08-13<\/lastmod>/,
+	);
+
+	for (const route of routes) {
+		const identity = route.split("/").at(-1);
+		expect(identity, route).toBeTruthy();
+		const previewResponse = await request.get(route);
+		const previewHtml = await previewResponse.text();
+		const structuredData = readStructuredData(
+			previewHtml,
+			`design-system-${identity}`,
+		) as { dateModified?: string };
+		expect(
+			entries.find(
+				({ location }) => location === `https://agentkogei.dev${route}`,
+			)?.lastModified,
+			route,
+		).toBe(structuredData.dateModified);
+	}
 });
 
 test("Design Systems is a canonical ItemList of every discovered Published Design System", async ({
@@ -792,6 +942,8 @@ test("every discovered Design System Preview is a canonical versioned CreativeWo
 			name: `${name} Design System`,
 			url: `https://agentkogei.dev${route}`,
 			version: currentRelease,
+			datePublished: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
+			dateModified: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
 			license: "https://opensource.org/license/mit",
 			author: {
 				"@type": "Organization",
@@ -2446,6 +2598,7 @@ const responsiveRoutes = [
 	"/design-systems/command",
 	"/guides",
 	"/guides/design-md",
+	"/methodology",
 ] as const;
 
 for (const route of responsiveRoutes) {

@@ -7,6 +7,7 @@ const publicRoutes = [
 	"/design-systems",
 	"/guides",
 	"/guides/design-md",
+	"/methodology",
 ] as const;
 
 const viewports = [

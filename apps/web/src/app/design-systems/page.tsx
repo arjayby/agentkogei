@@ -47,12 +47,18 @@ export default function DesignSystemsPage() {
 							Published systems. Distinct voices.
 						</h1>
 					</div>
-					<div className="flex max-w-xl flex-col gap-4">
+					<div className="flex max-w-xl flex-col items-start gap-5">
 						<p className="text-lg text-muted-foreground leading-8">
 							Every Published Design System meets the same completeness,
 							accessibility, and Design System Evaluation standard. Choose the
 							direction that fits your Project.
 						</p>
+						<Link
+							href={"/methodology" as Route}
+							className="w-fit font-medium text-sm underline underline-offset-4"
+						>
+							How Design System Evaluation works
+						</Link>
 						<Link
 							href={"/guides/design-md" as Route}
 							className="w-fit font-medium text-sm underline underline-offset-4"

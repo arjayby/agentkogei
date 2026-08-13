@@ -68,6 +68,7 @@ const publicCollectionTerm = /\bcatalog\b/gi;
 const publicSourceCollectionTerm = /\bcatalog\b/i;
 const internalCatalogCode =
 	/\b(?:const|let|var)\s+catalog\b|Object\.hasOwn\(catalog\b|\bcatalog\[|^\s*catalog:\s*\{/i;
+const canonicalInternalCatalogTerm = /\bOfficial\s+Catalog\s+source\b/gi;
 
 const retiredPath =
 	/(?:^|\/)(?:auth|billing|database|design-packs|diagnostics|migrations?|pack-credentials|premium|premium-source|signal|webhooks?)(?:\/|$)/i;
@@ -146,21 +147,24 @@ for (const file of files) {
 
 	if (
 		publicSourcePath.test(file) &&
-		text.split("\n").some((line) => {
-			const trimmed = line.trimStart();
-			return (
-				publicSourceCollectionTerm.test(line) &&
-				!trimmed.startsWith("//") &&
-				!trimmed.startsWith("/*") &&
-				!trimmed.startsWith("*") &&
-				!trimmed.startsWith("import ") &&
-				!line.includes("className=") &&
-				!line.includes('["catalog"]') &&
-				!/["'`]\S*\/catalog/.test(line) &&
-				!/["'`]\S*catalog-/.test(line) &&
-				!internalCatalogCode.test(line)
-			);
-		})
+		text
+			.replace(canonicalInternalCatalogTerm, "")
+			.split("\n")
+			.some((line) => {
+				const trimmed = line.trimStart();
+				return (
+					publicSourceCollectionTerm.test(line) &&
+					!trimmed.startsWith("//") &&
+					!trimmed.startsWith("/*") &&
+					!trimmed.startsWith("*") &&
+					!trimmed.startsWith("import ") &&
+					!line.includes("className=") &&
+					!line.includes('["catalog"]') &&
+					!/["'`]\S*\/catalog/.test(line) &&
+					!/["'`]\S*catalog-/.test(line) &&
+					!internalCatalogCode.test(line)
+				);
+			})
 	) {
 		failures.push(`${file}: public collection terminology`);
 	}
