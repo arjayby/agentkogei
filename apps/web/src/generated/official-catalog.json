@@ -3207,6 +3207,653 @@
 					}
 				}
 			]
+		},
+		{
+			"id": "cabinet",
+			"name": "Cabinet",
+			"currentRelease": "1.0",
+			"preview": {
+				"order": 6,
+				"summary": "Spacious editorial catalogs with context attached to every record.",
+				"intendedFit": "Archives, libraries, editorial collections, and knowledge products",
+				"route": "/design-systems/cabinet",
+				"signature": {
+					"label": "Register 06",
+					"headline": "Every record keeps its context.",
+					"principles": [
+						"Air around consequential records",
+						"Captions attached to evidence",
+						"Vermilion reserved for wayfinding"
+					]
+				},
+				"mark": {
+					"recipe": "specimen-frame",
+					"label": "Four primary colored register corners framing a specimen"
+				},
+				"typography": {
+					"display": "editorial-serif",
+					"body": "humanist-sans",
+					"accent": "neo-grotesk"
+				},
+				"composition": "catalog-field",
+				"foundations": {
+					"semanticColorUsage": {
+						"background": "The warm open field behind collections, reading, and navigation.",
+						"foreground": "Primary copy, editorial headings, strong labels, and meaningful symbols.",
+						"card": "Bounded reading surfaces, dialogs, and records that require independent action.",
+						"muted": "Supporting registers, inactive filters, metadata bands, and quiet placeholders.",
+						"mutedForeground": "Captions, provenance, dates, and supporting context that remain readable.",
+						"border": "Hairline registers, table groups, field outlines, and collection boundaries.",
+						"primary": "Links, current selection, keyboard focus support, and decisive actions.",
+						"primaryForeground": "Readable content placed on a filled primary action.",
+						"destructive": "Irreversible loss, failed operations, and critical record errors.",
+						"success": "Verified completion and healthy results, distinct from primary wayfinding.",
+						"warning": "Attention that needs review without representing a failed operation.",
+						"info": "Neutral instructions, collection context, and explanatory feedback.",
+						"ring": "Keyboard focus around every interactive control."
+					},
+					"typographyScale": {
+						"display": {
+							"font": "display",
+							"sizeRem": {
+								"mobile": 2.5,
+								"desktop": 4.5
+							},
+							"weight": 500,
+							"lineHeight": 1,
+							"trackingEm": -0.03,
+							"usage": "Page titles, collection chapters, and singular editorial statements."
+						},
+						"heading": {
+							"font": "display",
+							"sizeRem": {
+								"mobile": 1.75,
+								"desktop": 2.75
+							},
+							"weight": 500,
+							"lineHeight": 1.08,
+							"trackingEm": -0.02,
+							"usage": "Section titles, record groups, and important reading landmarks."
+						},
+						"body": {
+							"font": "body",
+							"sizeRem": {
+								"mobile": 0.9375,
+								"desktop": 1.0625
+							},
+							"weight": 400,
+							"lineHeight": 1.65,
+							"trackingEm": 0,
+							"usage": "Explanations, interface guidance, record descriptions, and sustained reading."
+						},
+						"label": {
+							"font": "accent",
+							"sizeRem": {
+								"mobile": 0.6875,
+								"desktop": 0.75
+							},
+							"weight": 600,
+							"lineHeight": 1.35,
+							"trackingEm": 0.09,
+							"usage": "Categories, counts, dates, provenance, and compact wayfinding."
+						},
+						"metric": {
+							"font": "display",
+							"sizeRem": {
+								"mobile": 1.5,
+								"desktop": 2
+							},
+							"weight": 600,
+							"lineHeight": 1.05,
+							"trackingEm": -0.025,
+							"usage": "Meaningful collection totals and measured values with visible units."
+						},
+						"code": {
+							"font": "accent",
+							"sizeRem": {
+								"mobile": 0.75,
+								"desktop": 0.8125
+							},
+							"weight": 400,
+							"lineHeight": 1.5,
+							"trackingEm": 0,
+							"usage": "Record identifiers, commands, machine values, and checksums."
+						}
+					},
+					"spacingScale": {
+						"1": {
+							"valueRem": 0.25,
+							"usage": "Tight icon, label, and status relationships."
+						},
+						"2": {
+							"valueRem": 0.5,
+							"usage": "Caption metadata and compact inline groups."
+						},
+						"3": {
+							"valueRem": 0.75,
+							"usage": "Control internals and paired record details."
+						},
+						"4": {
+							"valueRem": 1,
+							"usage": "Default field rhythm and related controls."
+						},
+						"6": {
+							"valueRem": 1.5,
+							"usage": "Card padding and distinct component groups."
+						},
+						"8": {
+							"valueRem": 2,
+							"usage": "Record internals and working surface separation."
+						},
+						"12": {
+							"valueRem": 3,
+							"usage": "Collection groups and compact chapter transitions."
+						},
+						"16": {
+							"valueRem": 4,
+							"usage": "Major product groups and editorial transitions."
+						},
+						"24": {
+							"valueRem": 6,
+							"usage": "Open specimen fields and full collection chapters."
+						}
+					},
+					"layout": {
+						"maxWidthRem": 88,
+						"contentWidthCh": 68,
+						"columns": {
+							"mobile": 1,
+							"tablet": 6,
+							"desktop": 12
+						},
+						"gutterRem": {
+							"mobile": 1,
+							"tablet": 1.5,
+							"desktop": 2
+						},
+						"guidance": "Pair concise editorial context with open record fields and keep every caption, state, and action attached to its object."
+					},
+					"responsive": {
+						"mobile": {
+							"minWidthPx": 320,
+							"guidance": "Stack records in source order and place each caption immediately after its object."
+						},
+						"tablet": {
+							"minWidthPx": 768,
+							"guidance": "Pair context with one featured record only when both retain a useful reading measure."
+						},
+						"desktop": {
+							"minWidthPx": 1024,
+							"guidance": "Use the twelve column field for editorial context, featured records, and a sparse supporting register."
+						},
+						"zoom": {
+							"scalePercent": 200,
+							"guidance": "Let headings, captions, filters, and actions wrap without clipping or separating from their records."
+						},
+						"reflow": {
+							"widthPx": 320,
+							"guidance": "Convert every collection to one complete vertical register without losing metadata or actions."
+						}
+					},
+					"geometry": {
+						"radii": {
+							"square": {
+								"valueRem": 0,
+								"usage": "Hairline registers, tables, and structural collection boundaries."
+							},
+							"control": {
+								"valueRem": 0.25,
+								"usage": "Buttons, fields, menus, and compact interactive surfaces."
+							},
+							"panel": {
+								"valueRem": 0.375,
+								"usage": "Dialogs and bounded reading surfaces that require separation."
+							}
+						},
+						"borders": {
+							"hairline": {
+								"widthPx": 1,
+								"style": "solid",
+								"usage": "Captions, collection registers, and internal table groups."
+							},
+							"default": {
+								"widthPx": 1,
+								"style": "solid",
+								"usage": "Controls, cards, and ordinary working boundaries."
+							},
+							"strong": {
+								"widthPx": 2,
+								"style": "solid",
+								"usage": "Focus, current selection, and consequential separation."
+							}
+						},
+						"elevation": {
+							"flat": {
+								"offsetYRem": 0,
+								"blurRem": 0,
+								"spreadRem": 0,
+								"opacity": 0,
+								"usage": "Default records and surfaces organized by space and rules."
+							},
+							"raised": {
+								"offsetYRem": 0.125,
+								"blurRem": 0.75,
+								"spreadRem": -0.25,
+								"opacity": 0.1,
+								"usage": "Movable records and temporary emphasis within a working collection."
+							},
+							"overlay": {
+								"offsetYRem": 0.5,
+								"blurRem": 1.5,
+								"spreadRem": -0.5,
+								"opacity": 0.16,
+								"usage": "Dialogs, menus, and temporary content above the collection."
+							}
+						}
+					}
+				},
+				"controls": {
+					"buttons": {
+						"primaryLabel": "Add record",
+						"secondaryLabel": "Save collection",
+						"guidance": "Use one filled primary action per decision region and keep secondary actions defined but quiet.",
+						"states": {
+							"default": "Use the primary cue with a stable result focused label.",
+							"hover": "Deepen the cue without changing size or position.",
+							"focus": "Show the semantic focus ring outside the control boundary.",
+							"active": "Move by at most one pixel and preserve nearby layout.",
+							"disabled": "Keep the action readable and expose the missing prerequisite.",
+							"loading": "Retain the action label beside a visible progress indicator.",
+							"success": "Name the completed result with text and the success role.",
+							"error": "Name the failed operation and its recovery using the destructive role."
+						}
+					},
+					"links": {
+						"primaryLabel": "Open record",
+						"secondaryLabel": "View collection history",
+						"guidance": "Use specific destinations, persistent underlines, and the primary cue only for actionable text.",
+						"states": {
+							"default": "Underline the destination and use the accessible primary role.",
+							"hover": "Strengthen the underline without changing line height.",
+							"focus": "Frame the link with the same semantic focus ring as controls.",
+							"active": "Retain the destination while showing immediate activation.",
+							"disabled": "Render unavailable destinations as explained text instead of links.",
+							"loading": "Keep the destination label and add adjacent busy status.",
+							"success": "Confirm the local navigation result in nearby text.",
+							"error": "Explain the local failure without relying on color."
+						}
+					},
+					"forms": {
+						"legend": "Record details",
+						"guidance": "Group fields around the record they describe, keep help persistent, and place validation in the same reading path.",
+						"submitLabel": "Check record",
+						"help": "This description appears with the record wherever it is listed.",
+						"error": "Enter a complete record description.",
+						"success": "The record details are ready."
+					},
+					"inputs": {
+						"textLabel": "Notification email address",
+						"textPlaceholder": "curator@example.com",
+						"textareaLabel": "Collection context",
+						"textareaPlaceholder": "Explain why this record belongs in the collection.",
+						"disabledLabel": "Permanent identifier",
+						"guidance": "Keep labels visible, align fields to the reading register, and reserve stable space for help and validation."
+					},
+					"cards": {
+						"title": "Field note 24",
+						"description": "A featured record keeps its context, provenance, state, and next action together.",
+						"metadata": "Collection 03 · Updated today",
+						"actionLabel": "Open field note",
+						"guidance": "Use a card only when a record needs an independent action or background; ordinary specimens stay in the open field."
+					},
+					"panels": {
+						"title": "Collection register",
+						"description": "The register keeps featured, recent, and unresolved records understandable without nesting every item.",
+						"items": ["Featured record", "Recent addition", "Needs context"],
+						"guidance": "Use one rule and aligned captions instead of separate containers for every register item."
+					},
+					"navigation": {
+						"label": "Collection sections",
+						"items": [
+							{
+								"id": "overview",
+								"label": "Overview"
+							},
+							{
+								"id": "records",
+								"label": "Records"
+							},
+							{
+								"id": "notes",
+								"label": "Notes"
+							}
+						],
+						"guidance": "Name the current section in text, preserve reading order, and keep every destination reachable by keyboard."
+					}
+				},
+				"interactions": {
+					"dataDisplay": {
+						"tableCaption": "Records in the current collection",
+						"columns": [
+							{
+								"id": "record",
+								"label": "Record"
+							},
+							{
+								"id": "type",
+								"label": "Type"
+							},
+							{
+								"id": "context",
+								"label": "Context · updated"
+							}
+						],
+						"rows": [
+							{
+								"id": "field-note",
+								"label": "Field note 24",
+								"cells": ["Document", "Research desk · today"]
+							},
+							{
+								"id": "oral-history",
+								"label": "Oral history 08",
+								"cells": ["Audio", "Archive team · yesterday"]
+							},
+							{
+								"id": "image-study",
+								"label": "Image study 12",
+								"cells": ["Image", "Collections · 3 days ago"]
+							}
+						],
+						"listLabel": "Current collection summary",
+						"listItems": [
+							{
+								"title": "Featured",
+								"description": "The lead record has complete context.",
+								"status": "Ready"
+							},
+							{
+								"title": "Recent",
+								"description": "Two additions are awaiting review.",
+								"status": "Review"
+							},
+							{
+								"title": "Unresolved",
+								"description": "One record needs a source note.",
+								"status": "Attention"
+							}
+						],
+						"guidance": "Keep record title, type, provenance, freshness, and actions aligned in one readable register.",
+						"overflowGuidance": "Preserve the complete comparison in a labelled keyboard reachable scroll region when priority columns cannot fit."
+					},
+					"feedback": {
+						"badges": [
+							{
+								"label": "Draft",
+								"meaning": "The record remains editable and unpublished",
+								"tone": "neutral"
+							},
+							{
+								"label": "In review",
+								"meaning": "The record is being checked for completeness",
+								"tone": "info"
+							},
+							{
+								"label": "Ready",
+								"meaning": "The record has a verified complete result",
+								"tone": "success"
+							},
+							{
+								"label": "Attention",
+								"meaning": "A named concern needs review",
+								"tone": "warning"
+							},
+							{
+								"label": "Unavailable",
+								"meaning": "A failed requirement prevents publication",
+								"tone": "destructive"
+							}
+						],
+						"alerts": [
+							{
+								"title": "Collection ready to archive",
+								"description": "Every required record has complete context.",
+								"tone": "success"
+							},
+							{
+								"title": "Source note required",
+								"description": "Add the missing context before archiving this record.",
+								"tone": "destructive"
+							}
+						],
+						"states": {
+							"loading": "Preparing the collection without hiding available records…",
+							"empty": "This collection has no records yet.",
+							"filteredEmpty": "No records match the active type and date filters.",
+							"error": "The collection could not refresh. Existing records remain available.",
+							"success": "The record is complete and ready for the collection.",
+							"disabled": "Archiving remains unavailable until every required record has context.",
+							"destructive": "Removing this collection also removes its unpublished notes."
+						},
+						"guidance": "Attach state to the affected record, preserve existing context, and include the next useful recovery.",
+						"nonColorGuidance": "Pair every status color with a label, icon, boundary, or explicit state text."
+					},
+					"dialogs": {
+						"title": "Confirm record publication",
+						"description": "Review the title, collection, visibility, and included context before continuing.",
+						"openLabel": "Open publication dialog",
+						"initialFocusLabel": "Review publication",
+						"confirmLabel": "Publish record",
+						"closeLabel": "Close",
+						"guidance": "Keep the record summary concise, place safe review first, and preserve the originating context.",
+						"escapeBehavior": "Escape closes the dialog because publication does not occur until confirmation.",
+						"focusRestoration": "Return focus to the publication control that opened the dialog."
+					},
+					"destructiveActions": {
+						"objectLabel": "Field notes collection",
+						"consequence": "Unpublished records and their context notes will be removed.",
+						"recoverability": "This preview action is reversible and changes only local specimen state.",
+						"openLabel": "Remove collection",
+						"confirmLabel": "Remove field notes collection",
+						"cancelLabel": "Keep collection",
+						"guidance": "Repeat the collection name, consequence, and real recovery status before the destructive boundary."
+					}
+				},
+				"motion": {
+					"durationMs": {
+						"feedback": 120,
+						"transition": 180,
+						"spatial": 240
+					},
+					"easing": {
+						"enter": "ease-out",
+						"exit": "ease-in",
+						"move": "ease-in-out"
+					},
+					"movement": {
+						"distanceRem": 0.375,
+						"scaleFrom": 0.985
+					},
+					"guidance": "Preserve the relationship between a record and its caption with short direct transitions and no ambient motion.",
+					"autoplay": false
+				},
+				"reducedMotion": {
+					"removeNonessential": true,
+					"stateChanges": "instant",
+					"guidance": "Remove translation, scaling, smooth scrolling, and loops while preserving immediate labelled collection changes."
+				},
+				"accessibility": {
+					"standard": "WCAG 2.2 Level AA",
+					"semantics": "Use native landmarks, headings, controls, tables, lists, figures, and status regions before adding ARIA.",
+					"keyboard": "Keep collection navigation, filters, record actions, overflow regions, menus, and dialogs fully operable in logical source order.",
+					"focus": "Use a persistent two pixel focus indicator and restore focus after every modal interaction.",
+					"contrast": "Measure text, controls, rules, status, and focus in both supported color schemes.",
+					"targetSize": "Provide targets at least 24 by 24 CSS pixels with adequate spacing and prefer 44 pixels for primary touch actions.",
+					"zoom": "Preserve every caption, label, filter, and action at 200 percent page zoom and 400 percent browser zoom.",
+					"reflow": "Reflow the collection to 320 CSS pixels without two dimensional page scrolling.",
+					"forcedColors": "Retain rules, current selection, focus, and feedback when system colors replace authored colors.",
+					"statusCommunication": "Announce asynchronous outcomes intentionally and never rely on color, position, or motion alone."
+				},
+				"productSurfaces": {
+					"guidance": "These specimens demonstrate Cabinet structure only. Replace illustrative words with supplied Project language and preserve every real workflow rule.",
+					"examples": {
+						"marketing": {
+							"title": "Editorial promise and proof",
+							"description": "One outcome opens into thematic chapters with credible records and attached context.",
+							"elements": [
+								"One ranked primary action",
+								"Alternating editorial notes and evidence fields"
+							]
+						},
+						"authentication": {
+							"title": "Focused collection entry",
+							"description": "A narrow form keeps recovery, trust context, and pending feedback visible.",
+							"elements": [
+								"Visible labels and recovery",
+								"Stable pending and error context"
+							]
+						},
+						"onboarding": {
+							"title": "Guided record setup",
+							"description": "A short sequence keeps completed, current, optional, and upcoming work understandable.",
+							"elements": [
+								"Named step progress",
+								"Safe backtracking and verification states"
+							]
+						},
+						"dashboard": {
+							"title": "Collection overview",
+							"description": "Featured, recent, and unresolved records lead an intentionally sparse overview.",
+							"elements": [
+								"Organizing principle with freshness",
+								"One principal collection register"
+							]
+						},
+						"table": {
+							"title": "Record comparison",
+							"description": "Title, type, provenance, freshness, and action remain aligned.",
+							"elements": [
+								"Caption and semantic headings",
+								"Prioritized narrow screen access"
+							]
+						},
+						"form": {
+							"title": "Record grouped input",
+							"description": "Fields, validation, save state, and consequences stay attached to one record.",
+							"elements": [
+								"Persistent labels and help",
+								"Dirty, saving, saved, conflict, and failed feedback"
+							]
+						},
+						"settings": {
+							"title": "Scoped collection controls",
+							"description": "Personal, workspace, and organization settings explain their reach before action.",
+							"elements": [
+								"Named scope and current value",
+								"Separate destructive boundary"
+							]
+						},
+						"states": {
+							"title": "Stable collection feedback",
+							"description": "Loading, empty, error, success, disabled, and destructive states retain record context.",
+							"elements": [
+								"Visible state name and affected record",
+								"Recovery or next valid action"
+							]
+						}
+					}
+				},
+				"evidencePresentation": {
+					"preview": "The Design System Preview is a public visual and descriptive specimen of evaluated direction.",
+					"designContract": "The complete Design Contract is the public raw Markdown installed into a Project.",
+					"evaluation": "Evaluation metadata and raw evidence paths remain public so coverage can be inspected.",
+					"rawEvidencePublic": true
+				},
+				"theme": {
+					"tokens": {
+						"light": {
+							"background": "#f7f3eb",
+							"foreground": "#1d1915",
+							"card": "#fffdf8",
+							"muted": "#ebe5da",
+							"mutedForeground": "#625a50",
+							"border": "#bdb4a5",
+							"primary": "#9e2d17",
+							"primaryForeground": "#ffffff",
+							"destructive": "#9f2636",
+							"success": "#37643b",
+							"warning": "#765400",
+							"info": "#365f7b",
+							"ring": "#a8321b"
+						},
+						"dark": {
+							"background": "#171410",
+							"foreground": "#f4eee4",
+							"card": "#211d18",
+							"muted": "#2c2721",
+							"mutedForeground": "#c4baac",
+							"border": "#5a5248",
+							"primary": "#ff8066",
+							"primaryForeground": "#27100a",
+							"destructive": "#ff8792",
+							"success": "#8fc692",
+							"warning": "#e3bc65",
+							"info": "#91bdd8",
+							"ring": "#ff8066"
+						}
+					},
+					"schemeOrder": ["light", "dark"],
+					"geometry": {
+						"density": "spacious",
+						"radius": "square",
+						"border": "defined",
+						"elevation": "flat"
+					}
+				}
+			},
+			"compatibility": {
+				"frameworks": ["react", "nextjs"],
+				"react": ">=18 <20",
+				"nextjs": ">=15 <17",
+				"tailwind": ">=4 <5",
+				"ui": "shadcn/ui"
+			},
+			"evaluation": {
+				"status": "passed",
+				"standard": "WCAG 2.2 Level AA",
+				"screens": [
+					"marketing",
+					"authentication",
+					"onboarding",
+					"dashboard",
+					"table",
+					"form",
+					"settings",
+					"states"
+				],
+				"viewports": ["1440x900", "390x844"],
+				"colorSchemes": ["light", "dark"],
+				"reducedMotion": true,
+				"automatedChecks": [
+					"structure",
+					"accessibility",
+					"responsive overflow",
+					"color contrast"
+				],
+				"evidence": ["evaluation/report.json"],
+				"agentGenerationRuns": 1
+			},
+			"releases": [
+				{
+					"version": "1.0",
+					"publishedAt": "2026-08-14",
+					"changelog": {
+						"summary": "Initial Cabinet Design System Release.",
+						"breaking": false,
+						"migrationNotes": null
+					}
+				}
+			]
 		}
 	]
 }

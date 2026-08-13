@@ -1,0 +1,50 @@
+{
+	"schemaVersion": "2.0",
+	"status": "passed",
+	"designSystem": "Cabinet",
+	"designReference": {
+		"kind": "image",
+		"locator": "user-supplied-image",
+		"inspectedScope": "All ten supplied PDF pages from the opening navigation and first collection introduction through the final artifact row at the bottom of the document",
+		"generalizedTraits": [
+			"Warm paper surfaces with near black editorial typography and a single vermilion navigation cue",
+			"Long narrative collection chapters followed by sparse registers of isolated objects and compact captions",
+			"Fine structural rules, square geometry, flat surfaces, and generous negative space",
+			"Serif display headings paired with direct sans body text and small metadata labels",
+			"Repeated context, record, caption, and action relationships that make long collections easy to scan"
+		],
+		"transformation": "Transforms generalized editorial hierarchy, object isolation, attached captions, paper like neutrals, and sparse collection rhythm into an original knowledge product system with its own Cabinet identity, semantic tokens, specimen field composition, component rules, preview specimens, and primary colored register mark.",
+		"excludedElements": [
+			"copied assets",
+			"product identity",
+			"distinctive compositions",
+			"recognizable product replication",
+			"imitation of living designers"
+		]
+	},
+	"screens": [
+		"marketing",
+		"authentication",
+		"onboarding",
+		"dashboard",
+		"table",
+		"form",
+		"settings",
+		"states"
+	],
+	"coverage": {
+		"viewports": ["1440x900", "390x844"],
+		"colorSchemes": ["light", "dark"],
+		"reducedMotion": true
+	},
+	"automatedChecks": {
+		"structure": "passed",
+		"accessibility": "passed",
+		"responsiveOverflow": "passed",
+		"colorContrast": "passed"
+	},
+	"originalityReview": {
+		"status": "passed",
+		"notes": "Cabinet uses original prose, semantic tokens, specimens, collection rules, interaction direction, and mark geometry. It retains no supplied assets, identity, copy, layouts, or recognizable product composition."
+	}
+}
