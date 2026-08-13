@@ -9,6 +9,7 @@ const publicRoutes = [
 	"/guides/claude-code",
 	"/guides/codex",
 	"/guides/design-md",
+	"/guides/consistent-ai-ui",
 	"/methodology",
 ] as const;
 

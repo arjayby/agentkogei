@@ -42,6 +42,20 @@ export const codexGuide = {
 	},
 } as const satisfies Guide;
 
+export const consistentAiUiGuide = {
+	route: "/guides/consistent-ai-ui",
+	title: "How to keep AI generated interfaces consistent",
+	description:
+		"Learn why plausible AI generated screens drift and how to evaluate durable Design System direction before Installation.",
+	publishedAt: "2026-08-13",
+	card: {
+		label: "Problem guide / Start here",
+		title: "Consistent interfaces across agent work.",
+		body: "Recognize why individually plausible screens drift, compare common approaches, and evaluate complete direction before you install it.",
+		linkLabel: "Solve inconsistent AI interfaces",
+	},
+} as const satisfies Guide;
+
 export const claudeCodeGuide = {
 	route: "/guides/claude-code",
 	title: "Claude Code Design Contract workflow",
@@ -59,6 +73,7 @@ export const claudeCodeGuide = {
 export const guides = [
 	codexGuide,
 	designContractGuide,
+	consistentAiUiGuide,
 	claudeCodeGuide,
 ] as const;
 
