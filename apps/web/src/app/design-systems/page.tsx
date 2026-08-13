@@ -55,9 +55,15 @@ export default function DesignSystemsPage() {
 						</p>
 						<Link
 							href={"/methodology" as Route}
-							className="font-medium underline underline-offset-4"
+							className="w-fit font-medium text-sm underline underline-offset-4"
 						>
 							How Design System Evaluation works
+						</Link>
+						<Link
+							href={"/guides/design-md" as Route}
+							className="w-fit font-medium text-sm underline underline-offset-4"
+						>
+							Learn how Design Contracts direct agent work
 						</Link>
 					</div>
 				</div>

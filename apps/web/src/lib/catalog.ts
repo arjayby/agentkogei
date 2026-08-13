@@ -59,6 +59,10 @@ export const designSystems: readonly DesignSystem[] =
 		slug: id,
 	}));
 
+export function installationChoices() {
+	return designSystems.map(({ slug, name }) => ({ slug, name }));
+}
+
 export function getDesignSystem(slug: string) {
 	return designSystems.find((designSystem) => designSystem.slug === slug);
 }

@@ -41,6 +41,7 @@ export function designContractResponse(
 		status: 200,
 		headers: {
 			"content-type": "text/markdown; charset=utf-8",
+			"x-robots-tag": "noindex",
 			"cache-control": immutable
 				? "public, max-age=31536000, immutable"
 				: "public, max-age=300",
@@ -57,6 +58,7 @@ export function unknownDesignContractResponse(selector: string) {
 			status: 404,
 			headers: {
 				"content-type": "text/plain; charset=utf-8",
+				"x-robots-tag": "noindex",
 				"cache-control": "no-store",
 			},
 		},

@@ -41,6 +41,34 @@ function runDesignContractInstallation(
 	});
 }
 
+async function releasePublishedAt(identity: string, release: string) {
+	for (const releasesDirectory of [
+		path.resolve(process.cwd(), "../../packages/design-systems/releases"),
+		path.resolve(
+			process.cwd(),
+			"../../packages/design-systems/tests/fixtures/releases",
+		),
+	]) {
+		try {
+			const metadata = JSON.parse(
+				await readFile(
+					path.join(
+						releasesDirectory,
+						identity,
+						release,
+						"design-system-evaluation.json",
+					),
+					"utf8",
+				),
+			) as { designSystemRelease: { publishedAt: string } };
+			return metadata.designSystemRelease.publishedAt;
+		} catch (error) {
+			if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+		}
+	}
+	throw new Error(`Missing release metadata for ${identity}@${release}`);
+}
+
 test("a prospective Builder can understand what a Design System changes", async ({
 	page,
 }) => {
@@ -572,6 +600,84 @@ test("public page metadata uses Design System vocabulary", async ({ page }) => {
 	}
 });
 
+test("the public crawler policy permits every public resource", async ({
+	request,
+}) => {
+	const response = await request.get("/robots.txt");
+	expect(response.status()).toBe(200);
+	expect(response.headers()["content-type"]).toContain("text/plain");
+	expect(await response.text()).toBe(
+		[
+			"User-Agent: *",
+			"Allow: /",
+			"",
+			"Host: https://agentkogei.dev",
+			"Sitemap: https://agentkogei.dev/sitemap.xml",
+			"",
+		].join("\n"),
+	);
+});
+
+test("the sitemap contains only canonical indexable HTML with meaningful modification dates", async ({
+	page,
+	request,
+}) => {
+	const previewRoutes = await discoverDesignSystemRoutes(page);
+	const previewEntries = [];
+	for (const route of previewRoutes) {
+		const { identity, currentRelease } = await readPublishedDesignSystem(
+			page,
+			route,
+		);
+		previewEntries.push({
+			url: `https://agentkogei.dev${route}`,
+			lastModified: await releasePublishedAt(identity, currentRelease),
+		});
+	}
+	const catalogLastModified = previewEntries
+		.map(({ lastModified }) => lastModified)
+		.toSorted()
+		.at(-1);
+	if (!catalogLastModified) throw new Error("The sitemap has no release date");
+
+	const response = await request.get("/sitemap.xml");
+	expect(response.status()).toBe(200);
+	expect(response.headers()["content-type"]).toContain("application/xml");
+	const xml = await response.text();
+	const entries = [
+		...xml.matchAll(
+			/<url>\s*<loc>([^<]+)<\/loc>\s*<lastmod>([^<]+)<\/lastmod>\s*<\/url>/g,
+		),
+	].map(([, url, lastModified]) => ({ url, lastModified }));
+
+	expect(entries).toEqual([
+		{
+			url: "https://agentkogei.dev",
+			lastModified: catalogLastModified,
+		},
+		{
+			url: "https://agentkogei.dev/design-systems",
+			lastModified: catalogLastModified,
+		},
+		{
+			url: "https://agentkogei.dev/guides",
+			lastModified: "2026-08-13",
+		},
+		{
+			url: "https://agentkogei.dev/guides/design-md",
+			lastModified: "2026-08-13",
+		},
+		{
+			url: "https://agentkogei.dev/methodology",
+			lastModified: "2026-08-13",
+		},
+		...previewEntries,
+	]);
+	expect(xml).not.toMatch(
+		/\/contracts\/|\.json<\/loc>|\/llms(?:-full)?\.txt|\/design-systems\/[^<]+\/[^<]+|404|not-found/,
+	);
+});
+
 test("the homepage is a canonical AgentKogei application published by AgentKogei", async ({
 	request,
 }) => {
@@ -730,6 +836,8 @@ test("the canonical sitemap includes methodology and every Published Design Syst
 	expect(locations).toEqual([
 		"https://agentkogei.dev",
 		"https://agentkogei.dev/design-systems",
+		"https://agentkogei.dev/guides",
+		"https://agentkogei.dev/guides/design-md",
 		"https://agentkogei.dev/methodology",
 		...routes.map((route) => `https://agentkogei.dev${route}`),
 	]);
@@ -883,6 +991,159 @@ test("every discovered Design System Preview is a canonical versioned CreativeWo
 
 	expect(titles.size).toBe(routes.length);
 	expect(descriptions.size).toBe(routes.length);
+});
+
+test("Guides teaches Design Contracts through a complete education to Installation journey", async ({
+	page,
+}) => {
+	await page.goto("/");
+	const primaryNavigation = page.getByRole("navigation", {
+		name: "Primary navigation",
+	});
+	await primaryNavigation.getByRole("link", { name: "Guides" }).click();
+	await expect(page).toHaveURL(/\/guides$/);
+
+	await expect(
+		page.getByRole("heading", {
+			level: 1,
+			name: "Guides for durable agent direction.",
+		}),
+	).toBeVisible();
+	await page
+		.getByRole("link", { name: "Read the Design Contract guide" })
+		.click();
+	await expect(page).toHaveURL(/\/guides\/design-md$/);
+
+	const article = page.getByRole("article");
+	await expect(
+		article.getByRole("heading", {
+			level: 1,
+			name: "Give every agent durable design direction.",
+		}),
+	).toBeVisible();
+	await expect(
+		article.getByText("Project instructions", { exact: true }),
+	).toBeVisible();
+	await expect(article.getByText("AGENTS.md", { exact: true })).toBeVisible();
+	await expect(article.getByText("DESIGN.md", { exact: true })).toBeVisible();
+	await expect(article.getByText(/works offline/i)).toBeVisible();
+	await expect(
+		article.getByText("Future agent work", { exact: true }),
+	).toBeVisible();
+	await expect(article.getByText(/React 18 and 19/i)).toBeVisible();
+	await expect(article.getByText(/Next.js 15 and 16/i)).toBeVisible();
+	await expect(article.getByText(/Tailwind CSS v4/i)).toBeVisible();
+	await expect(article.getByText(/shadcn\/ui/i)).toBeVisible();
+	await expect(article).not.toContainText(/\bprompt\b|\btheme\b/i);
+
+	await expect(
+		article.getByRole("link", { name: "Explore Design Systems" }),
+	).toHaveAttribute("href", "/design-systems");
+	await expect(article.getByLabel("Generated command")).toContainText(
+		"agentkogei@latest add",
+	);
+});
+
+test("Guides and the Design Contract guide are canonical server rendered resources", async ({
+	request,
+}) => {
+	const guidesResponse = await request.get("/guides");
+	expect(guidesResponse.status()).toBe(200);
+	const guidesHtml = await guidesResponse.text();
+	expect(guidesHtml).toContain(
+		"<title>Guides for AI coding agents | AgentKogei</title>",
+	);
+	expect(guidesHtml).toContain(
+		'<link rel="canonical" href="https://agentkogei.dev/guides"/>',
+	);
+	expect(guidesHtml).toContain('href="/guides/design-md"');
+
+	const guideResponse = await request.get("/guides/design-md");
+	expect(guideResponse.status()).toBe(200);
+	const guideHtml = await guideResponse.text();
+	expect(guideHtml).toContain(
+		"<title>Design Contracts for AI coding agents | AgentKogei</title>",
+	);
+	expect(guideHtml).toContain(
+		'<link rel="canonical" href="https://agentkogei.dev/guides/design-md"/>',
+	);
+	expect(guideHtml).toContain("Give every agent durable design direction.");
+	expect(guideHtml).toContain('href="/design-systems"');
+	for (const serverRenderedContent of [
+		"Project instructions",
+		"AGENTS.md",
+		"DESIGN.md",
+		"works offline",
+		"Future agent work",
+		"React 18 and 19",
+		"Next.js 15 and 16",
+		"Tailwind CSS v4",
+		"shadcn/ui",
+		"Installation is declarative",
+		"agentkogei@latest add",
+	]) {
+		expect(guideHtml).toContain(serverRenderedContent);
+	}
+	const serverRenderedArticle = guideHtml.match(
+		/<article>([\s\S]*?)<\/article>/,
+	)?.[1];
+	expect(serverRenderedArticle).toBeTruthy();
+	expect(serverRenderedArticle).not.toMatch(/\bprompt\b|\btheme\b/i);
+	expect(readStructuredData(guideHtml, "guide-design-contract")).toMatchObject({
+		"@context": "https://schema.org",
+		"@type": "TechArticle",
+		"@id": "https://agentkogei.dev/guides/design-md#article",
+		headline: "Design Contracts for AI coding agents",
+		url: "https://agentkogei.dev/guides/design-md",
+		author: {
+			"@type": "Organization",
+			"@id": "https://agentkogei.dev/#organization",
+			name: "AgentKogei",
+		},
+		publisher: {
+			"@id": "https://agentkogei.dev/#organization",
+		},
+	});
+
+	const sitemapResponse = await request.get("/sitemap.xml");
+	expect(sitemapResponse.status()).toBe(200);
+	const sitemap = await sitemapResponse.text();
+	expect(sitemap).toContain("<loc>https://agentkogei.dev/guides</loc>");
+	expect(sitemap).toContain(
+		"<loc>https://agentkogei.dev/guides/design-md</loc>",
+	);
+});
+
+test("primary navigation, footer, and product content link into Guides", async ({
+	page,
+	request,
+}) => {
+	await page.goto("/");
+	await expect(
+		page
+			.getByRole("navigation", { name: "Primary navigation" })
+			.getByRole("link", { name: "Guides" }),
+	).toHaveAttribute("href", "/guides");
+	await expect(
+		page
+			.getByRole("navigation", { name: "Product" })
+			.getByRole("link", { name: "Guides" }),
+	).toHaveAttribute("href", "/guides");
+
+	for (const [route, contextualCopy] of [
+		["/", "Read the guide"],
+		["/design-systems", "Learn how Design Contracts direct agent work"],
+		[
+			"/design-systems/foundation",
+			"Learn how Design Contracts direct future agent work",
+		],
+	] as const) {
+		const response = await request.get(route);
+		expect(response.status(), route).toBe(200);
+		const html = await response.text();
+		expect(html, route).toContain('href="/guides/design-md"');
+		expect(html, route).toContain(contextualCopy);
+	}
 });
 
 test("Design Systems retains every launch Design System", async ({ page }) => {
@@ -2025,7 +2286,9 @@ test("an unresolved Design Contract selector is refused as plain text", async ({
 
 	expect(unknown.status()).toBe(404);
 	expect(unknown.headers()["content-type"]).toContain("text/plain");
+	expect(unknown.headers()["x-robots-tag"]).toBe("noindex");
 	expect(unknownRelease.status()).toBe(404);
+	expect(unknownRelease.headers()["x-robots-tag"]).toBe("noindex");
 });
 
 test("Command is public while current and exact Signal selectors are ordinarily unknown", async ({
@@ -2091,6 +2354,7 @@ test("every discovered release is delivered and installed through identity indep
 
 		const current = await request.get(`/contracts/${identity}`);
 		expect(current.status()).toBe(200);
+		expect(current.headers()["x-robots-tag"]).toBe("noindex");
 		expect(current.headers()["content-type"]).toBe(
 			"text/markdown; charset=utf-8",
 		);
@@ -2125,6 +2389,7 @@ test("every discovered release is delivered and installed through identity indep
 			releases.map(async (release) => {
 				const response = await request.get(`/contracts/${identity}/${release}`);
 				expect(response.status()).toBe(200);
+				expect(response.headers()["x-robots-tag"]).toBe("noindex");
 				expect(response.headers()["x-agentkogei-design-system-release"]).toBe(
 					release,
 				);
@@ -2331,6 +2596,8 @@ const responsiveRoutes = [
 	"/",
 	"/design-systems",
 	"/design-systems/command",
+	"/guides",
+	"/guides/design-md",
 	"/methodology",
 ] as const;
 
@@ -2346,6 +2613,9 @@ for (const route of responsiveRoutes) {
 		});
 		await expect(
 			navigation.getByRole("link", { name: "Design Systems", exact: true }),
+		).toBeVisible();
+		await expect(
+			navigation.getByRole("link", { name: "Guides", exact: true }),
 		).toBeVisible();
 		await expect(
 			navigation.getByRole("link", { name: "Docs", exact: true }),
