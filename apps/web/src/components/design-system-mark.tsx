@@ -160,6 +160,44 @@ function DirectionalChevrons() {
 	);
 }
 
+function RelayLoop() {
+	return (
+		<>
+			{quarterTurns.map((rotation) => (
+				<g key={rotation} transform={`rotate(${rotation} 32 32)`}>
+					<path
+						d="M12 9h20c11 0 20 7 23 18l-9 3c-2-7-7-11-14-11H12V9Z"
+						fill={markColors.base}
+						stroke={markColors.outline}
+						strokeWidth="1.75"
+						strokeLinejoin="round"
+					/>
+					<path
+						d="M15 12h17c8 0 15 5 19 13l-4 1c-3-6-8-10-15-10H15v-4Z"
+						fill={markColors.highlight}
+						opacity="0.84"
+					/>
+					<path
+						d="M32 19c7 0 12 4 14 11l5-2c-3-9-10-14-19-14v5Z"
+						fill={markColors.shade}
+						opacity="0.58"
+					/>
+				</g>
+			))}
+			<rect
+				x="27.5"
+				y="27.5"
+				width="9"
+				height="9"
+				rx="2"
+				fill={markColors.highlight}
+				stroke={markColors.outline}
+				strokeWidth="1.75"
+			/>
+		</>
+	);
+}
+
 const drawings = {
 	"structural-planes": {
 		Drawing: StructuralBlocks,
@@ -176,6 +214,10 @@ const drawings = {
 	"directional-nodes": {
 		Drawing: DirectionalChevrons,
 		label: "Six directional chevrons converging on a core",
+	},
+	"relay-loop": {
+		Drawing: RelayLoop,
+		label: "Four linked relay segments circling a shared route",
 	},
 } as const;
 

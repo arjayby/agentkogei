@@ -2552,6 +2552,661 @@
 					}
 				}
 			]
+		},
+		{
+			"id": "relay",
+			"name": "Relay",
+			"currentRelease": "1.0",
+			"preview": {
+				"order": 5,
+				"summary": "Brisk, structured, and momentum-driven SaaS.",
+				"intendedFit": "Workflow and automation products",
+				"route": "/design-systems/relay",
+				"signature": {
+					"label": "Route 05",
+					"headline": "Momentum stays visible.",
+					"principles": [
+						"Visible routes through work",
+						"Chartreuse reserved for momentum",
+						"Evidence attached to action"
+					]
+				},
+				"mark": {
+					"recipe": "relay-loop",
+					"label": "Four linked relay segments circling a shared route"
+				},
+				"typography": {
+					"display": "geometric-sans",
+					"body": "neo-grotesk",
+					"accent": "technical-mono"
+				},
+				"composition": "process-bands",
+				"foundations": {
+					"semanticColorUsage": {
+						"background": "The neutral route behind every working surface.",
+						"foreground": "Primary copy, strong labels, and high emphasis symbols.",
+						"card": "Focused working planes and bounded evidence regions.",
+						"muted": "Supporting bands, inactive stages, and secondary controls.",
+						"mutedForeground": "Context, timestamps, and secondary evidence that remain readable.",
+						"border": "Route boundaries, control outlines, and internal stage rules.",
+						"primary": "The active route, primary action, focus, links, and current selection.",
+						"primaryForeground": "Readable content placed on the primary cue.",
+						"destructive": "Irreversible actions, failed operations, and critical errors.",
+						"success": "Verified completion and healthy outcomes, distinct from active progress.",
+						"warning": "Attention that may delay progress without representing failure.",
+						"info": "Neutral instructions, queued state, and explanatory feedback.",
+						"ring": "Keyboard focus around every interactive control."
+					},
+					"typographyScale": {
+						"display": {
+							"font": "display",
+							"sizeRem": {
+								"mobile": 2.5,
+								"desktop": 4
+							},
+							"weight": 600,
+							"lineHeight": 1,
+							"trackingEm": -0.045,
+							"usage": "Singular product outcomes and major chapter statements."
+						},
+						"heading": {
+							"font": "display",
+							"sizeRem": {
+								"mobile": 1.75,
+								"desktop": 2.5
+							},
+							"weight": 600,
+							"lineHeight": 1.1,
+							"trackingEm": -0.03,
+							"usage": "Page, section, and decision region hierarchy."
+						},
+						"body": {
+							"font": "body",
+							"sizeRem": {
+								"mobile": 0.875,
+								"desktop": 1
+							},
+							"weight": 400,
+							"lineHeight": 1.6,
+							"trackingEm": 0,
+							"usage": "Interface explanations, guidance, and readable product copy."
+						},
+						"label": {
+							"font": "accent",
+							"sizeRem": {
+								"mobile": 0.6875,
+								"desktop": 0.75
+							},
+							"weight": 600,
+							"lineHeight": 1.35,
+							"trackingEm": 0.1,
+							"usage": "Stage indices, compact metadata, counters, and wayfinding."
+						},
+						"metric": {
+							"font": "display",
+							"sizeRem": {
+								"mobile": 1.5,
+								"desktop": 2
+							},
+							"weight": 600,
+							"lineHeight": 1.05,
+							"trackingEm": -0.025,
+							"usage": "Progress totals and operational summaries with visible units."
+						},
+						"code": {
+							"font": "accent",
+							"sizeRem": {
+								"mobile": 0.75,
+								"desktop": 0.8125
+							},
+							"weight": 400,
+							"lineHeight": 1.5,
+							"trackingEm": 0,
+							"usage": "Identifiers, timestamps, commands, and technical values."
+						}
+					},
+					"spacingScale": {
+						"1": {
+							"valueRem": 0.25,
+							"usage": "Tight icon and label relationships."
+						},
+						"2": {
+							"valueRem": 0.5,
+							"usage": "Compact inline groups and status details."
+						},
+						"3": {
+							"valueRem": 0.75,
+							"usage": "Control internals and paired metadata."
+						},
+						"4": {
+							"valueRem": 1,
+							"usage": "Default component and field rhythm."
+						},
+						"5": {
+							"valueRem": 1.25,
+							"usage": "Process band padding and related control groups."
+						},
+						"6": {
+							"valueRem": 1.5,
+							"usage": "Cards, panels, and distinct component sections."
+						},
+						"8": {
+							"valueRem": 2,
+							"usage": "Major product groups and evidence separation."
+						},
+						"12": {
+							"valueRem": 3,
+							"usage": "Chapter transitions and compact marketing sections."
+						},
+						"16": {
+							"valueRem": 4,
+							"usage": "Major product and marketing composition breaks."
+						}
+					},
+					"layout": {
+						"maxWidthRem": 92,
+						"contentWidthCh": 68,
+						"columns": {
+							"mobile": 1,
+							"tablet": 6,
+							"desktop": 12
+						},
+						"gutterRem": {
+							"mobile": 1,
+							"tablet": 1.5,
+							"desktop": 2
+						},
+						"guidance": "Arrange sequential process bands on a stable route, alternate concise outcomes with evidence, and keep active work beside its context."
+					},
+					"responsive": {
+						"mobile": {
+							"minWidthPx": 320,
+							"guidance": "Stack stages in source order and keep the active action beside its explanation."
+						},
+						"tablet": {
+							"minWidthPx": 768,
+							"guidance": "Pair a stage summary with evidence only when both remain independently readable."
+						},
+						"desktop": {
+							"minWidthPx": 1024,
+							"guidance": "Use the twelve column route for alternating chapters, a working region, and compact context."
+						},
+						"zoom": {
+							"scalePercent": 200,
+							"guidance": "Let stage labels, actions, and evidence wrap without clipping or overlap."
+						},
+						"reflow": {
+							"widthPx": 320,
+							"guidance": "Convert the route to one vertical sequence while retaining every status and action."
+						}
+					},
+					"geometry": {
+						"radii": {
+							"subtle": {
+								"valueRem": 0.25,
+								"usage": "Stage markers, badges, and restrained detail."
+							},
+							"control": {
+								"valueRem": 0.25,
+								"usage": "Buttons, fields, menu items, and compact interactive surfaces."
+							},
+							"panel": {
+								"valueRem": 0.375,
+								"usage": "Cards, process bands, dialogs, and evidence panels."
+							},
+							"pill": {
+								"valueRem": 999,
+								"usage": "Short status badges only."
+							}
+						},
+						"borders": {
+							"hairline": {
+								"widthPx": 1,
+								"style": "solid",
+								"usage": "Internal routes, dividers, and table structure."
+							},
+							"default": {
+								"widthPx": 1,
+								"style": "solid",
+								"usage": "Controls and ordinary working boundaries."
+							},
+							"strong": {
+								"widthPx": 2,
+								"style": "solid",
+								"usage": "Focus, active stages, and consequential separation."
+							}
+						},
+						"elevation": {
+							"flat": {
+								"offsetYRem": 0,
+								"blurRem": 0,
+								"spreadRem": 0,
+								"opacity": 0,
+								"usage": "Default surfaces separated by boundaries and spacing."
+							},
+							"raised": {
+								"offsetYRem": 0.125,
+								"blurRem": 0.625,
+								"spreadRem": -0.25,
+								"opacity": 0.1,
+								"usage": "Movable queue items and temporary emphasis."
+							},
+							"overlay": {
+								"offsetYRem": 0.5,
+								"blurRem": 1.5,
+								"spreadRem": -0.5,
+								"opacity": 0.18,
+								"usage": "Dialogs, menus, and temporary content above the route."
+							}
+						}
+					}
+				},
+				"controls": {
+					"buttons": {
+						"primaryLabel": "Start review",
+						"secondaryLabel": "Save route",
+						"guidance": "Use one filled primary cue per decision region and keep secondary actions bounded but quiet.",
+						"states": {
+							"default": "Use the primary cue with a stable result focused label.",
+							"hover": "Deepen the cue without changing size or position.",
+							"focus": "Show the semantic focus ring outside the control boundary.",
+							"active": "Move by at most one pixel and preserve nearby layout.",
+							"disabled": "Keep the action readable and expose the missing prerequisite.",
+							"loading": "Retain the action label beside a visible progress indicator.",
+							"success": "Name the completed result with text and the success role.",
+							"error": "Name the failed operation and its recovery using the destructive role."
+						}
+					},
+					"links": {
+						"primaryLabel": "Open activity",
+						"secondaryLabel": "View route history",
+						"guidance": "Use specific destinations, persistent underlines, and the primary cue only for actionable text.",
+						"states": {
+							"default": "Underline the destination and use the accessible primary role.",
+							"hover": "Strengthen the underline without changing line height.",
+							"focus": "Frame the link with the same semantic focus ring as controls.",
+							"active": "Retain the destination while showing immediate activation.",
+							"disabled": "Render unavailable destinations as explained text instead of links.",
+							"loading": "Keep the destination label and add adjacent busy status.",
+							"success": "Confirm the local navigation result in nearby text.",
+							"error": "Explain the local failure without relying on color."
+						}
+					},
+					"forms": {
+						"legend": "Route notification",
+						"guidance": "Group fields by outcome, keep help persistent, and place validation in the same reading path.",
+						"submitLabel": "Check route",
+						"help": "Updates go to this address when ownership or stage changes.",
+						"error": "Enter a complete notification address.",
+						"success": "The route notification is ready."
+					},
+					"inputs": {
+						"textLabel": "Notification address",
+						"textPlaceholder": "owner@example.com",
+						"textareaLabel": "Handoff context",
+						"textareaPlaceholder": "Add the context the next owner needs.",
+						"disabledLabel": "Assigned workflow",
+						"guidance": "Align fields to the route, keep labels visible, and reserve stable space for help and validation."
+					},
+					"cards": {
+						"title": "Review window",
+						"description": "The active handoff keeps owner, due time, scope, and next action together.",
+						"metadata": "Stage 03 · Due 14:30",
+						"actionLabel": "Open review",
+						"guidance": "Use one card for one handoff and attach compact evidence to the decision it supports."
+					},
+					"panels": {
+						"title": "Route summary",
+						"description": "The process panel keeps completed, current, and upcoming work visible in one bounded region.",
+						"items": [
+							"Brief accepted",
+							"Review in progress",
+							"Publish waiting"
+						],
+						"guidance": "Use internal rules and stage labels instead of nesting separate cards for each route item."
+					},
+					"navigation": {
+						"label": "Workflow stages",
+						"items": [
+							{
+								"id": "brief",
+								"label": "Brief"
+							},
+							{
+								"id": "review",
+								"label": "Review"
+							},
+							{
+								"id": "publish",
+								"label": "Publish"
+							}
+						],
+						"guidance": "Name the current stage in text, preserve sequence, and keep every destination reachable by keyboard."
+					}
+				},
+				"interactions": {
+					"dataDisplay": {
+						"tableCaption": "Active work by route stage",
+						"columns": [
+							{
+								"id": "item",
+								"label": "Work item"
+							},
+							{
+								"id": "stage",
+								"label": "Stage"
+							},
+							{
+								"id": "context",
+								"label": "Owner · updated"
+							}
+						],
+						"rows": [
+							{
+								"id": "launch-brief",
+								"label": "Launch brief",
+								"cells": ["Review", "A. Rivera · 8 min ago"]
+							},
+							{
+								"id": "release-notes",
+								"label": "Release notes",
+								"cells": ["Ready", "M. Chen · 21 min ago"]
+							},
+							{
+								"id": "campaign-plan",
+								"label": "Campaign plan",
+								"cells": ["Blocked", "S. Patel · 1 hr ago"]
+							}
+						],
+						"listLabel": "Current route summary",
+						"listItems": [
+							{
+								"title": "Brief",
+								"description": "Scope and owner are confirmed.",
+								"status": "Complete"
+							},
+							{
+								"title": "Review",
+								"description": "Two decisions remain open.",
+								"status": "Current"
+							},
+							{
+								"title": "Publish",
+								"description": "Begins after approval.",
+								"status": "Waiting"
+							}
+						],
+						"guidance": "Keep stage, ownership, freshness, and action context aligned with each work item.",
+						"overflowGuidance": "Preserve the complete comparison in a labelled keyboard reachable scroll region when priority columns cannot fit."
+					},
+					"feedback": {
+						"badges": [
+							{
+								"label": "Waiting",
+								"meaning": "The route has not reached this stage",
+								"tone": "neutral"
+							},
+							{
+								"label": "Current",
+								"meaning": "This stage owns the next valid action",
+								"tone": "info"
+							},
+							{
+								"label": "Complete",
+								"meaning": "The stage finished with a verified result",
+								"tone": "success"
+							},
+							{
+								"label": "Attention",
+								"meaning": "A named concern needs review",
+								"tone": "warning"
+							},
+							{
+								"label": "Blocked",
+								"meaning": "A failed requirement prevents progress",
+								"tone": "destructive"
+							}
+						],
+						"alerts": [
+							{
+								"title": "Route ready to continue",
+								"description": "Every required review has a verified result.",
+								"tone": "success"
+							},
+							{
+								"title": "Owner response required",
+								"description": "Resolve the missing approval before the route can continue.",
+								"tone": "destructive"
+							}
+						],
+						"states": {
+							"loading": "Preparing the current route without hiding completed work…",
+							"empty": "This route has no work items yet.",
+							"filteredEmpty": "No work items match the active stage and owner filters.",
+							"error": "The route could not refresh. Existing work remains available.",
+							"success": "The review is complete and the next stage is ready.",
+							"disabled": "Publishing remains unavailable until every required review is complete.",
+							"destructive": "Removing this route also removes its pending handoffs."
+						},
+						"guidance": "Attach state to the affected work item, preserve existing evidence, and include the next useful recovery.",
+						"nonColorGuidance": "Pair every status color with a label, icon, boundary, or stage position."
+					},
+					"dialogs": {
+						"title": "Confirm route handoff",
+						"description": "Review the next owner, due time, and included work before continuing.",
+						"openLabel": "Open handoff dialog",
+						"initialFocusLabel": "Review handoff",
+						"confirmLabel": "Confirm handoff",
+						"closeLabel": "Close",
+						"guidance": "Keep the handoff summary concise, place safe review first, and preserve the originating context.",
+						"escapeBehavior": "Escape closes the dialog because the handoff is not applied until confirmation.",
+						"focusRestoration": "Return focus to the handoff control that opened the dialog."
+					},
+					"destructiveActions": {
+						"objectLabel": "Launch route",
+						"consequence": "Pending stages and their unsubmitted handoff context will be removed.",
+						"recoverability": "This preview action is reversible and changes only local specimen state.",
+						"openLabel": "Remove route",
+						"confirmLabel": "Remove launch route",
+						"cancelLabel": "Keep route",
+						"guidance": "Repeat the route name, consequence, and real recovery status before the destructive boundary."
+					}
+				},
+				"motion": {
+					"durationMs": {
+						"feedback": 120,
+						"transition": 190,
+						"spatial": 260
+					},
+					"easing": {
+						"enter": "ease-out",
+						"exit": "ease-in",
+						"move": "ease-in-out"
+					},
+					"movement": {
+						"distanceRem": 0.5,
+						"scaleFrom": 0.98
+					},
+					"guidance": "Move attention along the route with short axis aligned transitions and no ambient or continuous motion.",
+					"autoplay": false
+				},
+				"reducedMotion": {
+					"removeNonessential": true,
+					"stateChanges": "instant",
+					"guidance": "Remove translation, scaling, smooth scrolling, and loops while preserving immediate labelled route changes."
+				},
+				"accessibility": {
+					"standard": "WCAG 2.2 Level AA",
+					"semantics": "Use native landmarks, headings, controls, tables, lists, and status regions before adding ARIA.",
+					"keyboard": "Keep route navigation, stage actions, overflow regions, menus, and dialogs fully operable in logical source order.",
+					"focus": "Use a persistent two pixel focus indicator and restore focus after every modal interaction.",
+					"contrast": "Measure text, controls, boundaries, status, and focus in both supported color schemes.",
+					"targetSize": "Provide targets at least 24 by 24 CSS pixels with adequate spacing and prefer 44 pixels for primary touch actions.",
+					"zoom": "Preserve every status, label, and action at 200 percent page zoom and 400 percent browser zoom.",
+					"reflow": "Reflow the route to 320 CSS pixels without two dimensional page scrolling.",
+					"forcedColors": "Retain boundaries, active stage, focus, selection, and feedback when system colors replace authored colors.",
+					"statusCommunication": "Announce async outcomes intentionally and never rely on color, position, or motion alone."
+				},
+				"productSurfaces": {
+					"guidance": "These specimens demonstrate Relay structure only. Replace illustrative words with supplied Project language and preserve every real workflow rule.",
+					"examples": {
+						"marketing": {
+							"title": "Outcome and evidence route",
+							"description": "A concise outcome opens into sequential chapters with credible working evidence.",
+							"elements": [
+								"One ranked primary action",
+								"Alternating outcome and product evidence bands"
+							]
+						},
+						"authentication": {
+							"title": "Focused workspace entry",
+							"description": "A bounded form keeps recovery, trust context, and pending feedback visible.",
+							"elements": [
+								"Visible labels and recovery route",
+								"Stable pending and error context"
+							]
+						},
+						"onboarding": {
+							"title": "Visible setup route",
+							"description": "The sequence keeps completed, current, optional, and upcoming work understandable together.",
+							"elements": [
+								"Named stage progress",
+								"Skippable optional work and verification states"
+							]
+						},
+						"dashboard": {
+							"title": "Work in motion",
+							"description": "Current work, blocked items, and the next valid decision lead the overview.",
+							"elements": [
+								"Stage summary with freshness",
+								"One principal queue or timeline"
+							]
+						},
+						"table": {
+							"title": "Routed work comparison",
+							"description": "Work item, stage, owner, freshness, and actions remain aligned.",
+							"elements": [
+								"Caption and semantic headings",
+								"Prioritized narrow screen access"
+							]
+						},
+						"form": {
+							"title": "Outcome grouped input",
+							"description": "Fields, validation, save state, and consequences stay attached to one outcome.",
+							"elements": [
+								"Persistent labels and help",
+								"Dirty, saving, saved, conflict, and failed feedback"
+							]
+						},
+						"settings": {
+							"title": "Scoped controls",
+							"description": "Personal, workspace, and organization settings explain their reach before action.",
+							"elements": [
+								"Named scope and current value",
+								"Separate destructive boundary"
+							]
+						},
+						"states": {
+							"title": "Stable route feedback",
+							"description": "Loading, empty, error, success, disabled, and destructive states retain working context.",
+							"elements": [
+								"Visible state name and affected object",
+								"Recovery or next valid action"
+							]
+						}
+					}
+				},
+				"evidencePresentation": {
+					"preview": "The Design System Preview is a public visual and descriptive specimen of evaluated direction.",
+					"designContract": "The complete Design Contract is the public raw Markdown installed into a Project.",
+					"evaluation": "Evaluation metadata and raw evidence paths remain public so coverage can be inspected.",
+					"rawEvidencePublic": true
+				},
+				"theme": {
+					"tokens": {
+						"light": {
+							"background": "#f7f8f2",
+							"foreground": "#171a12",
+							"card": "#ffffff",
+							"muted": "#ecefe4",
+							"mutedForeground": "#555d4d",
+							"border": "#b8bead",
+							"primary": "#4f6800",
+							"primaryForeground": "#ffffff",
+							"destructive": "#aa2634",
+							"success": "#35671b",
+							"warning": "#775500",
+							"info": "#245d91",
+							"ring": "#5d7900"
+						},
+						"dark": {
+							"background": "#141610",
+							"foreground": "#f3f5ec",
+							"card": "#1c1f18",
+							"muted": "#282c22",
+							"mutedForeground": "#b6bcaa",
+							"border": "#474d3e",
+							"primary": "#ceff00",
+							"primaryForeground": "#15190a",
+							"destructive": "#ff7a78",
+							"success": "#9bd467",
+							"warning": "#efc15d",
+							"info": "#8ec5f4",
+							"ring": "#ceff00"
+						}
+					},
+					"schemeOrder": ["light", "dark"],
+					"geometry": {
+						"density": "balanced",
+						"radius": "soft",
+						"border": "subtle",
+						"elevation": "flat"
+					}
+				}
+			},
+			"compatibility": {
+				"frameworks": ["react", "nextjs"],
+				"react": ">=18 <20",
+				"nextjs": ">=15 <17",
+				"tailwind": ">=4 <5",
+				"ui": "shadcn/ui"
+			},
+			"evaluation": {
+				"status": "passed",
+				"standard": "WCAG 2.2 Level AA",
+				"screens": [
+					"marketing",
+					"authentication",
+					"onboarding",
+					"dashboard",
+					"table",
+					"form",
+					"settings",
+					"states"
+				],
+				"viewports": ["1440x900", "390x844"],
+				"colorSchemes": ["light", "dark"],
+				"reducedMotion": true,
+				"automatedChecks": [
+					"structure",
+					"accessibility",
+					"responsive overflow",
+					"color contrast"
+				],
+				"evidence": ["evaluation/report.json"],
+				"agentGenerationRuns": 1
+			},
+			"releases": [
+				{
+					"version": "1.0",
+					"publishedAt": "2026-08-13",
+					"changelog": {
+						"summary": "Initial Relay Design System Release.",
+						"breaking": false,
+						"migrationNotes": null
+					}
+				}
+			]
 		}
 	]
 }

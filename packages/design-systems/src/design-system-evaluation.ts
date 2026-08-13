@@ -88,6 +88,7 @@ export const designSystemMarkRecipes = [
 	"page-leaves",
 	"nested-apertures",
 	"directional-nodes",
+	"relay-loop",
 ] as const;
 
 export const designSystemPreviewFontChoices = [
@@ -604,6 +605,7 @@ export const designSystemPreviewSchema = z
 			"reading-column",
 			"focal-frame",
 			"operational-frame",
+			"process-bands",
 		]),
 		foundations: previewFoundationsSchema,
 		controls: previewControlsSchema,

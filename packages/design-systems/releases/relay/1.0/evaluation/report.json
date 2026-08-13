@@ -1,0 +1,75 @@
+{
+	"schemaVersion": "2.0",
+	"status": "passed",
+	"designSystem": "Relay",
+	"designReference": {
+		"kind": "url",
+		"locator": "https://everyfeed.ai/",
+		"inspectedPages": [
+			{
+				"path": "/",
+				"scope": "Complete public landing experience from navigation through product chapters, plans, questions, and the true footer",
+				"reachedBottom": true
+			},
+			{
+				"path": "/login",
+				"scope": "Complete authentication surface including alternate methods, labelled fields, recovery, account creation, and supporting context",
+				"reachedBottom": true
+			},
+			{
+				"path": "/privacy",
+				"scope": "Complete long form policy surface including contents navigation, numbered sections, contact path, and footer",
+				"reachedBottom": true
+			},
+			{
+				"path": "/terms",
+				"scope": "Complete agreement surface including contents navigation, numbered sections, contact path, and footer",
+				"reachedBottom": true
+			}
+		],
+		"additionalPages": {
+			"inspected": 3,
+			"limitation": null
+		},
+		"generalizedTraits": [
+			"Crisp neutral planes separated by fine structural boundaries",
+			"A vivid citrus cue reserved for decisive action and current progress",
+			"Short outcome statements paired with detailed working evidence",
+			"Compact sans typography supported by monospaced indices and operational metadata",
+			"Sequential section rhythm that keeps long experiences easy to scan"
+		],
+		"transformation": "Transforms generalized momentum, contrast, evidence density, and sequential rhythm into an original bounded route system with its own name, tokens, process band composition, component rules, specimens, and four segment relay mark.",
+		"excludedElements": [
+			"copied assets",
+			"product identity",
+			"distinctive compositions",
+			"recognizable product replication",
+			"imitation of living designers"
+		]
+	},
+	"screens": [
+		"marketing",
+		"authentication",
+		"onboarding",
+		"dashboard",
+		"table",
+		"form",
+		"settings",
+		"states"
+	],
+	"coverage": {
+		"viewports": ["1440x900", "390x844"],
+		"colorSchemes": ["light", "dark"],
+		"reducedMotion": true
+	},
+	"automatedChecks": {
+		"structure": "passed",
+		"accessibility": "passed",
+		"responsiveOverflow": "passed",
+		"colorContrast": "passed"
+	},
+	"originalityReview": {
+		"status": "passed",
+		"notes": "Relay uses original prose, semantic tokens, specimens, process band rules, interaction direction, and mark geometry. It retains no reference assets, identity, copy, layouts, or recognizable product composition."
+	}
+}

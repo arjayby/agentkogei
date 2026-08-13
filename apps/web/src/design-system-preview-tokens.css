@@ -496,6 +496,103 @@ button[data-preview-control][data-specimen-state="error"] {
 	margin-inline-start: clamp(0rem, 6vw, 6rem);
 }
 
+[data-preview-composition="process-bands"] {
+	--preview-space: 1.25rem;
+	--preview-surface-radius: 0.375rem;
+	--preview-field-radius: 0.25rem;
+	--preview-control-radius: 0.25rem;
+	--preview-compact-radius: 0.25rem;
+	--preview-border-width: 1px;
+	--preview-shadow: none;
+}
+
+[data-preview-composition="process-bands"][data-preview-themed-specimen] {
+	padding-block: clamp(3rem, 7vw, 6rem);
+}
+
+[data-preview-composition="process-bands"] [data-preview-exploration-heading] {
+	max-width: 58rem;
+	padding-inline-start: clamp(1rem, 2vw, 1.5rem);
+	border-inline-start: 0.375rem solid var(--preview-primary);
+}
+
+[data-preview-composition="process-bands"] [data-preview-exploration-sections] {
+	gap: 0;
+	border-block-start: var(--preview-border-width) solid var(--preview-border);
+}
+
+[data-preview-composition="process-bands"]
+	[data-preview-exploration-sections]
+	> section {
+	padding-block: clamp(3rem, 6vw, 5rem);
+	border-block-end: var(--preview-border-width) solid var(--preview-border);
+}
+
+[data-preview-identity-panel][data-preview-composition="process-bands"]
+	[data-preview-identity-hero] {
+	padding-block-start: clamp(2rem, 4vw, 3rem);
+	border-block-start: 0.375rem solid var(--preview-primary);
+}
+
+[data-preview-identity-panel][data-preview-composition="process-bands"]
+	[data-preview-identity-headline] {
+	max-width: 12ch;
+}
+
+[data-preview-identity-panel][data-preview-composition="process-bands"]
+	:is([data-preview-identity-evidence], [data-preview-identity-typography]) {
+	border-block-start: var(--preview-border-width) solid var(--preview-border);
+}
+
+[data-preview-composition="process-bands"]
+	:is(.preview-foundation-heading p, .preview-control-heading > p) {
+	color: var(--preview-primary);
+	font-weight: 700;
+}
+
+[data-specimen-composition="process-bands"],
+[data-preview-composition="process-bands"] .preview-foundations-grid {
+	gap: 0;
+}
+
+[data-specimen-composition="process-bands"] .preview-control-section,
+[data-preview-composition="process-bands"] .preview-foundation-section {
+	padding-block: clamp(2rem, 4vw, 3rem);
+	border-block-start: var(--preview-border-width) solid var(--preview-border);
+}
+
+[data-specimen-composition="process-bands"]
+	.preview-control-section:first-child,
+[data-preview-composition="process-bands"]
+	.preview-foundation-section:first-child {
+	padding-block-start: 0;
+	border-block-start: 0;
+}
+
+[data-preview-composition="process-bands"] .preview-mark-stage {
+	aspect-ratio: 5 / 4;
+	border: var(--preview-border-width) solid var(--preview-border);
+	border-block-start: 0.375rem solid var(--preview-primary);
+	background: var(--preview-card);
+}
+
+[data-preview-composition="process-bands"]
+	.preview-control-navigation-list
+	a[aria-current="page"] {
+	box-shadow: inset 0 -0.25rem 0
+		color-mix(in oklab, var(--preview-primary-foreground) 35%, transparent);
+}
+
+[data-preview-composition="process-bands"] .preview-data-table-region thead {
+	background: var(--preview-muted);
+}
+
+[data-preview-composition="process-bands"]
+	.preview-badge-list
+	[data-slot="badge"] {
+	border-radius: 9999px;
+}
+
 [data-preview-composition="operational-frame"] {
 	--preview-space: 0.75rem;
 	--preview-surface-radius: 0;
@@ -722,6 +819,11 @@ button[data-preview-control][data-specimen-state="error"] {
 
 [data-preview-composition="focal-frame"] .preview-shell-hero-grid {
 	grid-template-columns: minmax(18rem, 0.65fr) minmax(0, 1fr);
+}
+
+[data-preview-composition="process-bands"] .preview-shell-hero-grid {
+	grid-template-columns: minmax(0, 0.9fr) minmax(18rem, 0.45fr);
+	align-items: stretch;
 }
 
 [data-preview-composition="focal-frame"]
