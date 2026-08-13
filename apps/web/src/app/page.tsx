@@ -107,6 +107,36 @@ export default function Home() {
 					<DesignSystemIdentityList designSystems={designSystems} />
 				</div>
 			</section>
+
+			<section
+				className="px-5 py-16 sm:px-8 lg:px-12 lg:py-24"
+				aria-labelledby="design-contract-guide-heading"
+			>
+				<div className="mx-auto grid max-w-7xl gap-8 border p-6 sm:p-10 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+					<div className="max-w-3xl">
+						<p className="mb-5 font-mono text-muted-foreground text-xs uppercase tracking-[0.24em]">
+							Guides / Design Contracts
+						</p>
+						<h2
+							id="design-contract-guide-heading"
+							className="text-balance font-medium text-3xl tracking-tight sm:text-5xl"
+						>
+							Keep durable direction in your Project.
+						</h2>
+						<p className="mt-5 max-w-2xl text-pretty text-lg text-muted-foreground leading-8">
+							See how Project instructions, a root Design Contract, and one
+							Installed Design System keep future agent work coherent.
+						</p>
+					</div>
+					<Link
+						href={"/guides/design-md" as Route}
+						className={buttonVariants({ variant: "outline", size: "lg" })}
+					>
+						Read the guide
+						<ArrowUpRight data-icon="inline-end" aria-hidden="true" />
+					</Link>
+				</div>
+			</section>
 		</main>
 	);
 }

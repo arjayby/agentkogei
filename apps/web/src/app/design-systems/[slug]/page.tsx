@@ -393,6 +393,12 @@ export default async function DesignSystemPage({
 										</li>
 									))}
 								</ul>
+								<Link
+									href={"/guides/design-md" as Route}
+									className="w-fit font-medium text-sm underline underline-offset-4"
+								>
+									Learn how Design Contracts direct future agent work
+								</Link>
 							</CardContent>
 						</Card>
 

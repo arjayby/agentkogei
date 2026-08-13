@@ -1,4 +1,5 @@
-import type { Metadata } from "next";
+import type { Metadata, Route } from "next";
+import Link from "next/link";
 
 import { DesignSystemBrowser } from "@/components/design-system-browser";
 import { designSystemDiscoveryFor, designSystems } from "@/lib/catalog";
@@ -46,11 +47,19 @@ export default function DesignSystemsPage() {
 							Published systems. Distinct voices.
 						</h1>
 					</div>
-					<p className="max-w-xl text-lg text-muted-foreground leading-8">
-						Every Published Design System meets the same completeness,
-						accessibility, and Design System Evaluation standard. Choose the
-						direction that fits your Project.
-					</p>
+					<div className="flex max-w-xl flex-col gap-4">
+						<p className="text-lg text-muted-foreground leading-8">
+							Every Published Design System meets the same completeness,
+							accessibility, and Design System Evaluation standard. Choose the
+							direction that fits your Project.
+						</p>
+						<Link
+							href={"/guides/design-md" as Route}
+							className="w-fit font-medium text-sm underline underline-offset-4"
+						>
+							Learn how Design Contracts direct agent work
+						</Link>
+					</div>
 				</div>
 			</header>
 

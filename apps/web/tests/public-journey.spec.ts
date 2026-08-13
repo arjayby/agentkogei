@@ -739,6 +739,117 @@ test("every discovered Design System Preview is a canonical versioned CreativeWo
 	expect(descriptions.size).toBe(routes.length);
 });
 
+test("Guides teaches Design Contracts through a complete education to Installation journey", async ({
+	page,
+}) => {
+	await page.goto("/");
+	const primaryNavigation = page.getByRole("navigation", {
+		name: "Primary navigation",
+	});
+	await primaryNavigation.getByRole("link", { name: "Guides" }).click();
+	await expect(page).toHaveURL(/\/guides$/);
+
+	await expect(
+		page.getByRole("heading", {
+			level: 1,
+			name: "Guides for durable agent direction.",
+		}),
+	).toBeVisible();
+	await page
+		.getByRole("link", { name: "Read the Design Contract guide" })
+		.click();
+	await expect(page).toHaveURL(/\/guides\/design-md$/);
+
+	const article = page.getByRole("article");
+	await expect(
+		article.getByRole("heading", {
+			level: 1,
+			name: "Give every agent durable design direction.",
+		}),
+	).toBeVisible();
+	await expect(
+		article.getByText("Project instructions", { exact: true }),
+	).toBeVisible();
+	await expect(article.getByText("AGENTS.md", { exact: true })).toBeVisible();
+	await expect(article.getByText("DESIGN.md", { exact: true })).toBeVisible();
+	await expect(article.getByText(/works offline/i)).toBeVisible();
+	await expect(
+		article.getByText("Future agent work", { exact: true }),
+	).toBeVisible();
+	await expect(article.getByText(/React 18 and 19/i)).toBeVisible();
+	await expect(article.getByText(/Next.js 15 and 16/i)).toBeVisible();
+	await expect(article.getByText(/Tailwind CSS v4/i)).toBeVisible();
+	await expect(article.getByText(/shadcn\/ui/i)).toBeVisible();
+	await expect(article).not.toContainText(/\bprompt\b|\btheme\b/i);
+
+	await expect(
+		article.getByRole("link", { name: "Explore Design Systems" }),
+	).toHaveAttribute("href", "/design-systems");
+	await expect(article.getByLabel("Generated command")).toContainText(
+		"agentkogei@latest add",
+	);
+});
+
+test("Guides and the Design Contract guide are canonical server rendered resources", async ({
+	request,
+}) => {
+	const guidesResponse = await request.get("/guides");
+	expect(guidesResponse.status()).toBe(200);
+	const guidesHtml = await guidesResponse.text();
+	expect(guidesHtml).toContain(
+		"<title>Guides for AI coding agents | AgentKogei</title>",
+	);
+	expect(guidesHtml).toContain(
+		'<link rel="canonical" href="https://agentkogei.dev/guides"/>',
+	);
+	expect(guidesHtml).toContain('href="/guides/design-md"');
+
+	const guideResponse = await request.get("/guides/design-md");
+	expect(guideResponse.status()).toBe(200);
+	const guideHtml = await guideResponse.text();
+	expect(guideHtml).toContain(
+		"<title>Design Contracts for AI coding agents | AgentKogei</title>",
+	);
+	expect(guideHtml).toContain(
+		'<link rel="canonical" href="https://agentkogei.dev/guides/design-md"/>',
+	);
+	expect(guideHtml).toContain("Give every agent durable design direction.");
+	expect(guideHtml).toContain('href="/design-systems"');
+	expect(readStructuredData(guideHtml, "guide-design-contract")).toMatchObject({
+		"@context": "https://schema.org",
+		"@type": "TechArticle",
+		"@id": "https://agentkogei.dev/guides/design-md#article",
+		headline: "Design Contracts for AI coding agents",
+		url: "https://agentkogei.dev/guides/design-md",
+		author: {
+			"@type": "Organization",
+			"@id": "https://agentkogei.dev/#organization",
+			name: "AgentKogei",
+		},
+		publisher: {
+			"@id": "https://agentkogei.dev/#organization",
+		},
+	});
+
+	const sitemapResponse = await request.get("/sitemap.xml");
+	expect(sitemapResponse.status()).toBe(200);
+	const sitemap = await sitemapResponse.text();
+	expect(sitemap).toContain("<loc>https://agentkogei.dev/guides</loc>");
+	expect(sitemap).toContain(
+		"<loc>https://agentkogei.dev/guides/design-md</loc>",
+	);
+});
+
+test("every relevant product page links to Guides in server rendered HTML", async ({
+	request,
+}) => {
+	for (const route of ["/", "/design-systems", "/design-systems/foundation"]) {
+		const response = await request.get(route);
+		expect(response.status(), route).toBe(200);
+		expect(await response.text(), route).toContain('href="/guides"');
+	}
+});
+
 test("Design Systems retains every launch Design System", async ({ page }) => {
 	await page.goto("/design-systems");
 	const designSystems = page.getByRole("main");
@@ -2185,6 +2296,8 @@ const responsiveRoutes = [
 	"/",
 	"/design-systems",
 	"/design-systems/command",
+	"/guides",
+	"/guides/design-md",
 ] as const;
 
 for (const route of responsiveRoutes) {
@@ -2199,6 +2312,9 @@ for (const route of responsiveRoutes) {
 		});
 		await expect(
 			navigation.getByRole("link", { name: "Design Systems", exact: true }),
+		).toBeVisible();
+		await expect(
+			navigation.getByRole("link", { name: "Guides", exact: true }),
 		).toBeVisible();
 		await expect(
 			navigation.getByRole("link", { name: "Docs", exact: true }),
