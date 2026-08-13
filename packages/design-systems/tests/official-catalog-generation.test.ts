@@ -54,6 +54,7 @@ describe("Official Catalog generation", () => {
 					releases: [
 						{
 							version: "1.0",
+							publishedAt: metadata.designSystemRelease.publishedAt,
 							changelog: metadata.changelog,
 						},
 					],
@@ -104,7 +105,9 @@ describe("Official Catalog generation", () => {
 		for (const designSystem of artifacts.catalog.designSystems) {
 			expect(designSystem.preview).toHaveProperty("productSurfaces.examples");
 			expect(designSystem).not.toHaveProperty("previewShell");
-			expect(designSystem.releases[0]).not.toHaveProperty("publishedAt");
+			expect(designSystem.releases[0]?.publishedAt).toMatch(
+				/^\d{4}-\d{2}-\d{2}$/,
+			);
 		}
 	});
 });
