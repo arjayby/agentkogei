@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -54,11 +55,12 @@ const publicIdentityExclusions = [
 	/^scripts\/audit-release\.ts$/,
 ] as const;
 
-const publicMarkdownPaths = [
+const currentMarkdownPaths = [
 	/^README\.md$/,
 	/^packages\/design-systems\/README\.md$/,
-	/^docs\/product\/.*\.md$/,
+	/^docs\/.*\.md$/,
 ] as const;
+const historicalAdrPath = /^docs\/adr\//;
 
 const publicSourcePath =
 	/^(?:apps\/web\/src|packages\/design-systems\/src)\/.*\.[cm]?[jt]sx?$/;
@@ -116,6 +118,15 @@ const expectedGeneratedArtifacts = [
 	"apps/web/src/generated/design-contracts.json",
 	"apps/web/src/generated/official-catalog.json",
 ];
+const immutableReleaseArtifacts = JSON.parse(
+	await readFile(
+		path.join(
+			projectRoot,
+			"packages/design-systems/immutable-release-artifacts.json",
+		),
+		"utf8",
+	),
+) as Record<string, string>;
 
 const files = await repositoryFiles();
 const failures: string[] = [];
@@ -138,8 +149,9 @@ for (const file of files) {
 	staleProductionDomain.lastIndex = 0;
 
 	if (
-		publicMarkdownPaths.some((pattern) => pattern.test(file)) &&
-		publicCollectionTerm.test(text)
+		currentMarkdownPaths.some((pattern) => pattern.test(file)) &&
+		!historicalAdrPath.test(file) &&
+		publicCollectionTerm.test(text.replace(canonicalInternalCatalogTerm, ""))
 	) {
 		failures.push(`${file}: public collection terminology`);
 	}
@@ -207,6 +219,17 @@ const packageMetadata = JSON.parse(
 		"utf8",
 	),
 ) as Record<string, unknown>;
+const projectMetadata = JSON.parse(
+	await readFile(path.join(projectRoot, "package.json"), "utf8"),
+) as { scripts?: Record<string, string> };
+if (
+	projectMetadata.scripts?.["launch:verify"] !==
+	"bun run scripts/launch-verify.ts"
+) {
+	failures.push(
+		"package.json: launch:verify must run the complete release gate",
+	);
+}
 const repository = packageMetadata.repository as
 	| Record<string, unknown>
 	| undefined;
@@ -262,6 +285,27 @@ if (
 	failures.push(
 		`apps/web/src/generated: expected only ${expectedGeneratedArtifacts.join(", ")}`,
 	);
+}
+
+const releaseFiles = files.filter((file) =>
+	file.startsWith("packages/design-systems/releases/"),
+);
+for (const file of releaseFiles) {
+	const expectedDigest = immutableReleaseArtifacts[file];
+	if (!expectedDigest) {
+		failures.push(`${file}: immutable release artifact digest is not pinned`);
+		continue;
+	}
+	const contents = await readFile(path.join(projectRoot, file));
+	const actualDigest = createHash("sha256").update(contents).digest("hex");
+	if (actualDigest !== expectedDigest) {
+		failures.push(`${file}: immutable release artifact digest does not match`);
+	}
+}
+for (const file of Object.keys(immutableReleaseArtifacts)) {
+	if (!releaseFiles.includes(file)) {
+		failures.push(`${file}: pinned immutable release artifact is missing`);
+	}
 }
 
 if (failures.length > 0) {

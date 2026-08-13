@@ -1,0 +1,15 @@
+{
+	"packages/design-systems/releases/command/1.0/DESIGN.md": "a123b9d811d86f8dd1a05f0800e3b06340aab3a6e88b743722d499a9fa97650c",
+	"packages/design-systems/releases/command/1.0/design-system-evaluation.json": "d76e773b8fe052cb1a0d1871e3df9487b36fd55695eb6e32a1ad8228c51b6774",
+	"packages/design-systems/releases/command/1.0/evaluation/report.json": "ccebd37082ef8e4e47db5fc3122420e8aa0d5acb4f602f93ce72e983e92233b3",
+	"packages/design-systems/releases/editorial/1.0/DESIGN.md": "8979f6e09ca397429fa0612d6b5f184c67aed6c5edf8184f26a6082f05d2bf67",
+	"packages/design-systems/releases/editorial/1.0/design-system-evaluation.json": "568769f4ce9d3733e90fc7775d55bdfe7d6350be417d9f2a05baae4a3aad4542",
+	"packages/design-systems/releases/editorial/1.0/evaluation/agent-runs.md": "c3fe542a17717f7b20da0c0dc9b3335a69ee45050b0a94faa042a377d6b37bce",
+	"packages/design-systems/releases/editorial/1.0/evaluation/report.json": "ef867b89669d5bbfb444da8a57227b423803d529ac86c53f8a308427fd15849c",
+	"packages/design-systems/releases/foundation/1.0/DESIGN.md": "3de5fb5ba9000d6bab0a76ebfc05d0fdeaad505799e1027bcf2a2a299709400b",
+	"packages/design-systems/releases/foundation/1.0/design-system-evaluation.json": "c2b55777d14c18905c9e8d328fca22e5f3a997a9ffbc106b0423ea0489638980",
+	"packages/design-systems/releases/foundation/1.0/evaluation/report.json": "783dc6d81f18d760d186007ce53feef3197a05e36403a0f63836f6622ebea77b",
+	"packages/design-systems/releases/mono/1.0/DESIGN.md": "b35c554017af88da26bc12cb62c5cb01ed9f74b52ed1618a38e85c81263e93b2",
+	"packages/design-systems/releases/mono/1.0/design-system-evaluation.json": "2b76ad6db56ab48cd7b0aa45704d5e5ac30cd97709c20dde18bf10e0138a32de",
+	"packages/design-systems/releases/mono/1.0/evaluation/report.json": "f4dddcec2b6698700b6dc157e7fe9800bf55eb78dfa88add3b1a628bd30901a6"
+}
