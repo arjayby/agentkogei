@@ -41,11 +41,7 @@ const methodologyStructuredData = {
 		"@id": agentKogeiOrganization["@id"],
 	},
 	mainEntityOfPage: canonicalUrl,
-	about: [
-		"Design System Evaluation",
-		"Design System Releases",
-		"Design Contract Installation",
-	],
+	about: ["Design System Evaluation", "Design System Releases", "Installation"],
 };
 
 const currentWorkflow = [
@@ -55,7 +51,7 @@ const currentWorkflow = [
 	},
 	{
 		title: "2. Author one final release",
-		body: "The Design System Addition creates an original Design Contract, structured Preview data, a Design System Mark, publication metadata, and generation evidence for one final 1.0 release.",
+		body: "The Design System Addition creates an original Design Contract, structured Design System Preview data, a Design System Mark, publication metadata, and generation evidence for one final 1.0 release.",
 	},
 	{
 		title: "3. Evaluate the reference implementation",
@@ -63,7 +59,7 @@ const currentWorkflow = [
 	},
 	{
 		title: "4. Validate the publication record",
-		body: "Generation blocks when metadata is invalid, evidence is missing, the Design Contract digest changes, a release identity is duplicated, required Preview values are absent, or unexpected release files appear.",
+		body: "Generation blocks when metadata is invalid, evidence is missing, the Design Contract digest changes, a release identity is duplicated, required Design System Preview values are absent, or unexpected release files appear.",
 	},
 	{
 		title: "5. Publish by merging",
@@ -220,9 +216,11 @@ export default function MethodologyPage() {
 							Current facts and retired gates.
 						</h2>
 						<p className="mt-5 text-muted-foreground leading-7">
-							The earlier gated process used three explicit states that have
-							precise historical meanings. They are not claims about the current
-							Design System Addition workflow.
+							The earlier gated process kept a Candidate Design System Release
+							separate from Authoring Approval, Design System Evaluation, and
+							Publication Approval. Those three gates had distinct meanings.
+							They are not claims about the current Design System Addition
+							workflow.
 						</p>
 					</div>
 					<dl className="grid gap-px border bg-border lg:grid-cols-3">
@@ -239,15 +237,17 @@ export default function MethodologyPage() {
 						<div className="bg-background p-6">
 							<h3 className="font-medium">Design System Evaluation</h3>
 							<p className="mt-3 text-muted-foreground text-sm leading-6">
-								The current evidence record for generation, validation,
-								accessibility scope, and the immutable Design Contract.
+								The standardized generation and automated validation a Design
+								System Release must pass before publication, including evidence
+								that its reference implementation meets WCAG 2.2 Level AA.
 							</p>
 						</div>
 						<div className="bg-background p-6">
 							<h3 className="font-medium">Published Design System</h3>
 							<p className="mt-3 text-muted-foreground text-sm leading-6">
-								A final release whose validated files have been merged into the
-								Design Systems source. Before merge, it is not published.
+								A Design System whose final release has met its completeness and
+								quality requirements and has been merged into AgentKogei's
+								validated publication source. Before merge, it is not published.
 							</p>
 						</div>
 						<div className="bg-background p-6">
@@ -278,7 +278,7 @@ export default function MethodologyPage() {
 							Stable versions, open terms.
 						</h2>
 					</div>
-					<div className="grid gap-8 sm:grid-cols-2">
+					<div className="grid gap-8 sm:grid-cols-3">
 						<div>
 							<h3 className="font-medium">Immutable two part releases</h3>
 							<p className="mt-3 text-muted-foreground leading-7">
@@ -297,6 +297,15 @@ export default function MethodologyPage() {
 								sublicense, or sell copies under those terms. AgentKogei
 								publishes only original direction or material it has the right
 								to use.
+							</p>
+						</div>
+						<div>
+							<h3 className="font-medium">Compatibility</h3>
+							<p className="mt-3 text-muted-foreground leading-7">
+								Every current Design Contract directly targets React 18 or 19,
+								Next.js 15 or 16, Tailwind CSS v4, and shadcn/ui. Compatibility
+								is published per release so a Builder can check it before
+								Installation.
 							</p>
 						</div>
 					</div>
@@ -329,8 +338,8 @@ export default function MethodologyPage() {
 						<p className="text-muted-foreground leading-7">
 							The CLI sends only the requested Design Contract selector. It
 							sends no Project name, path, Git remote, file content, prompt,
-							generated interface, or dependency list. The installed root
-							DESIGN.md works offline without AgentKogei or network access.
+							generated interface, or dependency list. The installed Design
+							Contract works offline without AgentKogei or network access.
 						</p>
 						<p className="text-muted-foreground leading-7">
 							Installation places the complete Design Contract at the Project

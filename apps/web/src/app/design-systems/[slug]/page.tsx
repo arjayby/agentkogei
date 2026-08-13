@@ -91,6 +91,7 @@ export default async function DesignSystemPage({
 		),
 		url: canonicalUrl,
 		version: release.version,
+		datePublished: release.publishedAt,
 		license: "https://opensource.org/license/mit",
 		author: agentKogeiOrganization,
 		additionalProperty: [
@@ -120,6 +121,7 @@ export default async function DesignSystemPage({
 			"@id": `${canonicalUrl}#release-${release.version}`,
 			name: `${designSystem.name} Design System Release ${release.version}`,
 			version: release.version,
+			datePublished: release.publishedAt,
 			url: `${publicOrigin}/contracts/${designSystem.slug}/${release.version}`,
 		},
 	};

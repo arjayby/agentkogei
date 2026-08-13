@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-import { designSystems } from "@/lib/catalog";
+import { currentRelease, designSystems } from "@/lib/catalog";
 import { publicOrigin } from "@/lib/structured-data";
 
 const publicContentModifiedAt = "2026-08-13";
@@ -21,7 +21,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 		},
 		...designSystems.map((designSystem) => ({
 			url: `${publicOrigin}${designSystem.preview.route}`,
-			lastModified: publicContentModifiedAt,
+			lastModified: currentRelease(designSystem).publishedAt,
 		})),
 	];
 }
