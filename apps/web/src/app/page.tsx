@@ -7,7 +7,7 @@ import {
 	type InstallableDesignSystem,
 	InstallationCommand,
 } from "@/components/installation-command";
-import { designSystems } from "@/lib/catalog";
+import { designSystems, installationChoices } from "@/lib/catalog";
 import {
 	agentKogeiOrganization,
 	homepageDescription,
@@ -16,7 +16,7 @@ import {
 } from "@/lib/structured-data";
 
 const installableDesignSystems: readonly InstallableDesignSystem[] =
-	designSystems.map(({ slug, name }) => ({ slug, name }));
+	installationChoices();
 
 const homepageStructuredData = {
 	"@context": "https://schema.org",

@@ -815,6 +815,26 @@ test("Guides and the Design Contract guide are canonical server rendered resourc
 	);
 	expect(guideHtml).toContain("Give every agent durable design direction.");
 	expect(guideHtml).toContain('href="/design-systems"');
+	for (const serverRenderedContent of [
+		"Project instructions",
+		"AGENTS.md",
+		"DESIGN.md",
+		"works offline",
+		"Future agent work",
+		"React 18 and 19",
+		"Next.js 15 and 16",
+		"Tailwind CSS v4",
+		"shadcn/ui",
+		"Installation is declarative",
+		"agentkogei@latest add",
+	]) {
+		expect(guideHtml).toContain(serverRenderedContent);
+	}
+	const serverRenderedArticle = guideHtml.match(
+		/<article>([\s\S]*?)<\/article>/,
+	)?.[1];
+	expect(serverRenderedArticle).toBeTruthy();
+	expect(serverRenderedArticle).not.toMatch(/\bprompt\b|\btheme\b/i);
 	expect(readStructuredData(guideHtml, "guide-design-contract")).toMatchObject({
 		"@context": "https://schema.org",
 		"@type": "TechArticle",
@@ -840,13 +860,35 @@ test("Guides and the Design Contract guide are canonical server rendered resourc
 	);
 });
 
-test("every relevant product page links to Guides in server rendered HTML", async ({
+test("primary navigation, footer, and product content link into Guides", async ({
+	page,
 	request,
 }) => {
-	for (const route of ["/", "/design-systems", "/design-systems/foundation"]) {
+	await page.goto("/");
+	await expect(
+		page
+			.getByRole("navigation", { name: "Primary navigation" })
+			.getByRole("link", { name: "Guides" }),
+	).toHaveAttribute("href", "/guides");
+	await expect(
+		page
+			.getByRole("navigation", { name: "Product" })
+			.getByRole("link", { name: "Guides" }),
+	).toHaveAttribute("href", "/guides");
+
+	for (const [route, contextualCopy] of [
+		["/", "Read the guide"],
+		["/design-systems", "Learn how Design Contracts direct agent work"],
+		[
+			"/design-systems/foundation",
+			"Learn how Design Contracts direct future agent work",
+		],
+	] as const) {
 		const response = await request.get(route);
 		expect(response.status(), route).toBe(200);
-		expect(await response.text(), route).toContain('href="/guides"');
+		const html = await response.text();
+		expect(html, route).toContain('href="/guides/design-md"');
+		expect(html, route).toContain(contextualCopy);
 	}
 });
 

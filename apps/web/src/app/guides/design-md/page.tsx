@@ -6,39 +6,32 @@ import {
 	type InstallableDesignSystem,
 	InstallationCommand,
 } from "@/components/installation-command";
-import { designSystems } from "@/lib/catalog";
-import {
-	agentKogeiOrganization,
-	publicOrigin,
-	StructuredData,
-} from "@/lib/structured-data";
+import { installationChoices } from "@/lib/catalog";
+import { designContractGuide, designContractGuideUrl } from "@/lib/guides";
+import { agentKogeiOrganization, StructuredData } from "@/lib/structured-data";
 
-const guideTitle = "Design Contracts for AI coding agents";
-const guideDescription =
-	"Learn how Project instructions and a root Design Contract give AI coding agents durable visual direction that remains available offline.";
-const guideUrl = `${publicOrigin}/guides/design-md`;
 const installableDesignSystems: readonly InstallableDesignSystem[] =
-	designSystems.map(({ slug, name }) => ({ slug, name }));
+	installationChoices();
 
 export const metadata: Metadata = {
-	title: `${guideTitle} | AgentKogei`,
-	description: guideDescription,
+	title: `${designContractGuide.title} | AgentKogei`,
+	description: designContractGuide.description,
 	alternates: {
-		canonical: "/guides/design-md",
+		canonical: designContractGuide.route,
 	},
 };
 
 const structuredData = {
 	"@context": "https://schema.org",
 	"@type": "TechArticle",
-	"@id": `${guideUrl}#article`,
-	headline: guideTitle,
-	description: guideDescription,
-	url: guideUrl,
-	mainEntityOfPage: guideUrl,
+	"@id": `${designContractGuideUrl}#article`,
+	headline: designContractGuide.title,
+	description: designContractGuide.description,
+	url: designContractGuideUrl,
+	mainEntityOfPage: designContractGuideUrl,
 	inLanguage: "en",
-	datePublished: "2026-08-13",
-	dateModified: "2026-08-13",
+	datePublished: designContractGuide.publishedAt,
+	dateModified: designContractGuide.publishedAt,
 	author: agentKogeiOrganization,
 	publisher: {
 		"@id": agentKogeiOrganization["@id"],
@@ -168,7 +161,7 @@ export default function DesignContractGuidePage() {
 							</h3>
 							<ul className="mt-6 flex flex-col gap-4">
 								{[
-									"Selects one current Published Design System Release",
+									"Selects the current Design System Release from one Published Design System",
 									"Shows the exact target and change before writing",
 									"Writes the complete release to root DESIGN.md",
 									"Adds a managed AGENTS.md reference without replacing other instructions",

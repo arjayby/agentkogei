@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
 import { designSystems } from "@/lib/catalog";
+import { designContractGuide, designContractGuideUrl } from "@/lib/guides";
 import { publicOrigin } from "@/lib/structured-data";
 
 const canonicalPages = ["", "/design-systems", "/guides"] as const;
-const guideModifiedAt = new Date("2026-08-13T00:00:00.000Z");
 
 export default function sitemap(): MetadataRoute.Sitemap {
 	return [
@@ -11,8 +11,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
 			url: `${publicOrigin}${route}`,
 		})),
 		{
-			url: `${publicOrigin}/guides/design-md`,
-			lastModified: guideModifiedAt,
+			url: designContractGuideUrl,
+			lastModified: new Date(
+				`${designContractGuide.publishedAt}T00:00:00.000Z`,
+			),
 		},
 		...designSystems.map((designSystem) => ({
 			url: `${publicOrigin}${designSystem.preview.route}`,
