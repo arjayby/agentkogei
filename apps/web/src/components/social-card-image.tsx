@@ -137,6 +137,30 @@ function DesignSystemMark({
 					/>
 				</g>
 			) : null}
+			{recipe === "relay-loop" ? (
+				<g>
+					{[0, 90, 180, 270].map((rotation) => (
+						<g key={rotation} transform={`rotate(${rotation} 110 110)`}>
+							<path
+								d="M42 28h68c36 0 65 24 76 61l-31 10c-7-24-24-38-47-38H42V28Z"
+								fill={color}
+								stroke={color}
+								strokeWidth="3"
+							/>
+						</g>
+					))}
+					<rect
+						x="96"
+						y="96"
+						width="28"
+						height="28"
+						rx="6"
+						fill="none"
+						stroke={color}
+						strokeWidth="3"
+					/>
+				</g>
+			) : null}
 		</svg>
 	);
 }
