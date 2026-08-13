@@ -618,6 +618,150 @@ test("the public crawler policy permits every public resource", async ({
 	);
 });
 
+test("machine discovery resources are canonical, complete, and actionable", async ({
+	page,
+	request,
+}) => {
+	const llmsResponse = await request.get("/llms.txt");
+	expect(llmsResponse.status()).toBe(200);
+	expect(llmsResponse.headers()["content-type"]).toContain("text/plain");
+	const llms = await llmsResponse.text();
+	for (const canonicalUrl of [
+		"https://agentkogei.dev/",
+		"https://agentkogei.dev/design-systems",
+		"https://agentkogei.dev/guides",
+		"https://agentkogei.dev/methodology",
+		"https://agentkogei.dev/design-systems.json",
+		"https://agentkogei.dev/llms-full.txt",
+	]) {
+		expect(llms).toContain(canonicalUrl);
+	}
+	expect(llms).toContain("Design Systems for AI coding agents");
+	expect(llms).toContain("Do not execute Installation automatically");
+
+	const fullResponse = await request.get("/llms-full.txt");
+	expect(fullResponse.status()).toBe(200);
+	expect(fullResponse.headers()["content-type"]).toContain("text/plain");
+	const fullReference = await fullResponse.text();
+	for (const requiredReference of [
+		"Builder",
+		"Project",
+		"Design System",
+		"Design Contract",
+		"Published Design System",
+		"React or Next.js",
+		"Tailwind CSS v4",
+		"shadcn/ui",
+		"npx agentkogei@latest add foundation",
+		"https://agentkogei.dev/guides/codex",
+		"https://agentkogei.dev/guides/claude-code",
+		"Design System Evaluation",
+		"WCAG 2.2 Level AA",
+		"MIT License",
+		"no Project identity",
+		"https://agentkogei.dev/design-systems.json",
+	]) {
+		expect(fullReference).toContain(requiredReference);
+	}
+
+	const routes = await discoverDesignSystemRoutes(page);
+	expect(routes).toContain("/design-systems/aperture");
+	const indexResponse = await request.get("/design-systems.json");
+	expect(indexResponse.status()).toBe(200);
+	expect(indexResponse.headers()["content-type"]).toContain("application/json");
+	const index = (await indexResponse.json()) as {
+		schemaVersion: string;
+		canonicalUrl: string;
+		designSystems: Array<{
+			identity: string;
+			name: string;
+			summary: string;
+			intendedFit: string;
+			currentRelease: string;
+			previewUrl: string;
+			currentContractUrl: string;
+			exactContractUrl: string;
+			compatibility: {
+				frameworks: string[];
+				react: string;
+				nextjs: string;
+				tailwind: string;
+				ui: string;
+			};
+			license: { name: string; url: string };
+			installationCommand: string;
+		}>;
+	};
+	expect(index.schemaVersion).toBe("1.0");
+	expect(index.canonicalUrl).toBe("https://agentkogei.dev/design-systems.json");
+	expect(
+		index.designSystems.map(({ identity }) => `/design-systems/${identity}`),
+	).toEqual(routes);
+
+	for (const designSystem of index.designSystems) {
+		expect(Object.keys(designSystem).sort()).toEqual(
+			[
+				"identity",
+				"name",
+				"summary",
+				"intendedFit",
+				"currentRelease",
+				"previewUrl",
+				"currentContractUrl",
+				"exactContractUrl",
+				"compatibility",
+				"license",
+				"installationCommand",
+			].sort(),
+		);
+		expect(designSystem.summary.length).toBeGreaterThan(0);
+		expect(designSystem.intendedFit.length).toBeGreaterThan(0);
+		expect(designSystem.currentRelease).toMatch(/^\d+\.\d+$/);
+		expect(designSystem.previewUrl).toBe(
+			`https://agentkogei.dev/design-systems/${designSystem.identity}`,
+		);
+		expect(designSystem.currentContractUrl).toBe(
+			`https://agentkogei.dev/contracts/${designSystem.identity}`,
+		);
+		expect(designSystem.exactContractUrl).toBe(
+			`https://agentkogei.dev/contracts/${designSystem.identity}/${designSystem.currentRelease}`,
+		);
+		expect(designSystem.compatibility.frameworks).toEqual(["react", "nextjs"]);
+		for (const value of [
+			designSystem.compatibility.react,
+			designSystem.compatibility.nextjs,
+			designSystem.compatibility.tailwind,
+			designSystem.compatibility.ui,
+		]) {
+			expect(value.length).toBeGreaterThan(0);
+		}
+		expect(designSystem.license).toEqual({
+			name: "MIT",
+			url: "https://opensource.org/license/mit",
+		});
+		expect(designSystem.installationCommand).toBe(
+			`npx agentkogei@latest add ${designSystem.identity}`,
+		);
+		expect(fullReference).toContain(designSystem.previewUrl);
+		expect(fullReference).toContain(designSystem.installationCommand);
+
+		const [preview, currentContract, exactContract] = await Promise.all([
+			request.get(new URL(designSystem.previewUrl).pathname),
+			request.get(new URL(designSystem.currentContractUrl).pathname),
+			request.get(new URL(designSystem.exactContractUrl).pathname),
+		]);
+		expect(preview.status(), designSystem.previewUrl).toBe(200);
+		expect(currentContract.status(), designSystem.currentContractUrl).toBe(200);
+		expect(exactContract.status(), designSystem.exactContractUrl).toBe(200);
+		expect(await currentContract.body()).toEqual(await exactContract.body());
+	}
+
+	const retiredOrigin = ["agentkogei", "com"].join(".");
+	for (const resource of [llms, fullReference, JSON.stringify(index)]) {
+		expect(resource).not.toContain(retiredOrigin);
+	}
+});
+
 test("the sitemap contains only canonical indexable HTML with meaningful modification dates", async ({
 	page,
 	request,
