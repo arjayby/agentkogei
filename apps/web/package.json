@@ -9,7 +9,7 @@
 		"check-types": "tsc --noEmit",
 		"contracts:build": "bun run scripts/build-design-contracts.ts",
 		"cli:package": "bun run --cwd ../../packages/design-systems distribution:package",
-		"test": "bun run cli:package && playwright test",
+		"test:e2e": "bun run cli:package && playwright test",
 		"test:public": "bun run cli:package && playwright test tests/public-journey.spec.ts",
 		"start": "next start",
 		"start:test": "next start --port 3011"
