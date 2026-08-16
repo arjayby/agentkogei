@@ -3854,6 +3854,668 @@
 					}
 				}
 			]
+		},
+		{
+			"id": "pulsegrid",
+			"name": "Pulsegrid",
+			"currentRelease": "1.0",
+			"preview": {
+				"order": 7,
+				"summary": "Operational bands that connect live status, evidence, and decisive action.",
+				"intendedFit": "Infrastructure, finance, analytics, service operations, and data heavy business products",
+				"route": "/design-systems/pulsegrid",
+				"signature": {
+					"label": "Pulse 07",
+					"headline": "Turn live activity into the next clear decision.",
+					"principles": [
+						"Lead with the live question",
+						"Align proof with action",
+						"Make status structural",
+						"Reserve iris for the current path",
+						"Keep a quiet floor"
+					]
+				},
+				"mark": {
+					"recipe": "directional-nodes",
+					"label": "Six primary colored pulse nodes converging on a verified core"
+				},
+				"typography": {
+					"display": "neo-grotesk",
+					"body": "humanist-sans",
+					"accent": "technical-mono"
+				},
+				"composition": "process-bands",
+				"foundations": {
+					"semanticColorUsage": {
+						"background": "The quiet cool workspace behind navigation, operational bands, and application content.",
+						"foreground": "Primary copy, decisive headings, strong labels, and meaningful symbols.",
+						"card": "Bounded tasks, independent evidence sets, dialogs, and focused working surfaces.",
+						"muted": "Supporting bands, inactive regions, skeletons, and secondary data groupings.",
+						"mutedForeground": "Explanation, metadata, timestamps, and lower priority information.",
+						"border": "Defined control boundaries, data groups, pulse rails, and structural separators.",
+						"primary": "The current path, decisive action, active selection, and purposeful pulse cell.",
+						"primaryForeground": "Readable text and icons placed directly on the iris primary.",
+						"destructive": "Irreversible loss, failed requirements, and destructive confirmation.",
+						"success": "Verified completion and healthy outcomes paired with explicit text.",
+						"warning": "Conditions needing attention before they become failures.",
+						"info": "Neutral operational context and informative status.",
+						"ring": "Persistent keyboard focus around every interactive component."
+					},
+					"typographyScale": {
+						"display": {
+							"font": "display",
+							"sizeRem": {
+								"mobile": 2.375,
+								"desktop": 4.5
+							},
+							"weight": 600,
+							"lineHeight": 1,
+							"trackingEm": -0.04,
+							"usage": "Product statements, major page decisions, and one leading operational outcome."
+						},
+						"section": {
+							"font": "display",
+							"sizeRem": {
+								"mobile": 1.625,
+								"desktop": 2.625
+							},
+							"weight": 600,
+							"lineHeight": 1.08,
+							"trackingEm": -0.025,
+							"usage": "Section decisions, panel titles, and important grouped evidence."
+						},
+						"body": {
+							"font": "body",
+							"sizeRem": {
+								"mobile": 0.9375,
+								"desktop": 1.0625
+							},
+							"weight": 400,
+							"lineHeight": 1.58,
+							"trackingEm": 0,
+							"usage": "Explanation, navigation, forms, settings, and sustained product reading."
+						},
+						"label": {
+							"font": "accent",
+							"sizeRem": {
+								"mobile": 0.6875,
+								"desktop": 0.75
+							},
+							"weight": 600,
+							"lineHeight": 1.4,
+							"trackingEm": 0.08,
+							"usage": "Pulse rail captions, status, timestamps, units, and compact data labels."
+						},
+						"metric": {
+							"font": "display",
+							"sizeRem": {
+								"mobile": 1.75,
+								"desktop": 2.5
+							},
+							"weight": 600,
+							"lineHeight": 1,
+							"trackingEm": -0.03,
+							"usage": "Measured values with explicit units, freshness, and explanatory labels."
+						},
+						"code": {
+							"font": "accent",
+							"sizeRem": {
+								"mobile": 0.75,
+								"desktop": 0.8125
+							},
+							"weight": 400,
+							"lineHeight": 1.5,
+							"trackingEm": 0,
+							"usage": "Commands, machine values, identifiers, durations, and source text."
+						}
+					},
+					"spacingScale": {
+						"1": {
+							"valueRem": 0.25,
+							"usage": "Pulse cells, icons, and very tight status relationships."
+						},
+						"2": {
+							"valueRem": 0.5,
+							"usage": "Inline labels, metadata, and compact control groups."
+						},
+						"3": {
+							"valueRem": 0.75,
+							"usage": "Control internals and paired data values."
+						},
+						"4": {
+							"valueRem": 1,
+							"usage": "Default field rhythm and related actions."
+						},
+						"5": {
+							"valueRem": 1.25,
+							"usage": "Balanced table cells and dense evidence groups."
+						},
+						"6": {
+							"valueRem": 1.5,
+							"usage": "Cards, panels, and form groups."
+						},
+						"8": {
+							"valueRem": 2,
+							"usage": "Operational band padding and distinct task groups."
+						},
+						"12": {
+							"valueRem": 3,
+							"usage": "Section groups and compact surface transitions."
+						},
+						"16": {
+							"valueRem": 4,
+							"usage": "Major product sections and generous working separation."
+						},
+						"24": {
+							"valueRem": 6,
+							"usage": "High impact introductions and major decision transitions."
+						}
+					},
+					"layout": {
+						"maxWidthRem": 90,
+						"contentWidthCh": 68,
+						"columns": {
+							"mobile": 1,
+							"tablet": 6,
+							"desktop": 12
+						},
+						"gutterRem": {
+							"mobile": 1,
+							"tablet": 1.5,
+							"desktop": 2
+						},
+						"guidance": "Connect each live question to evidence and action through aligned bands while keeping the surrounding field quiet."
+					},
+					"responsive": {
+						"mobile": {
+							"minWidthPx": 320,
+							"guidance": "Stack decisions, evidence, and actions in source order with a labelled compact navigation trigger."
+						},
+						"tablet": {
+							"minWidthPx": 768,
+							"guidance": "Collapse secondary navigation and place supporting evidence below the principal decision when needed."
+						},
+						"desktop": {
+							"minWidthPx": 1120,
+							"guidance": "Use the twelve column field for one live question, aligned proof, and a ranked next action."
+						},
+						"zoom": {
+							"scalePercent": 200,
+							"guidance": "Let navigation, labels, metrics, tables, and actions wrap or reflow without clipping."
+						},
+						"reflow": {
+							"widthPx": 320,
+							"guidance": "Preserve complete source ordered bands and use labelled overflow only for irreducible data comparison."
+						}
+					},
+					"geometry": {
+						"radii": {
+							"compact": {
+								"valueRem": 0.25,
+								"usage": "Data cells, tags, and compact controls."
+							},
+							"control": {
+								"valueRem": 0.375,
+								"usage": "Buttons, fields, menus, and ordinary interactions."
+							},
+							"panel": {
+								"valueRem": 0.5,
+								"usage": "Cards, dialogs, and bounded working surfaces."
+							}
+						},
+						"borders": {
+							"rail": {
+								"widthPx": 1,
+								"style": "solid",
+								"usage": "Pulse rails, table groups, and structural bands."
+							},
+							"default": {
+								"widthPx": 1,
+								"style": "solid",
+								"usage": "Controls, cards, and ordinary boundaries."
+							},
+							"focus": {
+								"widthPx": 2,
+								"style": "solid",
+								"usage": "Focus, active selection, and consequential separation."
+							}
+						},
+						"elevation": {
+							"flat": {
+								"offsetYRem": 0,
+								"blurRem": 0,
+								"spreadRem": 0,
+								"opacity": 0,
+								"usage": "Default bands, data groups, and working surfaces."
+							},
+							"raised": {
+								"offsetYRem": 0.125,
+								"blurRem": 0.75,
+								"spreadRem": -0.25,
+								"opacity": 0.1,
+								"usage": "Temporary menus and movable content."
+							},
+							"overlay": {
+								"offsetYRem": 0.5,
+								"blurRem": 1.5,
+								"spreadRem": -0.5,
+								"opacity": 0.18,
+								"usage": "Dialogs and temporary content above the operational field."
+							}
+						}
+					}
+				},
+				"controls": {
+					"buttons": {
+						"primaryLabel": "Resolve condition",
+						"secondaryLabel": "Review evidence",
+						"guidance": "Use one filled primary action per decision band and keep secondary actions defined, direct, and stable.",
+						"states": {
+							"default": "Use the iris primary with a result focused label.",
+							"hover": "Deepen the primary without changing size or position.",
+							"focus": "Show the semantic focus ring outside the control boundary.",
+							"active": "Compress by at most one pixel without shifting nearby content.",
+							"disabled": "Keep the action readable and expose the unmet prerequisite.",
+							"loading": "Retain the action label beside a visible progress indicator.",
+							"success": "Name the completed outcome with text and the success role.",
+							"error": "Name the failed operation and its recovery with destructive semantics."
+						}
+					},
+					"links": {
+						"primaryLabel": "Open incident record",
+						"secondaryLabel": "View activity history",
+						"guidance": "Use specific destinations, persistent prose underlines, and an explicit current navigation state.",
+						"states": {
+							"default": "Underline prose destinations and use the accessible primary role.",
+							"hover": "Strengthen the underline without changing line height.",
+							"focus": "Frame the link with the same semantic focus ring as controls.",
+							"active": "Preserve the destination while showing immediate activation.",
+							"disabled": "Render unavailable destinations as explained text rather than links.",
+							"loading": "Keep the destination label and add adjacent busy status.",
+							"success": "Confirm the local navigation result in nearby text.",
+							"error": "Explain the local failure and recovery without relying on color."
+						}
+					},
+					"forms": {
+						"legend": "Incident routing",
+						"guidance": "Group fields by decision, keep help persistent, and place validation in the same reading path.",
+						"submitLabel": "Validate route",
+						"help": "The selected team receives new incidents from this service.",
+						"error": "Choose a team with an active response schedule.",
+						"success": "The incident route is valid and ready to save."
+					},
+					"inputs": {
+						"textLabel": "Escalation email address",
+						"textPlaceholder": "operations@example.com",
+						"textareaLabel": "Response context",
+						"textareaPlaceholder": "Describe the condition and expected response.",
+						"disabledLabel": "Service identifier",
+						"guidance": "Keep labels visible, align fields to the decision band, and reserve stable space for help and validation."
+					},
+					"cards": {
+						"title": "Response window",
+						"description": "A bounded task connects current health, ownership, freshness, and the next valid response.",
+						"metadata": "Pulse 18 · Updated 4 minutes ago",
+						"actionLabel": "Review response window",
+						"guidance": "Use a card for one independent task or proof set, not merely to add a border."
+					},
+					"panels": {
+						"title": "Live activity register",
+						"description": "The register aligns current health, unresolved work, and verified outcomes in one readable band.",
+						"items": ["Current health", "Pending response", "Verified outcome"],
+						"guidance": "Use one pulse rail and shared alignment instead of separate containers for every value."
+					},
+					"navigation": {
+						"label": "Operations sections",
+						"items": [
+							{
+								"id": "overview",
+								"label": "Overview"
+							},
+							{
+								"id": "incidents",
+								"label": "Incidents"
+							},
+							{
+								"id": "services",
+								"label": "Services"
+							},
+							{
+								"id": "activity",
+								"label": "Activity"
+							}
+						],
+						"guidance": "Name the current section in text, preserve source order, and keep every destination keyboard reachable."
+					}
+				},
+				"interactions": {
+					"dataDisplay": {
+						"tableCaption": "Current service states",
+						"columns": [
+							{
+								"id": "service",
+								"label": "Service"
+							},
+							{
+								"id": "state",
+								"label": "State"
+							},
+							{
+								"id": "owner-freshness",
+								"label": "Owner · freshness"
+							}
+						],
+						"rows": [
+							{
+								"id": "edge-gateway",
+								"label": "Edge gateway",
+								"cells": ["Healthy", "Platform · 2 minutes ago"]
+							},
+							{
+								"id": "event-stream",
+								"label": "Event stream",
+								"cells": ["Investigating", "Data operations · 5 minutes ago"]
+							},
+							{
+								"id": "billing-sync",
+								"label": "Billing sync",
+								"cells": ["Recovered", "Revenue systems · 12 minutes ago"]
+							}
+						],
+						"listLabel": "Activity summary",
+						"listItems": [
+							{
+								"title": "Healthy",
+								"description": "Fourteen services are within their response target.",
+								"status": "Verified"
+							},
+							{
+								"title": "Investigating",
+								"description": "One event stream has delayed processing.",
+								"status": "Action needed"
+							},
+							{
+								"title": "Recovered",
+								"description": "Billing sync returned to normal throughput.",
+								"status": "Monitor"
+							}
+						],
+						"guidance": "Keep service, state, owner, freshness, and action aligned with tabular numerals and explicit labels.",
+						"overflowGuidance": "Preserve complete comparison in a labelled keyboard reachable scroll region when priority columns cannot fit."
+					},
+					"feedback": {
+						"badges": [
+							{
+								"label": "Pending",
+								"meaning": "The condition is awaiting evaluation",
+								"tone": "neutral"
+							},
+							{
+								"label": "Investigating",
+								"meaning": "A named owner is examining the condition",
+								"tone": "info"
+							},
+							{
+								"label": "Healthy",
+								"meaning": "The service meets its verified operating target",
+								"tone": "success"
+							},
+							{
+								"label": "Attention",
+								"meaning": "A condition needs review before failure",
+								"tone": "warning"
+							},
+							{
+								"label": "Unavailable",
+								"meaning": "A failed requirement blocks the service",
+								"tone": "destructive"
+							}
+						],
+						"alerts": [
+							{
+								"title": "Event stream needs investigation",
+								"description": "Processing delay exceeded the response target five minutes ago.",
+								"tone": "warning"
+							},
+							{
+								"title": "Billing sync recovered",
+								"description": "Throughput returned to the verified range and monitoring continues.",
+								"tone": "success"
+							},
+							{
+								"title": "Activity history unavailable",
+								"description": "Existing service status remains visible while history reconnects.",
+								"tone": "destructive"
+							}
+						],
+						"states": {
+							"loading": "Refreshing service states without hiding the last verified state.",
+							"empty": "No services are connected to this operations view yet.",
+							"filteredEmpty": "No services match the active state and owner filters.",
+							"error": "Activity history could not refresh. The last verified state remains available.",
+							"success": "The response route is verified and active.",
+							"disabled": "Escalation remains unavailable until an active response team is assigned.",
+							"destructive": "Removing this service also removes its unresolved local activity history."
+						},
+						"guidance": "Attach state to the affected service, preserve useful context, and include the next valid recovery.",
+						"nonColorGuidance": "Pair every status color with a label, icon, boundary, or explicit state text."
+					},
+					"dialogs": {
+						"title": "Confirm response route",
+						"description": "Review the service, owner, schedule, and escalation target before activation.",
+						"openLabel": "Open response route dialog",
+						"initialFocusLabel": "Review route details",
+						"confirmLabel": "Activate response route",
+						"closeLabel": "Close",
+						"guidance": "Keep the route summary concise, place safe review first, and preserve the originating service context.",
+						"escapeBehavior": "Escape closes the dialog because activation occurs only after explicit confirmation.",
+						"focusRestoration": "Return focus to the route control that opened the dialog."
+					},
+					"destructiveActions": {
+						"objectLabel": "Event stream service",
+						"consequence": "Unresolved local activity history and routing preferences will be removed.",
+						"recoverability": "This preview action is reversible and changes only local specimen state.",
+						"openLabel": "Remove service",
+						"confirmLabel": "Remove event stream service",
+						"cancelLabel": "Keep service",
+						"guidance": "Repeat the service name, scope, consequence, and true recovery status before the destructive boundary."
+					}
+				},
+				"motion": {
+					"durationMs": {
+						"feedback": 100,
+						"transition": 160,
+						"spatial": 220
+					},
+					"easing": {
+						"enter": "ease-out",
+						"exit": "ease-in",
+						"move": "ease-in-out"
+					},
+					"movement": {
+						"distanceRem": 0.375,
+						"scaleFrom": 0.985
+					},
+					"guidance": "Use short motion for response and continuity, allow pulse cells to fill only after action, and never add ambient loops.",
+					"autoplay": false
+				},
+				"reducedMotion": {
+					"removeNonessential": true,
+					"stateChanges": "instant",
+					"guidance": "Remove translation, scaling, smooth scrolling, sequential fills, and loops while preserving immediate labelled state changes."
+				},
+				"accessibility": {
+					"standard": "WCAG 2.2 Level AA",
+					"semantics": "Use native landmarks, headings, controls, forms, tables, lists, dialogs, and status regions before adding ARIA.",
+					"keyboard": "Keep navigation, menus, filters, sorting, selection, overflow regions, row actions, and dialogs operable in logical source order.",
+					"focus": "Use a persistent two pixel focus indicator in light, dark, and forced colors modes and restore focus after modal interaction.",
+					"contrast": "Measure text, controls, borders, status, meaningful graphics, and focus across both supported color schemes.",
+					"targetSize": "Provide targets at least 24 by 24 CSS pixels with adequate spacing and prefer 44 pixels for important touch actions.",
+					"zoom": "Preserve every navigation item, metric, label, table control, and action at 200 percent page zoom and 400 percent browser zoom.",
+					"reflow": "Reflow operational bands to 320 CSS pixels without two dimensional page scrolling.",
+					"forcedColors": "Retain pulse structure, current selection, focus, boundaries, and feedback when system colors replace authored colors.",
+					"statusCommunication": "Announce asynchronous outcomes intentionally and never rely on color, position, shape, icon, or motion alone."
+				},
+				"productSurfaces": {
+					"guidance": "These specimens demonstrate Pulsegrid structure only. Replace illustrative words with supplied Project language and preserve every real workflow rule.",
+					"examples": {
+						"marketing": {
+							"title": "Outcome, proof, and action bands",
+							"description": "One concrete promise opens into aligned capability evidence and a ranked next step.",
+							"elements": [
+								"One decisive primary action",
+								"Proof bands with explicit evidence and freshness"
+							]
+						},
+						"authentication": {
+							"title": "Focused system access",
+							"description": "A narrow task panel keeps identity, recovery, trust context, and pending feedback visible.",
+							"elements": [
+								"Persistent labels and recovery",
+								"Stable pending, invalid, and error context"
+							]
+						},
+						"onboarding": {
+							"title": "Guided response setup",
+							"description": "A short sequence names completed, current, optional, and upcoming configuration.",
+							"elements": [
+								"Explicit progress with current state",
+								"Safe backtracking and route verification"
+							]
+						},
+						"dashboard": {
+							"title": "Live operations overview",
+							"description": "Current health, pending response, ownership, and freshness lead the workspace.",
+							"elements": [
+								"One current operational question",
+								"Aligned evidence and ranked action"
+							]
+						},
+						"table": {
+							"title": "Service state comparison",
+							"description": "Service, state, owner, freshness, and action remain aligned and legible.",
+							"elements": [
+								"Caption, semantic headings, and row labels",
+								"Explicit narrow screen overflow or reflow"
+							]
+						},
+						"form": {
+							"title": "Decision grouped input",
+							"description": "Fields, help, validation, save state, and consequences stay attached to one operational decision.",
+							"elements": [
+								"Persistent labels and correction guidance",
+								"Dirty, saving, saved, conflict, and failed feedback"
+							]
+						},
+						"settings": {
+							"title": "Scoped operations controls",
+							"description": "Personal, workspace, and organization settings name their reach before action.",
+							"elements": [
+								"Named scope, owner, and current value",
+								"Separate consequence band for destructive settings"
+							]
+						},
+						"states": {
+							"title": "Stable operational feedback",
+							"description": "Loading, empty, error, success, disabled, and destructive states preserve useful service context.",
+							"elements": [
+								"Affected object and explicit state",
+								"Recovery or next valid action"
+							]
+						}
+					}
+				},
+				"evidencePresentation": {
+					"preview": "The Design System Preview is a public visual and descriptive specimen of the evaluated direction.",
+					"designContract": "The complete Design Contract is the public raw Markdown installed into a Project.",
+					"evaluation": "Evaluation metadata and raw evidence paths remain public so coverage can be inspected.",
+					"rawEvidencePublic": true
+				},
+				"theme": {
+					"tokens": {
+						"light": {
+							"background": "#f6f7fb",
+							"foreground": "#171623",
+							"card": "#ffffff",
+							"muted": "#eceef6",
+							"mutedForeground": "#5c5f70",
+							"border": "#888da1",
+							"primary": "#4f3fd7",
+							"primaryForeground": "#ffffff",
+							"destructive": "#aa263d",
+							"success": "#246942",
+							"warning": "#765400",
+							"info": "#075d89",
+							"ring": "#4f3fd7"
+						},
+						"dark": {
+							"background": "#11111a",
+							"foreground": "#f3f2fa",
+							"card": "#1b1b27",
+							"muted": "#272836",
+							"mutedForeground": "#bbbccc",
+							"border": "#6f7286",
+							"primary": "#a99cff",
+							"primaryForeground": "#171326",
+							"destructive": "#ff91a1",
+							"success": "#7bd8aa",
+							"warning": "#f0c56d",
+							"info": "#79caf4",
+							"ring": "#b5aaff"
+						}
+					},
+					"schemeOrder": ["light", "dark"],
+					"geometry": {
+						"density": "balanced",
+						"radius": "soft",
+						"border": "defined",
+						"elevation": "flat"
+					}
+				}
+			},
+			"compatibility": {
+				"frameworks": ["react", "nextjs"],
+				"react": ">=18 <20",
+				"nextjs": ">=15 <17",
+				"tailwind": ">=4 <5",
+				"ui": "shadcn/ui"
+			},
+			"evaluation": {
+				"status": "passed",
+				"standard": "WCAG 2.2 Level AA",
+				"screens": [
+					"marketing",
+					"authentication",
+					"onboarding",
+					"dashboard",
+					"table",
+					"form",
+					"settings",
+					"states"
+				],
+				"viewports": ["1440x900", "390x844"],
+				"colorSchemes": ["light", "dark"],
+				"reducedMotion": true,
+				"automatedChecks": [
+					"structure",
+					"accessibility",
+					"responsive overflow",
+					"color contrast"
+				],
+				"evidence": ["evaluation/report.json"],
+				"agentGenerationRuns": 1
+			},
+			"releases": [
+				{
+					"version": "1.0",
+					"publishedAt": "2026-08-16",
+					"changelog": {
+						"summary": "Initial Pulsegrid Design System Release.",
+						"breaking": false,
+						"migrationNotes": null
+					}
+				}
+			]
 		}
 	]
 }
