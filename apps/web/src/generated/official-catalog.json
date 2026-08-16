@@ -3871,13 +3871,13 @@
 						"Lead with the live question",
 						"Align proof with action",
 						"Make status structural",
-						"Reserve iris for the current path",
+						"Reserve cobalt for the current path",
 						"Keep a quiet floor"
 					]
 				},
 				"mark": {
-					"recipe": "directional-nodes",
-					"label": "Six primary colored pulse nodes converging on a verified core"
+					"recipe": "pulse-sequence",
+					"label": "Four stepped pulse cells advancing along a rising rail"
 				},
 				"typography": {
 					"display": "neo-grotesk",
@@ -3894,7 +3894,7 @@
 						"mutedForeground": "Explanation, metadata, timestamps, and lower priority information.",
 						"border": "Defined control boundaries, data groups, pulse rails, and structural separators.",
 						"primary": "The current path, decisive action, active selection, and purposeful pulse cell.",
-						"primaryForeground": "Readable text and icons placed directly on the iris primary.",
+						"primaryForeground": "Readable text and icons placed directly on the cobalt primary.",
 						"destructive": "Irreversible loss, failed requirements, and destructive confirmation.",
 						"success": "Verified completion and healthy outcomes paired with explicit text.",
 						"warning": "Conditions needing attention before they become failures.",
@@ -4111,7 +4111,7 @@
 						"secondaryLabel": "Review evidence",
 						"guidance": "Use one filled primary action per decision band and keep secondary actions defined, direct, and stable.",
 						"states": {
-							"default": "Use the iris primary with a result focused label.",
+							"default": "Use the cobalt primary with a result focused label.",
 							"hover": "Deepen the primary without changing size or position.",
 							"focus": "Show the semantic focus ring outside the control boundary.",
 							"active": "Compress by at most one pixel without shifting nearby content.",
@@ -4434,34 +4434,34 @@
 				"theme": {
 					"tokens": {
 						"light": {
-							"background": "#f6f7fb",
-							"foreground": "#171623",
+							"background": "#f5f7fb",
+							"foreground": "#111827",
 							"card": "#ffffff",
-							"muted": "#eceef6",
-							"mutedForeground": "#5c5f70",
-							"border": "#888da1",
-							"primary": "#4f3fd7",
+							"muted": "#e9eef6",
+							"mutedForeground": "#526174",
+							"border": "#8996a8",
+							"primary": "#0018d4",
 							"primaryForeground": "#ffffff",
 							"destructive": "#aa263d",
 							"success": "#246942",
 							"warning": "#765400",
 							"info": "#075d89",
-							"ring": "#4f3fd7"
+							"ring": "#0018d4"
 						},
 						"dark": {
-							"background": "#11111a",
-							"foreground": "#f3f2fa",
-							"card": "#1b1b27",
-							"muted": "#272836",
-							"mutedForeground": "#bbbccc",
-							"border": "#6f7286",
-							"primary": "#a99cff",
-							"primaryForeground": "#171326",
+							"background": "#0f1420",
+							"foreground": "#f3f6fc",
+							"card": "#171e2b",
+							"muted": "#222b3a",
+							"mutedForeground": "#b6c0d0",
+							"border": "#657187",
+							"primary": "#6f8fff",
+							"primaryForeground": "#111827",
 							"destructive": "#ff91a1",
 							"success": "#7bd8aa",
 							"warning": "#f0c56d",
 							"info": "#79caf4",
-							"ring": "#b5aaff"
+							"ring": "#6f8fff"
 						}
 					},
 					"schemeOrder": ["light", "dark"],

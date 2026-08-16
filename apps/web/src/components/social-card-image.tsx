@@ -161,6 +161,37 @@ function DesignSystemMark({
 					/>
 				</g>
 			) : null}
+			{recipe === "pulse-sequence" ? (
+				<g>
+					<path
+						d="m42 165 45-30 45-30 45-30"
+						fill="none"
+						stroke={color}
+						strokeWidth="8"
+						strokeLinejoin="bevel"
+					/>
+					{[
+						{ x: 27, y: 150, opacity: 0.58 },
+						{ x: 72, y: 120, opacity: 0.82 },
+						{ x: 117, y: 90, opacity: 1 },
+						{ x: 162, y: 60, opacity: 0.82 },
+					].map(({ x, y, opacity }) => (
+						<rect
+							key={`${x}-${y}`}
+							x={x}
+							y={y}
+							width="30"
+							height="30"
+							rx="4"
+							fill={color}
+							stroke={color}
+							strokeWidth="3"
+							opacity={opacity}
+						/>
+					))}
+					<path d="M177 60h20v20" fill="none" stroke={color} strokeWidth="7" />
+				</g>
+			) : null}
 		</svg>
 	);
 }

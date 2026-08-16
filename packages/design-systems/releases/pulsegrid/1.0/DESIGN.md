@@ -17,50 +17,50 @@ These five principles govern every implementation:
 - **Principle: lead with the live question.** Begin each surface with the decision, condition, or outcome that matters now.
 - **Principle: align proof with action.** Keep metrics, status, explanation, and the next valid action in one readable band.
 - **Principle: make status structural.** Use position, labels, rules, and icons with color so state is never an ornamental badge cloud.
-- **Principle: spend iris once.** Reserve the electric iris primary for the current path, decisive action, focus, and selected state.
+- **Principle: spend cobalt once.** Reserve the deep cobalt primary for the current path, decisive action, focus, and selected state.
 - **Principle: keep a quiet floor.** Let neutral space and disciplined alignment absorb complexity before adding containers or decoration.
 
-The recognizable Pulsegrid combination is a cool near white field, deep ink text, electric iris actions, neo grotesk display type, neutral sans body text, technical mono labels, defined rules, softly squared controls, flat layered bands, tabular data, and compact pulse rails. Do not add glowing circuitry, crypto imagery, pixel debris, floating dashboards, radial gradients, glass surfaces, animated data rain, or decorative grids.
+The recognizable Pulsegrid combination is a cool near white field, deep ink text, decisive cobalt actions, neo grotesk display type, neutral sans body text, technical mono labels, defined rules, softly squared controls, flat layered bands, tabular data, and compact pulse rails. Do not add glowing circuitry, crypto imagery, pixel debris, floating dashboards, radial gradients, glass surfaces, animated data rain, or decorative grids.
 
 ## Semantic color
 
 Pulsegrid defines complete light and dark color schemes through semantic roles. Background is the quiet workspace. Foreground carries primary reading. Card separates a bounded task. Muted supports secondary bands. Muted foreground carries explanation and metadata. Border defines controls and data groups. Primary marks the current path and decisive action. Primary foreground is text or icon color on primary. Destructive names irreversible loss. Success confirms completion. Warning calls attention to risk. Info provides neutral context. Focus ring identifies keyboard focus. This hierarchy and usage keep neutral information calm while making actions and status unmistakable.
 
-Light mode uses a cool mist background, white cards, deep violet ink, and a saturated iris primary. Dark mode uses a blue black field, graphite cards, pale text, and a luminous iris primary. Dark mode preserves distinct surfaces rather than simply inverting the light palette.
+Light mode uses a cool mist background, white cards, deep ink, and a saturated deep cobalt primary. Dark mode uses a blue black field, graphite cards, pale text, and a clear cobalt primary. Dark mode preserves distinct surfaces rather than simply inverting the light palette.
 
 Normal text must meet 4.5 to 1 contrast. Large text, meaningful graphics, control boundaries, and focus indicators must meet 3 to 1 against adjacent colors. Test every status role on background, card, and muted surfaces in both schemes. Primary never substitutes for destructive, warning, success, or info. Pair every status color with text, an icon, or a structural cue.
 
 ```css
 :root {
-	--pulsegrid-background: #f6f7fb;
-	--pulsegrid-foreground: #171623;
+	--pulsegrid-background: #f5f7fb;
+	--pulsegrid-foreground: #111827;
 	--pulsegrid-card: #ffffff;
-	--pulsegrid-muted: #eceef6;
-	--pulsegrid-muted-foreground: #5c5f70;
-	--pulsegrid-border: #888da1;
-	--pulsegrid-primary: #4f3fd7;
+	--pulsegrid-muted: #e9eef6;
+	--pulsegrid-muted-foreground: #526174;
+	--pulsegrid-border: #8996a8;
+	--pulsegrid-primary: #0018d4;
 	--pulsegrid-primary-foreground: #ffffff;
 	--pulsegrid-destructive: #aa263d;
 	--pulsegrid-success: #246942;
 	--pulsegrid-warning: #765400;
 	--pulsegrid-info: #075d89;
-	--pulsegrid-ring: #4f3fd7;
+	--pulsegrid-ring: #0018d4;
 }
 
 .dark {
-	--pulsegrid-background: #11111a;
-	--pulsegrid-foreground: #f3f2fa;
-	--pulsegrid-card: #1b1b27;
-	--pulsegrid-muted: #272836;
-	--pulsegrid-muted-foreground: #bbbccc;
-	--pulsegrid-border: #6f7286;
-	--pulsegrid-primary: #a99cff;
-	--pulsegrid-primary-foreground: #171326;
+	--pulsegrid-background: #0f1420;
+	--pulsegrid-foreground: #f3f6fc;
+	--pulsegrid-card: #171e2b;
+	--pulsegrid-muted: #222b3a;
+	--pulsegrid-muted-foreground: #b6c0d0;
+	--pulsegrid-border: #657187;
+	--pulsegrid-primary: #6f8fff;
+	--pulsegrid-primary-foreground: #111827;
 	--pulsegrid-destructive: #ff91a1;
 	--pulsegrid-success: #7bd8aa;
 	--pulsegrid-warning: #f0c56d;
 	--pulsegrid-info: #79caf4;
-	--pulsegrid-ring: #b5aaff;
+	--pulsegrid-ring: #6f8fff;
 }
 ```
 
@@ -151,13 +151,13 @@ Keep semantic document structure in React, server rendering safe behavior in Nex
 
 **Bad request for a Builder:** “Copy a well known finance landing page exactly, including its branding, layouts, graphics, and product claims.” This requests recognizable replication rather than an original Pulsegrid implementation.
 
-**Bad request for a Builder:** “Cover every surface in glowing iris grids, animated counters, glass panels, and floating charts.” This is prohibited drift because it spends the primary color decoratively, adds ambient motion, and destroys the quiet floor.
+**Bad request for a Builder:** “Cover every surface in glowing cobalt grids, animated counters, glass panels, and floating charts.” This is prohibited drift because it spends the primary color decoratively, adds ambient motion, and destroys the quiet floor.
 
 ## Final validation
 
 Before completion, verify marketing, authentication, onboarding, dashboard, table, form, settings, and state surfaces. Verify loading, empty, filtered empty, error, success, disabled, invalid, and destructive states. Test desktop and mobile viewports, 320px reflow, 200 percent page zoom, both color schemes, forced colors, and reduced motion.
 
-Exercise every applicable component with keyboard, pointer, and assistive technology. Confirm default, hover, focus visible, active, selected, disabled, loading, success, error, invalid, and destructive interactions. Measure text, control, border, status, meaningful graphic, and focus contrast. Confirm that pulse rails remain purposeful, the iris primary remains reserved, tables retain context on narrow screens, and no supplied behavior or content was invented.
+Exercise every applicable component with keyboard, pointer, and assistive technology. Confirm default, hover, focus visible, active, selected, disabled, loading, success, error, invalid, and destructive interactions. Measure text, control, border, status, meaningful graphic, and focus contrast. Confirm that pulse rails remain purposeful, the cobalt primary remains reserved, tables retain context on narrow screens, and no supplied behavior or content was invented.
 
 Confirm the React or Next.js, Tailwind CSS v4, and shadcn/ui mapping. Do not mark the implementation complete until every required surface, state, viewport class, color scheme, motion preference, component interaction, stack requirement, and accessibility obligation under WCAG 2.2 Level AA has been verified.
 

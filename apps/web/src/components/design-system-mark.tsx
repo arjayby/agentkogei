@@ -238,6 +238,48 @@ function SpecimenFrame() {
 	);
 }
 
+function PulseSequence() {
+	const cells = [
+		{ x: 8, y: 40, tone: markColors.shade },
+		{ x: 20, y: 32, tone: markColors.base },
+		{ x: 32, y: 24, tone: markColors.highlight },
+		{ x: 44, y: 16, tone: markColors.base },
+	] as const;
+
+	return (
+		<>
+			<path
+				d="m13 45 12-8 12-8 12-8"
+				fill="none"
+				stroke={markColors.outline}
+				strokeWidth="3"
+				strokeLinecap="square"
+				strokeLinejoin="bevel"
+			/>
+			{cells.map(({ x, y, tone }) => (
+				<rect
+					key={`${x}-${y}`}
+					x={x}
+					y={y}
+					width="10"
+					height="10"
+					rx="1.5"
+					fill={tone}
+					stroke={markColors.outline}
+					strokeWidth="1.75"
+				/>
+			))}
+			<path
+				d="M49 16h7v7"
+				fill="none"
+				stroke={markColors.highlight}
+				strokeWidth="2.5"
+				strokeLinecap="square"
+			/>
+		</>
+	);
+}
+
 const drawings = {
 	"structural-planes": {
 		Drawing: StructuralBlocks,
@@ -262,6 +304,10 @@ const drawings = {
 	"specimen-frame": {
 		Drawing: SpecimenFrame,
 		label: "Four primary colored register corners framing a specimen",
+	},
+	"pulse-sequence": {
+		Drawing: PulseSequence,
+		label: "Four stepped pulse cells advancing along a rising rail",
 	},
 } as const;
 
