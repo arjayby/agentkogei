@@ -26,6 +26,7 @@
 		"build": "turbo run build",
 		"check-types": "turbo run check-types",
 		"test": "turbo run test",
+		"test:e2e": "bun run --cwd apps/web test:e2e",
 		"format:check": "base=origin/${GITHUB_BASE_REF:-main}; git rev-parse --verify \"$base\" >/dev/null || exit 1; changed=$(git diff --name-only --diff-filter=ACMR \"$base\" --) || exit 1; files=$(printf '%s\\n%s' \"$changed\" \"$(git ls-files --others --exclude-standard)\" | sed '/^$/d' | sort -u); if test -z \"$files\"; then exit 0; else biome check --no-errors-on-unmatched $files; fi",
 		"release:audit": "bun run scripts/audit-release.ts",
 		"launch:verify": "bun run scripts/launch-verify.ts",

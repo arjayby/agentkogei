@@ -4,6 +4,7 @@ const verificationSteps = [
 	["bun", "run", "check-types"],
 	["bun", "run", "build"],
 	["bun", "run", "test"],
+	["bun", "run", "test:e2e"],
 ] as const;
 
 for (const command of verificationSteps) {
