@@ -91,6 +91,7 @@ export const designSystemMarkRecipes = [
 	"relay-loop",
 	"specimen-frame",
 	"pulse-sequence",
+	"form-orbit",
 ] as const;
 
 export const designSystemPreviewFontChoices = [
