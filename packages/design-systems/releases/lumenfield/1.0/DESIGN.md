@@ -20,7 +20,7 @@ These five principles govern every implementation:
 * **Principle: keep the frame legible.** Use grid lines, captions, and measured spacing to organize content before adding containers.
 * **Principle: make progress feel natural.** Reveal state changes calmly and keep every outcome explicit in text.
 
-The recognizable Lumenfield combination is a warm cream field, deep umber text, burnt orange actions, editorial serif display type, direct humanist sans body text, compact mono captions, thin warm rules, modest radii, low elevation, framed compositions, and occasional spectral color used as supporting evidence. Do not add literal sunbursts, copied brand marks, orange logo treatments, ornamental rays, glass panels, floating gradients, oversized pill controls, or ambient animation.
+The recognizable Lumenfield combination is a warm cream field, deep umber text, burnt orange actions, high contrast editorial serif display type, neutral neo grotesk interface text, compact mono captions, thin warm rules, modest radii, low elevation, framed compositions, and occasional spectral color used as supporting evidence. Do not add literal sunbursts, copied brand marks, orange logo treatments, ornamental rays, glass panels, floating gradients, oversized pill controls, or ambient animation.
 
 ## Semantic color
 
@@ -68,9 +68,9 @@ Color usage follows meaning rather than decoration: neutrals establish the hiera
 
 ## Typography
 
-Display uses an editorial serif voice for human outcomes, page titles, section statements, and considered metrics. Body uses a humanist sans for explanation, navigation, forms, controls, settings, and sustained product reading. Accent uses a technical mono for short captions, step labels, status, units, dates, and identifiers. Code uses the same mono only for commands, machine values, and source text.
+Display uses a high contrast editorial serif voice for human outcomes, page titles, section statements, and considered metrics. Favor upright forms, crisp stroke contrast, and an expressive but controlled silhouette. Body uses a neutral neo grotesk for supporting statements, explanation, navigation, forms, controls, settings, and sustained product reading. Accent uses a technical mono for short captions, step labels, status, units, dates, and identifiers. Code uses the same mono only for commands, machine values, and source text.
 
-Display ranges from 42px on mobile to 88px on wide screens, with weight 400, line height from 0.94 to 1.02, and tracking from minus 0.035em to minus 0.015em. Section headings range from 28px to 52px. Body uses 15px to 18px, weight 400, line height from 1.5 to 1.65, and neutral tracking. Labels use 11px to 13px, weight 500, line height 1.4, and tracking from 0.06em to 0.12em. Metrics use the body family with tabular numerals when rapid comparison matters.
+Display ranges from 42px on mobile to 88px on wide screens, with weight 400, line height from 0.94 to 1.02, and tracking from minus 0.035em to minus 0.015em. Section headings range from 28px to 52px. Body uses 15px to 18px, weight 400, line height from 1.5 to 1.65, and neutral tracking. Use weight 500 for interface titles, buttons, and large supporting statements. Labels use 11px to 13px, weight 500, line height 1.4, and tracking from 0.06em to 0.12em. Metrics use the body family with tabular numerals when rapid comparison matters.
 
 Use sentence case for authored copy. Uppercase is a visual treatment for short mono captions only. Use tabular numerals for measurements, dates, durations, and amounts. Keep display statements short enough to breathe, but never force line breaks into source content. Sustained reading stays between 52 and 68 characters. Responsive type shrinks before it clips or leaves a single orphaned word.
 

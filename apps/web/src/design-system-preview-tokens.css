@@ -149,7 +149,7 @@
 	min-height: 2.5rem;
 	border-width: var(--preview-border-width);
 	border-radius: var(--preview-control-radius);
-	font-family: var(--preview-font-accent);
+	font-family: var(--preview-font-control);
 }
 
 [data-preview-control="input"] {
@@ -163,7 +163,7 @@
 [data-preview-control="navigation"] {
 	width: fit-content;
 	color: var(--preview-primary);
-	font-family: var(--preview-font-accent);
+	font-family: var(--preview-font-control);
 	font-size: 0.8125rem;
 	font-weight: 600;
 	text-decoration-line: underline;

@@ -4543,8 +4543,9 @@
 				},
 				"typography": {
 					"display": "editorial-serif",
-					"body": "humanist-sans",
-					"accent": "technical-mono"
+					"body": "neo-grotesk",
+					"accent": "technical-mono",
+					"control": "neo-grotesk"
 				},
 				"composition": "focal-frame",
 				"foundations": {

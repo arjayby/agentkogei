@@ -64,6 +64,7 @@ function previewThemeStylesheet(
 ) {
 	const { theme, typography } = designSystem.preview;
 	const { geometry, tokens } = theme;
+	const controlFont = typography.control ?? typography.accent;
 	const defaultRadius = radii[geometry.radius];
 	const foundationRadii = designSystem.preview.foundations.geometry.radii;
 	const surfaceRadius = roleRadius(
@@ -83,6 +84,7 @@ function previewThemeStylesheet(
 		--preview-font-display: ${fontFamilies[typography.display]};
 		--preview-font-body: ${fontFamilies[typography.body]};
 		--preview-font-accent: ${fontFamilies[typography.accent]};
+		--preview-font-control: ${fontFamilies[controlFont]};
 		--preview-space: ${spacing[geometry.density]};
 		--preview-radius: ${defaultRadius};
 		--preview-surface-radius: ${surfaceRadius};

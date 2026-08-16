@@ -601,6 +601,7 @@ export const designSystemPreviewSchema = z
 				display: previewFontSchema,
 				body: previewFontSchema,
 				accent: previewFontSchema,
+				control: previewFontSchema.optional(),
 			})
 			.strict(),
 		composition: z.enum([

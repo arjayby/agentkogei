@@ -2399,6 +2399,29 @@ test("Mono Design System Preview assigns radius by interface role", async ({
 	);
 });
 
+test("Lumenfield Design System Preview preserves its typography roles", async ({
+	page,
+}) => {
+	await page.goto("/design-systems/lumenfield");
+
+	const preview = page.locator('[data-design-system-preview="lumenfield"]');
+	await expect(
+		preview.locator(".preview-foundation-heading h3").first(),
+	).toHaveCSS("font-family", /Iowan Old Style|Georgia|Cambria/);
+	await expect(
+		preview.locator(".preview-control-heading > span").first(),
+	).toHaveCSS("font-family", /Helvetica Neue|Arial/);
+	await expect(
+		preview.locator('[data-preview-control="input"]').first(),
+	).toHaveCSS("font-family", /Helvetica Neue|Arial/);
+	await expect(
+		preview.locator('[data-preview-control="button"]').first(),
+	).toHaveCSS("font-family", /Helvetica Neue|Arial/);
+	await expect(
+		preview.locator(".preview-foundation-heading p").first(),
+	).toHaveCSS("font-family", /Geist Mono|SFMono|Consolas/);
+});
+
 test("every discovered Preview renders the complete visual foundations specimen in one order", async ({
 	page,
 }) => {

@@ -9,7 +9,7 @@
 		"immutable": true
 	},
 	"designContract": {
-		"sha256": "ff6b0dd9f98dca85d0fa1cff9430677f644c935be2d2ee4e3415da451f6b2a83"
+		"sha256": "55802fb57b19f62375e4a6a0cc5d853cc2f284ec99c685ee27d5ede0de8539d2"
 	},
 	"compatibility": {
 		"frameworks": ["react", "nextjs"],
@@ -65,8 +65,9 @@
 		},
 		"typography": {
 			"display": "editorial-serif",
-			"body": "humanist-sans",
-			"accent": "technical-mono"
+			"body": "neo-grotesk",
+			"accent": "technical-mono",
+			"control": "neo-grotesk"
 		},
 		"composition": "focal-frame",
 		"foundations": {
