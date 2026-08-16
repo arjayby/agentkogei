@@ -1,4 +1,0 @@
-interface:
-  display_name: "Add Design System"
-  short_description: "Create and publish a complete Design System"
-  default_prompt: "Use $add-design-system with this URL or image to create a complete Design System and open its pull request."
