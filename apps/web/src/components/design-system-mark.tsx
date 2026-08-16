@@ -280,6 +280,44 @@ function PulseSequence() {
 	);
 }
 
+function LumenWindow() {
+	return (
+		<>
+			{quarterTurns.map((rotation) => (
+				<g key={rotation} transform={`rotate(${rotation} 32 32)`}>
+					<path
+						d="M25 7h14l-2 16-5 6-5-6-2-16Z"
+						fill={markColors.base}
+						stroke={markColors.outline}
+						strokeWidth="1.75"
+						strokeLinejoin="round"
+					/>
+					<path
+						d="M28 10h8l-1 11-3 4-3-4-1-11Z"
+						fill={markColors.highlight}
+						opacity="0.88"
+					/>
+					<path
+						d="m32 25 3-4 1-11h3l-2 13-5 6v-4Z"
+						fill={markColors.shade}
+						opacity="0.62"
+					/>
+				</g>
+			))}
+			<rect
+				x="27"
+				y="27"
+				width="10"
+				height="10"
+				rx="1.5"
+				fill={markColors.highlight}
+				stroke={markColors.outline}
+				strokeWidth="1.75"
+			/>
+		</>
+	);
+}
+
 const drawings = {
 	"structural-planes": {
 		Drawing: StructuralBlocks,
@@ -308,6 +346,10 @@ const drawings = {
 	"pulse-sequence": {
 		Drawing: PulseSequence,
 		label: "Four stepped pulse cells advancing along a rising rail",
+	},
+	"lumen-window": {
+		Drawing: LumenWindow,
+		label: "Four radiant panes opening around a clear central field",
 	},
 } as const;
 
