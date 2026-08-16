@@ -15,6 +15,9 @@
 	"packages/design-systems/releases/mono/1.0/DESIGN.md": "b35c554017af88da26bc12cb62c5cb01ed9f74b52ed1618a38e85c81263e93b2",
 	"packages/design-systems/releases/mono/1.0/design-system-evaluation.json": "2b76ad6db56ab48cd7b0aa45704d5e5ac30cd97709c20dde18bf10e0138a32de",
 	"packages/design-systems/releases/mono/1.0/evaluation/report.json": "f4dddcec2b6698700b6dc157e7fe9800bf55eb78dfa88add3b1a628bd30901a6",
+	"packages/design-systems/releases/pulsegrid/1.0/DESIGN.md": "50573ea8000e49fa1eb7786b8d2fbd28246923d54da39d72c8cd2f0c84b6896c",
+	"packages/design-systems/releases/pulsegrid/1.0/design-system-evaluation.json": "326a7d15d5b9cff6c8beeecfc556fdecba9547a5020e00b5dcd00badbcecb913",
+	"packages/design-systems/releases/pulsegrid/1.0/evaluation/report.json": "278d0e4bc5b74f8a4a4374d52bdf0ab8fb838354d6d39780e867c8ca83a6c7c5",
 	"packages/design-systems/releases/relay/1.0/DESIGN.md": "9ac26f018d85d8a145fddefdfc1507e3ab075c5db8ff2d6e3f5bfa29d7206642",
 	"packages/design-systems/releases/relay/1.0/design-system-evaluation.json": "2689bc4af54c9ced65039c20ebe458d35adb3ce810008952bab59f9c7e4da72d",
 	"packages/design-systems/releases/relay/1.0/evaluation/report.json": "0dccfd108789ef1189510bad5d11844e1fa870299e8f163405499e2dec744d7e"

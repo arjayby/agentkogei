@@ -90,6 +90,7 @@ export const designSystemMarkRecipes = [
 	"directional-nodes",
 	"relay-loop",
 	"specimen-frame",
+	"pulse-sequence",
 ] as const;
 
 export const designSystemPreviewFontChoices = [
