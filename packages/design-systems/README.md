@@ -10,6 +10,10 @@ The `agentkogei` package installs one of the public AgentKogei Design Systems. E
 | Editorial | Warm, spacious, and content forward SaaS |
 | Mono | Monochrome, high contrast interfaces for media and creative tooling |
 | Command | Dark first, dense interfaces for developer and operations products |
+| Cabinet | Archival, editorial interfaces for collections and research products |
+| Relay | Connected workflow interfaces for teams and service platforms |
+| Pulsegrid | Operational bands for infrastructure, finance, and analytics products |
+| Playform | Tactile focal frames for collaborative and creative products |
 
 ## Install a Design System
 

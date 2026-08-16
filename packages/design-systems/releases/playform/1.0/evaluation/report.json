@@ -1,0 +1,60 @@
+{
+	"schemaVersion": "2.0",
+	"status": "passed",
+	"designSystem": "Playform",
+	"designReference": {
+		"kind": "url",
+		"locator": "https://www.clay.com/",
+		"inspectedPages": [
+			{
+				"path": "/",
+				"scope": "Desktop regions inspected incrementally from the primary navigation and opening statement through capability frames, proof sections, calls to action, the complete footer, and final legal region",
+				"reachedBottom": true
+			}
+		],
+		"additionalPages": {
+			"inspected": 0,
+			"limitation": "The supplied page contained a complete range of navigation, marketing, product explanation, proof, calls to action, and footer patterns needed to generalize the visual direction without retaining product identity."
+		},
+		"generalizedTraits": [
+			"High contrast grotesk statements paired with warm neutral fields, concise explanation, and direct actions",
+			"Generous rounded frames that turn sections and controls into tangible objects without excessive elevation",
+			"A vivid blue action color supported by restrained citrus, cyan, and magenta accents",
+			"Playful dimensional geometry balanced by disciplined navigation, spacing, and readable product hierarchy",
+			"Asymmetrical desktop compositions that reflow into one clear source ordered column"
+		],
+		"transformation": "Transforms generalized high contrast hierarchy, warm open fields, rounded object geometry, deliberate color, useful asymmetry, and playful tactility into an original collaborative product system with the Playform identity, cobalt semantic palette, form orbit signature, focal frame composition, complete component direction, and product specimens.",
+		"excludedElements": [
+			"copied assets",
+			"product identity",
+			"distinctive compositions",
+			"recognizable product replication",
+			"imitation of living designers"
+		]
+	},
+	"screens": [
+		"marketing",
+		"authentication",
+		"onboarding",
+		"dashboard",
+		"table",
+		"form",
+		"settings",
+		"states"
+	],
+	"coverage": {
+		"viewports": ["1440x900", "390x844"],
+		"colorSchemes": ["light", "dark"],
+		"reducedMotion": true
+	},
+	"automatedChecks": {
+		"structure": "passed",
+		"accessibility": "passed",
+		"responsiveOverflow": "passed",
+		"colorContrast": "passed"
+	},
+	"originalityReview": {
+		"status": "passed",
+		"notes": "Playform uses original prose, semantic tokens, form orbit rules, focal frame composition, interaction guidance, product specimens, and a unique orbital mark. It retains no copied assets, identity, claims, layouts, or recognizable product composition."
+	}
+}

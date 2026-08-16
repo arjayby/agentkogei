@@ -280,6 +280,61 @@ function PulseSequence() {
 	);
 }
 
+function FormOrbit() {
+	return (
+		<>
+			<path
+				d="M12 23c0-7 5-12 12-12h9v12c0 7-5 12-12 12h-9V23Z"
+				fill={markColors.base}
+				stroke={markColors.outline}
+				strokeWidth="1.75"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M15 22c0-5 4-8 9-8h6v6c0 6-4 10-10 10h-5v-8Z"
+				fill={markColors.highlight}
+				opacity="0.8"
+			/>
+			<path
+				d="M31 29h9c7 0 12 5 12 12v12H40c-7 0-12-5-12-12v-9c0-2 1-3 3-3Z"
+				fill={markColors.base}
+				stroke={markColors.outline}
+				strokeWidth="1.75"
+				strokeLinejoin="round"
+			/>
+			<path
+				d="M35 32h5c5 0 9 4 9 9v8h-8c-5 0-9-4-9-9v-5c0-2 1-3 3-3Z"
+				fill={markColors.shade}
+				opacity="0.64"
+			/>
+			<circle
+				cx="38"
+				cy="20"
+				r="8"
+				fill={markColors.highlight}
+				stroke={markColors.outline}
+				strokeWidth="1.75"
+			/>
+			<circle
+				cx="26"
+				cy="39"
+				r="5"
+				fill="var(--preview-background)"
+				stroke={markColors.outline}
+				strokeWidth="1.75"
+			/>
+			<path
+				d="M43 15c2 3 2 6 0 9M47 34c2 3 3 7 2 11M17 19c3-3 6-4 10-4"
+				fill="none"
+				stroke={markColors.outline}
+				strokeWidth="1.25"
+				strokeLinecap="round"
+				opacity="0.66"
+			/>
+		</>
+	);
+}
+
 const drawings = {
 	"structural-planes": {
 		Drawing: StructuralBlocks,
@@ -308,6 +363,10 @@ const drawings = {
 	"pulse-sequence": {
 		Drawing: PulseSequence,
 		label: "Four stepped pulse cells advancing along a rising rail",
+	},
+	"form-orbit": {
+		Drawing: FormOrbit,
+		label: "Three rounded cobalt forms orbiting a useful central object",
 	},
 } as const;
 
