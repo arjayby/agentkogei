@@ -2221,6 +2221,8 @@ test("the split browser uses a desktop rail and a horizontally scrollable mobile
 test("every discovered Design System route presents its complete published anatomy", async ({
 	page,
 }) => {
+	test.setTimeout(60_000);
+
 	const routes = await discoverDesignSystemRoutes(page);
 
 	for (const route of routes) {
@@ -3193,6 +3195,8 @@ test("every discovered release is delivered and installed through identity indep
 	page,
 	request,
 }) => {
+	test.setTimeout(60_000);
+
 	const routes = await discoverDesignSystemRoutes(page);
 
 	for (const route of routes) {
@@ -3285,7 +3289,7 @@ test("every discovered Design System Preview remains evaluated across supported 
 }) => {
 	// This journey intentionally runs Axe for every discovered Preview and mode.
 	// Keep its exhaustive coverage without constraining it to the default unit timeout.
-	test.setTimeout(120_000);
+	test.setTimeout(180_000);
 
 	const modes = [
 		{

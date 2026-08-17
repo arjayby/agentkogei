@@ -5177,6 +5177,670 @@
 					}
 				}
 			]
+		},
+		{
+			"id": "playform",
+			"name": "Playform",
+			"currentRelease": "1.0",
+			"preview": {
+				"order": 8,
+				"summary": "Tactile focal frames that make complex collaborative work feel clear and inviting.",
+				"intendedFit": "Collaborative SaaS, creative tools, education, workflow builders, and approachable business software",
+				"route": "/design-systems/playform",
+				"signature": {
+					"label": "Form 08",
+					"headline": "Turn complex work into something people can see, hold, and move forward.",
+					"principles": [
+						"Make the next move obvious",
+						"Turn systems into useful objects",
+						"Pair rigor with delight",
+						"Spend color with intent",
+						"Let the field breathe"
+					]
+				},
+				"mark": {
+					"recipe": "form-orbit",
+					"label": "Three rounded cobalt forms orbiting a useful central object"
+				},
+				"typography": {
+					"display": "neo-grotesk",
+					"body": "humanist-sans",
+					"accent": "technical-mono"
+				},
+				"composition": "focal-frame",
+				"foundations": {
+					"semanticColorUsage": {
+						"background": "The warm open field behind navigation, focal frames, and product content.",
+						"foreground": "Primary copy, decisive statements, strong labels, and meaningful symbols.",
+						"card": "A single useful object, task, dialog, or independent proof set.",
+						"muted": "Supporting bands, inactive regions, skeletons, and calm contextual frames.",
+						"mutedForeground": "Explanation, metadata, helper copy, timestamps, and lower priority information.",
+						"border": "Visible control boundaries, object edges, data groups, and structural separators.",
+						"primary": "The next action, current path, selected state, and purposeful form orbit cue.",
+						"primaryForeground": "Readable text and icons placed directly on the cobalt primary.",
+						"destructive": "Irreversible loss, failed requirements, and destructive confirmation.",
+						"success": "Verified completion and positive outcomes paired with explicit text.",
+						"warning": "Conditions requiring attention before work can continue safely.",
+						"info": "Neutral guidance, educational context, and informative status.",
+						"ring": "Persistent keyboard focus around every interactive component."
+					},
+					"typographyScale": {
+						"display": {
+							"font": "display",
+							"sizeRem": {
+								"mobile": 2.75,
+								"desktop": 5.5
+							},
+							"weight": 600,
+							"lineHeight": 0.96,
+							"trackingEm": -0.05,
+							"usage": "Product promises, major page statements, and one leading outcome."
+						},
+						"section": {
+							"font": "display",
+							"sizeRem": {
+								"mobile": 1.75,
+								"desktop": 3
+							},
+							"weight": 600,
+							"lineHeight": 1.04,
+							"trackingEm": -0.035,
+							"usage": "Section statements, frame titles, and important grouped work."
+						},
+						"body": {
+							"font": "body",
+							"sizeRem": {
+								"mobile": 1,
+								"desktop": 1.125
+							},
+							"weight": 400,
+							"lineHeight": 1.58,
+							"trackingEm": 0,
+							"usage": "Explanation, navigation, forms, settings, and sustained product reading."
+						},
+						"label": {
+							"font": "accent",
+							"sizeRem": {
+								"mobile": 0.6875,
+								"desktop": 0.75
+							},
+							"weight": 600,
+							"lineHeight": 1.4,
+							"trackingEm": 0.12,
+							"usage": "Form orbit captions, steps, status, timestamps, units, and compact categories."
+						},
+						"metric": {
+							"font": "display",
+							"sizeRem": {
+								"mobile": 2,
+								"desktop": 3
+							},
+							"weight": 600,
+							"lineHeight": 1,
+							"trackingEm": -0.04,
+							"usage": "Measured progress and values with explicit units and context."
+						},
+						"code": {
+							"font": "accent",
+							"sizeRem": {
+								"mobile": 0.75,
+								"desktop": 0.875
+							},
+							"weight": 400,
+							"lineHeight": 1.5,
+							"trackingEm": 0,
+							"usage": "Commands, machine values, identifiers, durations, and source text."
+						}
+					},
+					"spacingScale": {
+						"1": {
+							"valueRem": 0.25,
+							"usage": "Tiny object details, orbit relationships, and icon alignment."
+						},
+						"2": {
+							"valueRem": 0.5,
+							"usage": "Inline labels, metadata, and compact control groups."
+						},
+						"3": {
+							"valueRem": 0.75,
+							"usage": "Control internals and paired values."
+						},
+						"4": {
+							"valueRem": 1,
+							"usage": "Default field rhythm and related actions."
+						},
+						"6": {
+							"valueRem": 1.5,
+							"usage": "Controls, card internals, and form groups."
+						},
+						"8": {
+							"valueRem": 2,
+							"usage": "Useful object padding and distinct task groups."
+						},
+						"12": {
+							"valueRem": 3,
+							"usage": "Section groups and compact frame transitions."
+						},
+						"16": {
+							"valueRem": 4,
+							"usage": "Major product sections and generous object separation."
+						},
+						"24": {
+							"valueRem": 6,
+							"usage": "Focal frame padding and high impact transitions."
+						},
+						"32": {
+							"valueRem": 8,
+							"usage": "Marketing introductions and singular spatial statements."
+						}
+					},
+					"layout": {
+						"maxWidthRem": 90,
+						"contentWidthCh": 66,
+						"columns": {
+							"mobile": 1,
+							"tablet": 6,
+							"desktop": 12
+						},
+						"gutterRem": {
+							"mobile": 1,
+							"tablet": 1.5,
+							"desktop": 2.5
+						},
+						"guidance": "Place one useful object at the center of each focal frame, align its context nearby, and leave the surrounding ivory field open."
+					},
+					"responsive": {
+						"mobile": {
+							"minWidthPx": 320,
+							"guidance": "Stack statements, objects, and actions in source order with a labelled compact navigation trigger."
+						},
+						"tablet": {
+							"minWidthPx": 768,
+							"guidance": "Collapse secondary navigation and move contextual objects below the principal statement when width becomes awkward."
+						},
+						"desktop": {
+							"minWidthPx": 1120,
+							"guidance": "Use twelve columns for a leading statement, one central object, useful asymmetry, and a ranked action."
+						},
+						"zoom": {
+							"scalePercent": 200,
+							"guidance": "Let navigation, labels, objects, tables, and actions wrap or reflow without clipping."
+						},
+						"reflow": {
+							"widthPx": 320,
+							"guidance": "Preserve complete source ordered frames and use labelled overflow only for irreducible data comparison."
+						}
+					},
+					"geometry": {
+						"radii": {
+							"compact": {
+								"valueRem": 0.625,
+								"usage": "Tags, compact controls, and small status objects."
+							},
+							"control": {
+								"valueRem": 0.875,
+								"usage": "Buttons, fields, menus, and ordinary interactions."
+							},
+							"card": {
+								"valueRem": 1.25,
+								"usage": "Cards, dialogs, and useful bounded objects."
+							},
+							"frame": {
+								"valueRem": 2.5,
+								"usage": "Major sections, marketing moments, and focal product frames."
+							}
+						},
+						"borders": {
+							"quiet": {
+								"widthPx": 1,
+								"style": "solid",
+								"usage": "Large frames, supporting groups, and subtle separation."
+							},
+							"default": {
+								"widthPx": 1,
+								"style": "solid",
+								"usage": "Controls, cards, tables, and ordinary boundaries."
+							},
+							"focus": {
+								"widthPx": 2,
+								"style": "solid",
+								"usage": "Focus, active selection, and consequential separation."
+							}
+						},
+						"elevation": {
+							"flat": {
+								"offsetYRem": 0,
+								"blurRem": 0,
+								"spreadRem": 0,
+								"opacity": 0,
+								"usage": "Default fields, tables, and large focal frames."
+							},
+							"raised": {
+								"offsetYRem": 0.25,
+								"blurRem": 1,
+								"spreadRem": -0.375,
+								"opacity": 0.12,
+								"usage": "A singular focal card, temporary menu, or movable object."
+							},
+							"overlay": {
+								"offsetYRem": 0.75,
+								"blurRem": 2,
+								"spreadRem": -0.5,
+								"opacity": 0.2,
+								"usage": "Dialogs and temporary content above the product field."
+							}
+						}
+					}
+				},
+				"controls": {
+					"buttons": {
+						"primaryLabel": "Move project forward",
+						"secondaryLabel": "Review details",
+						"guidance": "Use one filled cobalt action per decision frame and keep secondary actions calm, direct, and stable.",
+						"states": {
+							"default": "Use the cobalt primary with an outcome focused label.",
+							"hover": "Deepen cobalt without changing control size or position.",
+							"focus": "Show the semantic focus ring outside the rounded control boundary.",
+							"active": "Compress by at most one pixel without shifting nearby content.",
+							"disabled": "Keep the action readable and expose the unmet prerequisite.",
+							"loading": "Retain the action label beside a visible progress indicator.",
+							"success": "Name the completed outcome with text and the success role.",
+							"error": "Name the failed operation and recovery with destructive semantics."
+						}
+					},
+					"links": {
+						"primaryLabel": "Open project brief",
+						"secondaryLabel": "View activity history",
+						"guidance": "Use specific destinations, persistent prose underlines, and explicit current navigation.",
+						"states": {
+							"default": "Underline prose destinations and use the accessible primary role.",
+							"hover": "Strengthen the underline without changing line height.",
+							"focus": "Frame the link with the same semantic focus ring as controls.",
+							"active": "Preserve the destination while showing immediate activation.",
+							"disabled": "Render unavailable destinations as explained text rather than links.",
+							"loading": "Keep the destination label and add adjacent busy status.",
+							"success": "Confirm the local navigation result in nearby text.",
+							"error": "Explain the local failure and recovery without relying on color."
+						}
+					},
+					"forms": {
+						"legend": "Project handoff",
+						"guidance": "Group fields by decision, keep help persistent, and place validation in the same reading path.",
+						"submitLabel": "Save handoff",
+						"help": "The selected team receives the brief and the next assigned action.",
+						"error": "Choose a team that can accept new project work.",
+						"success": "The handoff is complete and the team has been notified."
+					},
+					"inputs": {
+						"textLabel": "Collaborator email address",
+						"textPlaceholder": "team@example.com",
+						"textareaLabel": "Project context",
+						"textareaPlaceholder": "Describe the goal, constraints, and next useful move.",
+						"disabledLabel": "Workspace identifier",
+						"guidance": "Keep labels visible, use generous control height, and reserve stable space for help and validation."
+					},
+					"cards": {
+						"title": "Launch brief",
+						"description": "A useful object combines the goal, owner, current state, and next valid action.",
+						"metadata": "Form 18 · Updated 4 minutes ago",
+						"actionLabel": "Review launch brief",
+						"guidance": "Use a card for one independent object or proof set, not merely to add rounded corners."
+					},
+					"panels": {
+						"title": "Project workspace",
+						"description": "The frame places current work, useful context, and the next action in one readable composition.",
+						"items": ["Current work", "Shared context", "Next action"],
+						"guidance": "Use one focal frame and shared alignment instead of a separate container for every value."
+					},
+					"navigation": {
+						"label": "Workspace sections",
+						"items": [
+							{
+								"id": "overview",
+								"label": "Overview"
+							},
+							{
+								"id": "projects",
+								"label": "Projects"
+							},
+							{
+								"id": "collaborators",
+								"label": "Collaborators"
+							},
+							{
+								"id": "activity",
+								"label": "Activity"
+							}
+						],
+						"guidance": "Name the current section in text, preserve source order, and keep every destination keyboard reachable."
+					}
+				},
+				"interactions": {
+					"dataDisplay": {
+						"tableCaption": "Active project work",
+						"columns": [
+							{
+								"id": "project",
+								"label": "Project"
+							},
+							{
+								"id": "state",
+								"label": "State"
+							},
+							{
+								"id": "owner-freshness",
+								"label": "Owner · freshness"
+							}
+						],
+						"rows": [
+							{
+								"id": "launch-plan",
+								"label": "Launch plan",
+								"cells": ["In review", "Growth team · 2 minutes ago"]
+							},
+							{
+								"id": "learning-path",
+								"label": "Learning path",
+								"cells": ["Ready to share", "Education team · 8 minutes ago"]
+							},
+							{
+								"id": "community-guide",
+								"label": "Community guide",
+								"cells": ["Drafting", "Programs team · 18 minutes ago"]
+							}
+						],
+						"listLabel": "Workspace activity summary",
+						"listItems": [
+							{
+								"title": "Launch plan moved to review",
+								"description": "The goal, owner, and acceptance notes remain attached.",
+								"status": "Ready"
+							},
+							{
+								"title": "Learning path is ready to share",
+								"description": "All required modules have complete descriptions.",
+								"status": "Complete"
+							},
+							{
+								"title": "Community guide needs an owner",
+								"description": "Assign a collaborator before the next publishing step.",
+								"status": "Needs attention"
+							}
+						],
+						"guidance": "Keep entity, state, owner, freshness, and the next action aligned in one readable object.",
+						"overflowGuidance": "At narrow widths, preserve row headings and use a labelled keyboard reachable scroll region only when comparison requires it."
+					},
+					"feedback": {
+						"badges": [
+							{
+								"label": "In progress",
+								"meaning": "Work is active and has a clear next step.",
+								"tone": "info"
+							},
+							{
+								"label": "Complete",
+								"meaning": "The named outcome has been verified.",
+								"tone": "success"
+							},
+							{
+								"label": "Needs review",
+								"meaning": "A person must review the object before work continues.",
+								"tone": "warning"
+							},
+							{
+								"label": "Blocked",
+								"meaning": "The object cannot proceed until the named failure is resolved.",
+								"tone": "destructive"
+							}
+						],
+						"alerts": [
+							{
+								"title": "Project brief is ready",
+								"description": "Required context is complete and the next owner can begin.",
+								"tone": "success"
+							},
+							{
+								"title": "One handoff needs attention",
+								"description": "Choose an available team before moving the project forward.",
+								"tone": "warning"
+							}
+						],
+						"states": {
+							"loading": "Keep useful content visible and label the object that is refreshing.",
+							"empty": "Name the absent object, explain why it matters, and offer the first valid action.",
+							"filteredEmpty": "Keep filter context visible and provide a direct reset.",
+							"error": "Name the failed operation, preserve entered work, and provide recovery.",
+							"success": "Confirm the completed result beside its originating action.",
+							"disabled": "Explain the unmet condition without relying on low opacity.",
+							"destructive": "Repeat the named object, scope, consequence, and true recovery status."
+						},
+						"guidance": "Attach feedback to the useful object or action it describes and reserve stable space for change.",
+						"nonColorGuidance": "Pair every color with text, icon, position, or structure so meaning survives without color."
+					},
+					"dialogs": {
+						"title": "Move project to review",
+						"description": "Review the owner, required context, and next action before changing the project state.",
+						"openLabel": "Open project move dialog",
+						"initialFocusLabel": "Project move summary",
+						"confirmLabel": "Move to review",
+						"closeLabel": "Keep editing",
+						"guidance": "Name the purpose, trap focus, expose a safe cancellation path, and keep consequences explicit.",
+						"escapeBehavior": "Escape closes the dialog without changing the project and returns focus to its opener.",
+						"focusRestoration": "Return focus to the action that opened the dialog and announce the resulting state when confirmed."
+					},
+					"destructiveActions": {
+						"objectLabel": "Project workspace",
+						"consequence": "Deleting this workspace removes its briefs, assignments, and activity for every collaborator.",
+						"recoverability": "This preview action is reversible and changes only local specimen state.",
+						"openLabel": "Delete project workspace",
+						"confirmLabel": "Delete workspace",
+						"cancelLabel": "Keep workspace",
+						"guidance": "Separate irreversible actions from routine settings and repeat object, scope, consequence, and recovery truth."
+					}
+				},
+				"motion": {
+					"durationMs": {
+						"feedback": 100,
+						"transition": 180,
+						"spatial": 260
+					},
+					"easing": {
+						"enter": "ease-out",
+						"exit": "ease-in",
+						"move": "ease-in-out"
+					},
+					"movement": {
+						"distanceRem": 0.5,
+						"scaleFrom": 0.98
+					},
+					"guidance": "Use short tactile motion to connect actions with useful objects; never animate merely to decorate the field.",
+					"autoplay": false
+				},
+				"reducedMotion": {
+					"removeNonessential": true,
+					"stateChanges": "instant",
+					"guidance": "Remove translation, rotation, scaling, smooth scrolling, and nonessential fades while preserving labels, focus, and every state change."
+				},
+				"accessibility": {
+					"standard": "WCAG 2.2 Level AA",
+					"semantics": "Use native landmarks, headings, lists, controls, forms, dialogs, tables, and status regions before ARIA.",
+					"keyboard": "Keep navigation, filtering, selection, menus, overflow regions, row actions, and dialogs operable in logical source order.",
+					"focus": "Show a persistent two pixel semantic ring with separation from every control boundary.",
+					"contrast": "Measure text, controls, boundaries, status, meaningful graphics, and focus in light and dark schemes.",
+					"targetSize": "Provide at least 24 by 24 CSS pixels with adequate spacing and prefer 44 by 44 for primary touch actions.",
+					"zoom": "Support 200 percent page zoom and 400 percent browser zoom without loss of content or control access.",
+					"reflow": "Reflow at 320 CSS pixels without page level horizontal scrolling or hidden actions.",
+					"forcedColors": "Preserve control boundaries, focus, selected state, and meaningful object structure in forced colors.",
+					"statusCommunication": "Announce meaningful asynchronous outcomes deliberately without stealing focus or repeating static content."
+				},
+				"productSurfaces": {
+					"guidance": "Place one useful object at the center of every surface, align context nearby, and keep the next valid action unmistakable.",
+					"examples": {
+						"marketing": {
+							"title": "A product people want to move through",
+							"description": "Lead with one plain outcome inside a generous focal frame, then show proof as tangible objects.",
+							"elements": [
+								"Outcome statement and ranked action",
+								"Useful proof objects with supplied claims",
+								"Closing frame with one next step"
+							]
+						},
+						"authentication": {
+							"title": "A welcoming way back in",
+							"description": "Use one calm task card with persistent labels, recovery, and stable submission feedback.",
+							"elements": [
+								"Named authentication task",
+								"Visible fields and recovery",
+								"Stable progress and error region"
+							]
+						},
+						"onboarding": {
+							"title": "A short path into useful work",
+							"description": "Show completed, current, optional, and upcoming steps as a clear object sequence.",
+							"elements": [
+								"Visible progress and current step",
+								"Safe backtracking and skip meaning",
+								"First useful project action"
+							]
+						},
+						"dashboard": {
+							"title": "Current work before decoration",
+							"description": "Lead with the object that needs attention, then align progress, ownership, and next actions.",
+							"elements": [
+								"Current work frame",
+								"Progress with explicit labels",
+								"Ranked action and supporting context"
+							]
+						},
+						"table": {
+							"title": "Projects remain tangible at scale",
+							"description": "Keep entity, state, owner, freshness, and action aligned with readable row relationships.",
+							"elements": [
+								"Semantic caption and headers",
+								"Tabular values and explicit status",
+								"Keyboard reachable row actions"
+							]
+						},
+						"form": {
+							"title": "Decisions grouped into calm frames",
+							"description": "Group fields by purpose and preserve dirty, saving, saved, conflict, and failed states.",
+							"elements": [
+								"Fieldset and visible legend",
+								"Persistent help and correction",
+								"Stable save feedback"
+							]
+						},
+						"settings": {
+							"title": "Scope and consequence stay clear",
+							"description": "Name whether each value affects the person, workspace, or organization.",
+							"elements": [
+								"Explicit setting scope",
+								"Saved and conflict status",
+								"Separate destructive action frame"
+							]
+						},
+						"states": {
+							"title": "Every interruption has a next move",
+							"description": "Keep surrounding context visible while naming the affected object and recovery.",
+							"elements": [
+								"Loading and empty objects",
+								"Error and recovery action",
+								"Success, disabled, and destructive truth"
+							]
+						}
+					}
+				},
+				"evidencePresentation": {
+					"preview": "The Design System Preview is a public visual and descriptive specimen of the evaluated Playform direction.",
+					"designContract": "The complete Design Contract is the public raw Markdown installed into a Project.",
+					"evaluation": "Evaluation metadata and raw evidence paths remain public so Playform coverage can be inspected.",
+					"rawEvidencePublic": true
+				},
+				"theme": {
+					"tokens": {
+						"light": {
+							"background": "#f7f5ef",
+							"foreground": "#171614",
+							"card": "#ffffff",
+							"muted": "#ebe9e1",
+							"mutedForeground": "#625f58",
+							"border": "#8c8880",
+							"primary": "#3157f5",
+							"primaryForeground": "#ffffff",
+							"destructive": "#b4233f",
+							"success": "#267044",
+							"warning": "#765400",
+							"info": "#135d89",
+							"ring": "#3157f5"
+						},
+						"dark": {
+							"background": "#121722",
+							"foreground": "#f8f7f2",
+							"card": "#1c2330",
+							"muted": "#283140",
+							"mutedForeground": "#bec6d2",
+							"border": "#707b8e",
+							"primary": "#8198ff",
+							"primaryForeground": "#101520",
+							"destructive": "#ff91a5",
+							"success": "#78d8a4",
+							"warning": "#efc763",
+							"info": "#7bcaf1",
+							"ring": "#9aabff"
+						}
+					},
+					"schemeOrder": ["light", "dark"],
+					"geometry": {
+						"density": "spacious",
+						"radius": "rounded",
+						"border": "defined",
+						"elevation": "layered"
+					}
+				}
+			},
+			"compatibility": {
+				"frameworks": ["react", "nextjs"],
+				"react": ">=18 <20",
+				"nextjs": ">=15 <17",
+				"tailwind": ">=4 <5",
+				"ui": "shadcn/ui"
+			},
+			"evaluation": {
+				"status": "passed",
+				"standard": "WCAG 2.2 Level AA",
+				"screens": [
+					"marketing",
+					"authentication",
+					"onboarding",
+					"dashboard",
+					"table",
+					"form",
+					"settings",
+					"states"
+				],
+				"viewports": ["1440x900", "390x844"],
+				"colorSchemes": ["light", "dark"],
+				"reducedMotion": true,
+				"automatedChecks": [
+					"structure",
+					"accessibility",
+					"responsive overflow",
+					"color contrast"
+				],
+				"evidence": ["evaluation/report.json"],
+				"agentGenerationRuns": 1
+			},
+			"releases": [
+				{
+					"version": "1.0",
+					"publishedAt": "2026-08-16",
+					"changelog": {
+						"summary": "Initial Playform Design System Release.",
+						"breaking": false,
+						"migrationNotes": null
+					}
+				}
+			]
 		}
 	]
 }

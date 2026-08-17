@@ -92,6 +92,7 @@ export const designSystemMarkRecipes = [
 	"specimen-frame",
 	"pulse-sequence",
 	"lumen-window",
+	"form-orbit",
 ] as const;
 
 export const designSystemPreviewFontChoices = [
