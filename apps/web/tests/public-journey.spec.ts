@@ -2221,6 +2221,8 @@ test("the split browser uses a desktop rail and a horizontally scrollable mobile
 test("every discovered Design System route presents its complete published anatomy", async ({
 	page,
 }) => {
+	test.setTimeout(60_000);
+
 	const routes = await discoverDesignSystemRoutes(page);
 
 	for (const route of routes) {
@@ -2397,6 +2399,29 @@ test("Mono Design System Preview assigns radius by interface role", async ({
 		"border-radius",
 		"8px",
 	);
+});
+
+test("Lumenfield Design System Preview preserves its typography roles", async ({
+	page,
+}) => {
+	await page.goto("/design-systems/lumenfield");
+
+	const preview = page.locator('[data-design-system-preview="lumenfield"]');
+	await expect(
+		preview.locator(".preview-foundation-heading h3").first(),
+	).toHaveCSS("font-family", /Iowan Old Style|Georgia|Cambria/);
+	await expect(
+		preview.locator(".preview-control-heading > span").first(),
+	).toHaveCSS("font-family", /Helvetica Neue|Arial/);
+	await expect(
+		preview.locator('[data-preview-control="input"]').first(),
+	).toHaveCSS("font-family", /Helvetica Neue|Arial/);
+	await expect(
+		preview.locator('[data-preview-control="button"]').first(),
+	).toHaveCSS("font-family", /Helvetica Neue|Arial/);
+	await expect(
+		preview.locator(".preview-foundation-heading p").first(),
+	).toHaveCSS("font-family", /Geist Mono|SFMono|Consolas/);
 });
 
 test("every discovered Preview renders the complete visual foundations specimen in one order", async ({
@@ -3170,6 +3195,8 @@ test("every discovered release is delivered and installed through identity indep
 	page,
 	request,
 }) => {
+	test.setTimeout(60_000);
+
 	const routes = await discoverDesignSystemRoutes(page);
 
 	for (const route of routes) {
@@ -3262,7 +3289,7 @@ test("every discovered Design System Preview remains evaluated across supported 
 }) => {
 	// This journey intentionally runs Axe for every discovered Preview and mode.
 	// Keep its exhaustive coverage without constraining it to the default unit timeout.
-	test.setTimeout(120_000);
+	test.setTimeout(180_000);
 
 	const modes = [
 		{

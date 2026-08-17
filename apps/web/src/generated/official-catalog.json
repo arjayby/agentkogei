@@ -4518,6 +4518,667 @@
 			]
 		},
 		{
+			"id": "lumenfield",
+			"name": "Lumenfield",
+			"currentRelease": "1.0",
+			"preview": {
+				"order": 8,
+				"summary": "Warm framed fields that pair a human outcome with specific proof and a clear next action.",
+				"intendedFit": "Climate technology, home services, energy products, consumer infrastructure, and mission led platforms",
+				"route": "/design-systems/lumenfield",
+				"signature": {
+					"label": "Field 08",
+					"headline": "Make complex systems feel bright, capable, and close to home.",
+					"principles": [
+						"Begin with the human outcome",
+						"Let warmth guide attention",
+						"Pair atmosphere with proof",
+						"Keep the frame legible",
+						"Make progress feel natural"
+					]
+				},
+				"mark": {
+					"recipe": "lumen-window",
+					"label": "Four radiant panes opening around a clear central field"
+				},
+				"typography": {
+					"display": "editorial-serif",
+					"body": "neo-grotesk",
+					"accent": "technical-mono",
+					"control": "neo-grotesk"
+				},
+				"composition": "focal-frame",
+				"foundations": {
+					"semanticColorUsage": {
+						"background": "The warm cream field behind navigation, framed stories, product content, and open transitions.",
+						"foreground": "Primary reading, editorial statements, decisive labels, and meaningful symbols.",
+						"card": "Bounded tasks, forms, dialogs, and focused evidence that must separate from the cream field.",
+						"muted": "Supporting panes, secondary content groups, skeletons, and quiet state regions.",
+						"mutedForeground": "Explanation, captions, timestamps, and lower priority product information.",
+						"border": "Radiant window divisions, control boundaries, table groups, and structural separators.",
+						"primary": "The current path, decisive action, active selection, focus, and one meaningful warm highlight.",
+						"primaryForeground": "Readable text and icons placed directly on the burnt orange primary.",
+						"destructive": "Irreversible loss, failed requirements, and destructive confirmation.",
+						"success": "Verified completion and healthy outcomes paired with explicit text.",
+						"warning": "Conditions needing attention before they become failures.",
+						"info": "Neutral product context and informative status.",
+						"ring": "Persistent keyboard focus around every interactive component."
+					},
+					"typographyScale": {
+						"display": {
+							"font": "display",
+							"sizeRem": {
+								"mobile": 2.625,
+								"desktop": 5.5
+							},
+							"weight": 400,
+							"lineHeight": 0.96,
+							"trackingEm": -0.035,
+							"usage": "Human outcomes, major page statements, and one leading product promise."
+						},
+						"section": {
+							"font": "display",
+							"sizeRem": {
+								"mobile": 1.75,
+								"desktop": 3.25
+							},
+							"weight": 400,
+							"lineHeight": 1.02,
+							"trackingEm": -0.02,
+							"usage": "Section statements, panel titles, and important grouped evidence."
+						},
+						"body": {
+							"font": "body",
+							"sizeRem": {
+								"mobile": 0.9375,
+								"desktop": 1.125
+							},
+							"weight": 400,
+							"lineHeight": 1.6,
+							"trackingEm": 0,
+							"usage": "Explanation, navigation, forms, settings, and sustained product reading."
+						},
+						"label": {
+							"font": "accent",
+							"sizeRem": {
+								"mobile": 0.6875,
+								"desktop": 0.8125
+							},
+							"weight": 500,
+							"lineHeight": 1.4,
+							"trackingEm": 0.1,
+							"usage": "Window captions, status, dates, units, identifiers, and compact context."
+						},
+						"metric": {
+							"font": "body",
+							"sizeRem": {
+								"mobile": 1.75,
+								"desktop": 2.75
+							},
+							"weight": 600,
+							"lineHeight": 1,
+							"trackingEm": -0.025,
+							"usage": "Measured values with explicit units, freshness, and explanatory labels."
+						},
+						"code": {
+							"font": "accent",
+							"sizeRem": {
+								"mobile": 0.75,
+								"desktop": 0.875
+							},
+							"weight": 400,
+							"lineHeight": 1.5,
+							"trackingEm": 0,
+							"usage": "Commands, machine values, identifiers, durations, and source text."
+						}
+					},
+					"spacingScale": {
+						"1": {
+							"valueRem": 0.25,
+							"usage": "Caption details, icons, and very tight relationships."
+						},
+						"2": {
+							"valueRem": 0.5,
+							"usage": "Inline labels, metadata, and compact control groups."
+						},
+						"3": {
+							"valueRem": 0.75,
+							"usage": "Control internals and paired values."
+						},
+						"4": {
+							"valueRem": 1,
+							"usage": "Default field rhythm and related actions."
+						},
+						"6": {
+							"valueRem": 1.5,
+							"usage": "Cards, panels, and form groups."
+						},
+						"8": {
+							"valueRem": 2,
+							"usage": "Framed field padding and distinct task groups."
+						},
+						"12": {
+							"valueRem": 3,
+							"usage": "Section groups and compact surface transitions."
+						},
+						"16": {
+							"valueRem": 4,
+							"usage": "Major product sections and generous working separation."
+						},
+						"24": {
+							"valueRem": 6,
+							"usage": "High impact introductions and major outcome transitions."
+						},
+						"32": {
+							"valueRem": 8,
+							"usage": "Opening fields and intentionally spacious story transitions."
+						}
+					},
+					"layout": {
+						"maxWidthRem": 92,
+						"contentWidthCh": 68,
+						"columns": {
+							"mobile": 1,
+							"tablet": 6,
+							"desktop": 12
+						},
+						"gutterRem": {
+							"mobile": 1,
+							"tablet": 1.5,
+							"desktop": 2
+						},
+						"guidance": "Frame one human outcome with specific evidence and a ranked action while leaving enough warm open space for the hierarchy to breathe."
+					},
+					"responsive": {
+						"mobile": {
+							"minWidthPx": 320,
+							"guidance": "Stack outcome, proof, and action in source order with a labelled compact navigation trigger."
+						},
+						"tablet": {
+							"minWidthPx": 768,
+							"guidance": "Collapse secondary navigation and place the evidence pane below the focal statement when needed."
+						},
+						"desktop": {
+							"minWidthPx": 1120,
+							"guidance": "Use the twelve column field for one asymmetrical focal statement, specific proof, and a clear next action."
+						},
+						"zoom": {
+							"scalePercent": 200,
+							"guidance": "Let navigation, captions, metrics, tables, and actions wrap or reflow without clipping."
+						},
+						"reflow": {
+							"widthPx": 320,
+							"guidance": "Preserve complete source ordered fields and use labelled overflow only for irreducible data comparison."
+						}
+					},
+					"geometry": {
+						"radii": {
+							"compact": {
+								"valueRem": 0.125,
+								"usage": "Data cells, tags, and compact indicators."
+							},
+							"control": {
+								"valueRem": 0.25,
+								"usage": "Buttons, fields, menus, and ordinary interactions."
+							},
+							"panel": {
+								"valueRem": 0.5,
+								"usage": "Cards, dialogs, and bounded working surfaces."
+							},
+							"media": {
+								"valueRem": 1,
+								"usage": "Large supplied images and atmospheric media frames."
+							}
+						},
+						"borders": {
+							"frame": {
+								"widthPx": 1,
+								"style": "solid",
+								"usage": "Radiant windows, tables, and structural fields."
+							},
+							"control": {
+								"widthPx": 1,
+								"style": "solid",
+								"usage": "Buttons, fields, menus, cards, and ordinary interactive boundaries."
+							},
+							"focus": {
+								"widthPx": 2,
+								"style": "solid",
+								"usage": "Focus, active selection, and consequential separation."
+							}
+						},
+						"elevation": {
+							"flat": {
+								"offsetYRem": 0,
+								"blurRem": 0,
+								"spreadRem": 0,
+								"opacity": 0,
+								"usage": "Default fields and working surfaces."
+							},
+							"raised": {
+								"offsetYRem": 0.125,
+								"blurRem": 0.75,
+								"spreadRem": -0.25,
+								"opacity": 0.1,
+								"usage": "Temporary menus and movable content."
+							},
+							"overlay": {
+								"offsetYRem": 0.5,
+								"blurRem": 1.5,
+								"spreadRem": -0.5,
+								"opacity": 0.18,
+								"usage": "Dialogs and temporary content above the framed field."
+							}
+						}
+					}
+				},
+				"controls": {
+					"buttons": {
+						"primaryLabel": "See your plan",
+						"secondaryLabel": "Review the details",
+						"guidance": "Use one filled burnt orange action per focal field and keep secondary actions defined, direct, and stable.",
+						"states": {
+							"default": "Use the burnt orange primary with a result focused label.",
+							"hover": "Deepen the primary without changing size or position.",
+							"focus": "Show the semantic focus ring outside the control boundary.",
+							"active": "Compress by at most one pixel without shifting nearby content.",
+							"disabled": "Keep the action readable and expose the unmet prerequisite.",
+							"loading": "Retain the action label beside a visible progress indicator.",
+							"success": "Name the completed outcome with text and the success role.",
+							"error": "Name the failed operation and its recovery with destructive semantics."
+						}
+					},
+					"links": {
+						"primaryLabel": "Open service details",
+						"secondaryLabel": "View usage history",
+						"guidance": "Use specific destinations, persistent prose underlines, and an explicit current navigation state.",
+						"states": {
+							"default": "Underline prose destinations and use the accessible primary role.",
+							"hover": "Strengthen the underline without changing line height.",
+							"focus": "Frame the link with the same semantic focus ring as controls.",
+							"active": "Preserve the destination while showing immediate activation.",
+							"disabled": "Render unavailable destinations as explained text rather than links.",
+							"loading": "Keep the destination label and add adjacent busy status.",
+							"success": "Confirm the local navigation result in nearby text.",
+							"error": "Explain the local failure and recovery without relying on color."
+						}
+					},
+					"forms": {
+						"legend": "Home energy profile",
+						"guidance": "Group fields by a human decision, keep help persistent, and place validation in the same reading path.",
+						"submitLabel": "Review my plan",
+						"help": "Use the current household estimate supplied by the product.",
+						"error": "Enter a complete value before reviewing the plan.",
+						"success": "The profile is complete and ready for review."
+					},
+					"inputs": {
+						"textLabel": "Service address",
+						"textPlaceholder": "Enter an address",
+						"textareaLabel": "Home notes",
+						"textareaPlaceholder": "Add details that affect the plan",
+						"disabledLabel": "Available after verification",
+						"guidance": "Keep warm card fields visibly labelled, preserve help, and attach correction text without moving adjacent content."
+					},
+					"cards": {
+						"title": "A clearer energy plan",
+						"description": "One bounded field pairs a useful outcome with the evidence needed to understand it.",
+						"metadata": "Updated today · estimate",
+						"actionLabel": "Review details",
+						"guidance": "Use a card for one story, proof set, or task, and keep its caption attached to the content it qualifies."
+					},
+					"panels": {
+						"title": "What shapes this plan",
+						"description": "The evidence pane explains the supplied inputs behind the current result.",
+						"items": [
+							"Household profile",
+							"Current usage",
+							"Available service"
+						],
+						"guidance": "Pair one focal pane with one evidence pane and remove divisions that do not clarify the relationship."
+					},
+					"navigation": {
+						"label": "Lumenfield product navigation",
+						"items": [
+							{
+								"id": "overview",
+								"label": "Overview"
+							},
+							{
+								"id": "plan",
+								"label": "My plan"
+							},
+							{
+								"id": "usage",
+								"label": "Usage"
+							},
+							{
+								"id": "service",
+								"label": "Service"
+							}
+						],
+						"guidance": "Show the current destination with text and a warm rule, then replace the full list with a labelled mobile trigger when space is limited."
+					}
+				},
+				"interactions": {
+					"dataDisplay": {
+						"tableCaption": "Home service schedule",
+						"columns": [
+							{
+								"id": "service",
+								"label": "Service"
+							},
+							{
+								"id": "status",
+								"label": "Status"
+							},
+							{
+								"id": "date",
+								"label": "Date"
+							}
+						],
+						"rows": [
+							{
+								"id": "inspection",
+								"label": "Home inspection",
+								"cells": ["Confirmed", "Aug 22"]
+							},
+							{
+								"id": "installation",
+								"label": "System installation",
+								"cells": ["Scheduled", "Sep 04"]
+							},
+							{
+								"id": "activation",
+								"label": "Service activation",
+								"cells": ["Upcoming", "Pending"]
+							}
+						],
+						"listLabel": "Plan details",
+						"listItems": [
+							{
+								"title": "Profile complete",
+								"description": "Household details are ready.",
+								"status": "Complete"
+							},
+							{
+								"title": "Plan reviewed",
+								"description": "The current estimate needs review.",
+								"status": "Current"
+							},
+							{
+								"title": "Service scheduled",
+								"description": "Choose an available appointment.",
+								"status": "Upcoming"
+							}
+						],
+						"guidance": "Keep the object, status, date, and action aligned with explicit captions, semantic row headings, and tabular values.",
+						"overflowGuidance": "Reflow into labelled records first, or use a keyboard reachable scroll region that keeps row identity visible."
+					},
+					"feedback": {
+						"badges": [
+							{
+								"label": "Current",
+								"meaning": "The step or view in progress",
+								"tone": "info"
+							},
+							{
+								"label": "Complete",
+								"meaning": "A verified outcome",
+								"tone": "success"
+							},
+							{
+								"label": "Needs review",
+								"meaning": "Attention is required before continuing",
+								"tone": "warning"
+							},
+							{
+								"label": "Unavailable",
+								"meaning": "A requirement or operation failed",
+								"tone": "destructive"
+							}
+						],
+						"alerts": [
+							{
+								"title": "Plan ready to review",
+								"description": "The estimate and supplied assumptions are available.",
+								"tone": "success"
+							},
+							{
+								"title": "Usage needs attention",
+								"description": "Review the missing period before continuing.",
+								"tone": "warning"
+							}
+						],
+						"states": {
+							"loading": "Refreshing service states without hiding the last verified state.",
+							"empty": "No services are connected to this operations view yet.",
+							"filteredEmpty": "No services match the active state and owner filters.",
+							"error": "Activity history could not refresh. The last verified state remains available.",
+							"success": "The response route is verified and active.",
+							"disabled": "Escalation remains unavailable until an active response team is assigned.",
+							"destructive": "Removing this service also removes its unresolved local activity history."
+						},
+						"guidance": "Attach feedback to the affected outcome, preserve useful information during refresh, and keep the next valid action visible.",
+						"nonColorGuidance": "Pair every tone with a written state, meaningful icon, or structural relationship so color is never the only cue."
+					},
+					"dialogs": {
+						"title": "Confirm service date",
+						"description": "Review the supplied appointment details before confirming.",
+						"openLabel": "Open service date dialog",
+						"initialFocusLabel": "Available dates",
+						"confirmLabel": "Confirm date",
+						"closeLabel": "Keep current date",
+						"guidance": "Name the purpose, keep the consequence visible, trap focus only while modal, and preserve safe cancellation.",
+						"escapeBehavior": "Escape closes without saving and leaves the current date unchanged.",
+						"focusRestoration": "Return focus to the button that opened the date dialog."
+					},
+					"destructiveActions": {
+						"objectLabel": "Home energy profile",
+						"consequence": "The saved profile and its current plan will be removed.",
+						"recoverability": "Removal cannot be undone unless the product explicitly provides recovery.",
+						"openLabel": "Remove profile",
+						"confirmLabel": "Remove home energy profile",
+						"cancelLabel": "Keep profile",
+						"guidance": "Repeat the named object, scope, consequence, and true recovery status before enabling confirmation."
+					}
+				},
+				"motion": {
+					"durationMs": {
+						"feedback": 100,
+						"transition": 180,
+						"spatial": 260
+					},
+					"easing": {
+						"enter": "ease-out",
+						"exit": "ease-in",
+						"move": "ease-in-out"
+					},
+					"movement": {
+						"distanceRem": 0.5,
+						"scaleFrom": 0.985
+					},
+					"guidance": "Reveal focal and evidence panes only after navigation or direct action, keep controls stable, and avoid ambient motion.",
+					"autoplay": false
+				},
+				"reducedMotion": {
+					"removeNonessential": true,
+					"stateChanges": "instant",
+					"guidance": "Remove translation, scaling, smooth scrolling, and sequential pane reveals while preserving labels, focus, and the same information."
+				},
+				"accessibility": {
+					"standard": "WCAG 2.2 Level AA",
+					"semantics": "Use native landmarks, headings, lists, controls, forms, dialogs, tables, and status regions before ARIA.",
+					"keyboard": "Keep navigation, menus, forms, selection, sorting, overflow, row actions, and dialogs operable in logical source order.",
+					"focus": "Use a persistent two pixel semantic ring with adequate offset on every interactive element.",
+					"contrast": "Measure text, controls, boundaries, status, meaningful graphics, and focus in light and dark schemes.",
+					"targetSize": "Provide at least 24 by 24 CSS pixels with adequate spacing and prefer 44 by 44 for important touch actions.",
+					"zoom": "Support 200 percent page zoom and 400 percent browser zoom without loss of content or operation.",
+					"reflow": "Reflow at 320 CSS pixels without two dimensional page scrolling, clipping, or hidden priority information.",
+					"forcedColors": "Preserve control boundaries, current state, status, and focus with system colors and explicit text.",
+					"statusCommunication": "Name every state in text and announce asynchronous outcomes deliberately without stealing focus."
+				},
+				"productSurfaces": {
+					"guidance": "These specimens demonstrate Lumenfield structure only. Replace illustrative words with supplied Project language and preserve every real workflow rule.",
+					"examples": {
+						"marketing": {
+							"title": "Outcome, proof, and action field",
+							"description": "One human promise opens into specific evidence and a ranked next step.",
+							"elements": [
+								"One concise editorial statement",
+								"Framed proof with one decisive action"
+							]
+						},
+						"authentication": {
+							"title": "Warm focused access",
+							"description": "A narrow task panel keeps identity, recovery, trust context, and pending feedback visible.",
+							"elements": [
+								"Persistent labels and recovery",
+								"Stable pending, invalid, and error context"
+							]
+						},
+						"onboarding": {
+							"title": "Guided home profile",
+							"description": "A short sequence pairs the current decision with concise progress and supporting context.",
+							"elements": [
+								"Explicit progress caption",
+								"Safe backtracking and saved state"
+							]
+						},
+						"dashboard": {
+							"title": "Clear household overview",
+							"description": "Current outcome, useful measurements, pending service, and one next action lead the workspace.",
+							"elements": [
+								"One focal outcome",
+								"Aligned evidence, freshness, and action"
+							]
+						},
+						"table": {
+							"title": "Service schedule comparison",
+							"description": "Service, status, date, and action remain aligned and legible.",
+							"elements": [
+								"Caption, semantic headings, and row labels",
+								"Explicit narrow screen overflow or reflow"
+							]
+						},
+						"form": {
+							"title": "Decision grouped profile",
+							"description": "Fields, help, validation, save state, and consequences stay attached to one human decision.",
+							"elements": [
+								"Persistent labels and correction guidance",
+								"Dirty, saving, saved, conflict, and failed feedback"
+							]
+						},
+						"settings": {
+							"title": "Clearly scoped preferences",
+							"description": "Personal, household, and organization settings name their reach before action.",
+							"elements": [
+								"Named scope, owner, and current value",
+								"Separate consequence field for destructive settings"
+							]
+						},
+						"states": {
+							"title": "Stable humane feedback",
+							"description": "Loading, empty, error, success, disabled, and destructive states preserve useful context.",
+							"elements": [
+								"Affected object and explicit state",
+								"Recovery or next valid action"
+							]
+						}
+					}
+				},
+				"evidencePresentation": {
+					"preview": "The Design System Preview is a public visual and descriptive specimen of the evaluated direction.",
+					"designContract": "The complete Design Contract is the public raw Markdown installed into a Project.",
+					"evaluation": "Evaluation metadata and raw evidence paths remain public so coverage can be inspected.",
+					"rawEvidencePublic": true
+				},
+				"theme": {
+					"tokens": {
+						"light": {
+							"background": "#fff8ec",
+							"foreground": "#1b1611",
+							"card": "#ffffff",
+							"muted": "#f2e5d2",
+							"mutedForeground": "#685a4d",
+							"border": "#9d8976",
+							"primary": "#b84200",
+							"primaryForeground": "#ffffff",
+							"destructive": "#a72f3f",
+							"success": "#26643f",
+							"warning": "#765400",
+							"info": "#175d7a",
+							"ring": "#b84200"
+						},
+						"dark": {
+							"background": "#17110c",
+							"foreground": "#fff4e5",
+							"card": "#221811",
+							"muted": "#302218",
+							"mutedForeground": "#d8c2ad",
+							"border": "#8a6e59",
+							"primary": "#ff9a5c",
+							"primaryForeground": "#2a1206",
+							"destructive": "#ff9aa2",
+							"success": "#88d7aa",
+							"warning": "#f6c86f",
+							"info": "#8ecdf8",
+							"ring": "#ff9a5c"
+						}
+					},
+					"schemeOrder": ["light", "dark"],
+					"geometry": {
+						"density": "balanced",
+						"radius": "soft",
+						"border": "defined",
+						"elevation": "flat"
+					}
+				}
+			},
+			"compatibility": {
+				"frameworks": ["react", "nextjs"],
+				"react": ">=18 <20",
+				"nextjs": ">=15 <17",
+				"tailwind": ">=4 <5",
+				"ui": "shadcn/ui"
+			},
+			"evaluation": {
+				"status": "passed",
+				"standard": "WCAG 2.2 Level AA",
+				"screens": [
+					"marketing",
+					"authentication",
+					"onboarding",
+					"dashboard",
+					"table",
+					"form",
+					"settings",
+					"states"
+				],
+				"viewports": ["1440x900", "390x844"],
+				"colorSchemes": ["light", "dark"],
+				"reducedMotion": true,
+				"automatedChecks": [
+					"structure",
+					"accessibility",
+					"responsive overflow",
+					"color contrast"
+				],
+				"evidence": ["evaluation/report.json"],
+				"agentGenerationRuns": 1
+			},
+			"releases": [
+				{
+					"version": "1.0",
+					"publishedAt": "2026-08-16",
+					"changelog": {
+						"summary": "Initial Lumenfield Design System Release.",
+						"breaking": false,
+						"migrationNotes": null
+					}
+				}
+			]
+		},
+		{
 			"id": "playform",
 			"name": "Playform",
 			"currentRelease": "1.0",

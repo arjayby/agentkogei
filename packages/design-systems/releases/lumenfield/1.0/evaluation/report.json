@@ -1,0 +1,60 @@
+{
+	"schemaVersion": "2.0",
+	"status": "passed",
+	"designSystem": "Lumenfield",
+	"designReference": {
+		"kind": "url",
+		"locator": "https://godaylight.com/brand",
+		"inspectedPages": [
+			{
+				"path": "/brand",
+				"scope": "Desktop regions inspected incrementally from the opening navigation and hero through identity, palette, typography, voice, photography, motion, components, design tokens, and the final footer",
+				"reachedBottom": true
+			}
+		],
+		"additionalPages": {
+			"inspected": 0,
+			"limitation": "The supplied brand reference is a single comprehensive page whose complete sections already cover visual foundations, content direction, motion, interface components, tokens, and contextual examples."
+		},
+		"generalizedTraits": [
+			"Warm cream fields and energetic orange accents balanced by dark grounded text",
+			"High contrast editorial display type paired with neutral neo grotesk interface text and precise mono captions",
+			"Generous framed compositions that align statements, evidence, media, and action",
+			"Restrained radii, thin rules, low elevation, and selective spectral supporting color",
+			"Natural imagery and purposeful motion used to make technical subjects feel human"
+		],
+		"transformation": "Transforms generalized warmth, editorial hierarchy, precise captions, framed composition, natural imagery, restrained geometry, and purposeful motion into the original Lumenfield identity, burnt orange palette, radiant window signature, semantic product guidance, distinct mark, and complete interface specimens.",
+		"excludedElements": [
+			"copied assets",
+			"product identity",
+			"distinctive compositions",
+			"recognizable product replication",
+			"imitation of living designers"
+		]
+	},
+	"screens": [
+		"marketing",
+		"authentication",
+		"onboarding",
+		"dashboard",
+		"table",
+		"form",
+		"settings",
+		"states"
+	],
+	"coverage": {
+		"viewports": ["1440x900", "390x844"],
+		"colorSchemes": ["light", "dark"],
+		"reducedMotion": true
+	},
+	"automatedChecks": {
+		"structure": "passed",
+		"accessibility": "passed",
+		"responsiveOverflow": "passed",
+		"colorContrast": "passed"
+	},
+	"originalityReview": {
+		"status": "passed",
+		"notes": "Lumenfield uses original prose, semantic tokens, radiant window rules, framed field composition, interaction guidance, product specimens, and a unique four pane mark. It retains no copied assets, identity, claims, layouts, or recognizable product composition."
+	}
+}

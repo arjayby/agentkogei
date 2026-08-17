@@ -91,6 +91,7 @@ export const designSystemMarkRecipes = [
 	"relay-loop",
 	"specimen-frame",
 	"pulse-sequence",
+	"lumen-window",
 	"form-orbit",
 ] as const;
 
@@ -601,6 +602,7 @@ export const designSystemPreviewSchema = z
 				display: previewFontSchema,
 				body: previewFontSchema,
 				accent: previewFontSchema,
+				control: previewFontSchema.optional(),
 			})
 			.strict(),
 		composition: z.enum([
