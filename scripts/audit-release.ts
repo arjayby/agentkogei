@@ -64,8 +64,7 @@ const historicalAdrPath = /^docs\/adr\//;
 
 const publicSourcePath =
 	/^(?:apps\/web\/src|packages\/design-systems\/src)\/.*\.[cm]?[jt]sx?$/;
-const staleProductionDomain =
-	/\b(?:agentkogei\.com|agentkogei\.vercel\.app)\b/gi;
+const staleProductionDomain = /\b(?:agentkogei\.co[m]|agentkogei\.de[v])\b/gi;
 const publicCollectionTerm = /\bcatalog\b/gi;
 const publicSourceCollectionTerm = /\bcatalog\b/i;
 const internalCatalogCode =
@@ -204,12 +203,12 @@ const addDesignContractSource = await readFile(
 	"utf8",
 );
 if (
-	!/AGENTKOGEI_CONTRACT_CATALOG_URL[\s\S]{0,200}\?\?\s*"https:\/\/agentkogei\.dev\/contracts\/"/.test(
+	!/AGENTKOGEI_CONTRACT_CATALOG_URL[\s\S]{0,200}\?\?\s*"https:\/\/agentkogei\.vercel\.app\/contracts\/"/.test(
 		addDesignContractSource,
 	)
 ) {
 	failures.push(
-		"packages/design-systems/src/add-design-contract.ts: production retrieval default must be https://agentkogei.dev/contracts/",
+		"packages/design-systems/src/add-design-contract.ts: production retrieval default must be https://agentkogei.vercel.app/contracts/",
 	);
 }
 
@@ -249,9 +248,9 @@ if (
 		"packages/design-systems/package.json: description must state the canonical category",
 	);
 }
-if (packageMetadata.homepage !== "https://agentkogei.dev") {
+if (packageMetadata.homepage !== "https://agentkogei.vercel.app") {
 	failures.push(
-		"packages/design-systems/package.json: homepage must be https://agentkogei.dev",
+		"packages/design-systems/package.json: homepage must be https://agentkogei.vercel.app",
 	);
 }
 if (

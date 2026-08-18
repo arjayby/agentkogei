@@ -11,13 +11,13 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-10b981?style=classic)](LICENSE)
 ![Design Contract](https://img.shields.io/badge/Design%20Contract-DESIGN.md-10b981?style=classic)
 [![Last Update](https://img.shields.io/github/last-commit/arjayby/agentkogei?label=Last%20update&style=classic)](https://github.com/arjayby/agentkogei)
-[![Live App](https://img.shields.io/badge/live-agentkogei.dev-10b981?style=classic)](https://agentkogei.dev)
+[![Live App](https://img.shields.io/badge/live-agentkogei.vercel.app-10b981?style=classic)](https://agentkogei.vercel.app)
 
 </div>
 
 AgentKogei publishes complete Design Systems for AI coding agents. Choose a direction from the public Design Systems collection, install its Design Contract in your Project, and give every agent the same visual and behavioral guidance.
 
-[Browse the live Design Systems](https://agentkogei.dev/design-systems)
+[Browse the live Design Systems](https://agentkogei.vercel.app/design-systems)
 
 ## Design Systems
 

@@ -68,9 +68,10 @@ describe("AgentKogei release audit", () => {
 	});
 
 	test("stale production identity and public Catalog language fail the audit", async () => {
+		const staleProductionUrl = ["https://agentkogei", "dev"].join(".");
 		await writeFile(
 			regressionFile,
-			"export function Regression() { return <p>Browse the public Catalog at https://agentkogei.vercel.app or contact team@agentkogei.com.</p>; }\n",
+			`export function Regression() { return <p>Browse the public Catalog at ${staleProductionUrl}.</p>; }\n`,
 		);
 		try {
 			const { exitCode, stderr } = await runReleaseAudit();

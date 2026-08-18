@@ -11,7 +11,7 @@
 		"shadcn",
 		"tailwind-css"
 	],
-	"homepage": "https://agentkogei.dev",
+	"homepage": "https://agentkogei.vercel.app",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/arjayby/agentkogei.git",

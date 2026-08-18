@@ -807,7 +807,7 @@ test("every canonical page has a specific available social preview", async ({
 		const html = await response.text();
 		const title = html.match(/<title>([^<]+)<\/title>/)?.[1];
 		const description = readMetaContent(html, "name", "description");
-		const canonicalUrl = `https://agentkogei.dev${route === "/" ? "" : route}`;
+		const canonicalUrl = `https://agentkogei.vercel.app${route === "/" ? "" : route}`;
 		const imageUrl = readMetaContent(html, "property", "og:image");
 
 		expect(title, route).toBeTruthy();
@@ -845,7 +845,9 @@ test("every canonical page has a specific available social preview", async ({
 		expect(readMetaContent(html, "name", "twitter:image:alt"), route).toBe(
 			`${title} social preview`,
 		);
-		expect(imageUrl, route).toMatch(/^https:\/\/agentkogei\.dev\/social\//);
+		expect(imageUrl, route).toMatch(
+			/^https:\/\/agentkogei\.vercel\.app\/social\//,
+		);
 		socialImageUrls.add(imageUrl ?? "");
 
 		const imageResponse = await request.get(
@@ -871,7 +873,7 @@ test("every canonical page has a specific available social preview", async ({
 		/^Aperture Design System:/,
 	);
 	const apertureImageUrl =
-		"https://agentkogei.dev/social/design-systems/aperture/1.0";
+		"https://agentkogei.vercel.app/social/design-systems/aperture/1.0";
 	expect(readMetaContent(apertureHtml, "property", "og:image")).toBe(
 		apertureImageUrl,
 	);
@@ -894,8 +896,8 @@ test("the public crawler policy permits every public resource", async ({
 			"User-Agent: *",
 			"Allow: /",
 			"",
-			"Host: https://agentkogei.dev",
-			"Sitemap: https://agentkogei.dev/sitemap.xml",
+			"Host: https://agentkogei.vercel.app",
+			"Sitemap: https://agentkogei.vercel.app/sitemap.xml",
 			"",
 		].join("\n"),
 	);
@@ -910,12 +912,12 @@ test("machine discovery resources are canonical, complete, and actionable", asyn
 	expect(llmsResponse.headers()["content-type"]).toContain("text/plain");
 	const llms = await llmsResponse.text();
 	for (const canonicalUrl of [
-		"https://agentkogei.dev/",
-		"https://agentkogei.dev/design-systems",
-		"https://agentkogei.dev/guides",
-		"https://agentkogei.dev/methodology",
-		"https://agentkogei.dev/design-systems.json",
-		"https://agentkogei.dev/llms-full.txt",
+		"https://agentkogei.vercel.app/",
+		"https://agentkogei.vercel.app/design-systems",
+		"https://agentkogei.vercel.app/guides",
+		"https://agentkogei.vercel.app/methodology",
+		"https://agentkogei.vercel.app/design-systems.json",
+		"https://agentkogei.vercel.app/llms-full.txt",
 	]) {
 		expect(llms).toContain(canonicalUrl);
 	}
@@ -936,13 +938,13 @@ test("machine discovery resources are canonical, complete, and actionable", asyn
 		"Tailwind CSS v4",
 		"shadcn/ui",
 		"npx agentkogei@latest add foundation",
-		"https://agentkogei.dev/guides/codex",
-		"https://agentkogei.dev/guides/claude-code",
+		"https://agentkogei.vercel.app/guides/codex",
+		"https://agentkogei.vercel.app/guides/claude-code",
 		"Design System Evaluation",
 		"WCAG 2.2 Level AA",
 		"MIT License",
 		"no Project identity",
-		"https://agentkogei.dev/design-systems.json",
+		"https://agentkogei.vercel.app/design-systems.json",
 	]) {
 		expect(fullReference).toContain(requiredReference);
 	}
@@ -976,7 +978,9 @@ test("machine discovery resources are canonical, complete, and actionable", asyn
 		}>;
 	};
 	expect(index.schemaVersion).toBe("1.0");
-	expect(index.canonicalUrl).toBe("https://agentkogei.dev/design-systems.json");
+	expect(index.canonicalUrl).toBe(
+		"https://agentkogei.vercel.app/design-systems.json",
+	);
 	expect(
 		index.designSystems.map(({ identity }) => `/design-systems/${identity}`),
 	).toEqual(routes);
@@ -1001,13 +1005,13 @@ test("machine discovery resources are canonical, complete, and actionable", asyn
 		expect(designSystem.intendedFit.length).toBeGreaterThan(0);
 		expect(designSystem.currentRelease).toMatch(/^\d+\.\d+$/);
 		expect(designSystem.previewUrl).toBe(
-			`https://agentkogei.dev/design-systems/${designSystem.identity}`,
+			`https://agentkogei.vercel.app/design-systems/${designSystem.identity}`,
 		);
 		expect(designSystem.currentContractUrl).toBe(
-			`https://agentkogei.dev/contracts/${designSystem.identity}`,
+			`https://agentkogei.vercel.app/contracts/${designSystem.identity}`,
 		);
 		expect(designSystem.exactContractUrl).toBe(
-			`https://agentkogei.dev/contracts/${designSystem.identity}/${designSystem.currentRelease}`,
+			`https://agentkogei.vercel.app/contracts/${designSystem.identity}/${designSystem.currentRelease}`,
 		);
 		expect(designSystem.compatibility.frameworks).toEqual(["react", "nextjs"]);
 		for (const value of [
@@ -1057,7 +1061,7 @@ test("the sitemap contains only canonical indexable HTML with meaningful modific
 			route,
 		);
 		previewEntries.push({
-			url: `https://agentkogei.dev${route}`,
+			url: `https://agentkogei.vercel.app${route}`,
 			lastModified: await releasePublishedAt(identity, currentRelease),
 		});
 	}
@@ -1079,35 +1083,35 @@ test("the sitemap contains only canonical indexable HTML with meaningful modific
 
 	expect(entries).toEqual([
 		{
-			url: "https://agentkogei.dev",
+			url: "https://agentkogei.vercel.app",
 			lastModified: catalogLastModified,
 		},
 		{
-			url: "https://agentkogei.dev/design-systems",
+			url: "https://agentkogei.vercel.app/design-systems",
 			lastModified: catalogLastModified,
 		},
 		{
-			url: "https://agentkogei.dev/guides",
+			url: "https://agentkogei.vercel.app/guides",
 			lastModified: "2026-08-13",
 		},
 		{
-			url: "https://agentkogei.dev/guides/codex",
+			url: "https://agentkogei.vercel.app/guides/codex",
 			lastModified: "2026-08-13",
 		},
 		{
-			url: "https://agentkogei.dev/guides/design-md",
+			url: "https://agentkogei.vercel.app/guides/design-md",
 			lastModified: "2026-08-13",
 		},
 		{
-			url: "https://agentkogei.dev/guides/consistent-ai-ui",
+			url: "https://agentkogei.vercel.app/guides/consistent-ai-ui",
 			lastModified: "2026-08-13",
 		},
 		{
-			url: "https://agentkogei.dev/guides/claude-code",
+			url: "https://agentkogei.vercel.app/guides/claude-code",
 			lastModified: "2026-08-13",
 		},
 		{
-			url: "https://agentkogei.dev/methodology",
+			url: "https://agentkogei.vercel.app/methodology",
 			lastModified: "2026-08-13",
 		},
 		...previewEntries,
@@ -1131,7 +1135,7 @@ test("the homepage is a canonical AgentKogei application published by AgentKogei
 		'<meta name="description" content="Complete design systems that stop generic design slop and keep every screen consistent."/>',
 	);
 	expect(html).toContain(
-		'<link rel="canonical" href="https://agentkogei.dev"/>',
+		'<link rel="canonical" href="https://agentkogei.vercel.app"/>',
 	);
 	expect(html).toMatch(/<meta name="robots" content="index, follow"\s*\/?>/);
 	expect(readStructuredData(html, "homepage")).toMatchObject({
@@ -1139,17 +1143,17 @@ test("the homepage is a canonical AgentKogei application published by AgentKogei
 		"@graph": [
 			{
 				"@type": "Organization",
-				"@id": "https://agentkogei.dev/#organization",
+				"@id": "https://agentkogei.vercel.app/#organization",
 				name: "AgentKogei",
-				url: "https://agentkogei.dev/",
+				url: "https://agentkogei.vercel.app/",
 			},
 			{
 				"@type": "SoftwareApplication",
-				"@id": "https://agentkogei.dev/#software-application",
+				"@id": "https://agentkogei.vercel.app/#software-application",
 				name: "AgentKogei",
-				url: "https://agentkogei.dev/",
+				url: "https://agentkogei.vercel.app/",
 				publisher: {
-					"@id": "https://agentkogei.dev/#organization",
+					"@id": "https://agentkogei.vercel.app/#organization",
 				},
 			},
 		],
@@ -1167,7 +1171,7 @@ test("methodology explains the current evidence backed publication and Installat
 		"<title>Design System Evaluation methodology | AgentKogei</title>",
 	);
 	expect(html).toContain(
-		'<link rel="canonical" href="https://agentkogei.dev/methodology"/>',
+		'<link rel="canonical" href="https://agentkogei.vercel.app/methodology"/>',
 	);
 	expect(html).toMatch(/<meta name="robots" content="index, follow"\s*\/?>/);
 	expect(html).toContain("Design System Evaluation methodology");
@@ -1212,16 +1216,16 @@ test("methodology explains the current evidence backed publication and Installat
 	expect(readStructuredData(html, "methodology")).toMatchObject({
 		"@context": "https://schema.org",
 		"@type": "TechArticle",
-		"@id": "https://agentkogei.dev/methodology#article",
+		"@id": "https://agentkogei.vercel.app/methodology#article",
 		name: "Design System Evaluation methodology",
-		url: "https://agentkogei.dev/methodology",
+		url: "https://agentkogei.vercel.app/methodology",
 		author: {
 			"@type": "Organization",
-			"@id": "https://agentkogei.dev/#organization",
+			"@id": "https://agentkogei.vercel.app/#organization",
 			name: "AgentKogei",
 		},
 		publisher: {
-			"@id": "https://agentkogei.dev/#organization",
+			"@id": "https://agentkogei.vercel.app/#organization",
 		},
 	});
 });
@@ -1273,18 +1277,18 @@ test("the canonical sitemap includes methodology and every Published Design Syst
 	const locations = entries.map(({ location }) => location);
 
 	expect(locations).toEqual([
-		"https://agentkogei.dev",
-		"https://agentkogei.dev/design-systems",
-		"https://agentkogei.dev/guides",
-		"https://agentkogei.dev/guides/codex",
-		"https://agentkogei.dev/guides/design-md",
-		"https://agentkogei.dev/guides/consistent-ai-ui",
-		"https://agentkogei.dev/guides/claude-code",
-		"https://agentkogei.dev/methodology",
-		...routes.map((route) => `https://agentkogei.dev${route}`),
+		"https://agentkogei.vercel.app",
+		"https://agentkogei.vercel.app/design-systems",
+		"https://agentkogei.vercel.app/guides",
+		"https://agentkogei.vercel.app/guides/codex",
+		"https://agentkogei.vercel.app/guides/design-md",
+		"https://agentkogei.vercel.app/guides/consistent-ai-ui",
+		"https://agentkogei.vercel.app/guides/claude-code",
+		"https://agentkogei.vercel.app/methodology",
+		...routes.map((route) => `https://agentkogei.vercel.app${route}`),
 	]);
 	expect(sitemap).toMatch(
-		/<loc>https:\/\/agentkogei\.dev\/methodology<\/loc>\s*<lastmod>2026-08-13<\/lastmod>/,
+		/<loc>https:\/\/agentkogei\.vercel\.app\/methodology<\/loc>\s*<lastmod>2026-08-13<\/lastmod>/,
 	);
 
 	for (const route of routes) {
@@ -1298,7 +1302,7 @@ test("the canonical sitemap includes methodology and every Published Design Syst
 		) as { dateModified?: string };
 		expect(
 			entries.find(
-				({ location }) => location === `https://agentkogei.dev${route}`,
+				({ location }) => location === `https://agentkogei.vercel.app${route}`,
 			)?.lastModified,
 			route,
 		).toBe(structuredData.dateModified);
@@ -1322,22 +1326,23 @@ test("Design Systems is a canonical ItemList of every discovered Published Desig
 		'<meta name="description" content="Browse Published Design Systems from AgentKogei and choose a direction for your Project."/>',
 	);
 	expect(html).toContain(
-		'<link rel="canonical" href="https://agentkogei.dev/design-systems"/>',
+		'<link rel="canonical" href="https://agentkogei.vercel.app/design-systems"/>',
 	);
 	expect(html).toMatch(/<meta name="robots" content="index, follow"\s*\/?>/);
 	expect(readStructuredData(html, "design-systems")).toMatchObject({
 		"@context": "https://schema.org",
 		"@type": "ItemList",
-		"@id": "https://agentkogei.dev/design-systems#published-design-systems",
+		"@id":
+			"https://agentkogei.vercel.app/design-systems#published-design-systems",
 		name: "AgentKogei Design Systems",
-		url: "https://agentkogei.dev/design-systems",
+		url: "https://agentkogei.vercel.app/design-systems",
 		itemListElement: routes.map((route, index) => ({
 			"@type": "ListItem",
 			position: index + 1,
 			item: {
 				"@type": "CreativeWork",
-				"@id": `https://agentkogei.dev${route}#design-system`,
-				url: `https://agentkogei.dev${route}`,
+				"@id": `https://agentkogei.vercel.app${route}#design-system`,
+				url: `https://agentkogei.vercel.app${route}`,
 			},
 		})),
 	});
@@ -1367,7 +1372,7 @@ test("every discovered Design System Preview is a canonical versioned CreativeWo
 		expect(title, route).toBe(`${name} Design System Preview | AgentKogei`);
 		expect(description, route).toMatch(new RegExp(`^${name} Design System:`));
 		expect(html, route).toContain(
-			`<link rel="canonical" href="https://agentkogei.dev${route}"/>`,
+			`<link rel="canonical" href="https://agentkogei.vercel.app${route}"/>`,
 		);
 		expect(html, route).toMatch(
 			/<meta name="robots" content="index, follow"\s*\/?>/,
@@ -1380,18 +1385,18 @@ test("every discovered Design System Preview is a canonical versioned CreativeWo
 		expect(structuredData, route).toMatchObject({
 			"@context": "https://schema.org",
 			"@type": "CreativeWork",
-			"@id": `https://agentkogei.dev${route}#design-system`,
+			"@id": `https://agentkogei.vercel.app${route}#design-system`,
 			name: `${name} Design System`,
-			url: `https://agentkogei.dev${route}`,
+			url: `https://agentkogei.vercel.app${route}`,
 			version: currentRelease,
 			datePublished: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
 			dateModified: expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/),
 			license: "https://opensource.org/license/mit",
 			author: {
 				"@type": "Organization",
-				"@id": "https://agentkogei.dev/#organization",
+				"@id": "https://agentkogei.vercel.app/#organization",
 				name: "AgentKogei",
-				url: "https://agentkogei.dev/",
+				url: "https://agentkogei.vercel.app/",
 			},
 			additionalProperty: [
 				{
@@ -1417,10 +1422,10 @@ test("every discovered Design System Preview is a canonical versioned CreativeWo
 			],
 			hasPart: {
 				"@type": "CreativeWork",
-				"@id": `https://agentkogei.dev${route}#release-${currentRelease}`,
+				"@id": `https://agentkogei.vercel.app${route}#release-${currentRelease}`,
 				name: `${name} Design System Release ${currentRelease}`,
 				version: currentRelease,
-				url: `https://agentkogei.dev/contracts/${identity}/${currentRelease}`,
+				url: `https://agentkogei.vercel.app/contracts/${identity}/${currentRelease}`,
 			},
 		});
 		expect(JSON.stringify(structuredData), route).not.toMatch(
@@ -1546,7 +1551,7 @@ test("the Claude Code guide is a canonical server rendered TechArticle", async (
 		"<title>Claude Code Design Contract workflow | AgentKogei</title>",
 	);
 	expect(guideHtml).toContain(
-		'<link rel="canonical" href="https://agentkogei.dev/guides/claude-code"/>',
+		'<link rel="canonical" href="https://agentkogei.vercel.app/guides/claude-code"/>',
 	);
 	for (const serverRenderedContent of [
 		"Connect Claude Code to your Design Contract.",
@@ -1563,23 +1568,23 @@ test("the Claude Code guide is a canonical server rendered TechArticle", async (
 	expect(readStructuredData(guideHtml, "guide-claude-code")).toMatchObject({
 		"@context": "https://schema.org",
 		"@type": "TechArticle",
-		"@id": "https://agentkogei.dev/guides/claude-code#article",
+		"@id": "https://agentkogei.vercel.app/guides/claude-code#article",
 		headline: "Claude Code Design Contract workflow",
-		url: "https://agentkogei.dev/guides/claude-code",
+		url: "https://agentkogei.vercel.app/guides/claude-code",
 		author: {
 			"@type": "Organization",
-			"@id": "https://agentkogei.dev/#organization",
+			"@id": "https://agentkogei.vercel.app/#organization",
 			name: "AgentKogei",
 		},
 		publisher: {
-			"@id": "https://agentkogei.dev/#organization",
+			"@id": "https://agentkogei.vercel.app/#organization",
 		},
 	});
 
 	const sitemapResponse = await request.get("/sitemap.xml");
 	expect(sitemapResponse.status()).toBe(200);
 	expect(await sitemapResponse.text()).toContain(
-		"<loc>https://agentkogei.dev/guides/claude-code</loc>",
+		"<loc>https://agentkogei.vercel.app/guides/claude-code</loc>",
 	);
 });
 
@@ -1665,7 +1670,7 @@ test("the Codex guide is a canonical server rendered TechArticle", async ({
 		"<title>Use a Design System with Codex | AgentKogei</title>",
 	);
 	expect(html).toContain(
-		'<link rel="canonical" href="https://agentkogei.dev/guides/codex"/>',
+		'<link rel="canonical" href="https://agentkogei.vercel.app/guides/codex"/>',
 	);
 	for (const serverRenderedContent of [
 		"Give Codex the same design direction in every task.",
@@ -1692,16 +1697,16 @@ test("the Codex guide is a canonical server rendered TechArticle", async ({
 	expect(readStructuredData(html, "guide-codex")).toMatchObject({
 		"@context": "https://schema.org",
 		"@type": "TechArticle",
-		"@id": "https://agentkogei.dev/guides/codex#article",
+		"@id": "https://agentkogei.vercel.app/guides/codex#article",
 		headline: "Use a Design System with Codex",
-		url: "https://agentkogei.dev/guides/codex",
+		url: "https://agentkogei.vercel.app/guides/codex",
 		author: {
 			"@type": "Organization",
-			"@id": "https://agentkogei.dev/#organization",
+			"@id": "https://agentkogei.vercel.app/#organization",
 			name: "AgentKogei",
 		},
 		publisher: {
-			"@id": "https://agentkogei.dev/#organization",
+			"@id": "https://agentkogei.vercel.app/#organization",
 		},
 	});
 
@@ -1709,7 +1714,7 @@ test("the Codex guide is a canonical server rendered TechArticle", async ({
 	expect(await guidesResponse.text()).toContain('href="/guides/codex"');
 	const sitemapResponse = await request.get("/sitemap.xml");
 	expect(await sitemapResponse.text()).toContain(
-		"<loc>https://agentkogei.dev/guides/codex</loc>",
+		"<loc>https://agentkogei.vercel.app/guides/codex</loc>",
 	);
 });
 
@@ -1819,7 +1824,7 @@ test("the consistent AI interface guide is a canonical server rendered TechArtic
 		"<title>How to keep AI generated interfaces consistent | AgentKogei</title>",
 	);
 	expect(html).toContain(
-		'<link rel="canonical" href="https://agentkogei.dev/guides/consistent-ai-ui"/>',
+		'<link rel="canonical" href="https://agentkogei.vercel.app/guides/consistent-ai-ui"/>',
 	);
 	for (const content of [
 		"Keep AI generated interfaces consistent.",
@@ -1849,16 +1854,16 @@ test("the consistent AI interface guide is a canonical server rendered TechArtic
 	expect(readStructuredData(html, "guide-consistent-ai-ui")).toMatchObject({
 		"@context": "https://schema.org",
 		"@type": "TechArticle",
-		"@id": "https://agentkogei.dev/guides/consistent-ai-ui#article",
+		"@id": "https://agentkogei.vercel.app/guides/consistent-ai-ui#article",
 		headline: "How to keep AI generated interfaces consistent",
-		url: "https://agentkogei.dev/guides/consistent-ai-ui",
+		url: "https://agentkogei.vercel.app/guides/consistent-ai-ui",
 		author: {
 			"@type": "Organization",
-			"@id": "https://agentkogei.dev/#organization",
+			"@id": "https://agentkogei.vercel.app/#organization",
 			name: "AgentKogei",
 		},
 		publisher: {
-			"@id": "https://agentkogei.dev/#organization",
+			"@id": "https://agentkogei.vercel.app/#organization",
 		},
 	});
 
@@ -1868,7 +1873,7 @@ test("the consistent AI interface guide is a canonical server rendered TechArtic
 	);
 	const sitemapResponse = await request.get("/sitemap.xml");
 	expect(await sitemapResponse.text()).toContain(
-		"<loc>https://agentkogei.dev/guides/consistent-ai-ui</loc>",
+		"<loc>https://agentkogei.vercel.app/guides/consistent-ai-ui</loc>",
 	);
 });
 
@@ -1882,7 +1887,7 @@ test("Guides and the Design Contract guide are canonical server rendered resourc
 		"<title>Guides for AI coding agents | AgentKogei</title>",
 	);
 	expect(guidesHtml).toContain(
-		'<link rel="canonical" href="https://agentkogei.dev/guides"/>',
+		'<link rel="canonical" href="https://agentkogei.vercel.app/guides"/>',
 	);
 	expect(guidesHtml).toContain('href="/guides/design-md"');
 
@@ -1893,7 +1898,7 @@ test("Guides and the Design Contract guide are canonical server rendered resourc
 		"<title>Design Contracts for AI coding agents | AgentKogei</title>",
 	);
 	expect(guideHtml).toContain(
-		'<link rel="canonical" href="https://agentkogei.dev/guides/design-md"/>',
+		'<link rel="canonical" href="https://agentkogei.vercel.app/guides/design-md"/>',
 	);
 	expect(guideHtml).toContain("Give every agent durable design direction.");
 	expect(guideHtml).toContain('href="/design-systems"');
@@ -1920,25 +1925,25 @@ test("Guides and the Design Contract guide are canonical server rendered resourc
 	expect(readStructuredData(guideHtml, "guide-design-contract")).toMatchObject({
 		"@context": "https://schema.org",
 		"@type": "TechArticle",
-		"@id": "https://agentkogei.dev/guides/design-md#article",
+		"@id": "https://agentkogei.vercel.app/guides/design-md#article",
 		headline: "Design Contracts for AI coding agents",
-		url: "https://agentkogei.dev/guides/design-md",
+		url: "https://agentkogei.vercel.app/guides/design-md",
 		author: {
 			"@type": "Organization",
-			"@id": "https://agentkogei.dev/#organization",
+			"@id": "https://agentkogei.vercel.app/#organization",
 			name: "AgentKogei",
 		},
 		publisher: {
-			"@id": "https://agentkogei.dev/#organization",
+			"@id": "https://agentkogei.vercel.app/#organization",
 		},
 	});
 
 	const sitemapResponse = await request.get("/sitemap.xml");
 	expect(sitemapResponse.status()).toBe(200);
 	const sitemap = await sitemapResponse.text();
-	expect(sitemap).toContain("<loc>https://agentkogei.dev/guides</loc>");
+	expect(sitemap).toContain("<loc>https://agentkogei.vercel.app/guides</loc>");
 	expect(sitemap).toContain(
-		"<loc>https://agentkogei.dev/guides/design-md</loc>",
+		"<loc>https://agentkogei.vercel.app/guides/design-md</loc>",
 	);
 });
 
