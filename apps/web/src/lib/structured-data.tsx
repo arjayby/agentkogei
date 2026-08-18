@@ -1,4 +1,4 @@
-export const publicOrigin = "https://agentkogei.dev";
+export const publicOrigin = "https://agentkogei.vercel.app";
 
 export const homepageDescription =
 	"Complete design systems that stop generic design slop and keep every screen consistent.";

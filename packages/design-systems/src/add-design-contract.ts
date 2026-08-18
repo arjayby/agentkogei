@@ -9,7 +9,7 @@ import { requestTerminalConsent } from "./terminal-consent";
 function designContractCatalogUrl() {
 	return (
 		process.env.AGENTKOGEI_CONTRACT_CATALOG_URL ??
-		"https://agentkogei.dev/contracts/"
+		"https://agentkogei.vercel.app/contracts/"
 	);
 }
 

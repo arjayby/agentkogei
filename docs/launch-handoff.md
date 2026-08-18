@@ -45,14 +45,14 @@ The archive contains one `agentkogei` executable, declares Node.js 20 or newer, 
 
 Every item below is pending until the owner performs it in the named external service and records evidence. None is performed by `launch:verify` or by issue 145.
 
-- [ ] In Vercel, assign `agentkogei.dev` as the production domain and confirm domain verification succeeds.
-- [ ] Redirect `www.agentkogei.dev` to `https://agentkogei.dev` while preserving the path and query string.
-- [ ] Redirect the Vercel production hostname to `https://agentkogei.dev` while preserving the path and query string.
+- [ ] In Vercel, assign `agentkogei.vercel.app` as the production domain and confirm domain verification succeeds.
+- [ ] Redirect `www.agentkogei.vercel.app` to `https://agentkogei.vercel.app` while preserving the path and query string.
+- [ ] Redirect the Vercel production hostname to `https://agentkogei.vercel.app` while preserving the path and query string.
 - [ ] Confirm the apex, `www`, and Vercel hostname behavior with direct HTTP requests after DNS and certificate propagation.
-- [ ] In Google Search Console, verify the `agentkogei.dev` domain property and submit `https://agentkogei.dev/sitemap.xml`.
-- [ ] In Bing Webmaster Tools, verify or import the `agentkogei.dev` site and submit `https://agentkogei.dev/sitemap.xml`.
+- [ ] In Google Search Console, verify the `agentkogei.vercel.app` domain property and submit `https://agentkogei.vercel.app/sitemap.xml`.
+- [ ] In Bing Webmaster Tools, verify or import the `agentkogei.vercel.app` site and submit `https://agentkogei.vercel.app/sitemap.xml`.
 - [ ] In Vercel, enable Web Analytics for the production Project and confirm only the approved page views and Installation journey events arrive.
-- [ ] On GitHub, set the repository website to `https://agentkogei.dev` and add the topics `design-systems`, `ai-coding-agents`, and `design-contract`.
+- [ ] On GitHub, set the repository website to `https://agentkogei.vercel.app` and add the topics `design-systems`, `ai-coding-agents`, and `design-contract`.
 
 Search Console and Webmaster Tools confirm access and sitemap receipt. They do not promise indexing position, ranking, traffic, citation, or post launch performance.
 
